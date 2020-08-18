@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/song_list_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appColor"
+    android:orientation="vertical"
+    tools:context=".SongsListFragment">
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/language"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerInParent="true"
+            android:text="EN"
+            android:textColor="#ffff" />
+
+        <Button
+            android:id="@+id/language_changer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@id/language"
+            android:layout_marginLeft="10dp"
+            android:onClick="changeLanguage"
+            android:background="@drawable/ic_language_button"/>
+
+        <Button
+            android:id="@+id/personal_library"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_toRightOf="@id/language_changer"
+            android:background="@drawable/folder"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/skinny_rec"
+            android:onClick="openLogInActivity"
+            android:padding="3dp"
+            android:text="@string/log_in_sign_up"
+            android:textColor="@color/sing_up_hover" />
+
+    </RelativeLayout>
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_input"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="36dp"
+        android:background="@drawable/ic_search_bar"
+        android:focusable="false"
+        android:inputType="textPersonName"
+        android:layoutDirection="ltr"
+        app:iconifiedByDefault="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintVertical_chainStyle="spread"
+        app:layout_constraintWidth_percent="0.81"
+        app:queryHint="@string/search"
+        app:searchIcon="@drawable/ic_search_bar_icon" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/song_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.08" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:name="com.damn.karaoke.phone.SongFragment"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginTop="15dp"
+        android:background="@android:color/white"
+        android:clipToPadding="false"
+        android:padding="@dimen/recycler_padding"
+        android:scrollbars="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_input"
+        tools:listitem="@layout/view_song_list_item">
+
+
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <TextureView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:id="@+id/camera_place"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

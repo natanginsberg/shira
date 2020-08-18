@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">SHIRA</string>
+    <string name="title_activity_login" translatable="false">LoginActivity</string>
+    <string name="prompt_user_name">User Name</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="prompt_password_again">Confirm Password</string>
+    <string name="action_sign_in">Sign In</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="sign_up"><u>Sign Up</u></string>
+    <string name="click_here"><u>Click Here</u></string>
+    <string name="non_member_question">Not a member yet?\n</string>
+    <string name="monthly_membership">Monthly Membership 30 ₪</string>
+    <string name="yearly_membership">Yearly Membership Only 170 ₪</string>
+    <string name="directions">Create a custom username and password</string>
+    <string name="footer">Payment will be charged on your Google Play account on confirmation \nYour subscription will be automatically renewed unless auto renew is turned off</string>
+    <string name="done">Done</string>
+    <string name="play">Play</string>
+    <string name="good_job">Good Job!</string>
+    <string name="sing_again">Sing Again</string>
+    <string name="playback">Playback</string>
+    <string name="share">Share</string>
+    <string name="promo">Jewish Karoke\nApp</string>
+    <string name="app_logo">SHIRA</string>
+    <string name="log_in_sign_up">Log In / Sign Up</string>
+    <string name="search">Search</string>
+    <string name="home">Home</string>
+
+    <string name="back_to_home_dialog">Are you sure you want to exit</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="title_activity_video_player">VideoPlayer</string>
+    <!--
+    This string is used for square devices and overridden by hello_world in
+    values-round/strings.xml for round devices.
+    -->
+    <string name="hello_world">Hello Square World!</string>
+
+</resources>

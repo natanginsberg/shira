@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "701925650903",
+    "firebase_url": "https://shira-8ed6f.firebaseio.com",
+    "project_id": "shira-8ed6f",
+    "storage_bucket": "shira-8ed6f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701925650903:android:f5c7cb9f031a119cf39b92",
+        "android_client_info": {
+          "package_name": "com.function.karaoke.hardware"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701925650903-0jpaq3fn1unjf1la9jvcu9jcau7ouem7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.function.karaoke.hardware",
+            "certificate_hash": "42d020b0cc52fbb7061ec0e7a021e0bb1fe4790b"
+          }
+        },
+        {
+          "client_id": "701925650903-cmh7htvq718jbea95a0ukbkmlttqb56b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrGHMe5ujw0NPRaPOiRKhk9S_RsT623IA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701925650903-cmh7htvq718jbea95a0ukbkmlttqb56b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

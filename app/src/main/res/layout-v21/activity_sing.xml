@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sing_song"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#AFCEEB"
+    android:keepScreenOn="true"
+    tools:context="com.function.karaoke.hardware.SingActivity">
+
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="25dp"
+            android:layout_height="30dp"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_back_arrow"
+            android:onClick="returnToMain" />
+
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:hint="song name" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:onClick="openEndOptions"
+            android:text="@string/done" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/progress_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/header"
+        app:layout_constraintTop_toBottomOf="@id/header">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:progressDrawable="@drawable/horizontal_progress_bar" />
+
+        <TextView
+            android:id="@+id/duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@android:color/white" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_below="@id/progress_bar_layout"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:background="@android:color/holo_blue_bright"
+        android:elevation="10dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar_layout">
+
+        <LinearLayout
+            android:id="@+id/words"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/words_read"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="24sp"
+                tools:ignore="NestedWeights" />
+
+
+            <com.function.karaoke.core.views.LyricsView
+                android:id="@+id/lyrics"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:hint="Lyrics"
+                android:maxLines="46"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/words_to_read"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="24sp" />
+
+        </LinearLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/black">
+
+            <TextureView
+                android:id="@+id/surface_camera"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_centerInParent="true" />
+
+            <Switch
+                android:id="@+id/switch_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:onClick="toggleVideo"
+                android:splitTrack="true"
+                android:layout_below="@id/play_button"
+                android:layout_alignStart="@id/play_button"
+                android:layout_alignEnd="@id/play_button"/>
+
+            <ImageView
+                android:id="@+id/video_icon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@mipmap/ic_video_camera"
+                android:layout_alignLeft="@id/switch_button"
+                android:layout_below="@id/play_button"/>
+
+            <Button
+                android:id="@+id/play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@color/appColor"
+                android:onClick="playMusic"
+                android:text="@string/play"
+                android:textColor="@color/default_text_color" />
+
+            <Button
+                android:id="@+id/pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/pause_button"
+                android:onClick="pauseSong"
+                android:visibility="invisible" />
+
+            <Button
+                android:id="@+id/play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="15dp"
+                android:background="@drawable/play_arrow"
+                android:onClick="resumeSong"
+                android:visibility="invisible" />
+
+            <include
+                android:id="@+id/logo"
+                layout="@layout/logo_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:elevation="10dp"
+                android:visibility="invisible" />
+
+
+        </RelativeLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/countdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:elevation="10dp"
+        android:fontFamily="monospace"
+        android:padding="1dp"
+        android:textColor="@color/default_text_color"
+        android:textSize="25sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">SHIRA</string>
+    <string name="prompt_user_name">שם משתמש</string>
+    <string name="prompt_email">אימייל</string>
+    <string name="prompt_password">סיסמה </string>
+    <string name="prompt_password_again">אימות הסיסמה</string>
+    <string name="action_sign_in">התחבר</string>
+    <string name="action_sign_in_short">התחבר</string>
+    <string name="welcome">ברוך הבא!</string>
+    <string name="invalid_username">שם משתמש לא חוקי</string>
+    <string name="invalid_password">אורך סיסמה לפחות 5 תוים</string>
+    <string name="login_failed">ההרשמה נכשלה</string>
+    <string name="sign_up"><u>הירשם</u></string>
+    <string name="click_here"><u>לחץ כאן</u></string>
+    <string name="non_member_question">עוד לא חבר\n</string>
+    <string name="monthly_membership">מנוי חדשי 30 ₪</string>
+    <string name="yearly_membership">מנוי שנתי רק 170 ₪</string>
+    <string name="directions">בחר שם משתמש וסיסמה</string>
+    <string name="footer">התשלום יחויב על ידי הPlay Store \n המנוי יתחדש כל עוד לא ביטלת את החידוש האוטומטי</string>
+    <string name="done">עצור</string>
+    <string name="play">התחל</string>
+    <string name="good_job">כל הכבוד!</string>
+    <string name="sing_again"> נגן מחדש </string>
+    <string name="playback">צפה בביצוע שלך</string>
+    <string name="share">שתף</string>
+    <string name="promo">אפלקציית השירה \n השירה היהודית</string>
+    <string name="app_logo">SHIRA</string>
+    <string name="log_in_sign_up">הירשם/התחבר</string>
+    <string name="search">חפש</string>
+    <string name="home">לעמוד הראשי</string>
+
+    <string name="back_to_home_dialog">בטוח שרוצה לצאת?</string>
+    <string name="yes">כן</string>
+    <string name="no">לא</string>
+</resources>

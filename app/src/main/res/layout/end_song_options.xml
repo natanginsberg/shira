@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/end_options"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appColor"
+    tools:context=".SingActivity">
+
+    <Button
+        android:id="@+id/back_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_margin="15dp"
+        android:background="@drawable/ic_back_arrow"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="returnToSong"/>
+
+    <TextView
+        android:id="@+id/congrats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/good_job"
+        android:textColor="@color/default_text_color"
+        android:textSize="45sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="spread" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/congrats">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/try_again"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/sing_again"
+                android:textColor="@color/sing_up_hover"
+                android:textSize="40sp"
+                android:onClick="playAgain"/>
+
+            <ImageButton
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/replay"
+                android:onClick="playAgain"/>
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/playback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/playback"
+                android:textColor="@color/sing_up_hover"
+                android:textSize="40sp" />
+
+            <ImageButton
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/ic_playback"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/share"
+                android:textColor="@color/sing_up_hover"
+                android:textSize="40sp" />
+
+            <ImageButton
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/ic_group"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:text="@string/home"
+                android:textColor="@color/sing_up_hover"
+                android:textSize="40sp"
+                android:onClick="returnToMain"/>
+
+            <ImageButton
+                android:layout_width="95dp"
+                android:layout_height="95dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/home_button"
+                android:onClick="returnToMain"/>
+        </RelativeLayout>
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
