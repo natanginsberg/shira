@@ -111,7 +111,7 @@ public class SongsActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSongs = new SongsDB(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
-        mSongs.addSongs();
+//        mSongs.addSongs();
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
 
