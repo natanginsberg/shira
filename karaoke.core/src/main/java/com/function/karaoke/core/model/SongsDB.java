@@ -37,20 +37,6 @@ public class SongsDB {
         void onListUpdated();
     }
 
-    public List<Song> addSongs(){
-        List<Song> res = new LinkedList<>();
-        try {
-            List<String> lines = FileReader.readLines(new File("C:\\Users\\Natan\\AndroidStudioProjects\\TestProject\\app\\src\\main\\assets\\Wise Guys - Mensch, wo bist du (Kar)"));
-            Song song = SongParser.parse(lines);
-            song.fullPath = new File("C:\\\\Users\\\\Natan\\\\AndroidStudioProjects\\\\TestProject\\\\app\\\\src\\\\main\\\\assets\\\\Wise Guys - Mensch, wo bist du (Kar)");
-            res.add(song);
-        } catch (Exception e) {
-            Log.e("SongsDB", "Failed to parse song file ");
-            e.printStackTrace();
-        }
-        return res;
-    }
-
     public List<Song> getSongs() {
         return mSongs;
     }
@@ -144,7 +130,7 @@ public class SongsDB {
                     for (File songFile : songFiles) {
                         try {
                             List<String> lines = FileReader.readLines(songFile);
-                            Song song = SongParser.parse(lines);
+                            Song song = Parser.parse(lines);
                             if (song == null)
                                 continue;
                             song.fullPath = songFile;

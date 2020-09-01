@@ -2,6 +2,7 @@ package com.function.karaoke.core.views;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -26,6 +27,11 @@ public class LyricsView extends TextView {
     private ForegroundColorSpan mSpan;
 
     private int mCurrentChar = -1;
+
+    private int lengthWithWord = -1;
+    private int syllableNumber = -1;
+    private CountDownTimer cTimer = null;
+    private int pos = 0;
 
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
@@ -53,24 +59,58 @@ public class LyricsView extends TextView {
     public void setPosition(double position) {
         if (null == mLine || null == mText)
             return;
-        int pos = 0;
-        for (Song.Syllable s : mLine.syllables)
-            if (s.to < position)
-                pos += s.text.length();
-            else
+        pos = 0;
+//        for (Song.Syllable s : mLine.syllables)
+        for (int i = 0; i < mLine.syllables.size(); i++) {
+            Song.Syllable s = mLine.syllables.get(i);
+            if (s.from < position) {
+                if (i > syllableNumber) {
+
+                    syllableNumber = i;
+                    timerToDraw((int) (s.to - s.from) * 1000, s.text.length());
+//                pos += s.text.length();
+                }
+            } else
                 break;
 
-        if (mCurrentChar == pos)
-            return;
+            if (mCurrentChar == pos)
+                return;
 
-        mCurrentChar = pos;
-        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
-        mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        String temp = getText().toString();
-
-        setText(mText);
-//        setTextColor(Color.BLACK);
+//        mCurrentChar = pos;
+////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+//        mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 //
-//        setText("hello this is the song and it isn't working");
+//        setText(mText);
+        }
+    }
+
+    private void timerToDraw(int length, int textLen) {
+        cTimer = new CountDownTimer(length, length / textLen) {
+            @SuppressLint("SetTextI18n")
+            public void onTick(long millisUntilFinished) {
+                pos += 1;
+                mCurrentChar = pos;
+//        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+                setText(mText);
+            }
+
+            public void onFinish() {
+                pos += 1;
+                mCurrentChar = pos;
+//        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+                setText(mText);
+            }
+        };
+        cTimer.start();
+    }
+
+    //cancel timer
+    void cancelTimer() {
+        if (cTimer != null)
+            cTimer.cancel();
     }
 }

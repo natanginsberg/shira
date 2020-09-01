@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".SongsListFragment"
+    tools:context=".fragments.SongsListFragment"
     tools:listitem="@layout/view_song_list_item" />
