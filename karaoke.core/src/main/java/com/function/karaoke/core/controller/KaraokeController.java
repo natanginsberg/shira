@@ -23,7 +23,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     private final MediaPlayer mPlayer;
     private final String tempOutputFile;
-    //    private MediaRecorder mRecorder;
+    //        private MediaRecorder mRecorder;
     private final Handler mHandler;
 
     // realtime data
@@ -111,7 +111,6 @@ public class KaraokeController implements Recorder.IToneListener {
     public boolean load(List<String> lines, String audioUrl) {
         try {
             mSong = Parser.parse(lines);
-            int k = 0;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -224,23 +223,15 @@ public class KaraokeController implements Recorder.IToneListener {
     public void onResume() {
         if (prepared) {
             if (mPlayer.getCurrentPosition() / 1000 < 1) {
-//            try {
-//                mRecorder.prepare();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            mRecorder.start();
-            } else {
-//            mRecorder.resume();
-            }
-            while (!prepared) {
+                while (!prepared) {
 
+                }
+
+                mPlayer.start();
+                mHandler.post(mUpdater);
             }
 
-            mPlayer.start();
-            mHandler.post(mUpdater);
         }
-
     }
 
     @Override

@@ -5,9 +5,13 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,10 +21,14 @@ import java.util.Objects;
 public class DatabaseDriver {
 
     private FirebaseFirestore db;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference storageReference;
     private static final String TAG = "DatabaseDriver";
 
     public DatabaseDriver() {
         this.db = FirebaseFirestore.getInstance();
+        this.firebaseStorage = FirebaseStorage.getInstance();
+        this.storageReference = firebaseStorage.getReference();
     }
 
     public FirebaseFirestore getDb() {
@@ -47,6 +55,32 @@ public class DatabaseDriver {
                     }
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error on getSingleDocumentByField", e));
+        return resultsLiveData;
+    }
+
+    public <T> LiveData<Long> getFirstStorageReferenceSize(String reference) {
+        final MutableLiveData<Long> resultsLiveData = new MutableLiveData<>();
+        StorageReference gsReference = firebaseStorage.getReferenceFromUrl(reference);
+
+        gsReference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+            @Override
+            public void onSuccess(StorageMetadata storageMetadata) {
+                resultsLiveData.setValue(storageMetadata.getSizeBytes());
+            }
+        }).addOnFailureListener(e -> Log.w(TAG, "Error on getSingleDocumentByField", e));
+        return resultsLiveData;
+    }
+
+    public <T> LiveData<Long> getSecondStorageReferenceSize(String reference) {
+        final MutableLiveData<Long> resultsLiveData = new MutableLiveData<>();
+        StorageReference gsReference = firebaseStorage.getReferenceFromUrl(reference);
+
+        gsReference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+            @Override
+            public void onSuccess(StorageMetadata storageMetadata) {
+                resultsLiveData.setValue(storageMetadata.getSizeBytes());
+            }
+        }).addOnFailureListener(e -> Log.w(TAG, "Error on getSingleDocumentByField", e));
         return resultsLiveData;
     }
 

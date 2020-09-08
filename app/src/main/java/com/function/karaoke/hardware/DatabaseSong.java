@@ -24,13 +24,14 @@ public class DatabaseSong implements Serializable {
     private List<String> lines;
     private Bitmap image = null;
     private String genre;
+    private String songReference;
 
     public DatabaseSong() {
 
     }
 
     public DatabaseSong(String artist, String imageResourceFile, String songResourceFile, String textResourceFile, int timesDownloaded,
-                        int timesPlayed, String title, String genre) {
+                        int timesPlayed, String title, String genre, String songReference) {
         this.artist = artist;
         this.imageResourceFile = imageResourceFile;
         this.songResourceFile = songResourceFile;
@@ -39,6 +40,7 @@ public class DatabaseSong implements Serializable {
         this.timesPlayed = timesPlayed;
         this.title = title;
         this.genre = genre;
+        this.songReference = songReference;
     }
 
     public String getArtist() {
@@ -90,4 +92,11 @@ public class DatabaseSong implements Serializable {
         return lines;
     }
 
+    public String getGenre() {
+        return genre;
+    }
+
+    public String getSongReference() {
+        return songReference;
+    }
 }

@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.utils;
 
 import android.Manifest;
 import android.content.Context;
@@ -100,6 +100,10 @@ public class CameraPreview {
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
 
+    public String getVideoPath() {
+        return fileName;
+    }
+
     private static class CompareSizeByArea implements Comparator<Size> {
 
         @Override
@@ -115,14 +119,14 @@ public class CameraPreview {
     private Size mVideoSize;
     private MediaRecorder mMediaRecorder;
 
-    CameraPreview(TextureView textureView, AppCompatActivity activity) {
+    public CameraPreview(TextureView textureView, AppCompatActivity activity) {
         mTextureView = textureView;
         this.activity = activity;
         createVideoFolder();
         mMediaRecorder = new MediaRecorder();
     }
 
-    void closeCamera() {
+    public void closeCamera() {
         if (mCamera != null) {
             mCamera.close();
             stopBackgroundThread();
@@ -130,7 +134,7 @@ public class CameraPreview {
         }
     }
 
-    void setupCamera(int width, int height) {
+    public void setupCamera(int width, int height) {
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             for (String id : cameraManager.getCameraIdList()) {
@@ -160,13 +164,13 @@ public class CameraPreview {
 
     }
 
-    void startBackgroundThread() {
+    public void startBackgroundThread() {
         mBackgroundHandlerThread = new HandlerThread("Camera2VideoImageNew");
         mBackgroundHandlerThread.start();
         mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
     }
 
-    void stopBackgroundThread() {
+    private void stopBackgroundThread() {
         mBackgroundHandlerThread.quitSafely();
         try {
             mBackgroundHandlerThread.join();
@@ -198,7 +202,7 @@ public class CameraPreview {
         }
     }
 
-    void connectCamera() {
+    public void connectCamera() {
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -296,18 +300,22 @@ public class CameraPreview {
         }
     }
 
-    private void setupMediaRecorder() throws IOException {
+    private void setupMediaRecorder() {
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
-//        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
-        mMediaRecorder.setVideoEncodingBitRate(1000000);
+        mMediaRecorder.setVideoEncodingBitRate(1700000);
         mMediaRecorder.setVideoFrameRate(30);
         mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mMediaRecorder.setOrientationHint(mTotalRotation);
-        mMediaRecorder.prepare();
+        try {
+            mMediaRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startRecord() {
@@ -343,7 +351,9 @@ public class CameraPreview {
 
     public void stopRecording() {
         mMediaRecorder.stop();
+        mMediaRecorder.reset();
         mMediaRecorder.release();
+        mMediaRecorder = null;
     }
 
     public void pauseRecording() {

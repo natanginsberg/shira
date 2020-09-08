@@ -117,40 +117,28 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         DatabaseSongsDB songsDB = mListener.getSongs();
         songsDB.subscribe(this);
 //        songsDB.subscribe(this);
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
-        else
-            getAllSongs();
+
+        getAllSongs();
 //        songsDB.scan();
     }
 
     private void getAllSongs() {
         final Observer<List<DatabaseSong>> searchObserver = products -> {
-//            urlParser = new UrlParser(products);
-//            networkFragment = NetworkFragment.getDownloadInstance(getActivity().getSupportFragmentManager(), urlParser);
-//
-//            networkFragment.getLifecycle().addObserver(new CreateObserver());
             databaseSongs.updateSongs(products);
-
         };
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
 
-    private class CreateObserver implements LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        public void connectListener() {
-//            mAdapter.addNetworkThread(networkFragment);
-//            networkFragment.startDownload(GET_AUDIO);
-//            networkFragment.startImageExtraction();
-            databaseSongs.updateSongs(Collections.singletonList(urlParser.getDbSong()));
-        }
-    }
+//    private class CreateObserver implements LifecycleObserver {
+//        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+//        public void connectListener() {
+//            databaseSongs.updateSongs(Collections.singletonList(urlParser.getDbSong()));
+//        }
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
 //        else
 //            mListener.getSongs().scan();
     }

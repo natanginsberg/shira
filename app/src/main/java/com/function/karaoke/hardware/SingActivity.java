@@ -3,6 +3,7 @@ package com.function.karaoke.hardware;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
@@ -29,11 +30,14 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.function.karaoke.core.controller.KaraokeController;
+import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
+import com.function.karaoke.hardware.utils.CameraPreview;
 
 import java.io.File;
 
-public class SingActivity extends AppCompatActivity implements DownloadCallback<String> {
+public class SingActivity extends AppCompatActivity implements DownloadCallback<String>,
+        BackToMainDialogBox.CallbackListener {
 
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
     private final int AUDIO_CODE = 1;
@@ -85,8 +89,9 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 
         }
     };
-    private boolean isRecording;
+    private boolean isRecording = false;
     private NetworkFragment networkFragment;
+    private boolean ending = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,12 +157,40 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         UrlParser urlParser = new UrlParser(song);
         networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), urlParser);
         networkFragment.getLifecycle().addObserver(new CreateObserver());
-//        String songFile = getIntent().getStringExtra(EXTRA_SONG);
         if (null != song) {
             blurAlbumInBackground();
             addArtistToScreen();
             findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
         }
+    }
+
+    @Override
+    public void callback(String result) {
+        if (result.equals("yes")) {
+            ending = true;
+            mKaraokeKonroller.onStop();
+            if (isRecording) {
+                cameraPreview.stopRecording();
+            }
+            Intent intent = new Intent(this, SongsActivity.class);
+            startActivity(intent);
+        } else {
+
+        }
+    }
+
+    public void playback(View view) {
+        ending = true;
+        mKaraokeKonroller.onStop();
+        if (isRecording) {
+            cameraPreview.stopRecording();
+        }
+        String path = cameraPreview.getVideoPath();
+        Intent intent = new Intent(this, Playback.class);
+        intent.putExtra("fileName", path);
+        intent.putExtra("url", song.getSongResourceFile());
+        startActivity(intent);
+
     }
 
     private class CreateObserver implements LifecycleObserver {
@@ -243,22 +276,20 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     @Override
     protected void onPause() {
         super.onPause();
-        mKaraokeKonroller.onPause();
-        isRunning = false;
+        if (!ending) {
+            mKaraokeKonroller.onPause();
+            isRunning = false;
+        }
     }
 
     @Override
     protected void onDestroy() {
-        mKaraokeKonroller.onStop();
-        if (isRecording) {
-            cameraPreview.stopRecording();
-        }
         super.onDestroy();
     }
 
     public void returnToMain(View view) {
         pauseSong(view);
-        BackToMainDialogBox back = new BackToMainDialogBox();
+        BackToMainDialogBox back = new BackToMainDialogBox(this);
         back.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
 
@@ -328,8 +359,8 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private void StartProgressBar(TextView duration, int[] i, Handler hdlr, ProgressBar progressBar) {
         new Thread(new Runnable() {
             public void run() {
-                while (i[0] < mPlayer.getDuration() / 1000 && !restart) {
-                    while (isRunning && i[0] < mPlayer.getDuration() / 1000) {
+                while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
+                    while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
                         i[0] += 1;
                         // Update the progress bar and display the current value in text view
                         hdlr.post(new Runnable() {
@@ -424,11 +455,12 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         mKaraokeKonroller.onPause();
         if (isRecording) {
             cameraPreview.pauseRecording();
-            isRecording = false;
+//            isRecording = false;
         }
 //        cameraPreview.stopRecording();
-
     }
+
+//    public void stopSong
 
     public void resumeSong(View view) {
         startResumeTimer();
@@ -470,6 +502,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         resetPage();
         restart = true;
         isRunning = false;
+        isRecording = false;
         mKaraokeKonroller.onStop();
         deleteCurrentTempFile();
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
@@ -534,7 +567,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
             } else {
                 cameraPreview.startBackgroundThread();
-                delayForAFewMilliseconds();
+//                delayForAFewMilliseconds();
                 if (mTextureView.isAvailable()) {
                     cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
                     cameraPreview.connectCamera();
@@ -564,4 +597,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private void turnCameraOff() {
         cameraPreview.closeCamera();
     }
+
+
 }

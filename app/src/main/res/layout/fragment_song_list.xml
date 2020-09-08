@@ -21,8 +21,7 @@
             android:layout_height="wrap_content"
             android:text="UPLOAD PDF FILE"
             android:layout_centerInParent="true"
-            android:onClick="uploadPdfFile"
-            android:visibility="invisible"/>
+            android:onClick="uploadPdfFile" />
 
         <TextView
             android:id="@+id/language"

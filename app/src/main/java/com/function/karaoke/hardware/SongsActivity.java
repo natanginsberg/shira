@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
@@ -18,13 +21,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.OnLifecycleEvent;
 
-import com.function.karaoke.core.model.Song;
-import com.function.karaoke.core.model.SongsDB;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
+import com.function.karaoke.hardware.utils.MergeTake2;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class SongsActivity
@@ -38,17 +47,20 @@ public class SongsActivity
     private static final int DOWNLOAD_WORDS = 100;
     private static final int GET_COVER_IMAGE = 101;
     private static final int GET_AUDIO = 102;
+    DatabaseDriver databaseDriver = new DatabaseDriver();
 
 
-//    private SongsDB mSongs;
+    //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
     public String language;
     public String temporaryLanguage;
     Locale myLocale;
     private NetworkFragment networkFragment;
     private boolean downloading = false;
-    private DatabaseDriver databaseDriver;
     private int INTERNET_CODE = 104;
+    private long[] sizes = new long[2];
+    List<String> urls = new ArrayList<>();
+    private int prepared = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +120,9 @@ public class SongsActivity
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, item);
         startActivity(intent);
+//        Intent intent = new Intent(this, test.class);
+//        intent.putExtra(SingActivity.EXTRA_SONG, item);
+//        startActivity(intent);
     }
 
     //    @Override
@@ -133,10 +148,87 @@ public class SongsActivity
     }
 
     public void uploadPdfFile(View view) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
-            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+//            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
+//        else
+//            networkFragment.startUpload()
+//        urls.add(dbSongs.getSongs().get(0).getSongResourceFile());
+//        urls.add(dbSongs.getSongs().get(1).getSongResourceFile());
+//
+//        getAudioSizes(urls.get(0), 0);
+//        getAudioSizes(urls.get(1), 1);
+//        if (prepared == 2) {
+//            MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
+//            mergeAudioFiles.SSoftAudCombine();
+//        }
+
+        prepareBothAudios();
+    }
+
+    private void prepareBothAudios() {
+        List<MediaPlayer> mediaPlayers = new ArrayList<>();
+        mediaPlayers.add(new MediaPlayer());
+        mediaPlayers.add(new MediaPlayer());
+//        for (MediaPlayer mPlayer:mediaPlayers)
+        for(int i=0;i<2;i++) {
+            String url = dbSongs.getSongs().get(i).getSongResourceFile();
+            MediaPlayer mPlayer = mediaPlayers.get(i);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                            .build());
+                } else {
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                }
+                mPlayer.setDataSource(url);
+                mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        prepared++;
+                        if (prepared == 2) {
+                            for (MediaPlayer mPlayer : mediaPlayers) {
+                                mPlayer.start();
+                            }
+                        }
+                    }
+                });
+                mPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void getAudioSizes(String url, int i) {
+        final Observer<Long> searchObserver = size -> {
+            if (sizes[i] == 0) {
+                sizes[i] = (size - 44) / 2;
+                prepared++;
+            }
+            if (prepared == 2) {
+
+                MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
+                networkFragment = NetworkFragment.getMergerInstance(getSupportFragmentManager(), mergeAudioFiles);
+                networkFragment.getLifecycle().addObserver(new CreateObserver());
+
+//                MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
+//                mergeAudioFiles.SSoftAudCombine();
+            }
+        };
+        if (i == 0)
+            databaseDriver.getFirstStorageReferenceSize(url).observe(this, searchObserver);
         else
-            networkFragment.startUpload();
+            databaseDriver.getSecondStorageReferenceSize(url).observe(this, searchObserver);
+    }
+
+    private class CreateObserver implements LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        public void connectListener() {
+            networkFragment.startMerge();
+        }
     }
 
     /**
@@ -170,7 +262,8 @@ public class SongsActivity
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case CAMERA_CODE:

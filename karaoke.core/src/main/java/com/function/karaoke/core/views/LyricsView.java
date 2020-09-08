@@ -28,10 +28,10 @@ public class LyricsView extends TextView {
 
     private int mCurrentChar = -1;
 
-    private int lengthWithWord = -1;
     private int syllableNumber = -1;
     private CountDownTimer cTimer = null;
-    private int pos = 0;
+    //    private int pos = 0;
+    boolean lastWord = false;
 
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
@@ -59,58 +59,68 @@ public class LyricsView extends TextView {
     public void setPosition(double position) {
         if (null == mLine || null == mText)
             return;
-        pos = 0;
-//        for (Song.Syllable s : mLine.syllables)
-        for (int i = 0; i < mLine.syllables.size(); i++) {
-            Song.Syllable s = mLine.syllables.get(i);
-            if (s.from < position) {
-                if (i > syllableNumber) {
+        int pos = 0;
+        for (Song.Syllable s : mLine.syllables)
+//        for (int i = 0; i < mLine.syllables.size(); i++) {
+//            Song.Syllable s = mLine.syllables.get(i);
+            if (s.from < position)
+//                if (i > syllableNumber) {
+//
+//                    syllableNumber++;
+//                    timerToDraw((int) ((s.to - s.from) * 1000), s.text.length(),
+//                            i == mLine.syllables.size() - 1);
+//                }
+                pos += s.text.length();
 
-                    syllableNumber = i;
-                    timerToDraw((int) (s.to - s.from) * 1000, s.text.length());
-//                pos += s.text.length();
-                }
-            } else
+            else
                 break;
 
-            if (mCurrentChar == pos)
-                return;
+        if (mCurrentChar == pos)
+            return;
 
-//        mCurrentChar = pos;
-////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
-//        mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-//
-//        setText(mText);
-        }
-    }
-
-    private void timerToDraw(int length, int textLen) {
-        cTimer = new CountDownTimer(length, length / textLen) {
-            @SuppressLint("SetTextI18n")
-            public void onTick(long millisUntilFinished) {
-                pos += 1;
-                mCurrentChar = pos;
+        mCurrentChar = pos;
 //        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
-                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+        mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
-                setText(mText);
-            }
-
-            public void onFinish() {
-                pos += 1;
-                mCurrentChar = pos;
-//        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
-                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-
-                setText(mText);
-            }
-        };
-        cTimer.start();
+        setText(mText);
     }
 
-    //cancel timer
-    void cancelTimer() {
-        if (cTimer != null)
-            cTimer.cancel();
-    }
 }
+
+//    private void timerToDraw(int length, int textLen, boolean lastSyllable) {
+//        cTimer = new CountDownTimer(length, Math.round((double) length / textLen)) {
+//            @SuppressLint("SetTextI18n")
+//            public void onTick(long millisUntilFinished) {
+//                pos += 1;
+//                mCurrentChar = pos;
+////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+//                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//
+//                setText(mText);
+//            }
+//
+//            public void onFinish() {
+//                pos += 1;
+//                mCurrentChar = pos;
+////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+//                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//                resetPosition(lastSyllable);
+//                setText(mText);
+//            }
+//        };
+//        cTimer.start();
+//    }
+//
+//    private void resetPosition(boolean lastSyllable) {
+//        if (lastSyllable) {
+//            pos = 0;
+//            syllableNumber = -1;
+//        }
+//    }
+//
+//    //cancel timer
+//    void cancelTimer() {
+//        if (cTimer != null)
+//            cTimer.cancel();
+//    }
+

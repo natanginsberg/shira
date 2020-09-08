@@ -30,8 +30,7 @@
             android:id="@+id/song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:hint="song name" />
+            android:layout_centerInParent="true"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -164,8 +163,8 @@
 
             <TextureView
                 android:id="@+id/surface_camera"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_width="550px"
+                android:layout_height="550px"
                 android:layout_centerInParent="true" />
 
             <Switch
