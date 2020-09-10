@@ -3,20 +3,20 @@ package com.function.karaoke.hardware;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
+import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.PopupWindow;
@@ -28,15 +28,41 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.OnLifecycleEvent;
 
+import com.coremedia.iso.IsoFile;
+import com.coremedia.iso.boxes.Container;
+import com.coremedia.iso.boxes.TimeToSampleBox;
+import com.coremedia.iso.boxes.TrackBox;
 import com.function.karaoke.core.controller.KaraokeController;
-import com.function.karaoke.core.utility.BlurBuilder;
+import com.function.karaoke.hardware.fragments.NetworkFragment;
+import com.function.karaoke.hardware.utils.CameraPreview;
+import com.googlecode.mp4parser.DataSource;
+import com.googlecode.mp4parser.FileDataSourceImpl;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Mp4TrackImpl;
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
-public class SingActivity extends AppCompatActivity {
+//import android.graphics.Movie;
+//import org.mortbay.component.Container;
+
+public class SingActivity extends AppCompatActivity implements DownloadCallback<String>,
+        BackToMainDialogBox.CallbackListener {
 
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
+    private static final String TAG = "HELLO WORLD";
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -48,11 +74,12 @@ public class SingActivity extends AppCompatActivity {
     MediaPlayer mPlayer;
     private View popupView;
     private PopupWindow popup;
+    private DatabaseSong song;
 
-    private android.hardware.camera2.CameraDevice mCamera;
-    private SurfaceView surfaceView;
-    private SurfaceHolder surfaceHolder;
-    private CameraPreview mPreview;
+//    private android.hardware.camera2.CameraDevice mCamera;
+//    private SurfaceView surfaceView;
+//    private SurfaceHolder surfaceHolder;
+//    private CameraPreview mPreview;
 
     private boolean isRunning = true;
     private boolean restart = false;
@@ -85,13 +112,21 @@ public class SingActivity extends AppCompatActivity {
 
         }
     };
-    private boolean isRecording;
+    private boolean isRecording = false;
+    private NetworkFragment networkFragment;
+    private boolean ending = false;
+    private String uniquePath;
+    private StorageAdder storageAdder;
+    private String path;
+    private String videoUrl;
+    private boolean playback = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sing);
         deleteCurrentTempFile();
+        storageAdder = new StorageAdder();
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
@@ -100,8 +135,6 @@ public class SingActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
         } else {
             initiateCamera();
-//            openCamera();
-//            mKaraokeKonroller.initRecorder(true);
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_CODE);
@@ -111,12 +144,8 @@ public class SingActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_WRITE_PERMISSION);
         }
-//        if (checkCameraHardware(this)) {
-//        } else {
-//            mKaraokeKonroller.initRecorder(false);
-//        }
-
     }
+
 
     private void initiateCamera() {
         cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
@@ -136,26 +165,132 @@ public class SingActivity extends AppCompatActivity {
         }
     }
 
+//    private void tryLoadSong() {
+//        song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
+//        UrlParser urlParser = new UrlParser(song);
+//        networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), urlParser);
+//        networkFragment.getLifecycle().addObserver(new CreateObserver());
+////        String songFile = getIntent().getStringExtra(EXTRA_SONG);
+//        if (null != song)
+////            if (mKaraokeKonroller.load(new File(songFile))) {
+//            if (mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+//                blurAlbumInBackground();
+//                addArtistToScreen();
+//                findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
+//            } else
+//                finish();
+//    }
+
     private void tryLoadSong() {
-        String songFile = getIntent().getStringExtra(EXTRA_SONG);
-        if (null != songFile)
-            if (mKaraokeKonroller.load(new File(songFile), findViewById(R.id.root))) {
-                blurAlbumInBackground();
-                addArtistToHeader();
-                findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
-            } else
-                finish();
+        song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
+        UrlParser urlParser = new UrlParser(song);
+        networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), urlParser);
+        networkFragment.getLifecycle().addObserver(new CreateObserver());
+        if (null != song) {
+            blurAlbumInBackground();
+            addArtistToScreen();
+            findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
+        }
     }
+
+    @Override
+    public void callback(String result) {
+        if (result.equals("yes")) {
+            ending = true;
+            mKaraokeKonroller.onStop();
+            if (isRecording) {
+                cameraPreview.stopRecording();
+            }
+            Intent intent = new Intent(this, SongsActivity.class);
+            startActivity(intent);
+        } else {
+
+        }
+    }
+
+    public void playback(View view) {
+        try {
+            ending = true;
+            mKaraokeKonroller.onStop();
+            if (isRecording) {
+                cameraPreview.stopRecording();
+            }
+            File file = cameraPreview.getVideo();
+            File postParse = parseVideo(file);
+            addFileToStorage(Uri.fromFile(postParse));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void addFileToStorage(Uri path) {
+        final Observer<String> urlObserver = url -> {
+            videoUrl = url;
+            playback = true;
+            openNewIntent();
+        };
+        storageAdder.uploadVideo(path).observe(this, urlObserver);
+    }
+
+    private void openNewIntent() {
+        Intent intent = new Intent(this, Playback.class);
+        intent.putExtra("fileUrl", videoUrl);
+        intent.putExtra("url", song.getSongResourceFile());
+        startActivity(intent);
+    }
+
+    private class CreateObserver implements LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        public void connectListener() {
+            networkFragment.startDownload();
+        }
+    }
+
+    @Override
+    public void updateFromDownload(String result) {
+
+    }
+
+    @Override
+    public NetworkInfo getActiveNetworkInfo() {
+        return null;
+    }
+
+    @Override
+    public void onProgressUpdate(int progressCode, int percentComplete) {
+
+    }
+
+    @Override
+    public void finishDownloading() {
+        if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+            finish();
+        }
+    }
+
 
     private void blurAlbumInBackground() {
-        View view = findViewById(R.id.root);
-        BlurBuilder blurBuilder = new BlurBuilder();
-        Bitmap blurredBitmap = blurBuilder.blur(view.getContext(), mKaraokeKonroller.getmSong().getCoverImage());
-        view.setBackground(new BitmapDrawable(Resources.getSystem(), blurredBitmap));
+//        Picasso.get()
+//                .load(song.getImageResourceFile())
+//                .placeholder(R.drawable.ic_cover_empty)
+//                .fit()
+//                .into((ImageView)findViewById(R.id.album_cover));
+////        View view = findViewById(R.id.words);
+//        BlurBuilder blurBuilder = new BlurBuilder();
+//        Bitmap blurredBitmap = null;
+//        try {
+//            blurredBitmap = blurBuilder.blur(view.getContext(), Picasso.get().load(song.getImageResourceFile()).get());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        view.setBackground(new BitmapDrawable(Resources.getSystem(), blurredBitmap));
     }
 
-    private void addArtistToHeader() {
-        ((TextView) findViewById(R.id.song_name)).setText(mKaraokeKonroller.getmSong().title);
+    private void addArtistToScreen() {
+        ((TextView) findViewById(R.id.song_name)).setText(song.getTitle());
+        ((TextView) findViewById(R.id.song_name_2)).setText(song.getTitle());
+        ((TextView) findViewById(R.id.artist_name)).setText(song.getArtist());
     }
 
     @Override
@@ -188,22 +323,22 @@ public class SingActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mKaraokeKonroller.onPause();
-        isRunning = false;
+        if (isChangingConfigurations()) {
+            if (!ending) {
+                mKaraokeKonroller.onPause();
+                isRunning = false;
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
-        mKaraokeKonroller.onStop();
-        if (isRecording) {
-            cameraPreview.stopRecording();
-        }
         super.onDestroy();
     }
 
     public void returnToMain(View view) {
         pauseSong(view);
-        BackToMainDialogBox back = new BackToMainDialogBox();
+        BackToMainDialogBox back = new BackToMainDialogBox(this);
         back.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
 
@@ -213,27 +348,33 @@ public class SingActivity extends AppCompatActivity {
     }
 
     public void playMusic(View view) {
-        restart = false;
-//        findViewById(R.id.logo).setVisibility(View.VISIBLE);
-        findViewById(R.id.play_button).setVisibility(View.GONE);
-        findViewById(R.id.switch_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
-        startTimer();
+        if (mKaraokeKonroller.isPrepared()) {
+            restart = false;
+            findViewById(R.id.play_button).setVisibility(View.GONE);
+            findViewById(R.id.switch_button).setVisibility(View.INVISIBLE);
+            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+            startTimer();
+        }
     }
 
 
     //start timer function
     void startTimer() {
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-        cTimer = new CountDownTimer(3000, 1000) {
+        cTimer = new CountDownTimer(3500, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                if (millisUntilFinished / 1000 >= 1)
+                    ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                else ((TextView) findViewById(R.id.countdown)).setText("Start!");
             }
 
             public void onFinish() {
                 cancelTimer();
+
+                cameraPreview.startRecording();
                 mKaraokeKonroller.onResume();
+                makeSongNameAndArtistInvisible();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
                 if (!previewRunning) {
                     findViewById(R.id.logo).setVisibility(View.VISIBLE);
@@ -251,11 +392,16 @@ public class SingActivity extends AppCompatActivity {
                 Handler hdlr = new Handler();
                 StartProgressBar(duration, i, hdlr, progressBar);
                 setPauseButton();
-                cameraPreview.startRecording();
                 isRecording = true;
             }
         };
         cTimer.start();
+
+    }
+
+    private void makeSongNameAndArtistInvisible() {
+        findViewById(R.id.song_name_2).setVisibility(View.INVISIBLE);
+        findViewById(R.id.artist_name).setVisibility(View.INVISIBLE);
     }
 
     private void setPauseButton() {
@@ -265,8 +411,8 @@ public class SingActivity extends AppCompatActivity {
     private void StartProgressBar(TextView duration, int[] i, Handler hdlr, ProgressBar progressBar) {
         new Thread(new Runnable() {
             public void run() {
-                while (i[0] < mPlayer.getDuration() / 1000 && !restart) {
-                    while (isRunning && i[0] < mPlayer.getDuration() / 1000) {
+                while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
+                    while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
                         i[0] += 1;
                         // Update the progress bar and display the current value in text view
                         hdlr.post(new Runnable() {
@@ -361,11 +507,12 @@ public class SingActivity extends AppCompatActivity {
         mKaraokeKonroller.onPause();
         if (isRecording) {
             cameraPreview.pauseRecording();
-            isRecording = false;
+//            isRecording = false;
         }
 //        cameraPreview.stopRecording();
-
     }
+
+//    public void stopSong
 
     public void resumeSong(View view) {
         startResumeTimer();
@@ -401,30 +548,45 @@ public class SingActivity extends AppCompatActivity {
 
     public void playAgain(View view) {
         cameraPreview.stopRecording();
+        cameraPreview.closeCamera();
         popup.dismiss();
+//        setContentView(R.layout.activity_sing);
+        resetPage();
         restart = true;
-        isRunning = true;
+        isRunning = false;
+        isRecording = false;
         mKaraokeKonroller.onStop();
-        setContentView(R.layout.activity_sing);
         deleteCurrentTempFile();
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
+        mPlayer = mKaraokeKonroller.getmPlayer();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
         else {
             tryLoadSong();
         }
-//        if (checkCameraHardware(this)) {
-//        delayForAFewMilliseconds();
         initiateCamera();
-//            mCamera = getCameraInstance();
-//
-//             Create our Preview view and set it as the content of our activity.
-//            mPreview = new CameraPreview(this, mCamera);
-//            FrameLayout preview = (FrameLayout) findViewById(R.id.camera);
-//            preview.addView(mPreview);
-//            Camera.open();
-//        }
+    }
+
+    private void resetPage() {
+        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.switch_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
+
+        findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
+        findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
+
+        findViewById(R.id.pause).setVisibility(View.INVISIBLE);
+        findViewById(R.id.play).setVisibility(View.INVISIBLE);
+
+        ((ProgressBar) findViewById(R.id.progress_bar)).setProgress(0);
+        ((TextView) findViewById(R.id.duration)).setText("");
+
+        ((TextView) findViewById(R.id.words_read)).setText("");
+        ((TextView) findViewById(R.id.words_to_read)).setText("");
+        ((TextView) findViewById(R.id.lyrics)).setText("");
+
+
     }
 
     private void delayForAFewMilliseconds() {
@@ -457,7 +619,7 @@ public class SingActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
             } else {
                 cameraPreview.startBackgroundThread();
-                delayForAFewMilliseconds();
+//                delayForAFewMilliseconds();
                 if (mTextureView.isAvailable()) {
                     cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
                     cameraPreview.connectCamera();
@@ -487,4 +649,107 @@ public class SingActivity extends AppCompatActivity {
     private void turnCameraOff() {
         cameraPreview.closeCamera();
     }
+
+//    private String parseVideo(String mFilePath) {
+//        try {
+//            DataSource channel = new FileDataSourceImpl(mFilePath);
+//            IsoFile isoFile = new IsoFile(channel);
+//            List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
+//            boolean isError = false;
+//            for (TrackBox trackBox : trackBoxes) {
+//                TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
+//                // Detect if first sample is a problem and fix it in isoFile
+//                // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
+//                // 10000 seems sufficient since for 30 fps the normal delta is about 3000
+//                if (firstEntry.getDelta() > 10000) {
+//                    isError = true;
+//                    firstEntry.setDelta(3000);
+//                }
+//            }
+//            File file = getOutputMediaFile();
+//            String filePath = file.getAbsolutePath();
+//            if (isError) {
+//                Movie movie = new Movie();
+//                for (TrackBox trackBox : trackBoxes) {
+//                    movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
+//                }
+//                movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
+//                Container out = new DefaultMp4Builder().build(movie);
+//
+//                //delete file first!
+//                FileChannel fc = new RandomAccessFile(mPostProcessingFilePath, "rw").getChannel();
+//                out.writeContainer(fc);
+//                fc.close();
+//                deleteFile(mVideoFilePath);
+//                mListener.onVideoStop(mPostProcessingFilePath);
+//                return mPostProcessingFilePath;
+//            }
+//            mListener.onVideoStop(mVideoFilePath);
+//            return mFilePath;
+//        } catch (IOException e) {
+//            mListener.onVideoError("");
+//            return mPostProcessingFilePath;
+//        }
+//
+//    }
+
+    private File parseVideo(File mFilePath) throws IOException {
+        DataSource channel = new FileDataSourceImpl(mFilePath.getAbsolutePath());
+        IsoFile isoFile = new IsoFile(channel);
+        List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
+        boolean isError = false;
+        for (TrackBox trackBox : trackBoxes) {
+            TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
+            // Detect if first sample is a problem and fix it in isoFile
+            // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
+            // 10000 seems sufficient since for 30 fps the normal delta is about 3000
+            if (firstEntry.getDelta() > 10000) {
+                isError = true;
+                firstEntry.setDelta(3000);
+            }
+        }
+        File file = getOutputMediaFile();
+        String filePath = file.getAbsolutePath();
+        if (isError) {
+            Movie movie = new Movie();
+            for (TrackBox trackBox : trackBoxes) {
+                movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
+            }
+            movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
+            Container out = new DefaultMp4Builder().build(movie);
+
+            //delete file first!
+            FileChannel fc = new RandomAccessFile(filePath, "rw").getChannel();
+            out.writeContainer(fc);
+            fc.close();
+            Log.d(TAG, "Finished correcting raw video");
+            return file;
+        }
+        return mFilePath;
+    }
+
+    /**
+     * Create directory and return file
+     * returning video file
+     */
+    private File getOutputMediaFile() {
+        // External sdcard file location
+        File mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        // Create storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(TAG, "Oops! Failed create "
+                        + "movies" + " directory");
+                return null;
+            }
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        File mediaFile;
+
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                + "VID_" + timeStamp + ".mp4");
+        return mediaFile;
+    }
+
 }

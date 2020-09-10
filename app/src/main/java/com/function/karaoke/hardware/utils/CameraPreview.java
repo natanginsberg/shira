@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.utils;
 
 import android.Manifest;
 import android.content.Context;
@@ -11,7 +11,9 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -100,6 +102,10 @@ public class CameraPreview {
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
 
+    public File getVideo() {
+        return mVideoFile;
+    }
+
     private static class CompareSizeByArea implements Comparator<Size> {
 
         @Override
@@ -110,19 +116,20 @@ public class CameraPreview {
 
     private Size mPerviewSIze;
     private File mVIdeoFolder;
+    private File mVideoFile;
     String fileName;
     private int mTotalRotation;
     private Size mVideoSize;
     private MediaRecorder mMediaRecorder;
 
-    CameraPreview(TextureView textureView, AppCompatActivity activity) {
+    public CameraPreview(TextureView textureView, AppCompatActivity activity) {
         mTextureView = textureView;
         this.activity = activity;
         createVideoFolder();
         mMediaRecorder = new MediaRecorder();
     }
 
-    void closeCamera() {
+    public void closeCamera() {
         if (mCamera != null) {
             mCamera.close();
             stopBackgroundThread();
@@ -130,7 +137,7 @@ public class CameraPreview {
         }
     }
 
-    void setupCamera(int width, int height) {
+    public void setupCamera(int width, int height) {
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             for (String id : cameraManager.getCameraIdList()) {
@@ -152,7 +159,6 @@ public class CameraPreview {
                 mVideoSize = chooseOptimalSize(map.getOutputSizes(MediaRecorder.class), rotatedWidth, rotatedHeight);
                 cameraId = id;
                 return;
-
             }
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -160,13 +166,13 @@ public class CameraPreview {
 
     }
 
-    void startBackgroundThread() {
+    public void startBackgroundThread() {
         mBackgroundHandlerThread = new HandlerThread("Camera2VideoImageNew");
         mBackgroundHandlerThread.start();
         mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
     }
 
-    void stopBackgroundThread() {
+    private void stopBackgroundThread() {
         mBackgroundHandlerThread.quitSafely();
         try {
             mBackgroundHandlerThread.join();
@@ -187,7 +193,7 @@ public class CameraPreview {
     private static Size chooseOptimalSize(Size[] choices, int width, int height) {
         List<Size> bigEnough = new ArrayList<>();
         for (Size option : choices) {
-            if (option.getHeight() == option.getWidth() * height / width && option.getWidth() >= width && option.getHeight() >= height) {
+            if (option.getHeight() < option.getWidth() * height / width && option.getWidth() < width && option.getHeight() < height) {
                 bigEnough.add(option);
             }
         }
@@ -198,7 +204,7 @@ public class CameraPreview {
         }
     }
 
-    void connectCamera() {
+    public void connectCamera() {
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -265,12 +271,12 @@ public class CameraPreview {
         }
     }
 
-    private File createVideoFileName() throws IOException {
+    private void createVideoFileName() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMM_HHmmss").format(new Date());
         String prepend = "VIDEO" + timeStamp + "_";
         File videoFile = File.createTempFile(prepend, ".mp4", mVIdeoFolder);
         fileName = videoFile.getAbsolutePath();
-        return videoFile;
+        mVideoFile = videoFile;
     }
 
     private void checkWriteStoragePermission() {
@@ -296,18 +302,41 @@ public class CameraPreview {
         }
     }
 
-    private void setupMediaRecorder() throws IOException {
+    private void setupMediaRecorder() {
+//        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+//        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+//        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+//        mMediaRecorder.setOutputFile(fileName);
+//        mMediaRecorder.setVideoEncodingBitRate(690000);
+//        mMediaRecorder.setVideoFrameRate(30);
+//        mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
+//        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+//        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        mMediaRecorder = new MediaRecorder();
+
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+
         mMediaRecorder.setOutputFile(fileName);
-//        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-//        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
-        mMediaRecorder.setVideoEncodingBitRate(1000000);
-        mMediaRecorder.setVideoFrameRate(30);
         mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
+
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+        mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+        mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+        mMediaRecorder.setVideoEncodingBitRate(1000000);
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+
+//        mMediaRecorder.setAudioChannels(2);
+        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+        mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
         mMediaRecorder.setOrientationHint(mTotalRotation);
-        mMediaRecorder.prepare();
+        try {
+            mMediaRecorder.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startRecord() {
@@ -343,7 +372,9 @@ public class CameraPreview {
 
     public void stopRecording() {
         mMediaRecorder.stop();
+        mMediaRecorder.reset();
         mMediaRecorder.release();
+        mMediaRecorder = null;
     }
 
     public void pauseRecording() {

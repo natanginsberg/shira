@@ -37,6 +37,8 @@ public class SongsDB {
         void onListUpdated();
     }
 
+
+
 //    public List<Song> addSongs(){
 //        List<Song> res = new LinkedList<>();
 //        try {
@@ -50,6 +52,7 @@ public class SongsDB {
 //        }
 //        return res;
 //    }
+
 
     public List<Song> getSongs() {
         return mSongs;
@@ -144,7 +147,7 @@ public class SongsDB {
                     for (File songFile : songFiles) {
                         try {
                             List<String> lines = FileReader.readLines(songFile);
-                            Song song = SongParser.parse(lines);
+                            Song song = Parser.parse(lines);
                             if (song == null)
                                 continue;
                             song.fullPath = songFile;

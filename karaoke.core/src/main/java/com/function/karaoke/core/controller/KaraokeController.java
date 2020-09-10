@@ -1,20 +1,19 @@
 package com.function.karaoke.core.controller;
 
 import android.annotation.SuppressLint;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
 
+import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.core.model.Song;
-import com.function.karaoke.core.model.SongParser;
 import com.function.karaoke.core.model.Tone;
-import com.function.karaoke.core.utility.FileReader;
 import com.function.karaoke.core.views.LyricsView;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     private final MediaPlayer mPlayer;
     private final String tempOutputFile;
-    //    private MediaRecorder mRecorder;
+    //        private MediaRecorder mRecorder;
     private final Handler mHandler;
 
     // realtime data
@@ -34,6 +33,8 @@ public class KaraokeController implements Recorder.IToneListener {
     private long mLineStart;
     private final List<Tone> mTones = new ArrayList<>();
     private MyCustomObjectListener listener;
+
+    private boolean prepared = false;
 
     // views
     private LyricsView mLyrics;
@@ -80,43 +81,90 @@ public class KaraokeController implements Recorder.IToneListener {
 //        mToneRender.setTones(mTones); // risky a bit, but we all are in the UI thread
     }
 
-    public boolean load(File file, View view) {
+//    public boolean load(File file) {
+//        try {
+//            List<String> lines = FileReader.readLines(file);
+//            mSong = Parser.parse(lines);
+//            mSong.fullPath = file;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//
+//        File audioFile = mSong.getAudioFile();
+//        if (null == audioFile)
+//            return false;
+////        Blurry.with(view.getContext())
+////                .radius(10)
+////                .sampling(8)
+////                .color(Color.argb(66, 255, 255, 0))
+////                .async();
+//        if (!loadAudio(audioFile))
+//            return false;
+//
+//
+////        mPlayer.start();
+////        mRecorder.start();
+//        return true;
+//    }
+
+    public boolean load(List<String> lines, String audioUrl) {
         try {
-            List<String> lines = FileReader.readLines(file);
-            mSong = SongParser.parse(lines);
-            mSong.fullPath = file;
+            mSong = Parser.parse(lines);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
 
-        File audioFile = mSong.getAudioFile();
-        if (null == audioFile)
-            return false;
+//        File audioFile = mSong.getAudioFile();
+//        if (null == audioFile)
+//            return false;
 //        Blurry.with(view.getContext())
 //                .radius(10)
 //                .sampling(8)
 //                .color(Color.argb(66, 255, 255, 0))
 //                .async();
-        if (!loadAudio(audioFile))
-            return false;
+        loadAudio(audioUrl);
+        return true;
 
 
 //        mPlayer.start();
 //        mRecorder.start();
-        return true;
     }
 
 
-    private boolean loadAudio(@NotNull File file) {
+    //    private boolean loadAudio(@NotNull File file) {
+//        try {
+//            mPlayer.setDataSource(file.toString());
+//            mPlayer.prepare();
+//            return true;
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return false;
+//    }
+    private void loadAudio(String url) {
         try {
-            mPlayer.setDataSource(file.toString());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                mPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                        .build());
+            } else {
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            }
+            mPlayer.setDataSource(url);
+            mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mediaPlayer) {
+                    prepared = true;
+                }
+            });
             mPlayer.prepare();
-            return true;
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     @SuppressLint("SetTextI18n")
@@ -173,19 +221,15 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     public void onResume() {
-        if (mPlayer.getCurrentPosition() / 1000 < 1) {
-//            try {
-//                mRecorder.prepare();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            mRecorder.start();
-        } else {
-//            mRecorder.resume();
-        }
-        mPlayer.start();
-        mHandler.post(mUpdater);
+        if (prepared) {
+            if (mPlayer.getCurrentPosition() / 1000 < 1) {
+                while (!prepared) {
+                }
+                mPlayer.start();
+                mHandler.post(mUpdater);
+            }
 
+        }
     }
 
     @Override
@@ -214,6 +258,10 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void setCustomObjectListener(MyCustomObjectListener listener) {
         this.listener = listener;
+    }
+
+    public boolean isPrepared() {
+        return prepared;
     }
 
     public interface MyCustomObjectListener {

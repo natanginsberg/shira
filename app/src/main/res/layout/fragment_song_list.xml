@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/appColor"
     android:orientation="vertical"
-    tools:context=".SongsListFragment">
+    tools:context=".fragments.SongsListFragment">
 
     <RelativeLayout
         android:id="@+id/header"
@@ -35,7 +35,7 @@
             android:onClick="changeLanguage"
             android:background="@drawable/ic_language_button"/>
 
-        <Button
+            <Button
             android:id="@+id/personal_library"
             android:layout_width="50dp"
             android:layout_height="50dp"

@@ -2,6 +2,7 @@ package com.function.karaoke.core.views;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -26,6 +27,11 @@ public class LyricsView extends TextView {
     private ForegroundColorSpan mSpan;
 
     private int mCurrentChar = -1;
+
+    private int syllableNumber = -1;
+    private CountDownTimer cTimer = null;
+    //    private int pos = 0;
+    boolean lastWord = false;
 
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
@@ -55,8 +61,17 @@ public class LyricsView extends TextView {
             return;
         int pos = 0;
         for (Song.Syllable s : mLine.syllables)
-            if (s.to < position)
+//        for (int i = 0; i < mLine.syllables.size(); i++) {
+//            Song.Syllable s = mLine.syllables.get(i);
+            if (s.from < position)
+//                if (i > syllableNumber) {
+//
+//                    syllableNumber++;
+//                    timerToDraw((int) ((s.to - s.from) * 1000), s.text.length(),
+//                            i == mLine.syllables.size() - 1);
+//                }
                 pos += s.text.length();
+
             else
                 break;
 
@@ -64,13 +79,48 @@ public class LyricsView extends TextView {
             return;
 
         mCurrentChar = pos;
-        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+//        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
         mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-        String temp = getText().toString();
 
         setText(mText);
-//        setTextColor(Color.BLACK);
-//
-//        setText("hello this is the song and it isn't working");
     }
+
 }
+
+//    private void timerToDraw(int length, int textLen, boolean lastSyllable) {
+//        cTimer = new CountDownTimer(length, Math.round((double) length / textLen)) {
+//            @SuppressLint("SetTextI18n")
+//            public void onTick(long millisUntilFinished) {
+//                pos += 1;
+//                mCurrentChar = pos;
+////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+//                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//
+//                setText(mText);
+//            }
+//
+//            public void onFinish() {
+//                pos += 1;
+//                mCurrentChar = pos;
+////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
+//                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+//                resetPosition(lastSyllable);
+//                setText(mText);
+//            }
+//        };
+//        cTimer.start();
+//    }
+//
+//    private void resetPosition(boolean lastSyllable) {
+//        if (lastSyllable) {
+//            pos = 0;
+//            syllableNumber = -1;
+//        }
+//    }
+//
+//    //cancel timer
+//    void cancelTimer() {
+//        if (cTimer != null)
+//            cTimer.cancel();
+//    }
+

@@ -8,71 +8,55 @@ public class Parser {
         Song.Line lastLine = null;
         for (int i = 0; i < data.size() - 1; i++) {
             String line = data.get(i);
-//        for (String line : data) {
-            if (line.length() == 0) {
-                continue;
-            }
-            // tags
 
-            if (line.startsWith("[ti")) {
-                song.title = getStringValueOfLine(line);
-            } else if (line.startsWith("[ar")) {
-                song.artist = getStringValueOfLine(line);
-            } else if (line.startsWith("[al")) {
-                song.album = getStringValueOfLine(line);
-            } else if (line.startsWith("[") && line.endsWith("]")) {
-                continue;
+
+            if (line.startsWith("#MP3")) {
+                song.file = getStringValue(line, "#MP3");
+            } else if (line.startsWith("#COVER")) {
+                song.cover = getStringValue(line, "#COVER");
             } else {
-                if (line.startsWith("[")) {
-                    if (i < data.size() - 1) {
-                        song.lines.add(parseLine(line.split("<"), data.get(i + 1), false));
-                    } else {
-                        song.lines.add(parseLine(line.split("<"), data.get(i + 1), true));
-                    }
+
+//        for (String line : data) {
+                if (line.length() == 0) {
+                    continue;
+                }
+                // tags
+
+                if (line.startsWith("[ti")) {
+                    song.title = getStringValueOfLine(line);
+                } else if (line.startsWith("[ar")) {
+                    song.artist = getStringValueOfLine(line);
+                } else if (line.startsWith("[al")) {
+                    song.album = getStringValueOfLine(line);
+                } else if (line.startsWith("[") && line.endsWith("]")) {
+                    continue;
                 } else {
-                    if (i < data.size() - 1) {
-                        song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), false));
+                    if (line.startsWith("[")) {
+                        int nextLineIndex = i + 1;
+                        boolean isLastLine = false;
+                        String nextLine = "";
+                        while (nextLine.equals("")){
+                            if (nextLineIndex == data.size()){
+                                isLastLine = true;
+                                break;
+                            }
+                            nextLine = data.get(nextLineIndex);
+                            nextLineIndex++;
+                        }
+                        if (i < data.size() - 1) {
+                            song.lines.add(parseLine(line.split("<"), nextLine, isLastLine));
+                        } else {
+                            song.lines.add(parseLine(line.split("<"), nextLine, isLastLine));
+                        }
                     } else {
-                        song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), true));
+                        if (i < data.size() - 1) {
+                            song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), false));
+                        } else {
+                            song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), true));
+                        }
                     }
                 }
             }
-//                else if (line.startsWith("#LANGUAGE")) {
-//                    //
-//                } else if (line.startsWith("#GENRE")) {
-//                    //
-//                } else if (line.startsWith("#MP3")) {
-//                    song.file = getStringValue(line, "#MP3");
-//                } else if (line.startsWith("#COVER")) {
-//                    song.cover = getStringValue(line, "#COVER");
-//                } else if (line.startsWith("#BPM")) {
-//                    song.BPM = getFloatValue(line, "#BPM") * 4;
-//                } else if (line.startsWith("#GAP")) {
-//                    song.gap = getFloatValue(line, "#GAP") / 1000.0;
-//                }
-
-//            else{
-//                // lyrics
-//                if (line.startsWith("[0")) {
-//                    Song.Syllable syllable = parseSyllable(line);
-//                    if (null == lastLine) {
-//                        lastLine = new Song.Line();
-//                        song.lines.add(lastLine);
-//                    }
-//                    lastLine.syllables.add(syllable);
-//                } else if (line.startsWith("-")) {
-//                    int[] timestamps = parseInts(line);
-//                    if (timestamps.length < 1)
-//                        throw new Exception("Bad line delimiter: " + line);
-//                    if (null == lastLine)
-//                        continue;
-//                    lastLine.to = getTimestamp(song, timestamps[0]);
-//                    lastLine = new Song.Line();
-//                    song.lines.add(lastLine);
-//                    if (timestamps.length > 1)
-//                        lastLine.from = getTimestamp(song, timestamps[1]);
-//                }
-//            }
         }
 
         // fix starts
@@ -211,5 +195,9 @@ public class Parser {
 
     private static String getStringValueOfLine(String line) {
         return line.substring(1, line.length() - 1).split(":")[1];
+    }
+
+    private static String getStringValue(String line, String tag) {
+        return line.substring(tag.length() + 1);
     }
 }

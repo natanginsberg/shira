@@ -6,116 +6,74 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.SurfaceTexture;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.util.DisplayMetrics;
-import android.view.TextureView;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.OnLifecycleEvent;
 
-import com.function.karaoke.core.model.Song;
-import com.function.karaoke.core.model.SongsDB;
+import com.function.karaoke.hardware.fragments.NetworkFragment;
+import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
+import com.function.karaoke.hardware.utils.MergeTake2;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class SongsActivity
-        extends AppCompatActivity
-        implements SongsListFragment.OnListFragmentInteractionListener {
+        extends FragmentActivity
+        implements SongsListFragment.OnListFragmentInteractionListener, DownloadCallback {
 
     private static final int VIDEO_REQUEST = 1;
     private static final int CAMERA_CODE = 2;
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 102;
-    private SongsDB mSongs;
+
+    private static final int DOWNLOAD_WORDS = 100;
+    private static final int GET_COVER_IMAGE = 101;
+    private static final int GET_AUDIO = 102;
+    DatabaseDriver databaseDriver = new DatabaseDriver();
+
+
+    //    private SongsDB mSongs;
+    private DatabaseSongsDB dbSongs;
     public String language;
+    public String temporaryLanguage;
     Locale myLocale;
-//    private CameraPreview cameraPreview;
-    //    private SurfaceView surfaceView;
-//    private SurfaceHolder surfaceHolder;
-    private TextureView mTextureView;
-    private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-            mTextureView = findViewById(R.id.camera_place);
-//            cameraPreview = new CameraPreview(mTextureView, SongsActivity.this);
-//            cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-//            cameraPreview.connectCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
-
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-
-        }
-    };
-//    private CameraDevice mCamera;
-//    private CameraDevice.StateCallback mCameraStateCallback = new CameraDevice.StateCallback() {
-//        @Override
-//        public void onOpened(@NonNull CameraDevice cameraDevice) {
-//            mCamera = cameraDevice;
-//            startPreview();
-//        }
-//
-//        @Override
-//        public void onDisconnected(@NonNull CameraDevice cameraDevice) {
-//            cameraDevice.close();
-//            mCamera = null;
-//        }
-//
-//        @Override
-//        public void onError(@NonNull CameraDevice cameraDevice, int i) {
-//            cameraDevice.close();
-//            mCamera = null;
-//        }
-//    };
-//    private CaptureRequest.Builder mCaptureRequestBuilder;
-//    private CameraManager mCameraManager;
-//    private String cameraId;
-//    private HandlerThread mBackgroundHandlerThread;
-//    private Handler mBackgroundHandler;
-//    private static SparseIntArray ORIENTATIONS = new SparseIntArray();
-//
-//    static {
-//        ORIENTATIONS.append(Surface.ROTATION_0, 0);
-//        ORIENTATIONS.append(Surface.ROTATION_90, 90);
-//        ORIENTATIONS.append(Surface.ROTATION_180, 180);
-//        ORIENTATIONS.append(Surface.ROTATION_270, 270);
-//    }
-//
-//    private static class CompareSizeByArea implements Comparator<Size> {
-//
-//        @Override
-//        public int compare(Size lhs, Size rhs) {
-//            return Long.signum((long) lhs.getWidth() * lhs.getHeight() / (long) rhs.getWidth() * rhs.getHeight());
-//        }
-//    }
-//
-//    private Size mPerviewSIze;
+    private NetworkFragment networkFragment;
+    private boolean downloading = false;
+    private int INTERNET_CODE = 104;
+    private long[] sizes = new long[2];
+    List<String> urls = new ArrayList<>();
+    private int prepared = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSongs = new SongsDB(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
-//        mSongs.addSongs();
+
+//        mSongs = new SongsDB(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
+        dbSongs = new DatabaseSongsDB();
+
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
-
+//        networkFragment = NetworkFragment.getUploadInstance(getSupportFragmentManager(), new StorageDriver());
 //        setContentView(R.layout.activity_songs);
+
     }
 
     @Override
@@ -144,7 +102,7 @@ public class SongsActivity
 
             public void onFinish() {
                 setContentView(R.layout.activity_songs);
-                mTextureView = (TextureView) findViewById(R.id.camera_place);
+//                mTextureView = (TextureView) findViewById(R.id.camera_place);
 //                cameraPreview = new CameraPreview(mTextureView, SongsActivity.this);
                 String languageToDisplay = language.equals("English") ? "En" : "עב";
                 ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
@@ -152,16 +110,30 @@ public class SongsActivity
         }.start();
     }
 
-    @Override
-    public void onListFragmentInteraction(Song item) {
-        Intent intent = new Intent(this, SingActivity.class);
-        intent.putExtra(SingActivity.EXTRA_SONG, item.fullPath.toString());
-        startActivity(intent);
-    }
+//    @Override
+//    public void onListFragmentInteraction(Song item) {
+//        Intent intent = new Intent(this, SingActivity.class);
+//        intent.putExtra(SingActivity.EXTRA_SONG, item.fullPath.toString());
+//        startActivity(intent);
+//    }
 
     @Override
-    public SongsDB getSongs() {
-        return mSongs;
+    public void onListFragmentInteraction(DatabaseSong item) {
+        Intent intent = new Intent(this, SingActivity.class);
+        intent.putExtra(SingActivity.EXTRA_SONG, item);
+        startActivity(intent);
+//        Intent intent = new Intent(this, test.class);
+//        intent.putExtra(SingActivity.EXTRA_SONG, item);
+//        startActivity(intent);
+    }
+
+    //    @Override
+//    public SongsDB getSongs() {
+//        return mSongs;
+//    }
+    @Override
+    public DatabaseSongsDB getSongs() {
+        return dbSongs;
     }
 
     public void openLogInActivity(View view) {
@@ -177,27 +149,89 @@ public class SongsActivity
         }
     }
 
-//    public void openCamera(View view) {
-//        if (checkCameraHardware(this)) {
+    public void uploadPdfFile(View view) {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+//            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
+//        else
+//            networkFragment.startUpload()
+//        urls.add(dbSongs.getSongs().get(0).getSongResourceFile());
+//        urls.add(dbSongs.getSongs().get(1).getSongResourceFile());
 //
-//            //todo remove. this is for storing on external data
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, EXTERNAL_STORAGE_WRITE_PERMISSION);
-//
-//                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-//                } else {
-//                    cameraPreview.startBackgroundThread();
-//                    if (mTextureView.isAvailable()) {
-//                        cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-//                        cameraPreview.connectCamera();
-//                    } else {
-//                        mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-//                    }
-//                }
-//            }
+//        getAudioSizes(urls.get(0), 0);
+//        getAudioSizes(urls.get(1), 1);
+//        if (prepared == 2) {
+//            MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
+//            mergeAudioFiles.SSoftAudCombine();
 //        }
-//    }
+
+        prepareBothAudios();
+    }
+
+    private void prepareBothAudios() {
+        List<MediaPlayer> mediaPlayers = new ArrayList<>();
+        mediaPlayers.add(new MediaPlayer());
+        mediaPlayers.add(new MediaPlayer());
+//        for (MediaPlayer mPlayer:mediaPlayers)
+        for(int i=0;i<2;i++) {
+            String url = dbSongs.getSongs().get(i).getSongResourceFile();
+            MediaPlayer mPlayer = mediaPlayers.get(i);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    mPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                            .build());
+                } else {
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                }
+                mPlayer.setDataSource(url);
+                mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        prepared++;
+                        if (prepared == 2) {
+                            for (MediaPlayer mPlayer : mediaPlayers) {
+                                mPlayer.start();
+                            }
+                        }
+                    }
+                });
+                mPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void getAudioSizes(String url, int i) {
+        final Observer<Long> searchObserver = size -> {
+            if (sizes[i] == 0) {
+                sizes[i] = (size - 44) / 2;
+                prepared++;
+            }
+            if (prepared == 2) {
+
+                MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
+                networkFragment = NetworkFragment.getMergerInstance(getSupportFragmentManager(), mergeAudioFiles);
+                networkFragment.getLifecycle().addObserver(new CreateObserver());
+
+//                MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
+//                mergeAudioFiles.SSoftAudCombine();
+            }
+        };
+        if (i == 0)
+            databaseDriver.getFirstStorageReferenceSize(url).observe(this, searchObserver);
+        else
+            databaseDriver.getSecondStorageReferenceSize(url).observe(this, searchObserver);
+    }
+
+    private class CreateObserver implements LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        public void connectListener() {
+            networkFragment.startMerge();
+        }
+    }
 
     /**
      * Check if this device has a camera
@@ -219,79 +253,7 @@ public class SongsActivity
         Intent refresh = new Intent(this, SongsActivity.class);
         startActivity(refresh);
     }
-//
-//
-//    @Override
-//    public void addCallback(Callback callback) {
-//
-//    }
-//
-//    @Override
-//    public void removeCallback(Callback callback) {
-//
-//    }
-//
-//    @Override
-//    public boolean isCreating() {
-//        return false;
-//    }
-//
-//    @Override
-//    public void setType(int i) {
-//
-//    }
-//
-//    @Override
-//    public void setFixedSize(int i, int i1) {
-//
-//    }
-//
-//    @Override
-//    public void setSizeFromLayout() {
-//
-//    }
-//
-//    @Override
-//    public void setFormat(int i) {
-//
-//    }
-//
-//    @Override
-//    public void setKeepScreenOn(boolean b) {
-//
-//    }
-//
-//    @Override
-//    public Canvas lockCanvas() {
-//        return null;
-//    }
-//
-//    @Override
-//    public Canvas lockCanvas(Rect rect) {
-//        return null;
-//    }
-//
-//    @Override
-//    public void unlockCanvasAndPost(Canvas canvas) {
-//
-//    }
-//
-//    @Override
-//    public Rect getSurfaceFrame() {
-//        return null;
-//    }
-//
-//    @Override
-//    public Surface getSurface() {
-//        return null;
-//    }
 
-//    private void closeCamera() {
-//        if (mCamera != null) {
-//            mCamera.close();
-//            mCamera = null;
-//        }
-//    }
 
     @Override
     protected void onPause() {
@@ -300,133 +262,61 @@ public class SongsActivity
         super.onPause();
     }
 
-//    private void setupCamera(int width, int height) {
-//        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-//        try {
-//            for (String id : cameraManager.getCameraIdList()) {
-//                CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(id);
-//                if (cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_BACK) {
-//                    continue;
-//                }
-//                StreamConfigurationMap map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-//                int deviceOrientation = getWindowManager().getDefaultDisplay().getRotation();
-//                int totalRotation = sensitiveDeviceRotation(cameraCharacteristics, deviceOrientation);
-//                boolean swapRotation = totalRotation == 90 || totalRotation == 270;
-//                int rotatedWidth = width;
-//                int rotatedHeight = height;
-//                if (swapRotation) {
-//                    rotatedWidth = height;
-//                    rotatedHeight = width;
-//                }
-//                mPerviewSIze = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), rotatedWidth, rotatedHeight);
-//                cameraId = id;
-//                return;
-//
-//            }
-//        } catch (CameraAccessException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
-//    private void startBackgroundThread() {
-//        mBackgroundHandlerThread = new HandlerThread("Camera2VideoImage");
-//        mBackgroundHandlerThread.start();
-//        mBackgroundHandler = new Handler(mBackgroundHandlerThread.getLooper());
-//    }
-//
-//    private void stopBackgroundThread() {
-//        mBackgroundHandlerThread.quitSafely();
-//        try {
-//            mBackgroundHandlerThread.join();
-//            mBackgroundHandlerThread = null;
-//            mBackgroundHandler = null;
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-
-//    private static int sensitiveDeviceRotation(CameraCharacteristics cameraCharacteristics, int deviceOrientation) {
-//        int sensorOrientatoin = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-//        deviceOrientation = ORIENTATIONS.get(deviceOrientation);
-//        return (sensorOrientatoin + deviceOrientation + 360) % 360;
-//    }
-//
-//    private static Size chooseOptimalSize(Size[] choices, int width, int height) {
-//        List<Size> bigEnough = new ArrayList<>();
-//        for (Size option : choices) {
-//            if (option.getHeight() == option.getWidth() * height / width && option.getWidth() >= width && option.getHeight() >= height) {
-//                bigEnough.add(option);
-//            }
-//        }
-//        if (bigEnough.size() > 0) {
-//            return Collections.min(bigEnough, new CompareSizeByArea());
-//        } else {
-//            return choices[0];
-//        }
-//    }
-
-//    private void connectCamera() {
-//        CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-//        try {
-//            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
-//                    Toast.makeText(this, "Video enhances experience", Toast.LENGTH_SHORT).show();
-//                }
-//
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-//            } else {
-//                cameraManager.openCamera(cameraId, mCameraStateCallback, mBackgroundHandler);
-//
-//            }
-//        } catch (CameraAccessException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case CAMERA_CODE:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
 //                    cameraPreview.connectCamera();
-                break;
+                    break;
             case EXTERNAL_STORAGE_WRITE_PERMISSION:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
 
                 }
+                break;
         }
     }
 
-//    private void startPreview() {
-//        SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
-//        surfaceTexture.setDefaultBufferSize(mPerviewSIze.getWidth(), mPerviewSIze.getHeight());
-//        Surface previewSurface = new Surface(surfaceTexture);
-//
-//        try {
-//            mCaptureRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-//            mCaptureRequestBuilder.addTarget(previewSurface);
-//
-//            mCamera.createCaptureSession(Arrays.asList(previewSurface), new CameraCaptureSession.StateCallback() {
-//                @Override
-//                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-//                    try {
-//
-//                        cameraCaptureSession.setRepeatingRequest(mCaptureRequestBuilder.build(), null, mBackgroundHandler);
-//                    } catch (CameraAccessException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                @Override
-//                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-//                    Toast.makeText(getApplicationContext(), "Unable to open camera", Toast.LENGTH_SHORT).show();
-//                }
-//            }, null);
-//        } catch (CameraAccessException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    @Override
+    public void updateFromDownload(Object result) {
+        temporaryLanguage = (String) result;
+        findViewById(R.id.language).setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public NetworkInfo getActiveNetworkInfo() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo;
+    }
+
+    @Override
+    public void onProgressUpdate(int progressCode, int percentComplete) {
+        switch (progressCode) {
+            // You can add UI behavior for progress updates here.
+            case Progress.ERROR:
+
+                break;
+            case Progress.CONNECT_SUCCESS:
+                break;
+            case Progress.GET_INPUT_STREAM_SUCCESS:
+                break;
+            case Progress.PROCESS_INPUT_STREAM_IN_PROGRESS:
+                break;
+            case Progress.PROCESS_INPUT_STREAM_SUCCESS:
+                break;
+        }
+    }
+
+    @Override
+    public void finishDownloading() {
+        downloading = false;
+        if (networkFragment != null) {
+            networkFragment.cancelDownload();
+        }
+    }
 }
