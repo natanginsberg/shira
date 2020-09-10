@@ -224,9 +224,7 @@ public class KaraokeController implements Recorder.IToneListener {
         if (prepared) {
             if (mPlayer.getCurrentPosition() / 1000 < 1) {
                 while (!prepared) {
-
                 }
-
                 mPlayer.start();
                 mHandler.post(mUpdater);
             }

@@ -1,11 +1,8 @@
 package com.function.karaoke.hardware;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
+import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.SurfaceHolder;
@@ -14,22 +11,39 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.function.karaoke.core.views.LyricsView;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
-public class Playback extends AppCompatActivity implements SurfaceHolder.Callback {
+public class Playback extends AppCompatActivity {
+
+    private final int RECORDING = 0;
+    private final int ORIGINAL = 1;
 
     private static final int EXTERNAL_STOARGE_REQUEST = 101;
     private MediaPlayer mPlayerUrl;
     private MediaPlayer mPlayerPath;
     private Handler mHandler;
-    private String url;
-    private String path;
+    private int ready = 0;
+
+    private List<String> urls = new ArrayList<>();
+
+    private PlayerView playerView;
+    private List<SimpleExoPlayer> players = new ArrayList<>();
 
     private com.function.karaoke.core.controller.KaraokeController.MyCustomObjectListener listener;
 
@@ -55,7 +69,13 @@ public class Playback extends AppCompatActivity implements SurfaceHolder.Callbac
     };
     private SurfaceView mPreview;
     private SurfaceHolder holder;
-    private boolean ready = false;
+    private File videoFile;
+    private String videoUrl;
+    private boolean playWhenReady;
+    private long playbackPosition;
+    private int currentWindow;
+    private DefaultTrackSelector.Parameters trackSelectorParameters;
+    private ConcatenatingMediaSource concatenatingMediaSource;
 
     public void finishPlaying() {
         mPlayerPath.stop();
@@ -64,158 +84,138 @@ public class Playback extends AppCompatActivity implements SurfaceHolder.Callbac
         mPlayerUrl.release();
     }
 
+    // todo add clipping function
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playback);
-        path = getIntent().getStringExtra("fileName");
-        url = getIntent().getStringExtra("url");
+        urls.add(getIntent().getStringExtra("fileUrl"));
+//        videoFile = new File(path);
+//        videoUrl = String.valueOf(Uri.fromFile(videoFile));
+
+
+        urls.add(getIntent().getStringExtra("url"));
         mPlayerPath = new MediaPlayer();
         mPlayerUrl = new MediaPlayer();
         mHandler = new Handler();
 
-        mPreview = findViewById(R.id.surface_view);
-
-
-        holder = mPreview.getHolder();
-
-        holder.addCallback(this);
-
-
+        playerView = findViewById(R.id.surface_view);
+//        holder = mPreview.getHolder();
 //
-
+//        holder.addCallback(this);
+        createTwoPlayers();
+        initializePlayer();
+//        initializePlayer();
 
 //        mTextureView = findViewById(R.id.surface_camera);
 //        mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
 //        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
 //        mPlayer = mKaraokeKonroller.getmPlayer();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EXTERNAL_STOARGE_REQUEST);
-        else {
-            load();
-        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, EXTERNAL_STOARGE_REQUEST);
+//        else {
+////            load();
+//        }
 
 
     }
 
-    public void load() {
-
-        loadUrlAudio(url);
-        loadPathAudio(path);
-        return;
+    private void createTwoPlayers() {
+        players.add(new SimpleExoPlayer.Builder(this).build());
+        players.add(new SimpleExoPlayer.Builder(this).build());
     }
 
-    private void loadPathAudio(String path) {
-        try {
-            mPlayerPath.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                    .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                    .build());
-            mPlayerPath.setDataSource(path);
-            mPlayerPath.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mPlayerPath.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    pathPrepared = true;
-                }
-            });
-            mPlayerPath.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT >= 24 && players.size() == 0) {
+            initializePlayer();
         }
     }
 
-    private void loadUrlAudio(String url) {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mPlayerUrl.setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                        .build());
-            } else {
-                mPlayerUrl.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            }
-            mPlayerUrl.setDataSource(url);
-            mPlayerUrl.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    urlPrepared = true;
-                }
-            });
-            mPlayerUrl.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void onPause() {
-        super.onPause();
-        if (mPlayerPath.isPlaying()) {
-
-            mPlayerPath.pause();
-
-        }
-        if (mPlayerUrl.isPlaying()) {
-            mPlayerUrl.pause();
-        }
-        mHandler.removeCallbacks(mUpdater);
-    }
-
-    public void onStop() {
-        super.onStop();
-        mPlayerUrl.release();
-        mPlayerPath.release();
-    }
-
+    @Override
     public void onResume() {
         super.onResume();
-        if (urlPrepared && pathPrepared) {
-            if (mPlayerUrl.getCurrentPosition() / 1000 < 1) {
-                while (!pathPrepared || !urlPrepared) {
-                }
-                mPlayerUrl.start();
-                mPlayerUrl.setVolume(0.09f, 0.09f);
-                mPlayerPath.start();
-                mHandler.post(mUpdater);
+        hideSystemUi();
+        if (players.size() == 0) {
+            initializePlayer();
+        }
+    }
+
+    @SuppressLint("InlinedApi")
+    private void hideSystemUi() {
+        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+                | View.SYSTEM_UI_FLAG_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT >= 24) {
+            releasePlayers();
+        }
+    }
+
+    private void initializePlayer() {
+
+        for (int i = 0; i < 2; i++) {
+            SimpleExoPlayer player = players.get(i);
+            if (i == RECORDING) {
+                playerView.setPlayer(player);
+                player.setPlayWhenReady(false);
+//                player.setVolume(0f);
+            } else {
+                player.setPlayWhenReady(false);
+            }
+            player.seekTo(currentWindow, playbackPosition);
+            MediaSource mediaSource = buildMediaSource(urls.get(i));
+            player.prepare(mediaSource, true, false);
+            if (i == RECORDING) {
+                player.addListener(new Player.EventListener() {
+                    @Override
+                    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                        ready++;
+                    }
+
+                    @Override
+                    public void onIsPlayingChanged(boolean isPlaying) {
+                        if (ready >= 2) {
+                            for (SimpleExoPlayer p : players) {
+                                p.setPlayWhenReady(isPlaying);
+                            }
+                        }
+                    }
+                });
             }
         }
     }
 
-    public void playback(View view) {
-        if (urlPrepared && pathPrepared && ready) {
-                    mPlayerUrl.setVolume(0.15f, 0.21f);
-            mPlayerUrl.start();
-            mPlayerPath.start();
-            mHandler.post(mUpdater);
-            findViewById(R.id.play_button).setVisibility(View.INVISIBLE);
-            findViewById(R.id.pause_button).setVisibility(View.VISIBLE);
-        }
+    private MediaSource buildMediaSource(String url) {
+//        DataSource.Factory dataSourceFactory =
+//                new DefaultDataSourceFactory(this, "exoplayer-local");
+//        return new ProgressiveMediaSource.Factory(dataSourceFactory)
+//                .createMediaSource(Uri.parse(videoUrl));
+        DataSource.Factory datasourceFactroy = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
+        return new ProgressiveMediaSource.Factory(datasourceFactroy).createMediaSource(Uri.parse(url));
     }
 
-    public void pausePlayback(View view) {
-        onPause();
-        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.pause_button).setVisibility(View.INVISIBLE);
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-//        holder = mPreview.getHolder();
-//        holder.addCallback(this);
-        mPlayerPath.setDisplay(holder);
-        ready = true;
-
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
-
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
+    private void releasePlayers() {
+        for (SimpleExoPlayer player : players)
+            if (player != null) {
+                playWhenReady = player.getPlayWhenReady();
+                playbackPosition = player.getCurrentPosition();
+                currentWindow = player.getCurrentWindowIndex();
+                player.release();
+                player = null;
+            }
     }
 }

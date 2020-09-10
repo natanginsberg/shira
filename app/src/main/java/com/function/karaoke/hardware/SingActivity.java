@@ -9,9 +9,12 @@ import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -27,19 +30,39 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import com.coremedia.iso.IsoFile;
+import com.coremedia.iso.boxes.Container;
+import com.coremedia.iso.boxes.TimeToSampleBox;
+import com.coremedia.iso.boxes.TrackBox;
 import com.function.karaoke.core.controller.KaraokeController;
-import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.utils.CameraPreview;
+import com.googlecode.mp4parser.DataSource;
+import com.googlecode.mp4parser.FileDataSourceImpl;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Mp4TrackImpl;
+import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+//import android.graphics.Movie;
+//import org.mortbay.component.Container;
 
 public class SingActivity extends AppCompatActivity implements DownloadCallback<String>,
         BackToMainDialogBox.CallbackListener {
 
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
+    private static final String TAG = "HELLO WORLD";
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -92,12 +115,18 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private boolean isRecording = false;
     private NetworkFragment networkFragment;
     private boolean ending = false;
+    private String uniquePath;
+    private StorageAdder storageAdder;
+    private String path;
+    private String videoUrl;
+    private boolean playback = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sing);
         deleteCurrentTempFile();
+        storageAdder = new StorageAdder();
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
@@ -115,8 +144,8 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_WRITE_PERMISSION);
         }
-
     }
+
 
     private void initiateCamera() {
         cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
@@ -180,17 +209,35 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     public void playback(View view) {
-        ending = true;
-        mKaraokeKonroller.onStop();
-        if (isRecording) {
-            cameraPreview.stopRecording();
+        try {
+            ending = true;
+            mKaraokeKonroller.onStop();
+            if (isRecording) {
+                cameraPreview.stopRecording();
+            }
+            File file = cameraPreview.getVideo();
+            File postParse = parseVideo(file);
+            addFileToStorage(Uri.fromFile(postParse));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        String path = cameraPreview.getVideoPath();
+
+    }
+
+    private void addFileToStorage(Uri path) {
+        final Observer<String> urlObserver = url -> {
+            videoUrl = url;
+            playback = true;
+            openNewIntent();
+        };
+        storageAdder.uploadVideo(path).observe(this, urlObserver);
+    }
+
+    private void openNewIntent() {
         Intent intent = new Intent(this, Playback.class);
-        intent.putExtra("fileName", path);
+        intent.putExtra("fileUrl", videoUrl);
         intent.putExtra("url", song.getSongResourceFile());
         startActivity(intent);
-
     }
 
     private class CreateObserver implements LifecycleObserver {
@@ -276,9 +323,11 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     @Override
     protected void onPause() {
         super.onPause();
-        if (!ending) {
-            mKaraokeKonroller.onPause();
-            isRunning = false;
+        if (isChangingConfigurations()) {
+            if (!ending) {
+                mKaraokeKonroller.onPause();
+                isRunning = false;
+            }
         }
     }
 
@@ -312,14 +361,18 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     //start timer function
     void startTimer() {
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-        cTimer = new CountDownTimer(3000, 1000) {
+        cTimer = new CountDownTimer(3500, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                if (millisUntilFinished / 1000 >= 1)
+                    ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                else ((TextView) findViewById(R.id.countdown)).setText("Start!");
             }
 
             public void onFinish() {
                 cancelTimer();
+
+                cameraPreview.startRecording();
                 mKaraokeKonroller.onResume();
                 makeSongNameAndArtistInvisible();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
@@ -339,7 +392,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
                 Handler hdlr = new Handler();
                 StartProgressBar(duration, i, hdlr, progressBar);
                 setPauseButton();
-                cameraPreview.startRecording();
                 isRecording = true;
             }
         };
@@ -598,5 +650,106 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         cameraPreview.closeCamera();
     }
 
+//    private String parseVideo(String mFilePath) {
+//        try {
+//            DataSource channel = new FileDataSourceImpl(mFilePath);
+//            IsoFile isoFile = new IsoFile(channel);
+//            List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
+//            boolean isError = false;
+//            for (TrackBox trackBox : trackBoxes) {
+//                TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
+//                // Detect if first sample is a problem and fix it in isoFile
+//                // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
+//                // 10000 seems sufficient since for 30 fps the normal delta is about 3000
+//                if (firstEntry.getDelta() > 10000) {
+//                    isError = true;
+//                    firstEntry.setDelta(3000);
+//                }
+//            }
+//            File file = getOutputMediaFile();
+//            String filePath = file.getAbsolutePath();
+//            if (isError) {
+//                Movie movie = new Movie();
+//                for (TrackBox trackBox : trackBoxes) {
+//                    movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
+//                }
+//                movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
+//                Container out = new DefaultMp4Builder().build(movie);
+//
+//                //delete file first!
+//                FileChannel fc = new RandomAccessFile(mPostProcessingFilePath, "rw").getChannel();
+//                out.writeContainer(fc);
+//                fc.close();
+//                deleteFile(mVideoFilePath);
+//                mListener.onVideoStop(mPostProcessingFilePath);
+//                return mPostProcessingFilePath;
+//            }
+//            mListener.onVideoStop(mVideoFilePath);
+//            return mFilePath;
+//        } catch (IOException e) {
+//            mListener.onVideoError("");
+//            return mPostProcessingFilePath;
+//        }
+//
+//    }
+
+    private File parseVideo(File mFilePath) throws IOException {
+        DataSource channel = new FileDataSourceImpl(mFilePath.getAbsolutePath());
+        IsoFile isoFile = new IsoFile(channel);
+        List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
+        boolean isError = false;
+        for (TrackBox trackBox : trackBoxes) {
+            TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
+            // Detect if first sample is a problem and fix it in isoFile
+            // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
+            // 10000 seems sufficient since for 30 fps the normal delta is about 3000
+            if (firstEntry.getDelta() > 10000) {
+                isError = true;
+                firstEntry.setDelta(3000);
+            }
+        }
+        File file = getOutputMediaFile();
+        String filePath = file.getAbsolutePath();
+        if (isError) {
+            Movie movie = new Movie();
+            for (TrackBox trackBox : trackBoxes) {
+                movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
+            }
+            movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
+            Container out = new DefaultMp4Builder().build(movie);
+
+            //delete file first!
+            FileChannel fc = new RandomAccessFile(filePath, "rw").getChannel();
+            out.writeContainer(fc);
+            fc.close();
+            Log.d(TAG, "Finished correcting raw video");
+            return file;
+        }
+        return mFilePath;
+    }
+
+    /**
+     * Create directory and return file
+     * returning video file
+     */
+    private File getOutputMediaFile() {
+        // External sdcard file location
+        File mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        // Create storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.d(TAG, "Oops! Failed create "
+                        + "movies" + " directory");
+                return null;
+            }
+        }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        File mediaFile;
+
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                + "VID_" + timeStamp + ".mp4");
+        return mediaFile;
+    }
 
 }

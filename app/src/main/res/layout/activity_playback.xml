@@ -13,28 +13,10 @@
         android:layout_height="match_parent"
         android:padding="15dp">
 
-        <SurfaceView
+        <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/surface_view"
-            android:layout_width="550px"
-            android:layout_height="550px"/>
-
-        <Button
-            android:id="@+id/play_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal|bottom"
-            android:background="@drawable/play_arrow"
-            android:onClick="playback" />
-
-        <Button
-            android:id="@+id/pause_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:background="@drawable/pause_button"
-            android:visibility="invisible"
-            android:onClick="pausePlayback"/>
-
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>
