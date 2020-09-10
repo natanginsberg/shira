@@ -65,8 +65,10 @@ public class SongsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 //        mSongs = new SongsDB(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
         dbSongs = new DatabaseSongsDB();
+
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
 //        networkFragment = NetworkFragment.getUploadInstance(getSupportFragmentManager(), new StorageDriver());
