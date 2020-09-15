@@ -191,9 +191,8 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
             }
             Intent intent = new Intent(this, SongsActivity.class);
             startActivity(intent);
-        } else if (result.equals("ok")){
-            Intent intent = new Intent(this, SongsActivity.class);
-            startActivity(intent);
+        } else if (result.equals("ok")) {
+            finish();
         }
     }
 
@@ -237,7 +236,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 
     @Override
     public void updateFromDownload(String result) {
-        if (result == null){
+        if (result == null) {
             DialogBox dialogBox = DialogBox.newInstance(this, INTERNET_CODE);
             dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
 

@@ -45,7 +45,7 @@ public class Parser {
                             nextLineIndex++;
                         }
                         Song.Line nextLineInSong = parseLine(line.split("<"), nextLine, isLastLine);
-                        if (nextLineInSong.from > song.lines.get(song.lines.size() - 1).to + 4)
+                        if (song.lines.size() > 0 && nextLineInSong.from > song.lines.get(song.lines.size() - 1).to + 4)
                             song.lines.add(addIntroIndication(nextLineInSong));
                         song.lines.add(nextLineInSong);
                     } else {
@@ -201,9 +201,9 @@ public class Parser {
         Song.Syllable s = new Song.Syllable();
         String[] split = line.split(" ", 5);
         String type = split[0];
-        int pos = Integer.valueOf(split[1]);
-        int len = Integer.valueOf(split[2]);
-        s.tone = Integer.valueOf(split[3]);
+        int pos = Integer.parseInt(split[1]);
+        int len = Integer.parseInt(split[2]);
+        s.tone = Integer.parseInt(split[3]);
         if (split.length > 4)
             s.text = split[4];
         else
