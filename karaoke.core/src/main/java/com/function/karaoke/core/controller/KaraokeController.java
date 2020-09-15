@@ -35,6 +35,7 @@ public class KaraokeController implements Recorder.IToneListener {
     private MyCustomObjectListener listener;
 
     private boolean prepared = false;
+    private boolean stopped = false;
 
     // views
     private LyricsView mLyrics;
@@ -81,33 +82,6 @@ public class KaraokeController implements Recorder.IToneListener {
 //        mToneRender.setTones(mTones); // risky a bit, but we all are in the UI thread
     }
 
-//    public boolean load(File file) {
-//        try {
-//            List<String> lines = FileReader.readLines(file);
-//            mSong = Parser.parse(lines);
-//            mSong.fullPath = file;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return false;
-//        }
-//
-//        File audioFile = mSong.getAudioFile();
-//        if (null == audioFile)
-//            return false;
-////        Blurry.with(view.getContext())
-////                .radius(10)
-////                .sampling(8)
-////                .color(Color.argb(66, 255, 255, 0))
-////                .async();
-//        if (!loadAudio(audioFile))
-//            return false;
-//
-//
-////        mPlayer.start();
-////        mRecorder.start();
-//        return true;
-//    }
-
     public boolean load(List<String> lines, String audioUrl) {
         try {
             mSong = Parser.parse(lines);
@@ -116,33 +90,11 @@ public class KaraokeController implements Recorder.IToneListener {
             return false;
         }
 
-//        File audioFile = mSong.getAudioFile();
-//        if (null == audioFile)
-//            return false;
-//        Blurry.with(view.getContext())
-//                .radius(10)
-//                .sampling(8)
-//                .color(Color.argb(66, 255, 255, 0))
-//                .async();
         loadAudio(audioUrl);
         return true;
 
-
-//        mPlayer.start();
-//        mRecorder.start();
     }
 
-
-    //    private boolean loadAudio(@NotNull File file) {
-//        try {
-//            mPlayer.setDataSource(file.toString());
-//            mPlayer.prepare();
-//            return true;
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
     private void loadAudio(String url) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -217,17 +169,19 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void onStop() {
         mPlayer.release();
+        stopped = true;
+        int k = 0;
 //        mRecorder.release();
     }
 
     public void onResume() {
         if (prepared) {
-            if (mPlayer.getCurrentPosition() / 1000 < 1) {
-                while (!prepared) {
-                }
-                mPlayer.start();
-                mHandler.post(mUpdater);
-            }
+//            if (mPlayer.getCurrentPosition() / 1000 < 1) {
+//                while (!prepared) {
+//                }
+            mPlayer.start();
+            mHandler.post(mUpdater);
+//            }
 
         }
     }
@@ -248,9 +202,6 @@ public class KaraokeController implements Recorder.IToneListener {
         mLastUpdate = timeMillis;
     }
 
-    public Song getmSong() {
-        return mSong;
-    }
 
     public MediaPlayer getmPlayer() {
         return mPlayer;
@@ -262,6 +213,10 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public boolean isPrepared() {
         return prepared;
+    }
+
+    public boolean isStopped() {
+        return stopped;
     }
 
     public interface MyCustomObjectListener {

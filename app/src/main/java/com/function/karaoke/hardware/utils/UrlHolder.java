@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.utils;
 
 import android.graphics.Bitmap;
 
@@ -9,10 +9,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import java.io.Serializable;
 import java.util.List;
 
-public class UrlParser implements Serializable {
+public class UrlHolder implements Serializable {
     DatabaseSong dbSong;
 
-    public UrlParser(DatabaseSong dbSong) {
+    public UrlHolder(DatabaseSong dbSong) {
         this.dbSong = dbSong;
 
     }
@@ -25,8 +25,4 @@ public class UrlParser implements Serializable {
 //    public List<Song.Line> getSongLines(){
 //        return dbSong.getLines();
 //    }
-
-    public DatabaseSong getDbSong(){
-        return dbSong;
-    }
 }

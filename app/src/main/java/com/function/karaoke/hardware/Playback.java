@@ -22,6 +22,7 @@ import java.util.List;
 
 public class Playback extends AppCompatActivity {
 
+    private static final int SAVE_VIDEO = 111;
     private final int RECORDING = 0;
     private int ready = 0;
 
@@ -56,7 +57,6 @@ public class Playback extends AppCompatActivity {
 //        holder.addCallback(this);
         createTwoPlayers();
         initializePlayer();
-
     }
 
     private void createTwoPlayers() {
@@ -153,4 +153,9 @@ public class Playback extends AppCompatActivity {
                 player = null;
             }
     }
+
+    public void backToOptions(View view) {
+        super.onBackPressed();
+    }
+
 }

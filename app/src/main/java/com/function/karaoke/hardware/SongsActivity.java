@@ -28,6 +28,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
+import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
 import com.function.karaoke.hardware.utils.MergeTake2;
 
@@ -79,13 +80,6 @@ public class SongsActivity
     @Override
     protected void onResume() {
         super.onResume();
-//        startBackgroundThread();
-//        if (mTextureView.isAvailable()) {
-//            setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-//            connectCamera();
-//        } else {
-//            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-//        }
     }
 
     private void showPromo() {
@@ -110,21 +104,11 @@ public class SongsActivity
         }.start();
     }
 
-//    @Override
-//    public void onListFragmentInteraction(Song item) {
-//        Intent intent = new Intent(this, SingActivity.class);
-//        intent.putExtra(SingActivity.EXTRA_SONG, item.fullPath.toString());
-//        startActivity(intent);
-//    }
-
     @Override
     public void onListFragmentInteraction(DatabaseSong item) {
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, item);
         startActivity(intent);
-//        Intent intent = new Intent(this, test.class);
-//        intent.putExtra(SingActivity.EXTRA_SONG, item);
-//        startActivity(intent);
     }
 
     //    @Override

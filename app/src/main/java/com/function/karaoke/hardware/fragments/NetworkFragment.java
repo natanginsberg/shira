@@ -12,8 +12,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.function.karaoke.hardware.DownloadCallback;
-import com.function.karaoke.hardware.StorageDriver;
-import com.function.karaoke.hardware.UrlParser;
+import com.function.karaoke.hardware.storage.StorageDriver;
+import com.function.karaoke.hardware.utils.UrlHolder;
 import com.function.karaoke.hardware.utils.MergeTake2;
 
 import java.io.IOException;
@@ -39,7 +39,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
     private UploadTask uploadTask;
     private DownloadTask downloadTask;
     private MergeTask merger;
-    private UrlParser urlParser;
+    private UrlHolder urlParser;
     private String urlString;
     private StorageDriver storageDriver;
     private int taskToOperate;
@@ -76,7 +76,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
      * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
      * from.
      */
-    public static NetworkFragment getDownloadInstance(FragmentManager fragmentManager, UrlParser urlParser) {
+    public static NetworkFragment getDownloadInstance(FragmentManager fragmentManager, UrlHolder urlParser) {
         NetworkFragment networkFragment = new NetworkFragment();
         Bundle args = new Bundle();
         args.putSerializable(URL_PARSER, urlParser);
@@ -112,7 +112,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
         } else if (getArguments().containsKey(MERGER)) {
             fileMerger = (MergeTake2) getArguments().getSerializable(MERGER);
         } else {
-            urlParser = (UrlParser) getArguments().getSerializable(URL_PARSER);
+            urlParser = (UrlHolder) getArguments().getSerializable(URL_PARSER);
         }
         setRetainInstance(true);
     }
@@ -149,10 +149,11 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
         uploadTask.execute(storageDriver);
     }
 
-    public void startDownload() {
+    public boolean startDownload() {
         cancelDownload();
         downloadTask = new DownloadTask(callback);
         downloadTask.execute(urlParser);
+        return true;
     }
 
     public void startMerge() {
@@ -295,7 +296,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
     /**
      * Implementation of AsyncTask designed to fetch data from the network.
      */
-    private class DownloadTask extends AsyncTask<UrlParser, Integer, DownloadTask.Result> {
+    private class DownloadTask extends AsyncTask<UrlHolder, Integer, DownloadTask.Result> {
 
         private DownloadCallback<String> callback;
 
@@ -308,7 +309,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
         }
 
         @Override
-        protected DownloadTask.Result doInBackground(UrlParser... urlParsers) {
+        protected DownloadTask.Result doInBackground(UrlHolder... urlParsers) {
             DownloadTask.Result result = null;
             if (!isCancelled() && urlParsers != null) {
                 try {
@@ -407,7 +408,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
     /**
      * Implementation of AsyncTask designed to fetch data from the network.
      */
-    private class MergeTask extends AsyncTask<UrlParser, Integer, MergeTask.Result> {
+    private class MergeTask extends AsyncTask<UrlHolder, Integer, MergeTask.Result> {
 
         private DownloadCallback<String> callback;
 
@@ -420,7 +421,7 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
         }
 
         @Override
-        protected MergeTask.Result doInBackground(UrlParser... urlParsers) {
+        protected MergeTask.Result doInBackground(UrlHolder... urlParsers) {
             MergeTask.Result result = null;
             if (!isCancelled() && urlParsers != null) {
                 try {

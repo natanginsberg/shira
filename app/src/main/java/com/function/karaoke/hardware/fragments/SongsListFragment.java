@@ -1,8 +1,6 @@
 package com.function.karaoke.hardware.fragments;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,27 +8,22 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.function.karaoke.hardware.DatabaseDriver;
+import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.DatabaseSong;
 import com.function.karaoke.hardware.DatabaseSongsDB;
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
-import com.function.karaoke.hardware.UrlParser;
+import com.function.karaoke.hardware.utils.UrlHolder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,7 +55,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private DatabaseDriver databaseDriver;
     private List<DatabaseSong> allSongs = new ArrayList<>();
     private NetworkFragment networkFragment;
-    private UrlParser urlParser;
+    private UrlHolder urlParser;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the

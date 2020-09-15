@@ -1,5 +1,6 @@
 package com.function.karaoke.core.model;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -35,19 +36,18 @@ public class Parser {
                         int nextLineIndex = i + 1;
                         boolean isLastLine = false;
                         String nextLine = "";
-                        while (nextLine.equals("")){
-                            if (nextLineIndex == data.size()){
+                        while (nextLine.equals("")) {
+                            if (nextLineIndex == data.size()) {
                                 isLastLine = true;
                                 break;
                             }
                             nextLine = data.get(nextLineIndex);
                             nextLineIndex++;
                         }
-                        if (i < data.size() - 1) {
-                            song.lines.add(parseLine(line.split("<"), nextLine, isLastLine));
-                        } else {
-                            song.lines.add(parseLine(line.split("<"), nextLine, isLastLine));
-                        }
+                        Song.Line nextLineInSong = parseLine(line.split("<"), nextLine, isLastLine);
+                        if (nextLineInSong.from > song.lines.get(song.lines.size() - 1).to + 4)
+                            song.lines.add(addIntroIndication(nextLineInSong));
+                        song.lines.add(nextLineInSong);
                     } else {
                         if (i < data.size() - 1) {
                             song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), false));
@@ -63,8 +63,33 @@ public class Parser {
         for (Song.Line line : song.lines)
             if (line.from == 0 && line.syllables.size() > 0)
                 line.from = line.syllables.get(0).from;
+        song.lines.add(0, addIntroIndication(song.lines.get(0)));
 
         return song;
+    }
+
+    private static Song.Line addIntroIndication(Song.Line firstLine) {
+        double nextSyllableStartsAt = firstLine.from;
+        Song.Line indicatorLine = new Song.Line();
+        indicatorLine.from = 0;
+        indicatorLine.to = firstLine.from;
+        Song.Syllable syllable;
+        int introSeconds = Math.min(3, (int) firstLine.from);
+        for (int i = 0; i < introSeconds; i++) {
+            syllable = new Song.Syllable();
+            syllable.text = getIndexIndicators(i + 1) + " ";
+            syllable.to = nextSyllableStartsAt;
+            syllable.from = syllable.to - 1;
+            nextSyllableStartsAt = syllable.from;
+            indicatorLine.syllables.add(0, syllable);
+        }
+        return indicatorLine;
+    }
+
+    private static String getIndexIndicators(int i) {
+        char[] chars = new char[i];
+        Arrays.fill(chars, '*');
+        return new String(chars);
     }
 
     private static Song.Line parseHebrewLine(String[] line, String nextLine, boolean lastLine) {

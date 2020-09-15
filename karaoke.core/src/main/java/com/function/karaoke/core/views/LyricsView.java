@@ -36,9 +36,6 @@ public class LyricsView extends TextView {
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-//        this.setBackgroundColor(Color.GREEN);
-//        this.setTextColor(Color.BLACK);
-//        this.setText("nothing is working");
         mSpan = new ForegroundColorSpan(getResources().getColor(android.R.color.holo_red_light));
     }
 
@@ -86,41 +83,3 @@ public class LyricsView extends TextView {
     }
 
 }
-
-//    private void timerToDraw(int length, int textLen, boolean lastSyllable) {
-//        cTimer = new CountDownTimer(length, Math.round((double) length / textLen)) {
-//            @SuppressLint("SetTextI18n")
-//            public void onTick(long millisUntilFinished) {
-//                pos += 1;
-//                mCurrentChar = pos;
-////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
-//                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-//
-//                setText(mText);
-//            }
-//
-//            public void onFinish() {
-//                pos += 1;
-//                mCurrentChar = pos;
-////        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
-//                mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-//                resetPosition(lastSyllable);
-//                setText(mText);
-//            }
-//        };
-//        cTimer.start();
-//    }
-//
-//    private void resetPosition(boolean lastSyllable) {
-//        if (lastSyllable) {
-//            pos = 0;
-//            syllableNumber = -1;
-//        }
-//    }
-//
-//    //cancel timer
-//    void cancelTimer() {
-//        if (cTimer != null)
-//            cTimer.cancel();
-//    }
-

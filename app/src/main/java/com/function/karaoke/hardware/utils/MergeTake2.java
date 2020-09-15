@@ -5,8 +5,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.function.karaoke.hardware.DatabaseDriver;
-import com.function.karaoke.hardware.StorageAdder;
+import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.StorageAdder;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;

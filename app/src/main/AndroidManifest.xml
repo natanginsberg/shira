@@ -44,7 +44,8 @@
 
         <activity
             android:name=".Playback"
-            android:label="@string/title_activity_playback">
+            android:label="@string/title_activity_playback"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,8 +76,10 @@
         <activity
             android:name=".test"
             android:exported="true" />
-        <activity android:name=".SingActivity" />
-        <activity android:name=".SongsActivity">
+        <activity android:name=".SingActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".SongsActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

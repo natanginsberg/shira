@@ -18,5 +18,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/back_button"
+            android:onClick="backToOptions"
+            android:background="@drawable/ic_back_arrow"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|right"
+            android:text="save video"
+            android:onClick="saveVideoAndReturn"/>
+
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>

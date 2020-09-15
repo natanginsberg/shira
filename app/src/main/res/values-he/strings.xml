@@ -32,4 +32,8 @@
     <string name="back_to_home_dialog">בטוח שרוצה לצאת?</string>
     <string name="yes">כן</string>
     <string name="no">לא</string>
+    <string name="start">התחל!</string>
+    <string name="ok">OK</string>
+    <string name="no_internet_alert">Alert!\nThere is no internet connection.</string>
 </resources>
+

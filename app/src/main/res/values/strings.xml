@@ -33,6 +33,7 @@
     <string name="back_to_home_dialog">Are you sure you want to exit</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="start">Start!</string>
     <string name="title_activity_video_player">VideoPlayer</string>
     <!--
     This string is used for square devices and overridden by hello_world in
@@ -40,5 +41,7 @@
     -->
     <string name="hello_world">Hello Square World!</string>
     <string name="title_activity_playback">Playback</string>
+    <string name="ok">OK</string>
+    <string name="no_internet_alert">\There is no internet connection.</string>
 
 </resources>

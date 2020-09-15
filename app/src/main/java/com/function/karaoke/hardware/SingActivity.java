@@ -39,7 +39,9 @@ import com.coremedia.iso.boxes.TimeToSampleBox;
 import com.coremedia.iso.boxes.TrackBox;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
+import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.utils.CameraPreview;
+import com.function.karaoke.hardware.utils.UrlHolder;
 import com.googlecode.mp4parser.DataSource;
 import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.authoring.Movie;
@@ -59,19 +61,20 @@ import java.util.Locale;
 //import org.mortbay.component.Container;
 
 public class SingActivity extends AppCompatActivity implements DownloadCallback<String>,
-        BackToMainDialogBox.CallbackListener {
+        DialogBox.CallbackListener {
 
+    public static final String EXTRA_SONG = "EXTRA_SONG";
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
     private static final String TAG = "HELLO WORLD";
+    private static final int BACK_CODE = 101;
+    private static final int INTERNET_CODE = 102;
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
-
-    public static final String EXTRA_SONG = "EXTRA_SONG";
-    @SuppressWarnings("SpellCheckingInspection")
-    private KaraokeController mKaraokeKonroller;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
+    @SuppressWarnings("SpellCheckingInspection")
+    private KaraokeController mKaraokeKonroller;
     private View popupView;
     private PopupWindow popup;
     private DatabaseSong song;
@@ -87,6 +90,8 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 
     private TextureView mTextureView;
     private CameraPreview cameraPreview;
+
+    private boolean buttonClicked = false;
 
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
@@ -120,6 +125,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private String path;
     private String videoUrl;
     private boolean playback = false;
+    private boolean timerStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,34 +162,15 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
      * Check if this device has a camera
      */
     private boolean checkCameraHardware(Context context) {
-        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
-            // this device has a camera
-            return true;
-        } else {
-            // no camera on this device
-            return false;
-        }
+        // this device has a camera
+        // no camera on this device
+        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-//    private void tryLoadSong() {
-//        song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
-//        UrlParser urlParser = new UrlParser(song);
-//        networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), urlParser);
-//        networkFragment.getLifecycle().addObserver(new CreateObserver());
-////        String songFile = getIntent().getStringExtra(EXTRA_SONG);
-//        if (null != song)
-////            if (mKaraokeKonroller.load(new File(songFile))) {
-//            if (mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
-//                blurAlbumInBackground();
-//                addArtistToScreen();
-//                findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
-//            } else
-//                finish();
-//    }
 
     private void tryLoadSong() {
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
-        UrlParser urlParser = new UrlParser(song);
+        UrlHolder urlParser = new UrlHolder(song);
         networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), urlParser);
         networkFragment.getLifecycle().addObserver(new CreateObserver());
         if (null != song) {
@@ -197,31 +184,38 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     public void callback(String result) {
         if (result.equals("yes")) {
             ending = true;
-            mKaraokeKonroller.onStop();
+            if (!mKaraokeKonroller.isStopped())
+                mKaraokeKonroller.onStop();
             if (isRecording) {
                 cameraPreview.stopRecording();
             }
             Intent intent = new Intent(this, SongsActivity.class);
             startActivity(intent);
-        } else {
-
+        } else if (result.equals("ok")){
+            Intent intent = new Intent(this, SongsActivity.class);
+            startActivity(intent);
         }
     }
 
     public void playback(View view) {
-        try {
-            ending = true;
-            mKaraokeKonroller.onStop();
-            if (isRecording) {
-                cameraPreview.stopRecording();
+        if (!buttonClicked) {
+            buttonClicked = true;
+            try {
+                ending = true;
+                if (!mKaraokeKonroller.isStopped()) {
+                    mKaraokeKonroller.onStop();
+                    findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
+                }
+                if (isRecording) {
+                    cameraPreview.stopRecording();
+                }
+                File file = cameraPreview.getVideo();
+                File postParse = parseVideo(file);
+                addFileToStorage(Uri.fromFile(postParse));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            File file = cameraPreview.getVideo();
-            File postParse = parseVideo(file);
-            addFileToStorage(Uri.fromFile(postParse));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
     }
 
     private void addFileToStorage(Uri path) {
@@ -229,6 +223,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
             videoUrl = url;
             playback = true;
             openNewIntent();
+            buttonClicked = false;
         };
         storageAdder.uploadVideo(path).observe(this, urlObserver);
     }
@@ -240,16 +235,13 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         startActivity(intent);
     }
 
-    private class CreateObserver implements LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        public void connectListener() {
-            networkFragment.startDownload();
-        }
-    }
-
     @Override
     public void updateFromDownload(String result) {
+        if (result == null){
+            DialogBox dialogBox = DialogBox.newInstance(this, INTERNET_CODE);
+            dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
 
+        }
     }
 
     @Override
@@ -268,7 +260,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
             finish();
         }
     }
-
 
     private void blurAlbumInBackground() {
 //        Picasso.get()
@@ -317,13 +308,13 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     @Override
     protected void onResume() {
         super.onResume();
-        isRunning = true;
+//        isRunning = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (isChangingConfigurations()) {
+        if (!isChangingConfigurations()) {
             if (!ending) {
                 mKaraokeKonroller.onPause();
                 isRunning = false;
@@ -337,9 +328,12 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     public void returnToMain(View view) {
-        pauseSong(view);
-        BackToMainDialogBox back = new BackToMainDialogBox(this);
-        back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+        if (!buttonClicked) {
+            buttonClicked = true;
+            DialogBox back = DialogBox.newInstance(this, BACK_CODE);
+            back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+            buttonClicked = false;
+        }
     }
 
     public void resumeSong() {
@@ -348,7 +342,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     public void playMusic(View view) {
-        if (mKaraokeKonroller.isPrepared()) {
+        if (mKaraokeKonroller.isPrepared() && !timerStarted) {
             restart = false;
             findViewById(R.id.play_button).setVisibility(View.GONE);
             findViewById(R.id.switch_button).setVisibility(View.INVISIBLE);
@@ -357,21 +351,21 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         }
     }
 
-
     //start timer function
     void startTimer() {
+        timerStarted = true;
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
         cTimer = new CountDownTimer(3500, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
                 if (millisUntilFinished / 1000 >= 1)
                     ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-                else ((TextView) findViewById(R.id.countdown)).setText("Start!");
+                else ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
             }
 
             public void onFinish() {
                 cancelTimer();
-
+                findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
                 cameraPreview.startRecording();
                 mKaraokeKonroller.onResume();
                 makeSongNameAndArtistInvisible();
@@ -385,18 +379,22 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
                         openEndOptions(true);
                     }
                 });
-                ProgressBar progressBar = findViewById(R.id.progress_bar);
-                TextView duration = findViewById(R.id.duration);
-                progressBar.setMax(mPlayer.getDuration() / 1000);
-                final int[] i = {progressBar.getProgress()};
-                Handler hdlr = new Handler();
-                StartProgressBar(duration, i, hdlr, progressBar);
+                setProgressBar();
                 setPauseButton();
                 isRecording = true;
             }
         };
         cTimer.start();
 
+    }
+
+    private void setProgressBar() {
+        ProgressBar progressBar = findViewById(R.id.progress_bar);
+        TextView duration = findViewById(R.id.duration);
+        progressBar.setMax(mPlayer.getDuration() / 1000);
+        final int[] i = {progressBar.getProgress()};
+        Handler hdlr = new Handler();
+        StartProgressBar(duration, i, hdlr, progressBar);
     }
 
     private void makeSongNameAndArtistInvisible() {
@@ -461,6 +459,12 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 
     }
 
+    private void placePopupOnScreen() {
+        popup = new PopupWindow(this);
+        setPopupAttributes(popup, popupView);
+        popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+    }
+
 //    private void applyDim() {
 //        Drawable dim = new ColorDrawable(Color.BLACK);
 //        dim.setBounds(0, 0, findViewById(R.id.sing_song).getWidth(), findViewById(R.id.sing_song).getHeight());
@@ -471,12 +475,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 //        overlay.add(dim);
 //    }
 
-    private void placePopupOnScreen() {
-        popup = new PopupWindow(this);
-        setPopupAttributes(popup, popupView);
-        popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-    }
-
     private void setPopupAttributes(PopupWindow popup, View layout) {
         int width = ((this.getResources().getDisplayMetrics().widthPixels));
         int height = this.getResources().getDisplayMetrics().heightPixels;
@@ -485,13 +483,12 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         popup.setHeight(height);
     }
 
-
     //cancel timer
     void cancelTimer() {
         if (cTimer != null)
             cTimer.cancel();
+        timerStarted = false;
     }
-
 
     public void openEndOptions(View view) {
         if (mPlayer.getCurrentPosition() / 1000.0 > 2) {
@@ -512,12 +509,12 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 //        cameraPreview.stopRecording();
     }
 
-//    public void stopSong
-
     public void resumeSong(View view) {
         startResumeTimer();
 
     }
+
+//    public void stopSong
 
     private void startResumeTimer() {
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
@@ -547,25 +544,34 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     public void playAgain(View view) {
-        cameraPreview.stopRecording();
-        cameraPreview.closeCamera();
-        popup.dismiss();
+        if (!buttonClicked) {
+            buttonClicked = true;
+            cameraPreview.stopRecording();
+//        cameraPreview.closeCamera();
+            popup.dismiss();
 //        setContentView(R.layout.activity_sing);
-        resetPage();
-        restart = true;
-        isRunning = false;
-        isRecording = false;
-        mKaraokeKonroller.onStop();
-        deleteCurrentTempFile();
+            resetPage();
+            restart = true;
+            isRunning = false;
+            isRecording = false;
+            deleteCurrentTempFile();
+            resetKaraokeController();
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
+            else {
+                tryLoadSong();
+            }
+//        initiateCamera();
+            buttonClicked = false;
+        }
+    }
+
+    private void resetKaraokeController() {
+        if (!mKaraokeKonroller.isStopped())
+            mKaraokeKonroller.onStop();
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
         mPlayer = mKaraokeKonroller.getmPlayer();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-        else {
-            tryLoadSong();
-        }
-        initiateCamera();
     }
 
     private void resetPage() {
@@ -650,49 +656,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         cameraPreview.closeCamera();
     }
 
-//    private String parseVideo(String mFilePath) {
-//        try {
-//            DataSource channel = new FileDataSourceImpl(mFilePath);
-//            IsoFile isoFile = new IsoFile(channel);
-//            List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
-//            boolean isError = false;
-//            for (TrackBox trackBox : trackBoxes) {
-//                TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
-//                // Detect if first sample is a problem and fix it in isoFile
-//                // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
-//                // 10000 seems sufficient since for 30 fps the normal delta is about 3000
-//                if (firstEntry.getDelta() > 10000) {
-//                    isError = true;
-//                    firstEntry.setDelta(3000);
-//                }
-//            }
-//            File file = getOutputMediaFile();
-//            String filePath = file.getAbsolutePath();
-//            if (isError) {
-//                Movie movie = new Movie();
-//                for (TrackBox trackBox : trackBoxes) {
-//                    movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
-//                }
-//                movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
-//                Container out = new DefaultMp4Builder().build(movie);
-//
-//                //delete file first!
-//                FileChannel fc = new RandomAccessFile(mPostProcessingFilePath, "rw").getChannel();
-//                out.writeContainer(fc);
-//                fc.close();
-//                deleteFile(mVideoFilePath);
-//                mListener.onVideoStop(mPostProcessingFilePath);
-//                return mPostProcessingFilePath;
-//            }
-//            mListener.onVideoStop(mVideoFilePath);
-//            return mFilePath;
-//        } catch (IOException e) {
-//            mListener.onVideoError("");
-//            return mPostProcessingFilePath;
-//        }
-//
-//    }
-
     private File parseVideo(File mFilePath) throws IOException {
         DataSource channel = new FileDataSourceImpl(mFilePath.getAbsolutePath());
         IsoFile isoFile = new IsoFile(channel);
@@ -750,6 +713,13 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         mediaFile = new File(mediaStorageDir.getPath() + File.separator
                 + "VID_" + timeStamp + ".mp4");
         return mediaFile;
+    }
+
+    private class CreateObserver implements LifecycleObserver {
+        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        public void connectListener() {
+            networkFragment.startDownload();
+        }
     }
 
 }

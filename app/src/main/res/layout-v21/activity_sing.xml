@@ -33,11 +33,13 @@
             android:layout_centerInParent="true"/>
 
         <Button
+            android:id="@+id/open_end_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:onClick="openEndOptions"
-            android:text="@string/done" />
+            android:text="@string/done"
+            android:visibility="invisible"/>
 
 
     </RelativeLayout>
@@ -111,8 +113,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:maxLines="46"
-                    android:textSize="28sp" />
+                    android:textSize="28sp"/>
 
                 <TextView
                     android:id="@+id/words_to_read"
