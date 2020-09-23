@@ -43,5 +43,6 @@
     <string name="title_activity_playback">Playback</string>
     <string name="ok">OK</string>
     <string name="no_internet_alert">\There is no internet connection.</string>
+    <string name="title_activity_sign_in">SignInActivity</string>
 
 </resources>

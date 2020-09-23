@@ -13,7 +13,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -44,6 +43,7 @@ import java.util.List;
 public class CameraPreview {
 
     private static final int CAMERA_CODE = 101;
+    private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private AppCompatActivity activity;
     private TextureView mTextureView;
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
@@ -262,8 +262,9 @@ public class CameraPreview {
 
     private void createVideoFolder() {
 //        File moviewFile = Environment.getDataDirectory();
-        File moviewFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        mVIdeoFolder = new File(moviewFile, "camera2videoImageNew");
+//        File moviewFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        File moviewFile = activity.getCacheDir();
+        mVIdeoFolder = new File(moviewFile, DIRECTORY_NAME);
         if (!mVIdeoFolder.exists()) {
             mVIdeoFolder.mkdirs();
         } else {
@@ -371,17 +372,21 @@ public class CameraPreview {
     }
 
     public void stopRecording() {
-        mMediaRecorder.stop();
-        mMediaRecorder.reset();
-        mMediaRecorder.release();
-        mMediaRecorder = null;
+        if (mMediaRecorder != null) {
+            mMediaRecorder.stop();
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+        }
     }
 
     public void pauseRecording() {
-        mMediaRecorder.pause();
+        if (mMediaRecorder != null)
+            mMediaRecorder.pause();
     }
 
     public void resumeRecording() {
-        mMediaRecorder.resume();
+        if (mMediaRecorder != null)
+            mMediaRecorder.resume();
     }
 }

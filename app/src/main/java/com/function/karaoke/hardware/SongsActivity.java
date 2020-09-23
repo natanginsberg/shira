@@ -29,6 +29,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.StorageDriver;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
 import com.function.karaoke.hardware.utils.MergeTake2;
 
@@ -98,7 +99,7 @@ public class SongsActivity
                 setContentView(R.layout.activity_songs);
 //                mTextureView = (TextureView) findViewById(R.id.camera_place);
 //                cameraPreview = new CameraPreview(mTextureView, SongsActivity.this);
-                String languageToDisplay = language.equals("English") ? "En" : "עב";
+                String languageToDisplay = language.equals("English") ? "EN" : "עב";
                 ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
             }
         }.start();
@@ -136,8 +137,14 @@ public class SongsActivity
     public void uploadPdfFile(View view) {
 //        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
 //            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
-//        else
-//            networkFragment.startUpload()
+//        else {
+//            networkFragment = NetworkFragment.getUploadInstance(getSupportFragmentManager(), new StorageDriver());
+//            networkFragment.startUpload();
+//        }
+
+
+        Intent refresh = new Intent(this, SignInActivity.class);
+        startActivity(refresh);
 //        urls.add(dbSongs.getSongs().get(0).getSongResourceFile());
 //        urls.add(dbSongs.getSongs().get(1).getSongResourceFile());
 //
@@ -147,8 +154,8 @@ public class SongsActivity
 //            MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
 //            mergeAudioFiles.SSoftAudCombine();
 //        }
-
-        prepareBothAudios();
+//
+//        prepareBothAudios();
     }
 
     private void prepareBothAudios() {

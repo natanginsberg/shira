@@ -25,13 +25,12 @@ public class KaraokeController implements Recorder.IToneListener {
     private final String tempOutputFile;
     //        private MediaRecorder mRecorder;
     private final Handler mHandler;
-
+    private final List<Tone> mTones = new ArrayList<>();
     // realtime data
     private Song mSong;
     private Song.Line mCurrentLine;
     private long mLastUpdate;
     private long mLineStart;
-    private final List<Tone> mTones = new ArrayList<>();
     private MyCustomObjectListener listener;
 
     private boolean prepared = false;
@@ -58,19 +57,19 @@ public class KaraokeController implements Recorder.IToneListener {
         }
     };
 
-    public void finishPlaying() {
-        mPlayer.stop();
-        mPlayer.release();
-//        mRecorder.stop();
-//        mRecorder.release();
-    }
-
     public KaraokeController(String tempOutputFile) {
         mHandler = new Handler();
         mPlayer = new MediaPlayer();
 //        mRecorder = new MediaRecorder();
         this.tempOutputFile = tempOutputFile;
         this.listener = null;
+    }
+
+    public void finishPlaying() {
+        mPlayer.stop();
+        mPlayer.release();
+//        mRecorder.stop();
+//        mRecorder.release();
     }
 
     public void init(View view, int lyrics, int wordsRead, int wordsToRead, int camera) {
@@ -170,7 +169,6 @@ public class KaraokeController implements Recorder.IToneListener {
     public void onStop() {
         mPlayer.release();
         stopped = true;
-        int k = 0;
 //        mRecorder.release();
     }
 
@@ -222,7 +220,7 @@ public class KaraokeController implements Recorder.IToneListener {
     public interface MyCustomObjectListener {
         // These methods are the different events and
         // need to pass relevant arguments related to the event triggered
-        public void onSongEnded(boolean songIsOver);
+        void onSongEnded(boolean songIsOver);
 
     }
 }

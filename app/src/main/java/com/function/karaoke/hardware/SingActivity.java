@@ -66,6 +66,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     public static final String EXTRA_SONG = "EXTRA_SONG";
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
     private static final String TAG = "HELLO WORLD";
+    private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int BACK_CODE = 101;
     private static final int INTERNET_CODE = 102;
     private final int AUDIO_CODE = 1;
@@ -130,6 +131,9 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        deletePreviousVideos();
+
         setContentView(R.layout.activity_sing);
         deleteCurrentTempFile();
         storageAdder = new StorageAdder();
@@ -149,6 +153,15 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_WRITE_PERMISSION);
+        }
+    }
+
+    private void deletePreviousVideos() {
+        File dir = new File(getCacheDir(), DIRECTORY_NAME);
+        if (dir.exists()) {
+            for (File f : dir.listFiles()) {
+                f.delete();
+            }
         }
     }
 
@@ -189,8 +202,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
             if (isRecording) {
                 cameraPreview.stopRecording();
             }
-            Intent intent = new Intent(this, SongsActivity.class);
-            startActivity(intent);
+            finish();
         } else if (result.equals("ok")) {
             finish();
         }
@@ -365,9 +377,9 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
             public void onFinish() {
                 cancelTimer();
                 findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
+                makeSongNameAndArtistInvisible();
                 cameraPreview.startRecording();
                 mKaraokeKonroller.onResume();
-                makeSongNameAndArtistInvisible();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
                 if (!previewRunning) {
                     findViewById(R.id.logo).setVisibility(View.VISIBLE);

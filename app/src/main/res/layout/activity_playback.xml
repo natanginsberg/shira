@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/appColor"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".Playback"
-    tools:deviceIds="wear">
+    tools:context=".Playback">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -23,14 +22,16 @@
             android:layout_height="wrap_content"
             android:id="@+id/back_button"
             android:onClick="backToOptions"
-            android:background="@drawable/ic_back_arrow"/>
+            android:background="@drawable/ic_back_arrow"
+            android:visibility="invisible"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|right"
             android:text="save video"
-            android:onClick="saveVideoAndReturn"/>
+            android:onClick="saveVideoAndReturn"
+            android:visibility="invisible"/>
 
     </FrameLayout>
-</androidx.wear.widget.BoxInsetLayout>
+</FrameLayout>

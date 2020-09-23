@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.function.karaoke.hardware">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.RECORD_VIDEO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -33,28 +35,24 @@
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
 
-
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
         -->
-        <meta-data
-            android:name="com.google.android.wearable.standalone"
-            android:value="true" />
 
+        <activity
+            android:name=".SignInActivity"
+            android:label="@string/title_activity_sign_in">
+
+        </activity>
         <activity
             android:name=".Playback"
             android:label="@string/title_activity_playback"
-            android:screenOrientation="portrait">
-
-        </activity>
+            android:screenOrientation="portrait"></activity>
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
         -->
-        <!-- <meta-data -->
-        <!-- android:name="com.google.android.wearable.standalone" -->
-        <!-- android:value="true" /> -->
         <activity
             android:name=".VideoPlayer"
             android:label="@string/title_activity_video_player">
@@ -72,9 +70,11 @@
         <activity
             android:name=".test"
             android:exported="true" />
-        <activity android:name=".SingActivity"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".SongsActivity"
+        <activity
+            android:name=".SingActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SongsActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

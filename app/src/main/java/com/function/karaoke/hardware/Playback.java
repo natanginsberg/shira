@@ -109,6 +109,9 @@ public class Playback extends AppCompatActivity {
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING) {
                 playerView.setPlayer(player);
+                player.setVolume(0.5f);
+            } else {
+                player.setVolume(0.5f);
             }
             player.setPlayWhenReady(false);
             player.seekTo(currentWindow, playbackPosition);

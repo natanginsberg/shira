@@ -30,8 +30,7 @@ public class Parser {
                 } else if (line.startsWith("[al")) {
                     song.album = getStringValueOfLine(line);
                 } else if (line.startsWith("[") && line.endsWith("]")) {
-                    continue;
-                } else {
+                    } else {
                     if (line.startsWith("[")) {
                         int nextLineIndex = i + 1;
                         boolean isLastLine = false;
