@@ -1,6 +1,7 @@
 package com.function.karaoke.hardware;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,27 +12,42 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.Html;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.OnLifecycleEvent;
 
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
-import com.function.karaoke.hardware.storage.StorageDriver;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
 import com.function.karaoke.hardware.utils.MergeTake2;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,12 +61,9 @@ public class SongsActivity
     private static final int VIDEO_REQUEST = 1;
     private static final int CAMERA_CODE = 2;
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 102;
+    private static final int PICK_CONTACT_REQUEST = 100;
 
-    private static final int DOWNLOAD_WORDS = 100;
-    private static final int GET_COVER_IMAGE = 101;
-    private static final int GET_AUDIO = 102;
     DatabaseDriver databaseDriver = new DatabaseDriver();
-
 
     //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
@@ -64,6 +77,28 @@ public class SongsActivity
     List<String> urls = new ArrayList<>();
     private int prepared = 0;
 
+    // GetContent creates an ActivityResultLauncher<String> to allow you to pass
+// in the mime type you'd like to allow the user to select
+    private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Intent intent = result.getData();
+                        userInfo = (UserInfo) intent.getSerializableExtra("User");
+                        updateUI();
+                    }
+                }
+            });
+
+
+    private void updateUI() {
+        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+    }
+
+
+    private UserInfo userInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +110,43 @@ public class SongsActivity
         language = getResources().getConfiguration().locale.getDisplayLanguage();
 //        networkFragment = NetworkFragment.getUploadInstance(getSupportFragmentManager(), new StorageDriver());
 //        setContentView(R.layout.activity_songs);
+        getDynamicLink();
 
+    }
+
+    private void getDynamicLink() {
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+//                            findViewById(R.id.language).setVisibility(View.INVISIBLE);
+                        }
+                        else {
+//                            findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+                        }
+
+
+                        // Handle the deep link. For example, open the linked
+                        // content, or apply promotional credit to the user's
+                        // account.
+                        // ...
+
+                        // ...
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    private static final String TAG = "Error";
+
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "getDynamicLink:onFailure", e);
+                    }
+                });
     }
 
     @Override
@@ -135,6 +206,49 @@ public class SongsActivity
     }
 
     public void uploadPdfFile(View view) {
+//        mGetContent.launch(new Intent(this, SignInActivity.class));
+        DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
+//                .setLink(Uri.parse("https://www.example.com/"))
+//                .setDomainUriPrefix("https://singJewish.page.link")
+                // Open links with this app on Android
+                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
+                // Open links with com.example.ios on iOS
+//                .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
+                .buildDynamicLink();
+
+        Uri dynamicLinkUri = dynamicLink.getUri();
+
+        String link = dynamicLinkUri.toString();
+
+
+        String link_val = "http/example://ashira" + this.getPackageName();
+        String body = "<a href=\"" + link + "\">" + link + "</a>";
+        String data = " Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
+//        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+//        sendIntent.setAction(ACTION_SEND);
+//        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+        sendIntent.setType("text/plain");
+//        sendIntent.setPackage("com.whatsapp");
+//        sendIntent.setData(Uri.parse("smsto:"));
+//        sendIntent.setType("text/html");
+//        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
+//        sendIntent.putExtra(Intent.EXTRA_HTML_TEXT, body);
+        sendIntent.putExtra(
+                Intent.EXTRA_TEXT,
+                Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
+//        emailIntent.setType("image/jpeg");
+        //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
+        //myUri = Uri.fromFile(bitmapFile);
+//        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///mnt/sdcard/DCIM/Camera/img.jpg"));
+//        sendIntent.setDataAndType(Uri.parse("mailto:"), "text/html");
+//        if (sendIntent.resolveActivity(getPackageManager()) != null) {
+//            startActivity(sendIntent);
+//        }
+
+//        startActivityForResult(Intent.createChooser(sendIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
+        startActivity(sendIntent);
+    }
 //        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
 //            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
 //        else {
@@ -143,27 +257,18 @@ public class SongsActivity
 //        }
 
 
-        Intent refresh = new Intent(this, SignInActivity.class);
-        startActivity(refresh);
-//        urls.add(dbSongs.getSongs().get(0).getSongResourceFile());
-//        urls.add(dbSongs.getSongs().get(1).getSongResourceFile());
-//
-//        getAudioSizes(urls.get(0), 0);
-//        getAudioSizes(urls.get(1), 1);
-//        if (prepared == 2) {
-//            MergeTake2 mergeAudioFiles = new MergeTake2(urls, sizes);
-//            mergeAudioFiles.SSoftAudCombine();
-//        }
-//
-//        prepareBothAudios();
-    }
+//        Intent refresh = new Intent(this, SignInActivity.class);
+//        startActivity(refresh);
+
+
+//    }
 
     private void prepareBothAudios() {
         List<MediaPlayer> mediaPlayers = new ArrayList<>();
         mediaPlayers.add(new MediaPlayer());
         mediaPlayers.add(new MediaPlayer());
 //        for (MediaPlayer mPlayer:mediaPlayers)
-        for(int i=0;i<2;i++) {
+        for (int i = 0; i < 2; i++) {
             String url = dbSongs.getSongs().get(i).getSongResourceFile();
             MediaPlayer mPlayer = mediaPlayers.get(i);
             try {
@@ -224,14 +329,6 @@ public class SongsActivity
         }
     }
 
-    /**
-     * Check if this device has a camera
-     */
-    private boolean checkCameraHardware(Context context) {
-        // this device has a camera
-        // no camera on this device
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
-    }
 
     private void setLocale(String lang) {
 
@@ -308,6 +405,28 @@ public class SongsActivity
         downloading = false;
         if (networkFragment != null) {
             networkFragment.cancelDownload();
+        }
+    }
+
+    class SignUpContract extends ActivityResultContract<Integer, UserInfo> {
+
+
+        private static final int ONE_TIME_SUBSCRIPTION = 100;
+        private static final int MONTHLY_SUBSCRIPTION = 101;
+        private static final int YEARLY_SUBSCRIPTION = 102;
+
+        @NonNull
+        @Override
+        public Intent createIntent(@NonNull Context context, Integer input) {
+            return null;
+        }
+
+        @Override
+        public UserInfo parseResult(int resultCode, @Nullable Intent intent) {
+            if (resultCode != RESULT_OK || intent == null) {
+                return null;
+            }
+            return (UserInfo) intent.getSerializableExtra("User");
         }
     }
 }

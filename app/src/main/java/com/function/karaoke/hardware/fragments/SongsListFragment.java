@@ -1,26 +1,37 @@
 package com.function.karaoke.hardware.fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.DatabaseSong;
 import com.function.karaoke.hardware.DatabaseSongsDB;
 import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.SignInActivity;
 import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.utils.UrlHolder;
 
 import java.util.ArrayList;
@@ -33,7 +44,7 @@ import java.util.Objects;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener {
+public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final int DOWNLOAD_WORDS = 100;
@@ -56,6 +67,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private List<DatabaseSong> allSongs = new ArrayList<>();
     private NetworkFragment networkFragment;
     private UrlHolder urlParser;
+
+
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -80,7 +93,17 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
+
     }
+
+//    private void setClickListeners(View songsView) {
+//        songsView.findViewById(R.id.testButton).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                mGetContent.launch(new Intent(getActivity(), SignInActivity.class));
+//            }
+//        });
+//    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -100,6 +123,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //        }
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
+//        setClickListeners(songsView);
         return songsView;
     }
 
@@ -155,7 +179,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //        mAdapter = new SongRecyclerViewAdapter(songs.getSongs(), mListener, ((SongsActivity) Objects.requireNonNull(getActivity())).language);
         databaseSongs = mListener.getSongs();
         mAdapter = new SongRecyclerViewAdapter(databaseSongs.getSongs(), mListener,
-                ((SongsActivity) Objects.requireNonNull(getActivity())).language);
+                ((SongsActivity) requireActivity()).language);
     }
 
     @Override
@@ -282,6 +306,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         }
         databaseSongs.updateSongs(searchedSongs);
     }
+
+    private void updateUI() {
+
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this

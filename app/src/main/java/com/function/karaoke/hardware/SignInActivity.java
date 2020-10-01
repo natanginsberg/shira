@@ -7,6 +7,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -27,7 +28,7 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        String test  = String.valueOf(GoogleSignInOptions.DEFAULT_SIGN_IN);
+        String test = String.valueOf(GoogleSignInOptions.DEFAULT_SIGN_IN);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
@@ -49,7 +50,7 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
-//    public void openAccounts(View view) {
+    //    public void openAccounts(View view) {
 //        signIn();
 //    }
     private void signIn() {
@@ -73,10 +74,15 @@ public class SignInActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            int k = 0;
 
             // Signed in successfully, show authenticated UI.
 //            updateUI(account);
+            UserInfo userInfo = new UserInfo(account.getEmail(), account.getDisplayName());
+            Intent intent = new Intent(this, SongsActivity.class);
+            intent.putExtra("User", userInfo);
+//            onActivityResult(0, RESULT_OK, intent);
+            setResult(RESULT_OK, intent);
+            finish();
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -84,4 +90,9 @@ public class SignInActivity extends AppCompatActivity {
 //            updateUI(null);
         }
     }
+
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+//        super.onActivityResult(requestCode, resultCode, intent);//will deliver result to desired fragment.
+//    }
 }

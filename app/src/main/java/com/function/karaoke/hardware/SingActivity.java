@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,6 +24,7 @@ import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -69,6 +71,8 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int BACK_CODE = 101;
     private static final int INTERNET_CODE = 102;
+    private static final int PICK_CONTACT_REQUEST = 106;
+    private static final int MESSAGE_RESULT = 1;
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -724,6 +728,33 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         mediaFile = new File(mediaStorageDir.getPath() + File.separator
                 + "VID_" + timeStamp + ".mp4");
         return mediaFile;
+    }
+
+    public void share(View view) {
+        String link_val = "example://ashira" + this.getPackageName();
+        String body = "<a href=\"" + link_val + "\">" + link_val + "</a>";
+        String data = "Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(data));
+//        emailIntent.setType("image/jpeg");
+        //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
+        //myUri = Uri.fromFile(bitmapFile);
+//        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///mnt/sdcard/DCIM/Camera/img.jpg"));
+        emailIntent.setData(Uri.parse("mailto:"));
+
+
+        startActivityForResult(Intent.createChooser(emailIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == MESSAGE_RESULT) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(getApplicationContext(), "E-Mail sent successfully", Toast.LENGTH_LONG).show();
+            }
+        }
+
     }
 
     private class CreateObserver implements LifecycleObserver {

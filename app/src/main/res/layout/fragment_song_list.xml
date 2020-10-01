@@ -30,12 +30,12 @@
             android:id="@+id/language_changer"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_toRightOf="@id/language"
             android:layout_marginLeft="10dp"
-            android:onClick="changeLanguage"
-            android:background="@drawable/ic_language_button"/>
+            android:layout_toRightOf="@id/language"
+            android:background="@drawable/ic_language_button"
+            android:onClick="changeLanguage" />
 
-            <Button
+        <Button
             android:id="@+id/personal_library"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -55,12 +55,13 @@
             android:textColor="@color/sing_up_hover" />
 
         <Button
+            android:id="@+id/testButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="upload"
             android:layout_centerInParent="true"
             android:onClick="uploadPdfFile"
-            android:visibility="visible"/>
+            android:text="upload"
+            android:visibility="visible" />
 
 
     </RelativeLayout>
@@ -111,17 +112,7 @@
         tools:listitem="@layout/view_song_list_item">
 
 
-
     </androidx.recyclerview.widget.RecyclerView>
-
-    <TextureView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:id="@+id/camera_place"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

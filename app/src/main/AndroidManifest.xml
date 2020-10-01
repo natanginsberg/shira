@@ -4,7 +4,6 @@
     package="com.function.karaoke.hardware">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.RECORD_VIDEO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -34,21 +33,26 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity android:name=".Video">
+            <intent-filter android:label="videoFilter">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <!-- Accepts URIs that begin with "example://gizmos” -->
+                <data android:scheme="http/example"
+                    android:host="ashira" />
+            </intent-filter>
+        </activity>
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
         -->
-
         <activity
             android:name=".SignInActivity"
-            android:label="@string/title_activity_sign_in">
-
-        </activity>
+            android:label="@string/title_activity_sign_in"></activity>
         <activity
             android:name=".Playback"
             android:label="@string/title_activity_playback"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -80,6 +84,16 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter android:label="shira">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <!-- Accepts URIs that begin with "example://gizmos” -->
+                <data android:scheme="http" android:host="example.com" />
+                <data android:scheme="https" android:host="example.com" />
+                <data android:host="singJewish.page.link" android:scheme="https"/>
             </intent-filter>
         </activity>
     </application>
