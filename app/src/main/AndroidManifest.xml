@@ -52,7 +52,18 @@
         <activity
             android:name=".Playback"
             android:label="@string/title_activity_playback"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            >
+            <intent-filter android:label="shira">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <!-- Accepts URIs that begin with "example://gizmos” -->
+                <data android:scheme="http" android:host="example.com" />
+                <data android:scheme="https" android:host="example.com" />
+                <data android:host="singJewish.page.link" android:scheme="https"/>
+            </intent-filter>
+        </activity>
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -86,15 +97,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <intent-filter android:label="shira">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <!-- Accepts URIs that begin with "example://gizmos” -->
-                <data android:scheme="http" android:host="example.com" />
-                <data android:scheme="https" android:host="example.com" />
-                <data android:host="singJewish.page.link" android:scheme="https"/>
-            </intent-filter>
+
         </activity>
     </application>
 

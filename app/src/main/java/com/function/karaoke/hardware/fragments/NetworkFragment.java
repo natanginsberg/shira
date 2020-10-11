@@ -3,6 +3,7 @@ package com.function.karaoke.hardware.fragments;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -12,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.function.karaoke.hardware.DownloadCallback;
+import com.function.karaoke.hardware.ShortDynamicLinkCreator;
 import com.function.karaoke.hardware.storage.StorageDriver;
 import com.function.karaoke.hardware.utils.UrlHolder;
 import com.function.karaoke.hardware.utils.MergeTake2;
@@ -33,13 +35,16 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
     private static final int DOWNLOAD_WORDS = 100;
     private static final int GET_COVER_IMAGE = 101;
     private static final int GET_AUDIO = 102;
+    private static final String DYNAMIC_LINK_CREATOR = "linkCreator";
 
 
     private DownloadCallback<String> callback;
+    private DownloadCallback<Uri> linkCallback;
     private UploadTask uploadTask;
     private DownloadTask downloadTask;
     private MergeTask merger;
     private UrlHolder urlParser;
+    private ShortDynamicLinkCreator shortDynamicLinkCreator;
     private String urlString;
     private StorageDriver storageDriver;
     private int taskToOperate;
@@ -98,6 +103,19 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
         return networkFragment;
     }
 
+    /**
+     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
+     * from.
+     */
+    public static NetworkFragment getLinkingInstance(FragmentManager fragmentManager, ShortDynamicLinkCreator shortDynamicLinkCreator) {
+        NetworkFragment networkFragment = new NetworkFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(DYNAMIC_LINK_CREATOR, shortDynamicLinkCreator);
+        networkFragment.setArguments(args);
+        fragmentManager.beginTransaction().add(networkFragment, TAG).commit();
+        return networkFragment;
+    }
+
 //    @Override
 //    public void onCreate(@Nullable Bundle savedInstanceState) {
 //        super.onCreate(savedInstanceState);
@@ -111,9 +129,12 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
             storageDriver = (StorageDriver) getArguments().getSerializable(STORAGE_DRIVER);
         } else if (getArguments().containsKey(MERGER)) {
             fileMerger = (MergeTake2) getArguments().getSerializable(MERGER);
-        } else {
+        } else
+//            if (getArguments().containsKey(URL_PARSER)){
             urlParser = (UrlHolder) getArguments().getSerializable(URL_PARSER);
-        }
+//        } else {
+//            shortDynamicLinkCreator = (ShortDynamicLinkCreator)getArguments().getSerializable(DYNAMIC_LINK_CREATOR);
+//        }
         setRetainInstance(true);
     }
 
@@ -121,7 +142,11 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
     public void onAttach(Context context) {
         super.onAttach(context);
         // Host Activity will handle callbacks from task.
-        callback = (DownloadCallback<String>) context;
+//        if (urlParser == null) {
+//            linkCallback = (DownloadCallback<Uri>) context;
+//        } else {
+            callback = (DownloadCallback<String>) context;
+//        }
     }
 
     @Override
@@ -464,6 +489,94 @@ public class NetworkFragment extends Fragment implements LifecycleOwner {
                 callback.finishDownloading();
             }
         }
+
+        /**
+         * Override to add special behavior for cancelled AsyncTask.
+         */
+        @Override
+        protected void onCancelled(MergeTask.Result result) {
+        }
+
+        /**
+         * Wrapper class that serves as a union of a result value and an exception. When the download
+         * task has completed, either the result value or exception can be a non-null value.
+         * This allows you to pass exceptions to the UI thread that were thrown during doInBackground().
+         */
+        private class Result {
+            public String resultValue;
+            public Exception exception;
+
+            public Result(String resultValue) {
+                this.resultValue = resultValue;
+            }
+
+            public Result(Exception exception) {
+                this.exception = exception;
+            }
+        }
+    }
+
+
+    /**
+         * Implementation of AsyncTask designed to fetch data from the network.
+         */
+        private class ShortLinkTask extends AsyncTask<UrlHolder, Integer, ShortLinkTask.Result> {
+
+            private DownloadCallback<String> callback;
+
+            ShortLinkTask(DownloadCallback<String> callback) {
+                setCallback(callback);
+            }
+
+            void setCallback(DownloadCallback<String> callback) {
+                this.callback = callback;
+            }
+
+            @Override
+            protected ShortLinkTask.Result doInBackground(UrlHolder... urlParsers) {
+                ShortLinkTask.Result result = null;
+                if (!isCancelled() && urlParsers != null) {
+                    try {
+                        fileMerger.SSoftAudCombine();
+                    } catch (Exception e) {
+                        result = new ShortLinkTask.Result(e);
+                    }
+                }
+                return result;
+            }
+
+            /**
+             * Cancel background network operation if we do not have network connectivity.
+             */
+            @Override
+            protected void onPreExecute() {
+                if (callback != null) {
+                    NetworkInfo networkInfo = callback.getActiveNetworkInfo();
+                    if (networkInfo == null || !networkInfo.isConnected() ||
+                            (networkInfo.getType() != ConnectivityManager.TYPE_WIFI
+                                    && networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
+                        // If no connectivity, cancel task and update Callback with null data.
+                        callback.updateFromDownload(null);
+                        cancel(true);
+                    }
+                }
+            }
+
+            /**
+             * Updates the DownloadCallback with the result.
+             */
+            @Override
+            protected void onPostExecute(Result result) {
+                if (result != null && callback != null) {
+                    if (result.exception != null) {
+                        callback.updateFromDownload(result.exception.getMessage());
+                    } else if (result.resultValue != null) {
+                        callback.updateFromDownload(result.resultValue);
+                    }
+                    callback.finishDownloading();
+                }
+            }
+
 
 //        /**
 //         * Defines work to perform on the background thread.

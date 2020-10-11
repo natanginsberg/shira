@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.Observer;
@@ -44,6 +45,10 @@ import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.UrlHolder;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.googlecode.mp4parser.DataSource;
 import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.authoring.Movie;
@@ -73,6 +78,10 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private static final int INTERNET_CODE = 102;
     private static final int PICK_CONTACT_REQUEST = 106;
     private static final int MESSAGE_RESULT = 1;
+    private static final String PLAYBACK = "playabck";
+    private static final String AUDIO_FILE = "audio";
+    private static final CharSequence AUDIO_TOKEN = "audioToken";
+    private static final CharSequence VIDEO_TOKEN = "videoToken";
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -215,38 +224,54 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     public void playback(View view) {
         if (!buttonClicked) {
             buttonClicked = true;
-            try {
-                ending = true;
-                if (!mKaraokeKonroller.isStopped()) {
-                    mKaraokeKonroller.onStop();
-                    findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
-                }
-                if (isRecording) {
-                    cameraPreview.stopRecording();
-                }
-                File file = cameraPreview.getVideo();
-                File postParse = parseVideo(file);
-                addFileToStorage(Uri.fromFile(postParse));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            File postParseVideoFile = wrapUpSong();
+            addFileToStorageForPlayback(Uri.fromFile(postParseVideoFile));
+//            openNewIntent();
         }
     }
 
-    private void addFileToStorage(Uri path) {
-        final Observer<String> urlObserver = url -> {
-            videoUrl = url;
-            playback = true;
+    private File wrapUpSong() {
+        try {
+            stopRecordingAndSong();
+            File file = cameraPreview.getVideo();
+            return parseVideo(file);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void stopRecordingAndSong() {
+        ending = true;
+        if (!mKaraokeKonroller.isStopped()) {
+            mKaraokeKonroller.onStop();
+            findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
+        }
+        if (isRecording) {
+            cameraPreview.stopRecording();
+        }
+    }
+
+    private void addFileToStorageForPlayback(Uri path) {
+        if (videoUrl == null) {
+            final Observer<String> urlObserver = url -> {
+                videoUrl = url;
+                playback = true;
+                buttonClicked = false;
+                openNewIntent();
+
+            };
+            storageAdder.uploadVideo(path).observe(this, urlObserver);
+        } else {
             openNewIntent();
-            buttonClicked = false;
-        };
-        storageAdder.uploadVideo(path).observe(this, urlObserver);
+        }
     }
 
     private void openNewIntent() {
         Intent intent = new Intent(this, Playback.class);
-        intent.putExtra("fileUrl", videoUrl);
-        intent.putExtra("url", song.getSongResourceFile());
+        intent.putExtra(PLAYBACK, videoUrl);
+        intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
         startActivity(intent);
     }
 
@@ -731,19 +756,81 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     public void share(View view) {
-        String link_val = "example://ashira" + this.getPackageName();
-        String body = "<a href=\"" + link_val + "\">" + link_val + "</a>";
-        String data = "Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
-        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(data));
-//        emailIntent.setType("image/jpeg");
-        //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
-        //myUri = Uri.fromFile(bitmapFile);
-//        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///mnt/sdcard/DCIM/Camera/img.jpg"));
-        emailIntent.setData(Uri.parse("mailto:"));
+        File postParseVideoFile = wrapUpSong();
+        addFilesToStorageForLinking(Uri.fromFile(postParseVideoFile));
+    }
+
+    private void addFilesToStorageForLinking(Uri path) {
+        if (videoUrl == null) {
+            final Observer<String> urlObserver = url -> {
+                videoUrl = url;
+                playback = true;
+                buttonClicked = false;
+                shareLink();
+
+            };
+            storageAdder.uploadVideo(path).observe(this, urlObserver);
+        } else {
+            shareLink();
+        }
+    }
+
+    //        String link_val = "example://ashira" + this.getPackageName();
+//        String body = "<a href=\"" + link_val + "\">" + link_val + "</a>";
+//        String data = "Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
+//        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+//        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(data));
+////        emailIntent.setType("image/jpeg");
+//        //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
+//        //myUri = Uri.fromFile(bitmapFile);
+////        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///mnt/sdcard/DCIM/Camera/img.jpg"));
+//        emailIntent.setData(Uri.parse("mailto:"));
+//
+//
+//        startActivityForResult(Intent.createChooser(emailIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
+    private void shareLink() {
+        String firstFileWithNewTokenName = song.getSongResourceFile().replace("token", AUDIO_TOKEN);
+        String secondFileWithNewTokenName = videoUrl.replace("token", VIDEO_TOKEN);
+
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse("https://www.example.com/?audio=" + firstFileWithNewTokenName + "&video=" + secondFileWithNewTokenName))
+                .setDomainUriPrefix("https://singJewish.page.link")
+                // Set parameters
+                // ...
+                .buildShortDynamicLink()
+                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            // Short link created
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            String link = flowchartLink.toString();
 
 
-        startActivityForResult(Intent.createChooser(emailIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
+                            String body = "<a href=\"" + link + "\">" + link + "</a>";
+                            String data = "Listen to me sing\n" + body;
+//        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+                            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+//        sendIntent.setAction(ACTION_SEND);
+//        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+                            sendIntent.setType("text/plain");
+//        sendIntent.setPackage("com.whatsapp");
+//        sendIntent.setData(Uri.parse("smsto:"));
+//        sendIntent.setType("text/html");
+//        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
+//        sendIntent.putExtra(Intent.EXTRA_HTML_TEXT, body);
+                            sendIntent.putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
+                            startActivity(sendIntent);
+                        } else {
+                            int k = 0;
+                            // Error
+                            // ...
+                        }
+                    }
+                });
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

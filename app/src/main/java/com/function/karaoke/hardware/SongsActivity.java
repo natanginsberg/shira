@@ -43,11 +43,13 @@ import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
 import com.function.karaoke.hardware.utils.MergeTake2;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +58,7 @@ import java.util.Locale;
 
 public class SongsActivity
         extends FragmentActivity
-        implements SongsListFragment.OnListFragmentInteractionListener, DownloadCallback {
+        implements SongsListFragment.OnListFragmentInteractionListener, DownloadCallback<Uri> {
 
     private static final int VIDEO_REQUEST = 1;
     private static final int CAMERA_CODE = 2;
@@ -76,6 +78,7 @@ public class SongsActivity
     private long[] sizes = new long[2];
     List<String> urls = new ArrayList<>();
     private int prepared = 0;
+    private String pack;
 
     // GetContent creates an ActivityResultLauncher<String> to allow you to pass
 // in the mime type you'd like to allow the user to select
@@ -105,49 +108,53 @@ public class SongsActivity
 
 //        mSongs = new SongsDB(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
         dbSongs = new DatabaseSongsDB();
+        pack = this.getPackageName();
 
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
 //        networkFragment = NetworkFragment.getUploadInstance(getSupportFragmentManager(), new StorageDriver());
 //        setContentView(R.layout.activity_songs);
-        getDynamicLink();
+//        getDynamicLink();
+//        int k = 0;
 
     }
 
-    private void getDynamicLink() {
-        FirebaseDynamicLinks.getInstance()
-                .getDynamicLink(getIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
-                    @Override
-                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
-                        // Get deep link from result (may be null if no link is found)
-                        Uri deepLink = null;
-                        if (pendingDynamicLinkData != null) {
-                            deepLink = pendingDynamicLinkData.getLink();
-//                            findViewById(R.id.language).setVisibility(View.INVISIBLE);
-                        }
-                        else {
-//                            findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
-                        }
-
-
-                        // Handle the deep link. For example, open the linked
-                        // content, or apply promotional credit to the user's
-                        // account.
-                        // ...
-
-                        // ...
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    private static final String TAG = "Error";
-
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "getDynamicLink:onFailure", e);
-                    }
-                });
-    }
+//    private void getDynamicLink() {
+//        FirebaseDynamicLinks.getInstance()
+//                .getDynamicLink(getIntent())
+//                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+//                    @Override
+//                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+//                        // Get deep link from result (may be null if no link is found)
+//                        Uri deepLink = null;
+//                        if (pendingDynamicLinkData != null) {
+//                            deepLink = pendingDynamicLinkData.getLink();
+//                            String song = deepLink.getQueryParameter("song");
+//                            ((TextView)findViewById(R.id.slogan)).setText(song);
+////                            findViewById(R.id.language).setVisibility(View.INVISIBLE);
+//                        } else {
+//                            int k = 0;
+////                            findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+//                        }
+//
+//
+//                        // Handle the deep link. For example, open the linked
+//                        // content, or apply promotional credit to the user's
+//                        // account.
+//                        // ...
+//
+//                        // ...
+//                    }
+//                })
+//                .addOnFailureListener(this, new OnFailureListener() {
+//                    private static final String TAG = "Error";
+//
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "getDynamicLink:onFailure", e);
+//                    }
+//                });
+//    }
 
     @Override
     protected void onResume() {
@@ -205,38 +212,109 @@ public class SongsActivity
         }
     }
 
+    /**
+     * creates a dynamic link
+     */
+//    public void uploadPdfFile(View view) {
+////        mGetContent.launch(new Intent(this, SignInActivity.class));
+//
+//        DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
+////                .setLink(Uri.parse("https://www.example.com/"))
+//                .setDomainUriPrefix("https://singJewish.page.link")
+//                // Open links with this app on Android
+//                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
+//                // Open links with com.example.ios on iOS
+////                .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
+//                .buildDynamicLink();
+//
+//        Uri dynamicLinkUri = dynamicLink.getUri();
+//
+//        String link = dynamicLinkUri.toString();
+//
+//
+//        String link_val = "http/example://ashira" + this.getPackageName();
+//        String body = "<a href=\"" + link + "\">" + link + "</a>";
+//        String data = " Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
+////        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+//        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+////        sendIntent.setAction(ACTION_SEND);
+////        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
+//        sendIntent.setType("text/plain");
+////        sendIntent.setPackage("com.whatsapp");
+////        sendIntent.setData(Uri.parse("smsto:"));
+////        sendIntent.setType("text/html");
+////        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
+////        sendIntent.putExtra(Intent.EXTRA_HTML_TEXT, body);
+//        sendIntent.putExtra(
+//                Intent.EXTRA_TEXT,
+//                Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
+////        emailIntent.setType("image/jpeg");
+//        //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
+//        //myUri = Uri.fromFile(bitmapFile);
+////        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///mnt/sdcard/DCIM/Camera/img.jpg"));
+////        sendIntent.setDataAndType(Uri.parse("mailto:"), "text/html");
+////        if (sendIntent.resolveActivity(getPackageManager()) != null) {
+////            startActivity(sendIntent);
+////        }
+//
+////        startActivityForResult(Intent.createChooser(sendIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
+//        startActivity(sendIntent);
+//    }
+////        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
+////            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
+////        else {
+////            networkFragment = NetworkFragment.getUploadInstance(getSupportFragmentManager(), new StorageDriver());
+////            networkFragment.startUpload();
+////        }
+
+    /**
+     * creates a dynamic link
+     */
     public void uploadPdfFile(View view) {
 //        mGetContent.launch(new Intent(this, SignInActivity.class));
-        DynamicLink dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
-//                .setLink(Uri.parse("https://www.example.com/"))
-//                .setDomainUriPrefix("https://singJewish.page.link")
-                // Open links with this app on Android
-                .setAndroidParameters(new DynamicLink.AndroidParameters.Builder().build())
-                // Open links with com.example.ios on iOS
-//                .setIosParameters(new DynamicLink.IosParameters.Builder("com.example.ios").build())
-                .buildDynamicLink();
 
-        Uri dynamicLinkUri = dynamicLink.getUri();
+        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(Uri.parse("https://www.example.com/?song=shira"))
+                .setDomainUriPrefix("https://singJewish.page.link")
+                // Set parameters
+                // ...
+                .buildShortDynamicLink()
+                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            // Short link created
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            String link = shortLink.toString();
 
-        String link = dynamicLinkUri.toString();
 
-
-        String link_val = "http/example://ashira" + this.getPackageName();
-        String body = "<a href=\"" + link + "\">" + link + "</a>";
-        String data = " Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
+                            String body = "<a href=\"" + link + "\">" + link + "</a>";
+                            String data = "Listen to me sing\n" + body;
 //        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                            Intent sendIntent = new Intent(Intent.ACTION_SEND);
 //        sendIntent.setAction(ACTION_SEND);
 //        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
-        sendIntent.setType("text/plain");
+                            sendIntent.setType("text/plain");
 //        sendIntent.setPackage("com.whatsapp");
 //        sendIntent.setData(Uri.parse("smsto:"));
 //        sendIntent.setType("text/html");
 //        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
 //        sendIntent.putExtra(Intent.EXTRA_HTML_TEXT, body);
-        sendIntent.putExtra(
-                Intent.EXTRA_TEXT,
-                Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
+                            sendIntent.putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
+                            startActivity(sendIntent);
+                        } else {
+                            int k = 0;
+                            // Error
+                            // ...
+                        }
+                    }
+                });
+//        Uri dynamicLinkUri = dynamicLink.getUri();
+
+
 //        emailIntent.setType("image/jpeg");
         //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
         //myUri = Uri.fromFile(bitmapFile);
@@ -247,7 +325,7 @@ public class SongsActivity
 //        }
 
 //        startActivityForResult(Intent.createChooser(sendIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
-        startActivity(sendIntent);
+
     }
 //        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED)
 //            requestPermissions(new String[]{Manifest.permission.INTERNET}, INTERNET_CODE);
@@ -368,10 +446,15 @@ public class SongsActivity
         }
     }
 
+//    @Override
+//    public void updateFromDownload(Object result) {
+//        temporaryLanguage = (String) result;
+//        findViewById(R.id.language).setVisibility(View.INVISIBLE);
+//    }
+
     @Override
-    public void updateFromDownload(Object result) {
-        temporaryLanguage = (String) result;
-        findViewById(R.id.language).setVisibility(View.INVISIBLE);
+    public void updateFromDownload(Uri result) {
+
     }
 
     @Override

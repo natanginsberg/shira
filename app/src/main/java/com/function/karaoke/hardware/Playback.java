@@ -3,8 +3,10 @@ package com.function.karaoke.hardware;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.Player;
@@ -15,7 +17,12 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +30,18 @@ import java.util.List;
 public class Playback extends AppCompatActivity {
 
     private static final int SAVE_VIDEO = 111;
+    private static final String PLAYBACK = "playabck";
+    private static final String AUDIO_FILE = "audio";
+
+    private static final String AUDIO_TOKEN = "audioToken";
+    private static final String VIDEO_TOKEN = "videoToken";
+
+
     private final int RECORDING = 0;
     private int ready = 0;
 
     private List<String> urls = new ArrayList<>();
+    private List<Uri> uris = new ArrayList<>();
 
     private PlayerView playerView;
     private List<SimpleExoPlayer> players = new ArrayList<>();
@@ -41,22 +56,67 @@ public class Playback extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playback);
-        urls.add(getIntent().getStringExtra("fileUrl"));
-//        videoFile = new File(path);
-//        videoUrl = String.valueOf(Uri.fromFile(videoFile));
-
-
-        urls.add(getIntent().getStringExtra("url"));
-//        mPlayerPath = new MediaPlayer();
-//        mPlayerUrl = new MediaPlayer();
-//        mHandler = new Handler();
-
         playerView = findViewById(R.id.surface_view);
-//        holder = mPreview.getHolder();
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(PLAYBACK)) {
+            urls.add(getIntent().getStringExtra(PLAYBACK));
+            urls.add(getIntent().getStringExtra(AUDIO_FILE));
+            createTwoPlayers();
+            initializePlayer();
+        }
+        getDynamicLink();
+    }
+
+    private void getDynamicLink() {
+        FirebaseDynamicLinks.getInstance()
+                .getDynamicLink(getIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
+                    @Override
+                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                        // Get deep link from result (may be null if no link is found)
+                        Uri deepLink = null;
+                        if (pendingDynamicLinkData != null) {
+                            deepLink = pendingDynamicLinkData.getLink();
+//                            String originalUrl = deepLink.toString();
+                            addUrls(deepLink.toString());
+//                            String audio = deepLink.getQueryParameter("audio");
+//                            String audioToken = deepLink.getQueryParameter(AUDIO_TOKEN);
+//                            String playback = deepLink.getQueryParameter("video");
+//                            String playbackToken = deepLink.getQueryParameter(VIDEO_TOKEN);
+//                            uris.add(Uri.parse(playback + "&token=" + playbackToken));
 //
-//        holder.addCallback(this);
-        createTwoPlayers();
-        initializePlayer();
+//                            uris.add(Uri.parse(audio + "&token=" + audioToken));
+                            createTwoPlayers();
+                            initializePlayer();
+//                            ((TextView)findViewById(R.id.slogan)).setText(song);
+//                            findViewById(R.id.language).setVisibility(View.INVISIBLE);
+                        } else {
+//                            findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+                        }
+
+
+                        // Handle the deep link. For example, open the linked
+                        // content, or apply promotional credit to the user's
+                        // account.
+                        // ...
+
+                        // ...
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    private static final String TAG = "Error";
+
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "getDynamicLink:onFailure", e);
+                    }
+                });
+    }
+
+    private void addUrls(String originalUrl) {
+        int start = originalUrl.indexOf("audio") + 6;
+        int videoStart = originalUrl.indexOf("video");
+        urls.add(originalUrl.substring(videoStart + 6).replace(VIDEO_TOKEN, "token"));
+        urls.add(originalUrl.substring(start, videoStart - 1).replace(AUDIO_TOKEN, "token"));
     }
 
     private void createTwoPlayers() {
@@ -67,18 +127,18 @@ public class Playback extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        if (Util.SDK_INT >= 24 && players.size() == 0) {
-            initializePlayer();
-        }
+//        if (Util.SDK_INT >= 24 && players.size() == 0) {
+//            initializePlayer();
+//        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if (players.size() == 0) {
-            initializePlayer();
-        }
+//        if (players.size() == 0) {
+//            initializePlayer();
+//        }
     }
 
     @SuppressLint("InlinedApi")
@@ -143,7 +203,8 @@ public class Playback extends AppCompatActivity {
 //        return new ProgressiveMediaSource.Factory(dataSourceFactory)
 //                .createMediaSource(Uri.parse(videoUrl));
         DataSource.Factory datasourceFactroy = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
-        return new ProgressiveMediaSource.Factory(datasourceFactroy).createMediaSource(Uri.parse(url));
+        Uri song = Uri.parse(url);
+        return new ProgressiveMediaSource.Factory(datasourceFactroy).createMediaSource(song);
     }
 
     private void releasePlayers() {
