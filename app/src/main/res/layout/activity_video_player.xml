@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/appColor"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".VideoPlayer"
+    tools:context=".Testing.VideoPlayer"
     tools:deviceIds="wear">
 
     <RelativeLayout

@@ -4,10 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProviders;
 
+import com.function.karaoke.hardware.activities.Model.SignInViewModel;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.function.karaoke.hardware.activities.Model.enums.LoginState;
+import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -23,13 +30,19 @@ public class SignInActivity extends AppCompatActivity {
     private static final String TAG = "signed in";
     private GoogleSignInClient mGoogleSignInClient;
     private SignInButton signInButton;
+    private AuthenticationDriver authenticationDriver;
+    private UserInfo user;
+    private Observer<Boolean> gettingNewUserSucceeded;
+    private SignInViewModel signInViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        authenticationDriver = new AuthenticationDriver();
+        signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
         setContentView(R.layout.activity_sign_in);
-        String test = String.valueOf(GoogleSignInOptions.DEFAULT_SIGN_IN);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken("701925650903-cmh7htvq718jbea95a0ukbkmlttqb56b.apps.googleusercontent.com")
                 .requestEmail()
                 .build();
 
@@ -47,12 +60,11 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
-
+        String id = authenticationDriver.getUserUid();
+        setUpGettingNewUserSucceeded();
+        signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
     }
 
-    //    public void openAccounts(View view) {
-//        signIn();
-//    }
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -77,12 +89,13 @@ public class SignInActivity extends AppCompatActivity {
 
             // Signed in successfully, show authenticated UI.
 //            updateUI(account);
-            UserInfo userInfo = new UserInfo(account.getEmail(), account.getDisplayName());
-            Intent intent = new Intent(this, SongsActivity.class);
-            intent.putExtra("User", userInfo);
-//            onActivityResult(0, RESULT_OK, intent);
-            setResult(RESULT_OK, intent);
-            finish();
+            signInViewModel.firebaseAuthWithGoogle(account.getIdToken());
+            user = new UserInfo(account.getEmail(), account.getDisplayName(), authenticationDriver.getUserUid());
+
+            signInViewModel.addNewUserToDatabase(user);
+//            signInViewModel.addNewUserToDatabase();
+            returnToMain();
+
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
@@ -91,8 +104,35 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-//        super.onActivityResult(requestCode, resultCode, intent);//will deliver result to desired fragment.
-//    }
+    private void checkToSeeIfUserIsInDatabase() {
+//        signInViewModel.isUserInDB();
+    }
+
+    private void returnToMain() {
+        Intent intent = new Intent(this, SongsActivity.class);
+        intent.putExtra("User", user);
+//            onActivityResult(0, RESULT_OK, intent);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private void setUpGettingNewUserSucceeded() {
+        gettingNewUserSucceeded = success -> {
+            if (success) {
+                if ((user = signInViewModel.getUser()) != null) {
+                    signInViewModel.setLoginState(LoginState.FINISH);
+                    returnToMain();
+                } else {
+                    signInViewModel.createNewUser();
+                    signInViewModel.setLoginState(LoginState.NEW_USER_SIGN_UP);
+                }
+            } else {
+                Toast.makeText(this, "unable to sign in", Toast.LENGTH_LONG).show();
+                signInViewModel.setLoginState(LoginState.NOT_SIGN_IN);
+            }
+//            updateAccordingToLoginState();
+        };
+    }
+
+
 }

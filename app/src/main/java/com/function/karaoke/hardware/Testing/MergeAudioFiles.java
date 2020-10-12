@@ -1,9 +1,8 @@
-package com.function.karaoke.hardware.utils;
+package com.function.karaoke.hardware.Testing;
 
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
-import android.provider.MediaStore;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

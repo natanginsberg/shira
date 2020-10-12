@@ -24,7 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.SignUp;
+import com.function.karaoke.hardware.Testing.SignUp;
 
 public class LoginActivity extends AppCompatActivity {
 

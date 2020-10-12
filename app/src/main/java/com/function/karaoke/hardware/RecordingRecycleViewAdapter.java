@@ -10,7 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
-import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
@@ -26,7 +25,7 @@ import java.util.List;
  * {@link RecyclerView.Adapter} that can display a {@link Song} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
  */
-public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder> {
+public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingRecycleViewAdapter.ViewHolder> {
 
     // there can be other sort strategies and filters
 //    private static final Comparator<Song> mComparator = new Comparator<Song>() {
@@ -47,8 +46,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
     };
 
-    private List<DatabaseSong> mValues;
-    private List<Recording> mRecordings;
+    private List<Recording> mValues;
     private final OnListFragmentInteractionListener mListener;
     private String language;
 
@@ -57,7 +55,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 //        mListener = listener;
 //        this.language = language;
 //    }
-    public SongRecyclerViewAdapter(List<DatabaseSong> items, OnListFragmentInteractionListener listener, String language) {
+    public RecordingRecycleViewAdapter(List<Recording> items, OnListFragmentInteractionListener listener, String language) {
         setData(items);
         mListener = listener;
         this.language = language;
@@ -69,7 +67,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         View view;
         if (language.equals("English")) {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.view_song_list_item, parent, false);
+                    .inflate(R.layout.recording_display_item, parent, false);
         } else {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.hebrew_resource_file, parent, false);
@@ -99,7 +97,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         return mValues.size();
     }
 
-    public void setData(List<DatabaseSong> songs) {
+    public void setData(List<Recording> songs) {
         mValues = new ArrayList<>(songs); // make a copy
         Collections.sort(mValues, mComparator);
     }
@@ -109,9 +107,9 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         private final TextView mLblTitle;
         private final TextView mLblArtist;
         private final ImageView mCover;
+        private final TextView mDate;
 
-        //        public Song mItem;
-        public DatabaseSong mItem;
+        public Recording mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -119,6 +117,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             mLblTitle = view.findViewById(R.id.lbl_title);
             mLblArtist = view.findViewById(R.id.lbl_artist);
             mCover = view.findViewById(R.id.img_cover);
+            mDate = view.findViewById(R.id.date_recorded);
         }
 
         @Override
@@ -126,18 +125,34 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             return super.toString() + " '" + mLblArtist.getText() + "'";
         }
 
-        public void setItem(DatabaseSong song) {
+        public void setItem(Recording song) {
             mItem = song;
             mLblTitle.setText(song.getTitle());
             mLblArtist.setText(song.getArtist());
+            String date = manipulateDateToBePretty(song.getDate());
+            mDate.setText(date);
             Picasso.get()
                     .load(song.getImageResourceFile())
                     .placeholder(R.drawable.ic_cover_empty)
                     .fit()
                     .into(mCover);
         }
+
+        private String manipulateDateToBePretty(String date) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < date.length(); i++) {
+                if (i < 6) {
+                    if (i % 2 == 0 && i > 0) {
+                        stringBuilder.append('/');
+                    }
+                    stringBuilder.append(date.charAt(i));
+                }
+            }
+            return stringBuilder.toString();
+        }
     }
 
     public void addNetworkThread(NetworkFragment networkFragment) {
     }
 }
+

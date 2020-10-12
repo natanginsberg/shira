@@ -41,7 +41,11 @@ import com.coremedia.iso.boxes.Container;
 import com.coremedia.iso.boxes.TimeToSampleBox;
 import com.coremedia.iso.boxes.TrackBox;
 import com.function.karaoke.core.controller.KaraokeController;
+import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.fragments.NetworkFragment;
+import com.function.karaoke.hardware.storage.AuthenticationDriver;
+import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.UrlHolder;
@@ -71,6 +75,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         DialogBox.CallbackListener {
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
+    public static final String RECORDING = "recording";
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
     private static final String TAG = "HELLO WORLD";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
@@ -82,9 +87,13 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private static final String AUDIO_FILE = "audio";
     private static final CharSequence AUDIO_TOKEN = "audioToken";
     private static final CharSequence VIDEO_TOKEN = "videoToken";
+    private static final int RECORDING_ID_LENGTH = 15;
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
+    private String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789"
+            + "abcdefghijklmnopqrstuvxyz";
+    private String recordingId;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
     @SuppressWarnings("SpellCheckingInspection")
@@ -92,11 +101,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private View popupView;
     private PopupWindow popup;
     private DatabaseSong song;
-
-//    private android.hardware.camera2.CameraDevice mCamera;
-//    private SurfaceView surfaceView;
-//    private SurfaceHolder surfaceHolder;
-//    private CameraPreview mPreview;
 
     private boolean isRunning = true;
     private boolean restart = false;
@@ -140,11 +144,15 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private String videoUrl;
     private boolean playback = false;
     private boolean timerStarted = false;
+    private Recording recording;
+    private String timeStamp;
+
+    AuthenticationDriver authenticationDriver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        authenticationDriver = new AuthenticationDriver();
         deletePreviousVideos();
 
         setContentView(R.layout.activity_sing);
@@ -154,6 +162,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
         mPlayer = mKaraokeKonroller.getmPlayer();
+        generateRecordingId();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
         } else {
@@ -167,6 +176,25 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_WRITE_PERMISSION);
         }
+    }
+
+    private void generateRecordingId() {
+        StringBuilder sb = new StringBuilder(RECORDING_ID_LENGTH);
+
+        for (int i = 0; i < RECORDING_ID_LENGTH; i++) {
+
+            // generate a random number between
+            // 0 to AlphaNumericString variable length
+            int index
+                    = (int) (alphaNumericString.length()
+                    * Math.random());
+
+            // add Character one by one in end of sb
+            sb.append(alphaNumericString
+                    .charAt(index));
+        }
+
+        recordingId = sb.toString();
     }
 
     private void deletePreviousVideos() {
@@ -746,7 +774,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
                 return null;
             }
         }
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
                 Locale.getDefault()).format(new Date());
         File mediaFile;
 
@@ -789,11 +817,11 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 //
 //        startActivityForResult(Intent.createChooser(emailIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
     private void shareLink() {
-        String firstFileWithNewTokenName = song.getSongResourceFile().replace("token", AUDIO_TOKEN);
-        String secondFileWithNewTokenName = videoUrl.replace("token", VIDEO_TOKEN);
+//        String firstFileWithNewTokenName = song.getSongResourceFile().replace("token", AUDIO_TOKEN);
+//        String secondFileWithNewTokenName = videoUrl.replace("token", VIDEO_TOKEN);
 
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse("https://www.example.com/?audio=" + firstFileWithNewTokenName + "&video=" + secondFileWithNewTokenName))
+                .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid()))
                 .setDomainUriPrefix("https://singJewish.page.link")
                 // Set parameters
                 // ...
@@ -842,6 +870,38 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
             }
         }
 
+    }
+
+    public void saveRecordingToTheCloud(View view) {
+        File postParseVideoFile = wrapUpSong();
+        saveToCloud(Uri.fromFile(postParseVideoFile));
+    }
+
+    private void saveToCloud(Uri path) {
+        if (videoUrl == null) {
+            final Observer<String> urlObserver = url -> {
+                videoUrl = url;
+                playback = true;
+                buttonClicked = false;
+                addRecordingToFirestore();
+
+            };
+            storageAdder.uploadVideo(path).observe(this, urlObserver);
+        } else {
+            addRecordingToFirestore();
+        }
+    }
+
+    private void addRecordingToFirestore() {
+        RecordingService recordingService = new RecordingService();
+        createNewRecordingFeatures();
+        recordingService.addRecordingToDataBase(recording);
+    }
+
+    private void createNewRecordingFeatures() {
+        recording = new Recording(videoUrl, song.getSongResourceFile(), song.getArtist(),
+                song.getImageResourceFile(), song.getTitle(), timeStamp,
+                authenticationDriver.getUserUid(), recordingId);
     }
 
     private class CreateObserver implements LifecycleObserver {

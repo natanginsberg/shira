@@ -28,6 +28,7 @@
     <string name="log_in_sign_up">הירשם/התחבר</string>
     <string name="search">חפש</string>
     <string name="home">לעמוד הראשי</string>
+    <string name="save_recording">שמור</string>
 
     <string name="back_to_home_dialog">בטוח שרוצה לצאת?</string>
     <string name="yes">כן</string>

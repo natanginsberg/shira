@@ -1,8 +1,10 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.Testing;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.function.karaoke.hardware.R;
 
 public class SignUp extends AppCompatActivity {
 

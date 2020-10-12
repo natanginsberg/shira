@@ -1,10 +1,7 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.activities.Model;
 
 import android.os.AsyncTask;
 
-import com.function.karaoke.core.model.SongsDB;
-
-import java.io.File;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;

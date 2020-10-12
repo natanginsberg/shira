@@ -33,7 +33,7 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Video">
+        <activity android:name=".Testing.Video">
             <intent-filter android:label="videoFilter">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -69,13 +69,13 @@
                app to run.
         -->
         <activity
-            android:name=".VideoPlayer"
+            android:name=".Testing.VideoPlayer"
             android:label="@string/title_activity_video_player">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".SignUp" />
+        <activity android:name=".Testing.SignUp" />
         <activity
             android:name=".ui.login.LoginActivity"
             android:label="@string/title_activity_login" />
@@ -83,7 +83,7 @@
             android:name=".ToneActivity"
             android:exported="true" />
         <activity
-            android:name=".test"
+            android:name=".Testing.test"
             android:exported="true" />
         <activity
             android:name=".SingActivity"

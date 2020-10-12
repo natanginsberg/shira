@@ -1,8 +1,9 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.activities.Model;
 
 import android.graphics.Bitmap;
 
 import com.function.karaoke.core.model.Song;
+import com.function.karaoke.hardware.activities.Model.SongDisplay;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +13,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseSong implements Serializable {
+public class DatabaseSong implements Serializable, SongDisplay {
 
     private String artist;
     private String imageResourceFile;

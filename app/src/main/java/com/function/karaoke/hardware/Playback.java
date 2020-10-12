@@ -8,7 +8,10 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 
+import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.storage.RecordingService;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -22,7 +25,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,14 +32,14 @@ import java.util.List;
 public class Playback extends AppCompatActivity {
 
     private static final int SAVE_VIDEO = 111;
-    private static final String PLAYBACK = "playabck";
+    private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
+    public static final String RECORDING = "recording";
 
     private static final String AUDIO_TOKEN = "audioToken";
     private static final String VIDEO_TOKEN = "videoToken";
+    private static final int RECORDING_URL = 0;
 
-
-    private final int RECORDING = 0;
     private int ready = 0;
 
     private List<String> urls = new ArrayList<>();
@@ -57,13 +59,22 @@ public class Playback extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playback);
         playerView = findViewById(R.id.surface_view);
-        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(PLAYBACK)) {
-            urls.add(getIntent().getStringExtra(PLAYBACK));
-            urls.add(getIntent().getStringExtra(AUDIO_FILE));
-            createTwoPlayers();
-            initializePlayer();
+        if (getIntent().getExtras() != null) {
+            if (getIntent().getExtras().containsKey(PLAYBACK)) {
+                urls.add(getIntent().getStringExtra(PLAYBACK));
+                urls.add(getIntent().getStringExtra(AUDIO_FILE));
+                createTwoPlayers();
+                initializePlayer();
+            } else if (getIntent().getExtras().containsKey(RECORDING)) {
+                Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
+                urls.add(recording.getRecordingUrl());
+                urls.add(recording.getAudioFileUrl());
+                createTwoPlayers();
+                initializePlayer();
+            } else {
+                getDynamicLink();
+            }
         }
-        getDynamicLink();
     }
 
     private void getDynamicLink() {
@@ -72,21 +83,24 @@ public class Playback extends AppCompatActivity {
                 .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
                     @Override
                     public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+
                         // Get deep link from result (may be null if no link is found)
                         Uri deepLink = null;
                         if (pendingDynamicLinkData != null) {
                             deepLink = pendingDynamicLinkData.getLink();
 //                            String originalUrl = deepLink.toString();
-                            addUrls(deepLink.toString());
-//                            String audio = deepLink.getQueryParameter("audio");
-//                            String audioToken = deepLink.getQueryParameter(AUDIO_TOKEN);
+
+//                            addUrls(deepLink.toString());
+
+                            String recordingId = deepLink.getQueryParameter("recId");
+                            String recorderId = deepLink.getQueryParameter("uid");
 //                            String playback = deepLink.getQueryParameter("video");
 //                            String playbackToken = deepLink.getQueryParameter(VIDEO_TOKEN);
+                            addUrls(recordingId, recorderId);
 //                            uris.add(Uri.parse(playback + "&token=" + playbackToken));
 //
 //                            uris.add(Uri.parse(audio + "&token=" + audioToken));
-                            createTwoPlayers();
-                            initializePlayer();
+
 //                            ((TextView)findViewById(R.id.slogan)).setText(song);
 //                            findViewById(R.id.language).setVisibility(View.INVISIBLE);
                         } else {
@@ -110,6 +124,19 @@ public class Playback extends AppCompatActivity {
                         Log.w(TAG, "getDynamicLink:onFailure", e);
                     }
                 });
+    }
+
+    private void addUrls(String recordingId, String recorderId) {
+        RecordingService recordingService = new RecordingService();
+        final Observer<Recording> recordingObserver = recording -> {
+            if (recording != null) {
+                urls.add(recording.getRecordingUrl());
+                urls.add(recording.getAudioFileUrl());
+                createTwoPlayers();
+                initializePlayer();
+            }
+        };
+        recordingService.getSharedRecording(recordingId, recorderId).observe(this, recordingObserver);
     }
 
     private void addUrls(String originalUrl) {
@@ -167,17 +194,15 @@ public class Playback extends AppCompatActivity {
     private void initializePlayer() {
         for (int i = 0; i < 2; i++) {
             SimpleExoPlayer player = players.get(i);
-            if (i == RECORDING) {
+            if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
-                player.setVolume(0.5f);
-            } else {
-                player.setVolume(0.5f);
             }
+            player.setVolume(0.5f);
             player.setPlayWhenReady(false);
             player.seekTo(currentWindow, playbackPosition);
             MediaSource mediaSource = buildMediaSource(urls.get(i));
             player.prepare(mediaSource, true, false);
-            if (i == RECORDING) {
+            if (i == RECORDING_URL) {
                 player.addListener(new Player.EventListener() {
                     @Override
                     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

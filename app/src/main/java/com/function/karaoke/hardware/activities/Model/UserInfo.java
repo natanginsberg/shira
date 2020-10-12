@@ -1,5 +1,7 @@
 package com.function.karaoke.hardware.activities.Model;
 
+import com.function.karaoke.hardware.storage.UserService;
+
 import java.io.Serializable;
 
 public class UserInfo implements Serializable {
@@ -10,15 +12,24 @@ public class UserInfo implements Serializable {
 
     String userName;
     String userEmail;
-    int userSubscription;
+    int subscriptionType = 1;
+    String id;
 
-    public UserInfo(String userName, String userEmail) {
-        this.userEmail = userEmail;
-        this.userName = userName;
+    public UserInfo(){}
+
+    public UserInfo(String id) {
+        this.id = id;
     }
 
-    public int getUserSubscription() {
-        return userSubscription;
+    public UserInfo(String userEmail, String userName, String id) {
+        this.userEmail = userEmail;
+        this.userName = userName;
+        this.id = id;
+    }
+
+
+    public int getSubscriptionType() {
+        return subscriptionType;
     }
 
     public String getUserEmail() {
@@ -29,7 +40,15 @@ public class UserInfo implements Serializable {
         return userName;
     }
 
-    public void setUserSubscription(int userSubscription) {
-        this.userSubscription = userSubscription;
+    public void setSubscriptionType(int subscriptionType) {
+        this.subscriptionType = subscriptionType;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
     }
 }

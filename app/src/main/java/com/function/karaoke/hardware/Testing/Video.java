@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.Testing;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
@@ -7,6 +7,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.function.karaoke.hardware.R;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;

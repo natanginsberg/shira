@@ -29,6 +29,7 @@
     <string name="log_in_sign_up">Log In / Sign Up</string>
     <string name="search">Search</string>
     <string name="home">Home</string>
+    <string name="save_recording">Save</string>
 
     <string name="back_to_home_dialog">Are you sure you want to exit</string>
     <string name="yes">YES</string>

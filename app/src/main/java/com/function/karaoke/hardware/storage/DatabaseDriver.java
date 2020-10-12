@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.function.karaoke.hardware.activities.Model.Recording;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -86,6 +87,10 @@ public class DatabaseDriver {
 
     public <T> LiveData<List<T>> getDocumentsByField(String collectionName, String fieldName, Object fieldValue, final Class<T> typeParameterClass) {
         return getDocumentsByField(collectionName, fieldName, Collections.singletonList(fieldValue), typeParameterClass);
+    }
+
+    public void addRecordingToCollection(Recording recording){
+
     }
 
 }

@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.Testing;
 
 import android.Manifest;
 import android.content.Context;
@@ -38,6 +38,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.function.karaoke.hardware.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

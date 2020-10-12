@@ -1,42 +1,35 @@
 package com.function.karaoke.hardware.fragments;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.function.karaoke.hardware.DatabaseSong;
-import com.function.karaoke.hardware.DatabaseSongsDB;
+import com.function.karaoke.hardware.RecordingRecycleViewAdapter;
+import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.SignInActivity;
 import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
-import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.utils.UrlHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A fragment representing a list of Songs.
@@ -50,11 +43,14 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private static final int DOWNLOAD_WORDS = 100;
     private static final int GET_COVER_IMAGE = 101;
     private static final int GET_AUDIO = 102;
+    private static final int ALL_SONGS_DISPLAYED = 1;
+    private static final int PERSONAL_RECORDING_DISPLAYED = 2;
 
 
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private SongRecyclerViewAdapter mAdapter;
+    private RecordingRecycleViewAdapter recordAdapter;
     private View songsView;
     private FragmentActivity myContext;
     //    private SongsDB songs;
@@ -67,7 +63,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private List<DatabaseSong> allSongs = new ArrayList<>();
     private NetworkFragment networkFragment;
     private UrlHolder urlParser;
+    private RecordingService recordingService;
+    private RecordingDB recordingDB;
 
+    private int contentsDisplayed = ALL_SONGS_DISPLAYED;
+    private DatabaseSongsDB songsDb;
 
 
     /**
@@ -123,8 +123,28 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //        }
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
-//        setClickListeners(songsView);
+        this.recordingService = new RecordingService();
+        setClickListeners(songsView);
         return songsView;
+    }
+
+    private void setClickListeners(View songsView) {
+        songsView.findViewById(R.id.personal_library).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED){
+                    contentsDisplayed = ALL_SONGS_DISPLAYED;
+                    displayAllSongs();
+                } else if (contentsDisplayed == ALL_SONGS_DISPLAYED){
+                    contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
+                    if (recordingDB == null){
+                        getAllPersonalSongs();
+                    } else {
+                        displayPersonalSongs();
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -146,6 +166,15 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
 
+    private void getAllPersonalSongs(){
+        final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
+            if (personalRecordings != null) {
+                recordingDB = new RecordingDB(personalRecordings);
+                displayPersonalSongs();
+            }
+        };
+        this.recordingService.getRecordingFromUID().observe(this, personalRecordingObserver);
+    }
 //    private class CreateObserver implements LifecycleObserver {
 //        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
 //        public void connectListener() {
@@ -189,54 +218,23 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
 
-//    @Override
-//    public void onListUpdated() {
-//        SongsDB songs = mListener.getSongs();
-//        mAdapter.setData(songs.getSongs());
-//        mAdapter.notifyDataSetChanged();
-//    }
-
     @Override
     public void onListUpdated() {
-        DatabaseSongsDB songsDb = mListener.getSongs();
+        songsDb = mListener.getSongs();
+        displayAllSongs();
+    }
+
+    private void displayAllSongs() {
+        recyclerView.setAdapter(mAdapter);
         mAdapter.setData(songsDb.getSongs());
         mAdapter.notifyDataSetChanged();
     }
 
-//    private void addSearchListener() {
-//        SearchView searchView = songsView.findViewById(R.id.search_input);
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String query) {
-//                if (query.length() >= 1) {
-//                    if (query.length() > previousQuery.length()) {
-//                        addCopyOfSongsDBToList(songs);
-//                        getSongsSearchedFor(query.toLowerCase());
-//                    } else {
-//                        songs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
-//                        previousSongs.remove(previousSongs.size() - 1);
-//                    }
-//                    mAdapter.notifyDataSetChanged();
-//                    previousQuery = query;
-//                } else {
-//                    if (previousSongs.size() != 0) {
-//                        songs.updateSongs(previousSongs.get(0).getSongs());
-//                        mAdapter.notifyDataSetChanged();
-//                        previousSongs = new ArrayList<>();
-//                        previousQuery = "";
-//                    }
-//
-//                }
-//                return false;
-//            }
-//        });
-//    }
+    private void displayPersonalSongs(){
+        recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity)requireActivity()).language);
+        recyclerView.setAdapter(recordAdapter);
+    }
+
 
     private void addSearchListener() {
         SearchView searchView = songsView.findViewById(R.id.search_input);
@@ -266,18 +264,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                         previousSongs = new ArrayList<>();
                         previousQuery = "";
                     }
-
                 }
                 return false;
             }
         });
     }
-
-//    private void addCopyOfSongsDBToList(SongsDB songs) {
-//        SongsDB preSongs = new SongsDB(songs);
-//        preSongs.updateSongs(songs.getSongs());
-//        previousSongs.add(preSongs);
-//    }
 
     private void addCopyOfSongsDBToList(DatabaseSongsDB songs) {
         DatabaseSongsDB preSongs = new DatabaseSongsDB(songs);
@@ -285,16 +276,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         previousSongs.add(preSongs);
     }
 
-//    private void getSongsSearchedFor(String query) {
-//        List<Song> searchedSongs = new ArrayList<>();
-//        for (Song song : songs.getSongs()) {
-//            if (song.title.toLowerCase().contains(query) || song.artist.toLowerCase().contains(query)) {
-//                searchedSongs.add(song);
-//
-//            }
-//        }
-//        songs.updateSongs(searchedSongs);
-//    }
 
     private void getSongsSearchedFor(String query) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();
@@ -305,10 +286,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             }
         }
         databaseSongs.updateSongs(searchedSongs);
-    }
-
-    private void updateUI() {
-
     }
 
 
@@ -325,6 +302,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public interface OnListFragmentInteractionListener {
         //        void onListFragmentInteraction(Song item);
         void onListFragmentInteraction(DatabaseSong item);
+
+        void onListFragmentInteraction(Recording item);
 
         //        SongsDB getSongs();
         DatabaseSongsDB getSongs();

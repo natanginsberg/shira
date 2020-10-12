@@ -16,7 +16,7 @@ import com.function.karaoke.hardware.DownloadCallback;
 import com.function.karaoke.hardware.ShortDynamicLinkCreator;
 import com.function.karaoke.hardware.storage.StorageDriver;
 import com.function.karaoke.hardware.utils.UrlHolder;
-import com.function.karaoke.hardware.utils.MergeTake2;
+import com.function.karaoke.hardware.Testing.MergeTake2;
 
 import java.io.IOException;
 import java.io.InputStream;

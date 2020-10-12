@@ -14,17 +14,19 @@
         android:layout_height="50dp"
         android:layout_margin="15dp"
         android:background="@drawable/ic_back_arrow"
+        android:onClick="returnToSong"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:onClick="returnToSong"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/congrats"
+    <Button
+        android:id="@+id/save_recording"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
-        android:text="@string/good_job"
-        android:textColor="@color/default_text_color"
+        android:background="#0000"
+        android:onClick="saveRecordingToTheCloud"
+        android:text="@string/save_recording"
+        android:textColor="@color/sing_up_hover"
         android:textSize="45sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
@@ -36,7 +38,7 @@
         android:layout_height="@dimen/no_hardcode_dimension"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/congrats">
+        app:layout_constraintTop_toBottomOf="@id/save_recording">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -48,17 +50,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:onClick="playAgain"
                 android:text="@string/sing_again"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp"
-                android:onClick="playAgain"/>
+                android:textSize="40sp" />
 
             <ImageButton
                 android:layout_width="95dp"
                 android:layout_height="95dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/replay"
-                android:onClick="playAgain"/>
+                android:onClick="playAgain" />
 
 
         </RelativeLayout>
@@ -73,17 +75,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:onClick="playback"
                 android:text="@string/playback"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp"
-                android:onClick="playback"/>
+                android:textSize="40sp" />
 
             <ImageButton
                 android:layout_width="95dp"
                 android:layout_height="95dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/ic_playback"
-                android:onClick="playback"/>
+                android:onClick="playback" />
 
         </RelativeLayout>
 
@@ -97,17 +99,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:onClick="share"
                 android:text="@string/share"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp"
-                android:onClick="share"/>
+                android:textSize="40sp" />
 
             <ImageButton
                 android:layout_width="95dp"
                 android:layout_height="95dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/ic_group"
-                android:onClick="share"/>
+                android:onClick="share" />
 
         </RelativeLayout>
 
@@ -121,17 +123,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:onClick="returnToMain"
                 android:text="@string/home"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp"
-                android:onClick="returnToMain"/>
+                android:textSize="40sp" />
 
             <ImageButton
                 android:layout_width="95dp"
                 android:layout_height="95dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/home_button"
-                android:onClick="returnToMain"/>
+                android:onClick="returnToMain" />
         </RelativeLayout>
     </LinearLayout>
 
