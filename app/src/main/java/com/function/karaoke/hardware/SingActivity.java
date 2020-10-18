@@ -815,7 +815,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void showFailure(int error) {
-        switch (error){
+        switch (error) {
             case SHARING_ERROR:
                 Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
                 break;

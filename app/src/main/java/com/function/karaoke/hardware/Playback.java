@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,9 +13,9 @@ import androidx.lifecycle.Observer;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.storage.RecordingService;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -58,6 +59,7 @@ public class Playback extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playback);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         playerView = findViewById(R.id.surface_view);
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
@@ -65,6 +67,8 @@ public class Playback extends AppCompatActivity {
                 uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
 //                urls.add(getIntent().getStringExtra(AUDIO_FILE));
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                createPplayer();
+                initializePlayer();
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
@@ -139,6 +143,10 @@ public class Playback extends AppCompatActivity {
         players.add(new SimpleExoPlayer.Builder(this).build());
     }
 
+    private void createPplayer() {
+        players.add(new SimpleExoPlayer.Builder(this).build());
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -179,55 +187,77 @@ public class Playback extends AppCompatActivity {
         }
     }
 
-    private void initializePlayer() {
-        for (int i = 0; i < 2; i++) {
-            SimpleExoPlayer player = players.get(i);
-            if (i == RECORDING_URL) {
-                playerView.setPlayer(player);
-            }
-            player.setVolume(0.5f);
-            player.setPlayWhenReady(false);
-            player.seekTo(currentWindow, playbackPosition);
-            MediaSource mediaSource;
-            if (urls.size() > 0)
-                mediaSource = buildMediaSource(urls.get(i));
-            else
-                mediaSource = buildMediaSource(uris.get(i));
-            player.prepare(mediaSource, true, false);
-            if (i == RECORDING_URL) {
-                player.addListener(new Player.EventListener() {
-                    @Override
-                    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-                        ready++;
-                    }
+//    private void initializePlayer() {
+//        for (int i = 0; i < 2; i++) {
+//            SimpleExoPlayer player = players.get(i);
+//            if (i == RECORDING_URL) {
+//                playerView.setPlayer(player);
+//            }
+//            player.setVolume(0.5f);
+//            player.setPlayWhenReady(false);
+//            player.seekTo(currentWindow, playbackPosition);
+//            MediaSource mediaSource;
+//            if (urls.size() > 0)
+//                mediaSource = buildMediaSource(urls.get(i));
+//            else
+//                mediaSource = buildMediaSource(uris.get(i));
+//            player.prepare(mediaSource, true, false);
+//
+//            if (i == RECORDING_URL) {
+//
+//                player.addListener(new Player.EventListener() {
+//                    @Override
+//                    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+//                        ready++;
+//                    }
+//
+//                    @Override
+//                    public void onIsPlayingChanged(boolean isPlaying) {
+//                        if (ready >= 2) {
+//                            for (SimpleExoPlayer p : players) {
+//                                p.setPlayWhenReady(isPlaying);
+//                            }
+//                        }
+//                    }
+//                    @Override
+//                    public void onPositionDiscontinuity(int reason) {
+//                        int currentWindowIndex = player.getCurrentWindowIndex();
+//                        if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+//                        }
+//                    }
+//                });
+//
+//
+//            }
+//        }
+////        addListener();
+//    }
 
-                    @Override
-                    public void onIsPlayingChanged(boolean isPlaying) {
-                        if (ready >= 2) {
-                            for (SimpleExoPlayer p : players) {
-                                p.setPlayWhenReady(isPlaying);
-                            }
-                        }
-                    }
-                });
-            }
+    private void initializePlayer() {
+        SimpleExoPlayer player = players.get(0);
+        playerView.setPlayer(player);
+
+        player.setVolume(0.5f);
+        player.setPlayWhenReady(false);
+        player.seekTo(currentWindow, playbackPosition);
+        MergingMediaSource mediaSource;
+        if (urls.size() > 0) {
+            mediaSource = new MergingMediaSource(buildMediaSource(urls.get(0)), buildMediaSource(urls.get(1)));
+        } else {
+            mediaSource = new MergingMediaSource(buildMediaSource(uris.get(0)), buildMediaSource(uris.get(1)));
         }
+        player.prepare(mediaSource, true, false);
     }
 
     private MediaSource buildMediaSource(Uri uri) {
-        DataSource.Factory datasourceFactroy = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
-//        uri = Uri.parse(uri.toString());
-        return new ProgressiveMediaSource.Factory(datasourceFactroy).createMediaSource(uri);
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
+        return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
     }
 
     private MediaSource buildMediaSource(String url) {
-//        DataSource.Factory dataSourceFactory =
-//                new DefaultDataSourceFactory(this, "exoplayer-local");
-//        return new ProgressiveMediaSource.Factory(dataSourceFactory)
-//                .createMediaSource(Uri.parse(videoUrl));
-        DataSource.Factory datasourceFactroy = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
         Uri song = Uri.parse(url);
-        return new ProgressiveMediaSource.Factory(datasourceFactroy).createMediaSource(song);
+        return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(song);
     }
 
     private void releasePlayers() {
