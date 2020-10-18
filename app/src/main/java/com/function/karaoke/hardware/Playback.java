@@ -61,8 +61,10 @@ public class Playback extends AppCompatActivity {
         playerView = findViewById(R.id.surface_view);
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
-                urls.add(getIntent().getStringExtra(PLAYBACK));
-                urls.add(getIntent().getStringExtra(AUDIO_FILE));
+//                urls.add(getIntent().getStringExtra(PLAYBACK));
+                uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
+//                urls.add(getIntent().getStringExtra(AUDIO_FILE));
+                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
@@ -94,15 +96,7 @@ public class Playback extends AppCompatActivity {
 
                             String recordingId = deepLink.getQueryParameter("recId");
                             String recorderId = deepLink.getQueryParameter("uid");
-//                            String playback = deepLink.getQueryParameter("video");
-//                            String playbackToken = deepLink.getQueryParameter(VIDEO_TOKEN);
                             addUrls(recordingId, recorderId);
-//                            uris.add(Uri.parse(playback + "&token=" + playbackToken));
-//
-//                            uris.add(Uri.parse(audio + "&token=" + audioToken));
-
-//                            ((TextView)findViewById(R.id.slogan)).setText(song);
-//                            findViewById(R.id.language).setVisibility(View.INVISIBLE);
                         } else {
 //                            findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
                         }
@@ -139,12 +133,6 @@ public class Playback extends AppCompatActivity {
         recordingService.getSharedRecording(recordingId, recorderId).observe(this, recordingObserver);
     }
 
-    private void addUrls(String originalUrl) {
-        int start = originalUrl.indexOf("audio") + 6;
-        int videoStart = originalUrl.indexOf("video");
-        urls.add(originalUrl.substring(videoStart + 6).replace(VIDEO_TOKEN, "token"));
-        urls.add(originalUrl.substring(start, videoStart - 1).replace(AUDIO_TOKEN, "token"));
-    }
 
     private void createTwoPlayers() {
         players.add(new SimpleExoPlayer.Builder(this).build());
@@ -200,7 +188,11 @@ public class Playback extends AppCompatActivity {
             player.setVolume(0.5f);
             player.setPlayWhenReady(false);
             player.seekTo(currentWindow, playbackPosition);
-            MediaSource mediaSource = buildMediaSource(urls.get(i));
+            MediaSource mediaSource;
+            if (urls.size() > 0)
+                mediaSource = buildMediaSource(urls.get(i));
+            else
+                mediaSource = buildMediaSource(uris.get(i));
             player.prepare(mediaSource, true, false);
             if (i == RECORDING_URL) {
                 player.addListener(new Player.EventListener() {
@@ -220,6 +212,12 @@ public class Playback extends AppCompatActivity {
                 });
             }
         }
+    }
+
+    private MediaSource buildMediaSource(Uri uri) {
+        DataSource.Factory datasourceFactroy = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
+//        uri = Uri.parse(uri.toString());
+        return new ProgressiveMediaSource.Factory(datasourceFactroy).createMediaSource(uri);
     }
 
     private MediaSource buildMediaSource(String url) {

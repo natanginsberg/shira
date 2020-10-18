@@ -1,10 +1,12 @@
 package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.annotation.NonNull;
@@ -61,7 +63,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private String previousQuery = "";
     private DatabaseDriver databaseDriver;
     private List<DatabaseSong> allSongs = new ArrayList<>();
-    private NetworkFragment networkFragment;
     private UrlHolder urlParser;
     private RecordingService recordingService;
     private RecordingDB recordingDB;
@@ -135,6 +136,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED){
                     contentsDisplayed = ALL_SONGS_DISPLAYED;
                     displayAllSongs();
+                    ((Button)songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder));
                 } else if (contentsDisplayed == ALL_SONGS_DISPLAYED){
                     contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
                     if (recordingDB == null){
@@ -142,6 +144,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     } else {
                         displayPersonalSongs();
                     }
+                    ((Button)songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder_clicked, getContext().getTheme()));
                 }
             }
         });

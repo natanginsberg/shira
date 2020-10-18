@@ -27,16 +27,13 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
-import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
+import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -64,7 +61,6 @@ public class SongsActivity
     public String language;
     public String temporaryLanguage;
     Locale myLocale;
-    private NetworkFragment networkFragment;
     private boolean downloading = false;
     private int INTERNET_CODE = 104;
     private long[] sizes = new long[2];
@@ -175,8 +171,16 @@ public class SongsActivity
 //                cameraPreview = new CameraPreview(mTextureView, SongsActivity.this);
                 String languageToDisplay = language.equals("English") ? "EN" : "עב";
                 ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
+                checkForSignedInUser();
             }
         }.start();
+    }
+
+    private void checkForSignedInUser() {
+        AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+        if (authenticationDriver.getUserUid() != null){
+            updateUI();
+        }
     }
 
     @Override
@@ -403,12 +407,12 @@ public class SongsActivity
 //            databaseDriver.getSecondStorageReferenceSize(url).observe(this, searchObserver);
 //    }
 
-    private class CreateObserver implements LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        public void connectListener() {
-            networkFragment.startMerge();
-        }
-    }
+//    private class CreateObserver implements LifecycleObserver {
+//        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+//        public void connectListener() {
+//            networkFragment.startMerge();
+//        }
+//    }
 
 
     private void setLocale(String lang) {
@@ -489,9 +493,6 @@ public class SongsActivity
     @Override
     public void finishDownloading() {
         downloading = false;
-        if (networkFragment != null) {
-            networkFragment.cancelDownload();
-        }
     }
 
     class SignUpContract extends ActivityResultContract<Integer, UserInfo> {

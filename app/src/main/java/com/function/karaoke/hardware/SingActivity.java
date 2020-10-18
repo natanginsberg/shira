@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,10 +32,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.OnLifecycleEvent;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Container;
@@ -43,12 +40,10 @@ import com.coremedia.iso.boxes.TrackBox;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
-import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.storage.StorageAdder;
+import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.CameraPreview;
-import com.function.karaoke.hardware.utils.UrlHolder;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
@@ -68,10 +63,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-//import android.graphics.Movie;
-//import org.mortbay.component.Container;
+//import com.function.karaoke.hardware.tasks.UploadRecordingTask;
 
-public class SingActivity extends AppCompatActivity implements DownloadCallback<String>,
+//import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
+
+
+public class SingActivity extends AppCompatActivity implements
         DialogBox.CallbackListener {
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
@@ -83,11 +80,13 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private static final int INTERNET_CODE = 102;
     private static final int PICK_CONTACT_REQUEST = 106;
     private static final int MESSAGE_RESULT = 1;
-    private static final String PLAYBACK = "playabck";
+    private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
     private static final CharSequence AUDIO_TOKEN = "audioToken";
     private static final CharSequence VIDEO_TOKEN = "videoToken";
     private static final int RECORDING_ID_LENGTH = 15;
+    private static final int SHARING_ERROR = 100;
+    private static final int UPLOAD_ERROR = 101;
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -136,7 +135,6 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         }
     };
     private boolean isRecording = false;
-    private NetworkFragment networkFragment;
     private boolean ending = false;
     private String uniquePath;
     private StorageAdder storageAdder;
@@ -148,6 +146,8 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     private String timeStamp;
 
     AuthenticationDriver authenticationDriver;
+    private long time;
+    private boolean fileSaved = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,8 +156,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         deletePreviousVideos();
 
         setContentView(R.layout.activity_sing);
-        deleteCurrentTempFile();
-        storageAdder = new StorageAdder();
+
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
@@ -224,13 +223,40 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 
     private void tryLoadSong() {
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
-        UrlHolder urlParser = new UrlHolder(song);
-        networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), urlParser);
-        networkFragment.getLifecycle().addObserver(new CreateObserver());
+//        UrlHolder urlParser = new UrlHolder(song);
+//        networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), song);
+//        networkFragment.getLifecycle().addObserver(new CreateObserver());
+        checkForInternetConnection();
+        NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
+            @Override
+            public void onSuccess() {
+                if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFail() {
+                finish();
+            }
+        });
         if (null != song) {
             blurAlbumInBackground();
             addArtistToScreen();
             findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
+        }
+    }
+
+    private void checkForInternetConnection() {
+        ConnectivityManager connectivityManager =
+                (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo == null || !networkInfo.isConnected() ||
+                (networkInfo.getType() != ConnectivityManager.TYPE_WIFI
+                        && networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
+            // If no connectivity, cancel task and update Callback with null data.
+            DialogBox dialogBox = DialogBox.newInstance(this, INTERNET_CODE);
+            dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
         }
     }
 
@@ -253,9 +279,17 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         if (!buttonClicked) {
             buttonClicked = true;
             File postParseVideoFile = wrapUpSong();
-            addFileToStorageForPlayback(Uri.fromFile(postParseVideoFile));
+            openNewIntent(Uri.fromFile(postParseVideoFile));
+//            addFileToStorageForPlayback(Uri.fromFile(postParseVideoFile));
 //            openNewIntent();
         }
+    }
+
+    private void openNewIntent(Uri uriFromFile) {
+        Intent intent = new Intent(this, Playback.class);
+        intent.putExtra(PLAYBACK, uriFromFile.toString());
+        intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
+        startActivity(intent);
     }
 
     private File wrapUpSong() {
@@ -279,55 +313,9 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
         if (isRecording) {
             cameraPreview.stopRecording();
         }
+        removeResumeOption();
     }
 
-    private void addFileToStorageForPlayback(Uri path) {
-        if (videoUrl == null) {
-            final Observer<String> urlObserver = url -> {
-                videoUrl = url;
-                playback = true;
-                buttonClicked = false;
-                openNewIntent();
-
-            };
-            storageAdder.uploadVideo(path).observe(this, urlObserver);
-        } else {
-            openNewIntent();
-        }
-    }
-
-    private void openNewIntent() {
-        Intent intent = new Intent(this, Playback.class);
-        intent.putExtra(PLAYBACK, videoUrl);
-        intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
-        startActivity(intent);
-    }
-
-    @Override
-    public void updateFromDownload(String result) {
-        if (result == null) {
-            DialogBox dialogBox = DialogBox.newInstance(this, INTERNET_CODE);
-            dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
-
-        }
-    }
-
-    @Override
-    public NetworkInfo getActiveNetworkInfo() {
-        return null;
-    }
-
-    @Override
-    public void onProgressUpdate(int progressCode, int percentComplete) {
-
-    }
-
-    @Override
-    public void finishDownloading() {
-        if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
-            finish();
-        }
-    }
 
     private void blurAlbumInBackground() {
 //        Picasso.get()
@@ -398,6 +386,7 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     public void returnToMain(View view) {
         if (!buttonClicked) {
             buttonClicked = true;
+            mKaraokeKonroller.onPause();
             DialogBox back = DialogBox.newInstance(this, BACK_CODE);
             back.show(getSupportFragmentManager(), "NoticeDialogFragment");
             buttonClicked = false;
@@ -789,37 +778,55 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     private void addFilesToStorageForLinking(Uri path) {
-        if (videoUrl == null) {
-            final Observer<String> urlObserver = url -> {
-                videoUrl = url;
-                playback = true;
-                buttonClicked = false;
-                shareLink();
+        if (!fileSaved) {
+            fileSaved = true;
+            storageAdder = new StorageAdder(path);
+//            final Observer<String> urlObserver = url -> {
+////                videoUrl = url;
+////                playback = true;
+//                buttonClicked = false;
+////                long finishTime = System.currentTimeMillis();
+////                System.out.println("this is the time it took to upload " + ((finishTime - time) / 1000));
+////                // todo gtesting compression
+//////                compressAndSaveToCloud(path.getPath(), view1);
+////                addRecordingToFirestore();
+//
+//
+//            };
+////            storageAdder.uploadVideo().observe(this, urlObserver);
 
-            };
-            storageAdder.uploadVideo(path).observe(this, urlObserver);
-        } else {
-            shareLink();
+
+            storageAdder.uploadRecording(new Recording(song, timeStamp,
+                    authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onFailure() {
+                    showFailure(UPLOAD_ERROR);
+
+
+                }
+            });
         }
+        shareLink();
     }
 
-    //        String link_val = "example://ashira" + this.getPackageName();
-//        String body = "<a href=\"" + link_val + "\">" + link_val + "</a>";
-//        String data = "Hello I am using this App.\nIt has large numbers of Words meaning with synonyms.\nIts works offline very smoothly.\n\n" + body;
-//        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-//        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, Html.fromHtml(data));
-////        emailIntent.setType("image/jpeg");
-//        //File bitmapFile = new File(Environment.getExternalStorageDirectory()+"DCIM/Camera/img.jpg");
-//        //myUri = Uri.fromFile(bitmapFile);
-////        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///mnt/sdcard/DCIM/Camera/img.jpg"));
-//        emailIntent.setData(Uri.parse("mailto:"));
-//
-//
-//        startActivityForResult(Intent.createChooser(emailIntent, "Complete action using:"), PICK_CONTACT_REQUEST);
-    private void shareLink() {
-//        String firstFileWithNewTokenName = song.getSongResourceFile().replace("token", AUDIO_TOKEN);
-//        String secondFileWithNewTokenName = videoUrl.replace("token", VIDEO_TOKEN);
+    private void showFailure(int error) {
+        switch (error){
+            case SHARING_ERROR:
+                Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
+                break;
+            case UPLOAD_ERROR:
+                Toast.makeText(this, "video failed to load", Toast.LENGTH_SHORT).show();
+                break;
+        }
 
+    }
+
+    private void shareLink() {
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
                 .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid()))
                 .setDomainUriPrefix("https://singJewish.page.link")
@@ -838,22 +845,14 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
 
                             String body = "<a href=\"" + link + "\">" + link + "</a>";
                             String data = "Listen to me sing\n" + body;
-//        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
                             Intent sendIntent = new Intent(Intent.ACTION_SEND);
-//        sendIntent.setAction(ACTION_SEND);
-//        sendIntent.putExtra(Intent.EXTRA_TEXT, message);
                             sendIntent.setType("text/plain");
-//        sendIntent.setPackage("com.whatsapp");
-//        sendIntent.setData(Uri.parse("smsto:"));
-//        sendIntent.setType("text/html");
-//        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, data);
-//        sendIntent.putExtra(Intent.EXTRA_HTML_TEXT, body);
                             sendIntent.putExtra(
                                     Intent.EXTRA_TEXT,
                                     Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
                             startActivity(sendIntent);
                         } else {
-                            int k = 0;
+                            showFailure(SHARING_ERROR);
                             // Error
                             // ...
                         }
@@ -873,42 +872,126 @@ public class SingActivity extends AppCompatActivity implements DownloadCallback<
     }
 
     public void saveRecordingToTheCloud(View view) {
+        time = System.currentTimeMillis();
+//        View view1 = (View) view.getParent();
+//        view1.findViewById(R.id.upload_progress_wheel).setVisibility(View.VISIBLE);
         File postParseVideoFile = wrapUpSong();
-        saveToCloud(Uri.fromFile(postParseVideoFile));
+//        saveToCloud(Uri.fromFile(postParseVideoFile), view1);
+        saveToCloud(postParseVideoFile);
     }
 
-    private void saveToCloud(Uri path) {
-        if (videoUrl == null) {
-            final Observer<String> urlObserver = url -> {
-                videoUrl = url;
-                playback = true;
-                buttonClicked = false;
-                addRecordingToFirestore();
+    //    private void saveToCloud(Uri path, View view1) {
+    private void saveToCloud(File path) {
+        if (!fileSaved) {
+            fileSaved = true;
+            storageAdder = new StorageAdder(Uri.fromFile(path));
+//            final Observer<String> urlObserver = url -> {
+////                videoUrl = url;
+////                playback = true;
+//                buttonClicked = false;
+////                long finishTime = System.currentTimeMillis();
+////                System.out.println("this is the time it took to upload " + ((finishTime - time) / 1000));
+////                // todo gtesting compression
+//////                compressAndSaveToCloud(path.getPath(), view1);
+////                addRecordingToFirestore();
+//
+//
+//            };
+////            storageAdder.uploadVideo().observe(this, urlObserver);
 
-            };
-            storageAdder.uploadVideo(path).observe(this, urlObserver);
-        } else {
-            addRecordingToFirestore();
+
+            storageAdder.uploadRecording(new Recording(song, timeStamp,
+                    authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
+                @Override
+                public void onSuccess() {
+//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                }
+            });
+
+
+//            WorkRequest uploadWorkRequest =
+//                    new OneTimeWorkRequest.Builder(UploadRecordingTask.class).setInputData(new Data.Builder()
+//                            .putString("path", Uri.fromFile(path).toString())
+//                            .build()
+//                    )
+//                            .build();
+//            WorkManager
+//                    .getInstance(this)
+//                    .enqueue(uploadWorkRequest);
+
         }
     }
 
-    private void addRecordingToFirestore() {
-        RecordingService recordingService = new RecordingService();
-        createNewRecordingFeatures();
-        recordingService.addRecordingToDataBase(recording);
-    }
 
-    private void createNewRecordingFeatures() {
-        recording = new Recording(videoUrl, song.getSongResourceFile(), song.getArtist(),
-                song.getImageResourceFile(), song.getTitle(), timeStamp,
-                authenticationDriver.getUserUid(), recordingId);
-    }
+//    //todo think about compressing the files
+//    private void compressAndSaveToCloud(String path, View view1) {
+//
+//        time = System.currentTimeMillis();
+//        File dir = getCacheDir();
+//        File file = new File(dir, "video recording.mp4");
+//        if (file.length() > 0) {
+//            boolean deleted = file.delete();
+//        }
+//        String destPath = file.toString();
+////        VideoCompressor.start();
+//        VideoCompress.compressVideoLow(path, destPath, new VideoCompress.CompressListener() {
+//            @Override
+//            public void onStart() {
+//
+//            }
+//
+//            @Override
+//            public void onSuccess() {
+//                startUpload(file, view1);
+//            }
+//
+//            @Override
+//            public void onFail() {
+//            }
+//
+//            @Override
+//            public void onProgress(float percent) {
+//            }
+//        });
+//
+//    }
+//
+//    private void startUpload(File path, View view1) {
+//        StorageAdder storageAdder = new StorageAdder(Uri.fromFile(path));
+//        final Observer<String> urlObserver = url -> {
+//            videoUrl = url;
+//            playback = true;
+//            buttonClicked = false;
+//            view1.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+//            long finishTime = System.currentTimeMillis();
+//            System.out.println("this is the time it took to compress and upload  " + ((finishTime - time) / 1000));
+//            // todo gtesting compression
+//            addRecordingToFirestore();
+//
+//        };
+//        storageAdder.uploadVideo().observe(this, urlObserver);
+//
+//    }
+//
+//    private void addRecordingToFirestore() {
+//        RecordingService recordingService = new RecordingService();
+//        createNewRecordingFeatures();
+//        recordingService.addRecordingToDataBase(recording);
+//    }
 
-    private class CreateObserver implements LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        public void connectListener() {
-            networkFragment.startDownload();
-        }
+    //    private void createNewRecordingFeatures() {
+//        recording = new Recording(videoUrl, song.getSongResourceFile(), song.getArtist(),
+//                song.getImageResourceFile(), song.getTitle(), timeStamp,
+//                authenticationDriver.getUserUid(), recordingId);
+//    }
+//
+    private void removeResumeOption() {
+        findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
     }
 
 }

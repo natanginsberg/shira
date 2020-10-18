@@ -13,7 +13,6 @@ import com.function.karaoke.core.model.Song;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SongDisplay;
-import com.function.karaoke.hardware.fragments.NetworkFragment;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
 import com.squareup.picasso.Picasso;
 
@@ -138,6 +137,4 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
     }
 
-    public void addNetworkThread(NetworkFragment networkFragment) {
-    }
 }

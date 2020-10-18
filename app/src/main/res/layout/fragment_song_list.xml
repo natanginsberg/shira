@@ -41,7 +41,8 @@
             android:layout_height="50dp"
             android:layout_toRightOf="@id/language_changer"
             android:background="@drawable/folder"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            />
 
         <Button
             android:id="@+id/sign_in_button"

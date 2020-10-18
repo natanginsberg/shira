@@ -1,10 +1,6 @@
 package com.function.karaoke.hardware.activities.Model;
 
-import com.function.karaoke.core.model.Song;
-import com.google.firebase.firestore.ServerTimestamp;
-
 import java.io.Serializable;
-import java.util.Date;
 
 public class Recording implements Serializable, SongDisplay {
     private String recordingId;
@@ -16,7 +12,8 @@ public class Recording implements Serializable, SongDisplay {
     private String imageResourceFile;
     private String artist;
 
-    public Recording(){}
+    public Recording() {
+    }
 
     public Recording(String recordingUrl, String audioFileUrl, String artistName,
                      String imageResourceFIle, String title, String date,
@@ -30,6 +27,18 @@ public class Recording implements Serializable, SongDisplay {
         this.recorderId = recorderId;
         this.recordingId = recordingId;
     }
+
+    public Recording(DatabaseSong song, String date,
+                     String recorderId, String recordingId) {
+        this.title = song.getTitle();
+        this.artist = song.getArtist();
+        this.audioFileUrl = song.getSongResourceFile();
+        this.imageResourceFile = song.getImageResourceFile();
+        this.date = date;
+        this.recorderId = recorderId;
+        this.recordingId = recordingId;
+    }
+
 
     public String getAudioFileUrl() {
         return audioFileUrl;

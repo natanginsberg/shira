@@ -58,15 +58,7 @@ public class LyricsView extends TextView {
             return;
         int pos = 0;
         for (Song.Syllable s : mLine.syllables)
-//        for (int i = 0; i < mLine.syllables.size(); i++) {
-//            Song.Syllable s = mLine.syllables.get(i);
             if (s.from < position)
-//                if (i > syllableNumber) {
-//
-//                    syllableNumber++;
-//                    timerToDraw((int) ((s.to - s.from) * 1000), s.text.length(),
-//                            i == mLine.syllables.size() - 1);
-//                }
                 pos += s.text.length();
 
             else
@@ -76,7 +68,6 @@ public class LyricsView extends TextView {
             return;
 
         mCurrentChar = pos;
-//        mText.removeSpan(mSpan); // not needed actually, setSpan checks for duplicates
         mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
         setText(mText);

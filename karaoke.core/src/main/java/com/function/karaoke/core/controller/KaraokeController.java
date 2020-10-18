@@ -50,10 +50,10 @@ public class KaraokeController implements Recorder.IToneListener {
             if (position >= mPlayer.getDuration() / 1000.0) {
                 listener.onSongEnded(true);
                 finishPlaying();
-
-
+                mHandler.removeCallbacks(mUpdater);
+            } else {
+                updateUI();
             }
-            updateUI();
         }
     };
 
@@ -120,40 +120,44 @@ public class KaraokeController implements Recorder.IToneListener {
 
     @SuppressLint("SetTextI18n")
     private void updateUI() {
-        double position = mPlayer.getCurrentPosition() / 1000.0;
+        if (mPlayer.isPlaying()) {
+            double position = mPlayer.getCurrentPosition() / 1000.0;
 
-        if (null != mCurrentLine && mCurrentLine.isIn(position)) {
-            mLyrics.setPosition(position);
+            if (null != mCurrentLine && mCurrentLine.isIn(position)) {
+                mLyrics.setPosition(position);
 //            mToneRender.setPosition(position);
-        } else {
+            } else {
 
-            for (int i = 0; i < mSong.lines.size(); i++) {
-                Song.Line line = mSong.lines.get(i);
+                for (int i = 0; i < mSong.lines.size(); i++) {
+                    Song.Line line = mSong.lines.get(i);
 //            }
 //            for (Song.Line line : mSong.lines) {
-                if (line.isIn(position)) {
-                    if (i > 0) {
-                        wordsRead.setText(mSong.lines.get(i - 1).toString());
-                    }
-                    if (i < mSong.lines.size() - 1) {
-                        wordsToRead.setText(mSong.lines.get(i + 1).toString());
-                    }
-                    mCurrentLine = line;
-                    mLyrics.setLine(mCurrentLine);
-                    mLyrics.setPosition(position);
+                    if (line.isIn(position)) {
+                        if (i > 0) {
+                            wordsRead.setText(mSong.lines.get(i - 1).toString());
+                        }
+                        if (i < mSong.lines.size() - 1) {
+                            wordsToRead.setText(mSong.lines.get(i + 1).toString());
+                        } else {
+                            wordsToRead.setText(" ");
+                        }
+                        mCurrentLine = line;
+                        mLyrics.setLine(mCurrentLine);
+                        mLyrics.setPosition(position);
 //                    mToneRender.setLine(mCurrentLine);
 //                    mToneRender.setPosition(position);
-                    mTones.clear();
-                    mLastUpdate = System.currentTimeMillis();
-                    mLineStart = mLastUpdate;
+                        mTones.clear();
+                        mLastUpdate = System.currentTimeMillis();
+                        mLineStart = mLastUpdate;
 
-                    return;
+                        return;
+                    }
                 }
-            }
-            mCurrentLine = null;
+                mCurrentLine = null;
 //            mToneRender.setLine(null);
-            mLineStart = -1;
-            mTones.clear();
+                mLineStart = -1;
+                mTones.clear();
+            }
         }
     }
 
