@@ -13,7 +13,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -114,8 +113,8 @@ public class CameraPreview {
         }
     }
 
-    private Size mPerviewSIze;
-    private File mVIdeoFolder;
+    private Size mPreviewSize;
+    private File mVideoFolder;
     private File mVideoFile;
     String fileName;
     private int mTotalRotation;
@@ -155,7 +154,7 @@ public class CameraPreview {
                     rotatedWidth = height;
                     rotatedHeight = width;
                 }
-                mPerviewSIze = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), rotatedWidth, rotatedHeight);
+                mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), rotatedWidth, rotatedHeight);
                 mVideoSize = chooseOptimalSize(map.getOutputSizes(MediaRecorder.class), rotatedWidth, rotatedHeight);
                 cameraId = id;
                 return;
@@ -219,7 +218,7 @@ public class CameraPreview {
 
     private void startPreview() {
         SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
-        surfaceTexture.setDefaultBufferSize(mPerviewSIze.getWidth(), mPerviewSIze.getHeight());
+        surfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
         Surface previewSurface = new Surface(surfaceTexture);
 
         try {
@@ -246,27 +245,21 @@ public class CameraPreview {
         }
     }
 
-    public void initiateRecorder() {
+    public void initiateRecorder(boolean cameraOn) {
         try {
             createVideoFolder();
             createVideoFileName();
-            setupMediaRecorder();
+            setupMediaRecorder(cameraOn);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void startRecording() {
-        checkWriteStoragePermission();
-    }
-
     private void createVideoFolder() {
-//        File moviewFile = Environment.getDataDirectory();
-//        File moviewFile = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
         File moviewFile = activity.getCacheDir();
-        mVIdeoFolder = new File(moviewFile, DIRECTORY_NAME);
-        if (!mVIdeoFolder.exists()) {
-            mVIdeoFolder.mkdirs();
+        mVideoFolder = new File(moviewFile, DIRECTORY_NAME);
+        if (!mVideoFolder.exists()) {
+            mVideoFolder.mkdirs();
         } else {
             int k = 0;
         }
@@ -275,12 +268,12 @@ public class CameraPreview {
     private void createVideoFileName() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMM_HHmmss").format(new Date());
         String prepend = "VIDEO" + timeStamp + "_";
-        File videoFile = File.createTempFile(prepend, ".mp4", mVIdeoFolder);
+        File videoFile = File.createTempFile(prepend, ".mp4", mVideoFolder);
         fileName = videoFile.getAbsolutePath();
         mVideoFile = videoFile;
     }
 
-    private void checkWriteStoragePermission() {
+    public void prepareMediaRecorder(boolean cameraOn) {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO)
@@ -291,8 +284,9 @@ public class CameraPreview {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            startRecord();
-            mMediaRecorder.start();
+//            startRecord();
+//            mMediaRecorder.start();
+            setMediaRecorder(cameraOn);
         } else {
             if (activity.shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 Toast.makeText(activity, "App need able to save videos", Toast.LENGTH_SHORT);
@@ -303,7 +297,7 @@ public class CameraPreview {
         }
     }
 
-    private void setupMediaRecorder() {
+    private void setupMediaRecorder(boolean cameraOn) {
 //        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 //        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 //        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -314,19 +308,21 @@ public class CameraPreview {
 //        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
 //        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mMediaRecorder = new MediaRecorder();
+        if (cameraOn)
+            mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
-        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
         mMediaRecorder.setOutputFile(fileName);
-        mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
-
         CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-        mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
-        mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
-        mMediaRecorder.setVideoEncodingBitRate(1000000);
-        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        if (cameraOn) {
+            mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
+            mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+            mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
+            mMediaRecorder.setVideoEncodingBitRate(1000000);
+            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
 //        mMediaRecorder.setAudioChannels(2);
@@ -340,35 +336,69 @@ public class CameraPreview {
         }
     }
 
-    private void startRecord() {
+//    private void startRecord() {
+//        try {
+//            setupMediaRecorder();
+//            SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
+//            surfaceTexture.setDefaultBufferSize(mPerviewSIze.getWidth(), mPerviewSIze.getHeight());
+//            Surface previewSurface = new Surface(surfaceTexture);
+//            Surface recordSurface = mMediaRecorder.getSurface();
+//            mCaptureRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+//            mCaptureRequestBuilder.addTarget(previewSurface);
+//            mCaptureRequestBuilder.addTarget(recordSurface);
+//
+//            mCamera.createCaptureSession(Arrays.asList(previewSurface, recordSurface), new CameraCaptureSession.StateCallback() {
+//                @Override
+//                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+//                    try {
+//                        cameraCaptureSession.setRepeatingRequest(mCaptureRequestBuilder.build(), null, null);
+//                    } catch (CameraAccessException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//
+//                @Override
+//                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+//
+//                }
+//            }, null);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
+    private void setMediaRecorder(boolean cameraOn) {
         try {
-            setupMediaRecorder();
-            SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
-            surfaceTexture.setDefaultBufferSize(mPerviewSIze.getWidth(), mPerviewSIze.getHeight());
-            Surface previewSurface = new Surface(surfaceTexture);
-            Surface recordSurface = mMediaRecorder.getSurface();
-            mCaptureRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
-            mCaptureRequestBuilder.addTarget(previewSurface);
-            mCaptureRequestBuilder.addTarget(recordSurface);
+            setupMediaRecorder(cameraOn);
+            if (cameraOn) {
+                SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
+                surfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
+                Surface previewSurface = new Surface(surfaceTexture);
+                Surface recordSurface = mMediaRecorder.getSurface();
+                mCaptureRequestBuilder = mCamera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+                mCaptureRequestBuilder.addTarget(previewSurface);
+                mCaptureRequestBuilder.addTarget(recordSurface);
 
-            mCamera.createCaptureSession(Arrays.asList(previewSurface, recordSurface), new CameraCaptureSession.StateCallback() {
-                @Override
-                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
-                    try {
-                        cameraCaptureSession.setRepeatingRequest(mCaptureRequestBuilder.build(), null, null);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
+                mCamera.createCaptureSession(Arrays.asList(previewSurface, recordSurface), new CameraCaptureSession.StateCallback() {
+                    @Override
+                    public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                        try {
+                            cameraCaptureSession.setRepeatingRequest(mCaptureRequestBuilder.build(), null, null);
+                        } catch (CameraAccessException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
 
-                @Override
-                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    @Override
+                    public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
 
-                }
-            }, null);
+                    }
+                }, null);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public void stopRecording() {
@@ -388,5 +418,9 @@ public class CameraPreview {
     public void resumeRecording() {
         if (mMediaRecorder != null)
             mMediaRecorder.resume();
+    }
+
+    public void start() {
+        mMediaRecorder.start();
     }
 }

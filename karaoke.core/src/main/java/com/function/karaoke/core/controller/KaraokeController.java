@@ -22,7 +22,6 @@ import java.util.List;
 public class KaraokeController implements Recorder.IToneListener {
 
     private final MediaPlayer mPlayer;
-    private final String tempOutputFile;
     //        private MediaRecorder mRecorder;
     private final Handler mHandler;
     private final List<Tone> mTones = new ArrayList<>();
@@ -57,11 +56,10 @@ public class KaraokeController implements Recorder.IToneListener {
         }
     };
 
-    public KaraokeController(String tempOutputFile) {
+    public KaraokeController() {
         mHandler = new Handler();
         mPlayer = new MediaPlayer();
 //        mRecorder = new MediaRecorder();
-        this.tempOutputFile = tempOutputFile;
         this.listener = null;
     }
 

@@ -25,7 +25,7 @@ public class ToneActivity extends AppCompatActivity implements Recorder.IToneLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tone);
+        setContentView(R.layout.old_activity_tone);
         mToneLabel = findViewById(R.id.lbl_tone);
         mRecorder = new Recorder(this);
     }

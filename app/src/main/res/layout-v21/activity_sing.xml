@@ -169,7 +169,7 @@
                 android:layout_centerInParent="true" />
 
             <Switch
-                android:id="@+id/switch_button"
+                android:id="@+id/camera_toggle_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/play_button"
@@ -184,7 +184,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_below="@id/play_button"
-                android:layout_alignLeft="@id/switch_button"
+                android:layout_alignLeft="@id/camera_toggle_button"
                 android:background="@mipmap/ic_video_camera" />
 
             <Button

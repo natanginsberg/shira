@@ -17,7 +17,7 @@ public class VideoPlayer extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_video_player);
+        setContentView(R.layout.old_activity_video_player);
         mVideoView = findViewById(R.id.video_view);
         videoPath = getIntent().getStringExtra(VIDEO_PATH);
     }

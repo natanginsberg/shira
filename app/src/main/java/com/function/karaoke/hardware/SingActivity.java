@@ -13,7 +13,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Environment;
 import android.os.Handler;
 import android.text.Html;
 import android.util.Log;
@@ -33,10 +32,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 
-import com.coremedia.iso.IsoFile;
-import com.coremedia.iso.boxes.Container;
-import com.coremedia.iso.boxes.TimeToSampleBox;
-import com.coremedia.iso.boxes.TrackBox;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
@@ -44,23 +39,16 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.CameraPreview;
+import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
-import com.googlecode.mp4parser.DataSource;
-import com.googlecode.mp4parser.FileDataSourceImpl;
-import com.googlecode.mp4parser.authoring.Movie;
-import com.googlecode.mp4parser.authoring.Mp4TrackImpl;
-import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 //import com.function.karaoke.hardware.tasks.UploadRecordingTask;
@@ -117,6 +105,7 @@ public class SingActivity extends AppCompatActivity implements
 //            cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
             cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
             cameraPreview.connectCamera();
+//            cameraPreview.initiateRecorder();
         }
 
         @Override
@@ -148,6 +137,7 @@ public class SingActivity extends AppCompatActivity implements
     AuthenticationDriver authenticationDriver;
     private long time;
     private boolean fileSaved = false;
+    private boolean cameraOn = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +148,7 @@ public class SingActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_sing);
 
         mTextureView = findViewById(R.id.surface_camera);
-        mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
+        mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
         mPlayer = mKaraokeKonroller.getmPlayer();
         generateRecordingId();
@@ -166,6 +156,7 @@ public class SingActivity extends AppCompatActivity implements
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
         } else {
             initiateCamera();
+
         }
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_CODE);
@@ -207,6 +198,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void initiateCamera() {
+//        checkCameraHardware(this);
         cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
         openCamera();
     }
@@ -223,9 +215,6 @@ public class SingActivity extends AppCompatActivity implements
 
     private void tryLoadSong() {
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
-//        UrlHolder urlParser = new UrlHolder(song);
-//        networkFragment = NetworkFragment.getDownloadInstance(getSupportFragmentManager(), song);
-//        networkFragment.getLifecycle().addObserver(new CreateObserver());
         checkForInternetConnection();
         NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
             @Override
@@ -279,9 +268,8 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
             buttonClicked = true;
             File postParseVideoFile = wrapUpSong();
+            buttonClicked = false;
             openNewIntent(Uri.fromFile(postParseVideoFile));
-//            addFileToStorageForPlayback(Uri.fromFile(postParseVideoFile));
-//            openNewIntent();
         }
     }
 
@@ -296,7 +284,7 @@ public class SingActivity extends AppCompatActivity implements
         try {
             stopRecordingAndSong();
             File file = cameraPreview.getVideo();
-            return parseVideo(file);
+            return SyncFileData.parseVideo(file, getOutputMediaFile());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -352,7 +340,7 @@ public class SingActivity extends AppCompatActivity implements
                 break;
             case CAMERA_CODE:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-                    cameraPreview.initiateRecorder();
+                    cameraPreview.initiateRecorder(cameraOn);
                 break;
             case EXTERNAL_STORAGE_WRITE_PERMISSION:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -402,8 +390,11 @@ public class SingActivity extends AppCompatActivity implements
         if (mKaraokeKonroller.isPrepared() && !timerStarted) {
             restart = false;
             findViewById(R.id.play_button).setVisibility(View.GONE);
-            findViewById(R.id.switch_button).setVisibility(View.INVISIBLE);
+            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
             findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+            if (!cameraOn) {
+                findViewById(R.id.logo).setVisibility(View.VISIBLE);
+            }
             startTimer();
         }
     }
@@ -418,24 +409,24 @@ public class SingActivity extends AppCompatActivity implements
                 if (millisUntilFinished / 1000 >= 1)
                     ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
                 else ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
+                if (millisUntilFinished / 1000 >= 3)
+                    cameraPreview.prepareMediaRecorder(cameraOn);
             }
 
             public void onFinish() {
                 cancelTimer();
                 findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
                 makeSongNameAndArtistInvisible();
-                cameraPreview.startRecording();
+                cameraPreview.start();
                 mKaraokeKonroller.onResume();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
-                if (!previewRunning) {
-                    findViewById(R.id.logo).setVisibility(View.VISIBLE);
-                }
                 mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
                     @Override
                     public void onSongEnded(boolean songIsOver) {
                         openEndOptions(true);
                     }
                 });
+                isRunning = true;
                 setProgressBar();
                 setPauseButton();
                 isRecording = true;
@@ -602,42 +593,45 @@ public class SingActivity extends AppCompatActivity implements
 
     public void playAgain(View view) {
         if (!buttonClicked) {
-            buttonClicked = true;
+            resetFields();
             cameraPreview.stopRecording();
-//        cameraPreview.closeCamera();
             popup.dismiss();
-//        setContentView(R.layout.activity_sing);
             resetPage();
-            restart = true;
-            isRunning = false;
-            isRecording = false;
-            deleteCurrentTempFile();
+            deletePreviousVideos();
             resetKaraokeController();
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
             else {
                 tryLoadSong();
             }
-//        initiateCamera();
             buttonClicked = false;
         }
+    }
+
+    private void resetFields() {
+        buttonClicked = true;
+        restart = true;
+        isRunning = false;
+        isRecording = false;
+
     }
 
     private void resetKaraokeController() {
         if (!mKaraokeKonroller.isStopped())
             mKaraokeKonroller.onStop();
-        mKaraokeKonroller = new KaraokeController(getCacheDir().getAbsolutePath() + File.separator + "video recording");
+        mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
         mPlayer = mKaraokeKonroller.getmPlayer();
     }
 
     private void resetPage() {
         findViewById(R.id.play_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.switch_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
         findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
 
         findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
         findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
+
 
         findViewById(R.id.pause).setVisibility(View.INVISIBLE);
         findViewById(R.id.play).setVisibility(View.INVISIBLE);
@@ -665,13 +659,6 @@ public class SingActivity extends AppCompatActivity implements
         cTimer.start();
     }
 
-    private void deleteCurrentTempFile() {
-        File dir = getCacheDir();
-        File file = new File(dir, "video recording");
-        if (file.length() > 0) {
-            boolean deleted = file.delete();
-        }
-    }
 
     public void openCamera() {
         if (checkCameraHardware(this)) {
@@ -686,10 +673,16 @@ public class SingActivity extends AppCompatActivity implements
                 if (mTextureView.isAvailable()) {
                     cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
                     cameraPreview.connectCamera();
+//                    cameraPreview.initiateRecorder();
                 } else {
                     mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
                 }
+                cameraOn = true;
             }
+        } else {
+            cameraOn = false;
+            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
         }
     }
 
@@ -707,45 +700,12 @@ public class SingActivity extends AppCompatActivity implements
 
     private void turnCameraOn() {
         openCamera();
+
     }
 
     private void turnCameraOff() {
         cameraPreview.closeCamera();
-    }
-
-    private File parseVideo(File mFilePath) throws IOException {
-        DataSource channel = new FileDataSourceImpl(mFilePath.getAbsolutePath());
-        IsoFile isoFile = new IsoFile(channel);
-        List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
-        boolean isError = false;
-        for (TrackBox trackBox : trackBoxes) {
-            TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
-            // Detect if first sample is a problem and fix it in isoFile
-            // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
-            // 10000 seems sufficient since for 30 fps the normal delta is about 3000
-            if (firstEntry.getDelta() > 10000) {
-                isError = true;
-                firstEntry.setDelta(3000);
-            }
-        }
-        File file = getOutputMediaFile();
-        String filePath = file.getAbsolutePath();
-        if (isError) {
-            Movie movie = new Movie();
-            for (TrackBox trackBox : trackBoxes) {
-                movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
-            }
-            movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
-            Container out = new DefaultMp4Builder().build(movie);
-
-            //delete file first!
-            FileChannel fc = new RandomAccessFile(filePath, "rw").getChannel();
-            out.writeContainer(fc);
-            fc.close();
-            Log.d(TAG, "Finished correcting raw video");
-            return file;
-        }
-        return mFilePath;
+        cameraOn = false;
     }
 
     /**
@@ -754,12 +714,10 @@ public class SingActivity extends AppCompatActivity implements
      */
     private File getOutputMediaFile() {
         // External sdcard file location
-        File mediaStorageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        File mediaStorageDir = new File(getCacheDir(), DIRECTORY_NAME);
         // Create storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-                Log.d(TAG, "Oops! Failed create "
-                        + "movies" + " directory");
                 return null;
             }
         }
@@ -781,21 +739,6 @@ public class SingActivity extends AppCompatActivity implements
         if (!fileSaved) {
             fileSaved = true;
             storageAdder = new StorageAdder(path);
-//            final Observer<String> urlObserver = url -> {
-////                videoUrl = url;
-////                playback = true;
-//                buttonClicked = false;
-////                long finishTime = System.currentTimeMillis();
-////                System.out.println("this is the time it took to upload " + ((finishTime - time) / 1000));
-////                // todo gtesting compression
-//////                compressAndSaveToCloud(path.getPath(), view1);
-////                addRecordingToFirestore();
-//
-//
-//            };
-////            storageAdder.uploadVideo().observe(this, urlObserver);
-
-
             storageAdder.uploadRecording(new Recording(song, timeStamp,
                     authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
                 @Override
