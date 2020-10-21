@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SHIRA</string>
+    <string name="app_name">ASHIRA</string>
     <string name="title_activity_login" translatable="false">LoginActivity</string>
     <string name="prompt_user_name">User Name</string>
     <string name="prompt_email">Email</string>
@@ -45,5 +45,6 @@
     <string name="ok">OK</string>
     <string name="no_internet_alert">\There is no internet connection.</string>
     <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="sign_out">Sign Out</string>
 
 </resources>

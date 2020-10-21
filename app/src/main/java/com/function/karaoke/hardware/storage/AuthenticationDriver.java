@@ -25,6 +25,7 @@ public class AuthenticationDriver {
     }
 
     public String getUserUid() {
+
         return auth.getUid();
     }
 

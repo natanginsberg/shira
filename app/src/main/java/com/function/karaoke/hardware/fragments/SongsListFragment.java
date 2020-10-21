@@ -1,7 +1,6 @@
 package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,23 +11,22 @@ import androidx.activity.result.ActivityResultCaller;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.function.karaoke.hardware.RecordingRecycleViewAdapter;
-import com.function.karaoke.hardware.activities.Model.DatabaseSong;
-import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.RecordingRecycleViewAdapter;
 import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
+import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
+import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
-import com.function.karaoke.hardware.utils.UrlHolder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +40,9 @@ import java.util.List;
 public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    private static final int DOWNLOAD_WORDS = 100;
-    private static final int GET_COVER_IMAGE = 101;
-    private static final int GET_AUDIO = 102;
+    //    private static final int DOWNLOAD_WORDS = 100;
+//    private static final int GET_COVER_IMAGE = 101;
+//    private static final int GET_AUDIO = 102;
     private static final int ALL_SONGS_DISPLAYED = 1;
     private static final int PERSONAL_RECORDING_DISPLAYED = 2;
 
@@ -52,9 +50,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private SongRecyclerViewAdapter mAdapter;
-    private RecordingRecycleViewAdapter recordAdapter;
     private View songsView;
-    private FragmentActivity myContext;
+    //    private FragmentActivity myContext;
     //    private SongsDB songs;
     private DatabaseSongsDB databaseSongs;
     private RecyclerView recyclerView;
@@ -62,8 +59,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private List<DatabaseSongsDB> previousSongs = new ArrayList<>();
     private String previousQuery = "";
     private DatabaseDriver databaseDriver;
-    private List<DatabaseSong> allSongs = new ArrayList<>();
-    private UrlHolder urlParser;
+    //    private List<DatabaseSong> allSongs = new ArrayList<>();
+//    private UrlHolder urlParser;
     private RecordingService recordingService;
     private RecordingDB recordingDB;
 
@@ -78,15 +75,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public SongsListFragment() {
     }
 
-    @SuppressWarnings("unused")
-    public static SongsListFragment newInstance(int columnCount) {
-        SongsListFragment fragment = new SongsListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,14 +85,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     }
 
-//    private void setClickListeners(View songsView) {
-//        songsView.findViewById(R.id.testButton).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                mGetContent.launch(new Intent(getActivity(), SignInActivity.class));
-//            }
-//        });
-//    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -130,22 +110,21 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void setClickListeners(View songsView) {
-        songsView.findViewById(R.id.personal_library).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED){
-                    contentsDisplayed = ALL_SONGS_DISPLAYED;
-                    displayAllSongs();
-                    ((Button)songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder));
-                } else if (contentsDisplayed == ALL_SONGS_DISPLAYED){
-                    contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
-                    if (recordingDB == null){
-                        getAllPersonalSongs();
-                    } else {
-                        displayPersonalSongs();
-                    }
-                    ((Button)songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder_clicked, getContext().getTheme()));
+        songsView.findViewById(R.id.personal_library).setOnClickListener((View.OnClickListener) view -> {
+            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+                contentsDisplayed = ALL_SONGS_DISPLAYED;
+                displayAllSongs();
+                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder, getContext().getTheme()));
+            } else if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
+                contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
+                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+                if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
+                    recordingDB = null;
+                    getAllPersonalSongs();
+                } else {
+                    displayPersonalSongs();
                 }
+                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder_clicked, getContext().getTheme()));
             }
         });
     }
@@ -163,20 +142,18 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void getAllSongs() {
-        final Observer<List<DatabaseSong>> searchObserver = products -> {
-            databaseSongs.updateSongs(products);
-        };
+        final Observer<List<DatabaseSong>> searchObserver = products -> databaseSongs.updateSongs(products);
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
 
-    private void getAllPersonalSongs(){
+    private void getAllPersonalSongs() {
         final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
             if (personalRecordings != null) {
                 recordingDB = new RecordingDB(personalRecordings);
                 displayPersonalSongs();
             }
         };
-        this.recordingService.getRecordingFromUID().observe(this, personalRecordingObserver);
+        this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
     }
 //    private class CreateObserver implements LifecycleObserver {
 //        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
@@ -186,20 +163,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        else
-//            mListener.getSongs().scan();
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
 //        mListener.getSongs().unsubscribe(this);
     }
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnListFragmentInteractionListener) {
             mListener = (OnListFragmentInteractionListener) context;
@@ -233,8 +203,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         mAdapter.notifyDataSetChanged();
     }
 
-    private void displayPersonalSongs(){
-        recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity)requireActivity()).language);
+    private void displayPersonalSongs() {
+        RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
         recyclerView.setAdapter(recordAdapter);
     }
 

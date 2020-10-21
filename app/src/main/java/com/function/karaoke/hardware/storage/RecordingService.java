@@ -43,7 +43,7 @@ public class RecordingService {
                     recordings.setValue(documentsList);
                 }
             } else {
-                Log.d(TAG, "Error getting users documents: ", task.getException());
+
             }
         });
         return recordings;
@@ -64,7 +64,7 @@ public class RecordingService {
                     recording.setValue(documentsList.get(0));
                 }
             } else {
-                Log.d(TAG, "Error getting users documents: ", task.getException());
+
             }
         });
         return recording;

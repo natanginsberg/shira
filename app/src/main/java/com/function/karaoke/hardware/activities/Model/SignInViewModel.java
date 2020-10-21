@@ -83,11 +83,9 @@ public class SignInViewModel extends ViewModel {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update ui with the signed-in user's information
-                        Log.d(TAG, "signInWithCredential:success");
                         success.setValue(true);
                     } else {
                         // If sign in fails, display a message to the user.
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
                         success.setValue(false);
                     }
                 });
@@ -102,7 +100,6 @@ public class SignInViewModel extends ViewModel {
         getUserQuery.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
-                    Log.d(TAG, "User is not on database. Starting sign up for new user.");
                     user = null;
                 } else {
                     for (QueryDocumentSnapshot document : task.getResult()) {
@@ -112,7 +109,6 @@ public class SignInViewModel extends ViewModel {
                 }
                 success.setValue(true);
             } else {
-                Log.d(TAG, "Error getting users documents: ", task.getException());
                 success.setValue(false);
             }
             mAccessingDatabase = false;
@@ -121,15 +117,45 @@ public class SignInViewModel extends ViewModel {
         return success;
     }
 
+    public void isUserInDatabase(DatabaseListener databaseListener) {
+        final List<UserInfo> documentsList = new LinkedList<>();
+        mAccessingDatabase = true;
+        Query getUserQuery = databaseDriver.getCollectionReferenceByName(UserService.COLLECTION_USERS_NAME).whereEqualTo(UserService.UID, authenticationDriver.getUserUid());
+        getUserQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().isEmpty()) {
+                    databaseListener.isInDatabase(false);
+                } else {
+                    databaseListener.isInDatabase(true);
+                }
+            } else {
+                databaseListener.failedToSearchDatabase();
+            }
+            mAccessingDatabase = false;
+        });
+    }
 
-    public void firebaseAuthWithGoogle(String idToken) {
+    public void firebaseAuthWithGoogle(String idToken, FirebaseAuthListener firebaseAuthListener) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         authenticationDriver.getAuth().signInWithCredential(credential).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                Log.d(TAG, "signInWithCredential:success");
                 FirebaseUser user = authenticationDriver.getAuth().getCurrentUser();
+                firebaseAuthListener.onSuccess(user);
+
             }
         });
+    }
+
+    public interface DatabaseListener{
+        void isInDatabase(boolean inDatabase);
+
+        void failedToSearchDatabase();
+    }
+
+    public interface FirebaseAuthListener{
+        void onSuccess(FirebaseUser firebaseUser);
+
+        void onFailure();
     }
 }

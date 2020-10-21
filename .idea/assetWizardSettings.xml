@@ -91,6 +91,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
+                                                <entry key="imagePath" value="C:\Users\Natan\Downloads\logo1.png" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -123,8 +124,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="000000" />
-                                      <entry key="foregroundAssetType" value="CLIP_ART" />
+                                      <entry key="foregroundLayerName" value="ic_app_launcher" />
                                       <entry key="outputName" value="ic_video_camera" />
                                     </map>
                                   </option>
@@ -331,8 +331,8 @@
                           <map>
                             <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="ffffff" />
-                            <entry key="outputName" value="ic_language_button" />
-                            <entry key="sourceFile" value="C:\Users\Natan\Downloads\language button.svg" />
+                            <entry key="outputName" value="ic_logo" />
+                            <entry key="sourceFile" value="C:\Users\Natan\Downloads\Logo.svg" />
                           </map>
                         </option>
                       </PersistentState>

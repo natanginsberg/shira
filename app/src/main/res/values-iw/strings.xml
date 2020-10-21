@@ -36,4 +36,5 @@
     <string name="start">התחל!</string>
     <string name="ok">OK</string>
     <string name="no_internet_alert">Alert!\nThere is no internet connection.</string>
+    <string name="sign_out">Sign Out</string>
 </resources>

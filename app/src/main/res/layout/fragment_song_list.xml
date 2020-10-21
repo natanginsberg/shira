@@ -56,6 +56,18 @@
             android:textColor="@color/sing_up_hover" />
 
         <Button
+            android:id="@+id/sign_out_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/skinny_rec"
+            android:onClick="signOut"
+            android:padding="3dp"
+            android:text="@string/sign_out"
+            android:textColor="@color/sing_up_hover"
+            android:visibility="invisible"/>
+
+        <Button
             android:id="@+id/testButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
