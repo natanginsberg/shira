@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,6 +22,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewOverlay;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -494,16 +497,16 @@ public class SingActivity extends AppCompatActivity implements
         }
 
         placePopupOnScreen();
-//        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-//            @Override
-//            public void onDismiss() {
-////                undimBackground();
-//                if (mPlayer.getCurrentPosition() != mPlayer.getDuration()) {
-////                    mKaraokeKonroller.onResume();
-//                }
-//            }
-//        });
-//        applyDim();
+        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                undimBackground();
+                if (mPlayer.getCurrentPosition() != mPlayer.getDuration()) {
+//                    mKaraokeKonroller.onResume();
+                }
+            }
+        });
+        applyDim();
 
     }
 
@@ -513,19 +516,26 @@ public class SingActivity extends AppCompatActivity implements
         popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
     }
 
-//    private void applyDim() {
-//        Drawable dim = new ColorDrawable(Color.BLACK);
-//        dim.setBounds(0, 0, findViewById(R.id.sing_song).getWidth(), findViewById(R.id.sing_song).getHeight());
-//        dim.setAlpha((int) (255 * (float) 0.8));
-//        ViewOverlay overlay = findViewById(R.id.sing_song).getOverlay();
-////        ViewOverlay headerOverlay = headerView.getOverlay();
-////        headerOverlay.add(dim);
-//        overlay.add(dim);
-//    }
+    private void applyDim() {
+        Drawable dim = new ColorDrawable(Color.BLACK);
+        dim.setBounds(0, 0, findViewById(R.id.sing_song).getWidth(), findViewById(R.id.sing_song).getHeight());
+        dim.setAlpha((int) (255 * (float) 0.8));
+        ViewOverlay overlay = findViewById(R.id.sing_song).getOverlay();
+//        ViewOverlay headerOverlay = headerView.getOverlay();
+//        headerOverlay.add(dim);
+        overlay.add(dim);
+    }
+
+    public void undimBackground() {
+        ViewOverlay overlay = findViewById(R.id.sing_song).getOverlay();
+//        ViewOverlay headerOverlay = headerView.getOverlay();
+        overlay.clear();
+//        headerOverlay.clear();
+    }
 
     private void setPopupAttributes(PopupWindow popup, View layout) {
-        int width = ((this.getResources().getDisplayMetrics().widthPixels));
-        int height = this.getResources().getDisplayMetrics().heightPixels;
+        int width = (int) (this.getResources().getDisplayMetrics().widthPixels * 0.781);
+        int height = (int) (this.getResources().getDisplayMetrics().heightPixels * 0.576);
         popup.setContentView(layout);
         popup.setWidth(width);
         popup.setHeight(height);

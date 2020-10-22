@@ -213,12 +213,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
-                playerView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                    }
-                });
             }
             player.setVolume(0.5f);
             player.setPlayWhenReady(false);
@@ -228,13 +222,41 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 mediaSource = buildMediaSource(urls.get(i));
             else
                 mediaSource = buildMediaSource(uris.get(i));
-
-
+            int finalI = i;
             player.addListener(new Player.EventListener() {
                 @Override
                 public void onSeekProcessed() {
                     int k = 0;
                 }
+
+                @Override
+                public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+//                    if (playWhenReady) {
+                    switch (playbackState) {
+                        case ExoPlayer.STATE_IDLE:
+                            break;
+                        case ExoPlayer.STATE_BUFFERING:
+                            break;
+                        case ExoPlayer.STATE_READY:
+                            break;
+                        case ExoPlayer.STATE_ENDED:
+                            for (SimpleExoPlayer p : players) {
+                                p.setPlayWhenReady(false);
+                                p.seekTo(currentWindow, 0);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                @Override
+                public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+                    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
+                        players.get(1).seekTo(currentWindow, player.getContentPosition());
+                    }
+                }
+
             });
             player.addListener(this);
             player.prepare(mediaSource, true, false);
@@ -387,26 +409,28 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
 
-    private class PlaybackStateListener implements Player.EventListener {
+    private static class PlaybackStateListener implements Player.EventListener {
         @Override
-        public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-            String stateString;
-            switch (playbackState) {
-                case ExoPlayer.STATE_IDLE:
-                    stateString = "ExoPlayer.STATE_IDLE      -";
-                    break;
-                case ExoPlayer.STATE_BUFFERING:
-                    stateString = "ExoPlayer.STATE_BUFFERING -";
-                    break;
-                case ExoPlayer.STATE_READY:
-                    stateString = "ExoPlayer.STATE_READY     -";
-                    break;
-                case ExoPlayer.STATE_ENDED:
-                    stateString = "ExoPlayer.STATE_ENDED     -";
-                    break;
-                default:
-                    stateString = "UNKNOWN_STATE             -";
-                    break;
+        public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+            if (playWhenReady) {
+                String stateString = "";
+                switch (playbackState) {
+                    case ExoPlayer.STATE_IDLE:
+                        stateString = "ExoPlayer.STATE_IDLE      -";
+                        break;
+                    case ExoPlayer.STATE_BUFFERING:
+                        stateString = "ExoPlayer.STATE_BUFFERING -";
+                        break;
+                    case ExoPlayer.STATE_READY:
+                        stateString = "ExoPlayer.STATE_READY     -";
+                        break;
+                    case ExoPlayer.STATE_ENDED:
+                        stateString = "ExoPlayer.STATE_ENDED     -";
+                        break;
+                    default:
+                        stateString = "UNKNOWN_STATE             -";
+                        break;
+                }
             }
         }
     }
