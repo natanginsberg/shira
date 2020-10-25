@@ -1,7 +1,5 @@
 package com.function.karaoke.hardware.storage;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -14,13 +12,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RecordingService {
-    private AuthenticationDriver authenticationDriver;
-    private CollectionReference recordingsCollectionRef;
     public static final String COLLECTION_USERS_NAME = "recordings";
     public static final String UID = "recorderId";
     public static final String RECORDER_ID = "recorderId";
     public static final String RECORDING_ID = "recordingId";
     private static final String TAG = RecordingService.class.getSimpleName();
+    private AuthenticationDriver authenticationDriver;
+    private CollectionReference recordingsCollectionRef;
 
     public RecordingService() {
         DatabaseDriver databaseDriver = new DatabaseDriver();

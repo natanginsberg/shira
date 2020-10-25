@@ -3,7 +3,6 @@ package com.function.karaoke.hardware;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -39,11 +38,10 @@ import java.util.Locale;
 
 public class Playback extends AppCompatActivity implements TimeBar.OnScrubListener, PlaybackStateListener {
 
+    public static final String RECORDING = "recording";
     private static final int SAVE_VIDEO = 111;
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
-    public static final String RECORDING = "recording";
-
     private static final String AUDIO_TOKEN = "audioToken";
     private static final String VIDEO_TOKEN = "videoToken";
     private static final int RECORDING_URL = 0;
@@ -140,7 +138,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "getDynamicLink:onFailure", e);
+//                        Log.w(TAG, "getDynamicLink:onFailure", e);
                     }
                 });
     }

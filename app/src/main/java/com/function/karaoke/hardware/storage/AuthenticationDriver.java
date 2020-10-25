@@ -25,15 +25,14 @@ public class AuthenticationDriver {
     }
 
     public String getUserUid() {
-
         return auth.getUid();
     }
 
-    public String getUserEmail(){
+    public String getUserEmail() {
         return auth.getCurrentUser().getEmail();
     }
 
-    public void signOut(){
+    public void signOut() {
         auth.signOut();
     }
 

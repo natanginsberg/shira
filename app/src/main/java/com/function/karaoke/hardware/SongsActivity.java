@@ -7,10 +7,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.text.Html;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
@@ -23,7 +21,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -33,16 +30,10 @@ import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
-import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.storage.StorageDriver;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Locale;
 
 public class SongsActivity
@@ -53,15 +44,14 @@ public class SongsActivity
     private static final int CAMERA_CODE = 2;
     private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 102;
     private static final int PICK_CONTACT_REQUEST = 100;
-
+    public String language;
     DatabaseDriver databaseDriver = new DatabaseDriver();
-
+    Locale myLocale;
     //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
-    public String language;
-    Locale myLocale;
     private String pack;
-
+    private AuthenticationDriver authenticationDriver;
+    private UserInfo userInfo;
     // GetContent creates an ActivityResultLauncher<String> to allow you to pass
 // in the mime type you'd like to allow the user to select
     private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
@@ -75,17 +65,12 @@ public class SongsActivity
                     }
                 }
             });
-    private AuthenticationDriver authenticationDriver;
-
 
     private void updateUI() {
         findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
         findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
         findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
     }
-
-
-    private UserInfo userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -196,16 +181,16 @@ public class SongsActivity
      * creates a dynamic link
      */
     public void uploadPdfFile(View view) {
-        StorageDriver storageDriver =  new StorageDriver();
+        StorageDriver storageDriver = new StorageDriver();
         NetworkTasks.uploadToGoogleDrive(storageDriver, new NetworkTasks.UploadToGoogleDriveListener() {
             @Override
             public void onSuccess() {
-                int k =0;
+                int k = 0;
             }
 
             @Override
             public void onFail() {
-int k=0;
+                int k = 0;
             }
         });
 

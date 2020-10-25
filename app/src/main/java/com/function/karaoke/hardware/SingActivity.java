@@ -17,7 +17,6 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.text.Html;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -53,11 +52,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-//import com.function.karaoke.hardware.tasks.UploadRecordingTask;
-
-//import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
-
 
 public class SingActivity extends AppCompatActivity implements
         DialogBox.CallbackListener {
@@ -210,8 +204,6 @@ public class SingActivity extends AppCompatActivity implements
      * Check if this device has a camera
      */
     private boolean checkCameraHardware(Context context) {
-        // this device has a camera
-        // no camera on this device
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
@@ -355,18 +347,16 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-//        isRunning = true;
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
         if (!isChangingConfigurations()) {
             if (!ending) {
-                mKaraokeKonroller.onPause();
-                isRunning = false;
+                pauseSong(this.getCurrentFocus());
             }
         }
+        super.onPause();
     }
 
     @Override
@@ -464,14 +454,12 @@ public class SingActivity extends AppCompatActivity implements
                     while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
                         i[0] += 1;
                         // Update the progress bar and display the current value in text view
-                        hdlr.post(new Runnable() {
-                            public void run() {
-                                progressBar.setProgress(i[0]);
-                                int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
-                                int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
-                                @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-                                duration.setText(text);
-                            }
+                        hdlr.post(() -> {
+                            progressBar.setProgress(i[0]);
+                            int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
+                            int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
+                            @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+                            duration.setText(text);
                         });
                         try {
                             // Sleep for 1 second to show the progress slowly.
@@ -656,18 +644,18 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
-    private void delayForAFewMilliseconds() {
-        cTimer = new CountDownTimer(1000, 1) {
-            @SuppressLint("SetTextI18n")
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                cancelTimer();
-            }
-        };
-        cTimer.start();
-    }
+//    private void delayForAFewMilliseconds() {
+//        cTimer = new CountDownTimer(1000, 1) {
+//            @SuppressLint("SetTextI18n")
+//            public void onTick(long millisUntilFinished) {
+//            }
+//
+//            public void onFinish() {
+//                cancelTimer();
+//            }
+//        };
+//        cTimer.start();
+//    }
 
 
     public void openCamera() {

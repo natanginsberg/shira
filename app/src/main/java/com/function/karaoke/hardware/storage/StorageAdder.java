@@ -1,13 +1,14 @@
 package com.function.karaoke.hardware.storage;
 
 import android.net.Uri;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
@@ -45,7 +46,13 @@ public class StorageAdder extends ViewModel implements Serializable {
 
 
                     })
-                    .addOnFailureListener(e -> Log.w(TAG, "Error on uploadImage", e));
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+//                            Log.w(TAG, "Error on uploadImage", e));
         }
         return resultsLiveData;
     }

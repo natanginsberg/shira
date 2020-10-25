@@ -53,11 +53,11 @@
                 android:onClick="playAgain"
                 android:text="@string/sing_again"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp" />
+                android:textSize="30sp" />
 
             <ImageButton
-                android:layout_width="95dp"
-                android:layout_height="95dp"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/replay"
                 android:onClick="playAgain" />
@@ -78,11 +78,11 @@
                 android:onClick="playback"
                 android:text="@string/playback"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp" />
+                android:textSize="30sp" />
 
             <ImageButton
-                android:layout_width="95dp"
-                android:layout_height="95dp"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/ic_playback"
                 android:onClick="playback" />
@@ -102,11 +102,11 @@
                 android:onClick="share"
                 android:text="@string/share"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp" />
+                android:textSize="30sp" />
 
             <ImageButton
-                android:layout_width="95dp"
-                android:layout_height="95dp"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/ic_group"
                 android:onClick="share" />
@@ -126,11 +126,11 @@
                 android:onClick="returnToMain"
                 android:text="@string/home"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="40sp" />
+                android:textSize="30sp" />
 
             <ImageButton
-                android:layout_width="95dp"
-                android:layout_height="95dp"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
                 android:layout_centerVertical="true"
                 android:background="@drawable/home_button"
                 android:onClick="returnToMain" />

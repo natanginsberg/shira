@@ -30,7 +30,7 @@ public class Parser {
                 } else if (line.startsWith("[al")) {
                     song.album = getStringValueOfLine(line);
                 } else if (line.startsWith("[") && line.endsWith("]")) {
-                    } else {
+                } else {
                     if (line.startsWith("[")) {
                         int nextLineIndex = i + 1;
                         boolean isLastLine = false;
@@ -44,9 +44,9 @@ public class Parser {
                             nextLineIndex++;
                         }
                         Song.Line nextLineInSong = parseLine(line.split("<"), nextLine, isLastLine);
-                        if (song.lines.size() > 0 && nextLineInSong.from > song.lines.get(song.lines.size() - 1).to + 4)
-                            song.lines.add(addIntroIndication(nextLineInSong));
                         song.lines.add(nextLineInSong);
+                        if (lastWordIsUnproportionatelyLong(nextLineInSong.syllables.get(nextLineInSong.syllables.size() - 1)))
+                            song.lines.add(addIntroIndication(nextLineInSong));
                     } else {
                         if (i < data.size() - 1) {
                             song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), false));
@@ -65,6 +65,10 @@ public class Parser {
         song.lines.add(0, addIntroIndication(song.lines.get(0)));
 
         return song;
+    }
+
+    private static boolean lastWordIsUnproportionatelyLong(Song.Syllable lastWord) {
+        return lastWord.to - lastWord.from > 5;
     }
 
     private static Song.Line addIntroIndication(Song.Line firstLine) {

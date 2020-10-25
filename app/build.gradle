@@ -6,11 +6,11 @@ apply plugin: 'kotlin-kapt'
 //apply plugin:  kotlin("jvm") version "1.4.0"
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 24
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

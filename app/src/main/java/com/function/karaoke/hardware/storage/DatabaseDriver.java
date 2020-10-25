@@ -54,8 +54,9 @@ public class DatabaseDriver {
                             resultsLiveData.setValue(documentsList);
                         }
                     }
-                })
-                .addOnFailureListener(e -> Log.w(TAG, "Error on getSingleDocumentByField", e));
+                }).addOnFailureListener(e -> {
+            int k = 0;
+        });
         return resultsLiveData;
     }
 
@@ -68,7 +69,9 @@ public class DatabaseDriver {
             public void onSuccess(StorageMetadata storageMetadata) {
                 resultsLiveData.setValue(storageMetadata.getSizeBytes());
             }
-        }).addOnFailureListener(e -> Log.w(TAG, "Error on getSingleDocumentByField", e));
+        }).addOnFailureListener(e -> {
+            int k = 0;
+        });
         return resultsLiveData;
     }
 
@@ -81,7 +84,9 @@ public class DatabaseDriver {
             public void onSuccess(StorageMetadata storageMetadata) {
                 resultsLiveData.setValue(storageMetadata.getSizeBytes());
             }
-        }).addOnFailureListener(e -> Log.w(TAG, "Error on getSingleDocumentByField", e));
+        }).addOnFailureListener(e -> {
+            int k = 0;
+        });
         return resultsLiveData;
     }
 
@@ -89,7 +94,7 @@ public class DatabaseDriver {
         return getDocumentsByField(collectionName, fieldName, Collections.singletonList(fieldValue), typeParameterClass);
     }
 
-    public void addRecordingToCollection(Recording recording){
+    public void addRecordingToCollection(Recording recording) {
 
     }
 

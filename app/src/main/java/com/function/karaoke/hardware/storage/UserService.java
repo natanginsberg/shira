@@ -1,7 +1,5 @@
 package com.function.karaoke.hardware.storage;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -47,7 +45,7 @@ public class UserService extends ViewModel {
         getUserQuery.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
-                    Log.d(TAG, "User is not on database. Starting sign up for new user.");
+//                    Log.d(TAG, "User is not on database. Starting sign up for new user.");
                     user.setValue(null);
                 } else {
                     for (QueryDocumentSnapshot document : task.getResult()) {
@@ -56,7 +54,7 @@ public class UserService extends ViewModel {
                     user.setValue(documentsList.get(0));
                 }
             } else {
-                Log.d(TAG, "Error getting users documents: ", task.getException());
+//                Log.d(TAG, "Error getting users documents: ", task.getException());
             }
         });
         return user;
@@ -74,7 +72,7 @@ public class UserService extends ViewModel {
 //        return databaseDriver.getSingleDocumentByField(COLLECTION_USERS_NAME, UID, userId, UserInfo.class);
 //    }
 
-    public void signOut(){
+    public void signOut() {
         authenticationDriver.getAuth().signOut();
     }
 
