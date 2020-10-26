@@ -13,6 +13,7 @@ public class DialogBox extends DialogFragment {
 
     private final int BACK_CODE = 101;
     private final int INTERNET_CODE = 102;
+    private static final int NO_AUDIO_CODE = 103;
 
     public DialogBox() {
     }
@@ -33,29 +34,36 @@ public class DialogBox extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        if (getArguments().getInt("code") == BACK_CODE) {
-            builder.setMessage(R.string.back_to_home_dialog)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            callbackListener.callback("yes");
-//                        Intent intent = new Intent(getActivity(), SongsActivity.class);
-//                        getActivity().finish();
-//                        startActivity(intent);
-
-                        }
-                    })
-                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            callbackListener.callback("no");
-                        }
-                    });
-        } else {
-            builder.setMessage(R.string.no_internet_alert)
-                    .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            callbackListener.callback("ok");
-                        }
-                    });
+        switch (getArguments().getInt("code")) {
+            case BACK_CODE:
+                builder.setMessage(R.string.back_to_home_dialog)
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                callbackListener.callback("yes");
+                            }
+                        })
+                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                callbackListener.callback("no");
+                            }
+                        });
+                break;
+            case INTERNET_CODE:
+                builder.setMessage(R.string.no_internet_alert)
+                        .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                callbackListener.callback("ok");
+                            }
+                        });
+                break;
+            case NO_AUDIO_CODE:
+                builder.setMessage(R.string.no_audio_code)
+                        .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                callbackListener.callback("ok");
+                            }
+                        });
+                break;
         }
         // Create the AlertDialog object and return it
         return builder.create();

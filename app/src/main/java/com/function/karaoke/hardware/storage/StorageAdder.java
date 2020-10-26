@@ -99,6 +99,18 @@ public class StorageAdder extends ViewModel implements Serializable {
     private void addRecordingToFirestore(Recording recording) {
         RecordingService recordingService = new RecordingService();
         recordingService.addRecordingToDataBase(recording);
+        ArtistService artistService=new ArtistService();
+        artistService.addDownloadToArtist(recording.getTitle(), new ArtistService.ArtistServiceListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
     }
 
     public interface UploadListener {

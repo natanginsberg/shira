@@ -2,7 +2,6 @@ package com.function.karaoke.hardware;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -12,14 +11,14 @@ import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
@@ -38,12 +37,10 @@ import java.util.Locale;
 
 public class SongsActivity
         extends FragmentActivity
-        implements SongsListFragment.OnListFragmentInteractionListener {
+        implements SongsListFragment.OnListFragmentInteractionListener, DialogBox.CallbackListener {
 
-    private static final int VIDEO_REQUEST = 1;
-    private static final int CAMERA_CODE = 2;
-    private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 102;
-    private static final int PICK_CONTACT_REQUEST = 100;
+    private static final int AUDIO_CODE = 101;
+    private static final int NO_AUDIO_CODE = 103;
     public String language;
     DatabaseDriver databaseDriver = new DatabaseDriver();
     Locale myLocale;
@@ -53,7 +50,7 @@ public class SongsActivity
     private AuthenticationDriver authenticationDriver;
     private UserInfo userInfo;
     // GetContent creates an ActivityResultLauncher<String> to allow you to pass
-// in the mime type you'd like to allow the user to select
+    // in the mime type you'd like to allow the user to select
     private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -61,10 +58,13 @@ public class SongsActivity
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent intent = result.getData();
                         userInfo = (UserInfo) intent.getSerializableExtra("User");
-                        updateUI();
+                        if (userInfo != null) {
+                            updateUI();
+                        }
                     }
                 }
             });
+    private DatabaseSong songClicked;
 
     private void updateUI() {
         findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
@@ -75,8 +75,6 @@ public class SongsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        mSongs = new SongsDB(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC));
         dbSongs = new DatabaseSongsDB();
         pack = this.getPackageName();
 
@@ -130,9 +128,15 @@ public class SongsActivity
 
     @Override
     public void onListFragmentInteraction(DatabaseSong item) {
-        Intent intent = new Intent(this, SingActivity.class);
-        intent.putExtra(SingActivity.EXTRA_SONG, item);
-        startActivity(intent);
+        askForAudioRecordPermission();
+        songClicked = item;
+    }
+
+    private void askForAudioRecordPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_CODE);
+        else
+            openNewIntent();
     }
 
     @Override
@@ -142,10 +146,6 @@ public class SongsActivity
         startActivity(intent);
     }
 
-    //    @Override
-//    public SongsDB getSongs() {
-//        return mSongs;
-//    }
     @Override
     public DatabaseSongsDB getSongs() {
         return dbSongs;
@@ -157,9 +157,6 @@ public class SongsActivity
     }
 
     public void signOut(View view) {
-//        authenticationDriver = new AuthenticationDriver();
-//        authenticationDriver.signOut();
-
 
         findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
         findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
@@ -169,7 +166,7 @@ public class SongsActivity
     }
 
     public void changeLanguage(View view) {
-        if (language.equals("Hebrew")) {
+        if (!language.equals("English")) {
             setLocale("en");
         } else {
             setLocale("iw");
@@ -212,8 +209,6 @@ public class SongsActivity
 
     @Override
     protected void onPause() {
-//        cameraPreview.closeCamera();
-//        cameraPreview.stopBackgroundThread();
         super.onPause();
     }
 
@@ -222,39 +217,26 @@ public class SongsActivity
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_CODE:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
-//                    cameraPreview.connectCamera();
-                    break;
-            case EXTERNAL_STORAGE_WRITE_PERMISSION:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-
-                }
-                break;
+        if (requestCode == AUDIO_CODE) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                DialogBox dialogBox = DialogBox.newInstance(this, NO_AUDIO_CODE);
+                dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
+            }
+            else {
+                openNewIntent();
+            }
         }
     }
 
+    private void openNewIntent() {
+        Intent intent = new Intent(this, SingActivity.class);
+        intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
+        startActivity(intent);
+    }
 
-    static class SignUpContract extends ActivityResultContract<Integer, UserInfo> {
-
-
-        private static final int ONE_TIME_SUBSCRIPTION = 100;
-        private static final int MONTHLY_SUBSCRIPTION = 101;
-        private static final int YEARLY_SUBSCRIPTION = 102;
-
-        @NonNull
-        @Override
-        public Intent createIntent(@NonNull Context context, Integer input) {
-            return null;
-        }
-
-        @Override
-        public UserInfo parseResult(int resultCode, @Nullable Intent intent) {
-            if (resultCode != RESULT_OK || intent == null) {
-                return null;
-            }
-            return (UserInfo) intent.getSerializableExtra("User");
+    @Override
+    public void callback(String result) {
+        if (result.equals("ok")){
         }
     }
 }

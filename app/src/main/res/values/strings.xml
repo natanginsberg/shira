@@ -46,5 +46,6 @@
     <string name="no_internet_alert">\There is no internet connection.</string>
     <string name="title_activity_sign_in">SignInActivity</string>
     <string name="sign_out">Sign Out</string>
+    <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
 
 </resources>

@@ -63,6 +63,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int BACK_CODE = 101;
     private static final int INTERNET_CODE = 102;
+    private static final int NO_AUDIO_CODE = 103;
     private static final int PICK_CONTACT_REQUEST = 106;
     private static final int MESSAGE_RESULT = 1;
     private static final String PLAYBACK = "playback";
@@ -72,6 +73,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final int RECORDING_ID_LENGTH = 15;
     private static final int SHARING_ERROR = 100;
     private static final int UPLOAD_ERROR = 101;
+
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -98,11 +100,9 @@ public class SingActivity extends AppCompatActivity implements
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-//            mTextureView = findViewById(R.id.camera_place);
-//            cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
+            cameraPreview.setTextureView(mTextureView);
             cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
             cameraPreview.connectCamera();
-//            cameraPreview.initiateRecorder();
         }
 
         @Override
@@ -135,12 +135,14 @@ public class SingActivity extends AppCompatActivity implements
     private long time;
     private boolean fileSaved = false;
     private boolean cameraOn = false;
+    private boolean permissionRequested = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         authenticationDriver = new AuthenticationDriver();
         deletePreviousVideos();
+        createCameraAndRecorderInstance();
 
         setContentView(R.layout.activity_sing);
 
@@ -149,20 +151,27 @@ public class SingActivity extends AppCompatActivity implements
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
         mPlayer = mKaraokeKonroller.getmPlayer();
         generateRecordingId();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-        } else {
-            initiateCamera();
 
+
+        if (checkCameraHardware(this)) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                permissionRequested = true;
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
+            } else {
+//                initiateCamera();
+                openCamera();
+            }
+        } else {
+            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+            cameraPreview.initiateRecorder();
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_CODE);
-        else {
+
             tryLoadSong();
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_WRITE_PERMISSION);
-        }
+    }
+
+    private void createCameraAndRecorderInstance() {
+        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this));
     }
 
     private void generateRecordingId() {
@@ -194,11 +203,10 @@ public class SingActivity extends AppCompatActivity implements
     }
 
 
-    private void initiateCamera() {
-//        checkCameraHardware(this);
-        cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
-        openCamera();
-    }
+//    private void initiateCamera() {
+//        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this));
+//        openCamera();
+//    }
 
     /**
      * Check if this device has a camera
@@ -326,21 +334,22 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionRequested = false;
         switch (requestCode) {
-            case AUDIO_CODE:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                    finish();
-                else
-                    tryLoadSong();
-                break;
+//            case AUDIO_CODE:
+//                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+//                    DialogBox dialogBox = DialogBox.newInstance(this, NO_AUDIO_CODE);
+//                    dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
+//                } else
+//                    tryLoadSong();
+//                break;
             case CAMERA_CODE:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-                    cameraPreview.initiateRecorder(cameraOn);
+                    cameraPreview.initiateRecorder();
+                else
+//                    initiateCamera();
+                    openCamera();
                 break;
-            case EXTERNAL_STORAGE_WRITE_PERMISSION:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    finish();
-                }
         }
     }
 
@@ -352,7 +361,7 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         if (!isChangingConfigurations()) {
-            if (!ending) {
+            if (!ending && !permissionRequested) {
                 pauseSong(this.getCurrentFocus());
             }
         }
@@ -367,7 +376,7 @@ public class SingActivity extends AppCompatActivity implements
     public void returnToMain(View view) {
         if (!buttonClicked) {
             buttonClicked = true;
-            mKaraokeKonroller.onPause();
+//            mKaraokeKonroller.onPause();
             DialogBox back = DialogBox.newInstance(this, BACK_CODE);
             back.show(getSupportFragmentManager(), "NoticeDialogFragment");
             buttonClicked = false;
@@ -485,15 +494,7 @@ public class SingActivity extends AppCompatActivity implements
         }
 
         placePopupOnScreen();
-        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                undimBackground();
-                if (mPlayer.getCurrentPosition() != mPlayer.getDuration()) {
-//                    mKaraokeKonroller.onResume();
-                }
-            }
-        });
+        popup.setOnDismissListener(this::undimBackground);
         applyDim();
 
     }
@@ -659,29 +660,26 @@ public class SingActivity extends AppCompatActivity implements
 
 
     public void openCamera() {
-        if (checkCameraHardware(this)) {
+//        if (checkCameraHardware(this)) {
 
-            //todo remove. this is for storing on external data
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-            } else {
-                cameraPreview.startBackgroundThread();
-//                delayForAFewMilliseconds();
-                if (mTextureView.isAvailable()) {
-                    cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-                    cameraPreview.connectCamera();
-//                    cameraPreview.initiateRecorder();
-                } else {
-                    mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-                }
-                cameraOn = true;
-            }
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
+//            } else {
+        cameraPreview.startBackgroundThread();
+        if (mTextureView.isAvailable()) {
+            cameraPreview.setTextureView(mTextureView);
+            cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            cameraPreview.connectCamera();
         } else {
-            cameraOn = false;
-            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
-            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
+        cameraOn = true;
+//            }
+//        } else {
+//            cameraOn = false;
+//            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+//            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+//        }
     }
 
     public void toggleVideo(View view) {
@@ -711,7 +709,6 @@ public class SingActivity extends AppCompatActivity implements
      * returning video file
      */
     private File getOutputMediaFile() {
-        // External sdcard file location
         File mediaStorageDir = new File(getCacheDir(), DIRECTORY_NAME);
         // Create storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
@@ -832,7 +829,7 @@ public class SingActivity extends AppCompatActivity implements
 //                buttonClicked = false;
 ////                long finishTime = System.currentTimeMillis();
 ////                System.out.println("this is the time it took to upload " + ((finishTime - time) / 1000));
-////                // todo gtesting compression
+////
 //////                compressAndSaveToCloud(path.getPath(), view1);
 ////                addRecordingToFirestore();
 //
@@ -911,7 +908,7 @@ public class SingActivity extends AppCompatActivity implements
 //            view1.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
 //            long finishTime = System.currentTimeMillis();
 //            System.out.println("this is the time it took to compress and upload  " + ((finishTime - time) / 1000));
-//            // todo gtesting compression
+//
 //            addRecordingToFirestore();
 //
 //        };
@@ -932,7 +929,7 @@ public class SingActivity extends AppCompatActivity implements
 //    }
 //
     private void removeResumeOption() {
-        findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
+        popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
     }
 
 }
