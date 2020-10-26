@@ -58,7 +58,6 @@ public class SingActivity extends AppCompatActivity implements
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
-    private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
     private static final String TAG = "HELLO WORLD";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int BACK_CODE = 101;
@@ -167,7 +166,7 @@ public class SingActivity extends AppCompatActivity implements
             cameraPreview.initiateRecorder();
         }
 
-            tryLoadSong();
+        tryLoadSong();
     }
 
     private void createCameraAndRecorderInstance() {
@@ -258,6 +257,7 @@ public class SingActivity extends AppCompatActivity implements
             ending = true;
             if (!mKaraokeKonroller.isStopped())
                 mKaraokeKonroller.onStop();
+
             if (isRecording) {
                 cameraPreview.stopRecording();
             }
@@ -422,12 +422,7 @@ public class SingActivity extends AppCompatActivity implements
                 cameraPreview.start();
                 mKaraokeKonroller.onResume();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
-                mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
-                    @Override
-                    public void onSongEnded(boolean songIsOver) {
-                        openEndOptions(true);
-                    }
-                });
+                mKaraokeKonroller.setCustomObjectListener(songIsOver -> openEndOptions(true));
                 isRunning = true;
                 setProgressBar();
                 setPauseButton();
@@ -565,14 +560,19 @@ public class SingActivity extends AppCompatActivity implements
 
     private void startResumeTimer() {
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-        cTimer = new CountDownTimer(3000, 1000) {
+        cTimer = new CountDownTimer(3500, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                if (millisUntilFinished / 1000 >= 1)
+                    ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                else ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
+                if (millisUntilFinished / 1000 >= 3)
+                    cameraPreview.prepareMediaRecorder(cameraOn);
             }
 
             public void onFinish() {
                 cancelTimer();
+                restart = false;
                 findViewById(R.id.play).setVisibility(View.INVISIBLE);
                 findViewById(R.id.pause).setVisibility(View.VISIBLE);
                 isRunning = true;
@@ -591,6 +591,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void playAgain(View view) {
+        //todo not updating the artist!!!!!!!
         if (!buttonClicked) {
             resetFields();
             cameraPreview.stopRecording();
@@ -609,7 +610,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void resetFields() {
         buttonClicked = true;
-        restart = true;
+        restart = false;
         isRunning = false;
         isRecording = false;
 
@@ -660,11 +661,6 @@ public class SingActivity extends AppCompatActivity implements
 
 
     public void openCamera() {
-//        if (checkCameraHardware(this)) {
-
-//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-//            } else {
         cameraPreview.startBackgroundThread();
         if (mTextureView.isAvailable()) {
             cameraPreview.setTextureView(mTextureView);
@@ -674,12 +670,6 @@ public class SingActivity extends AppCompatActivity implements
             mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
         cameraOn = true;
-//            }
-//        } else {
-//            cameraOn = false;
-//            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
-//            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
-//        }
     }
 
     public void toggleVideo(View view) {
@@ -738,7 +728,7 @@ public class SingActivity extends AppCompatActivity implements
                     authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
                 @Override
                 public void onSuccess() {
-
+                    Toast.makeText(SingActivity.this, "uploaded", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override

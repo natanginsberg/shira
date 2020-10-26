@@ -2,6 +2,8 @@ package com.function.karaoke.hardware;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -11,7 +13,6 @@ import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -37,12 +38,10 @@ import java.util.Locale;
 
 public class SongsActivity
         extends FragmentActivity
-        implements SongsListFragment.OnListFragmentInteractionListener, DialogBox.CallbackListener {
+        implements SongsListFragment.OnListFragmentInteractionListener {
 
     private static final int AUDIO_CODE = 101;
-    private static final int NO_AUDIO_CODE = 103;
     public String language;
-    DatabaseDriver databaseDriver = new DatabaseDriver();
     Locale myLocale;
     //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
@@ -133,9 +132,25 @@ public class SongsActivity
     }
 
     private void askForAudioRecordPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_CODE);
-        else
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+                alertBuilder.setCancelable(true);
+                alertBuilder.setTitle(R.string.mic_access_title);
+                alertBuilder.setMessage(R.string.mic_access_text);
+                alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions(SongsActivity.this,
+                                new String[]{Manifest.permission.RECORD_AUDIO},
+                                AUDIO_CODE);
+                    }
+                });
+
+                AlertDialog alert = alertBuilder.create();
+                alert.show();
+
+        } else
             openNewIntent();
     }
 
@@ -218,13 +233,8 @@ public class SongsActivity
                                            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == AUDIO_CODE) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                DialogBox dialogBox = DialogBox.newInstance(this, NO_AUDIO_CODE);
-                dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
-            }
-            else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
                 openNewIntent();
-            }
         }
     }
 
@@ -232,11 +242,5 @@ public class SongsActivity
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
         startActivity(intent);
-    }
-
-    @Override
-    public void callback(String result) {
-        if (result.equals("ok")){
-        }
     }
 }

@@ -47,5 +47,7 @@
     <string name="title_activity_sign_in">SignInActivity</string>
     <string name="sign_out">Sign Out</string>
     <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
+    <string name="mic_access_title">Microphone permission necessary</string>
+    <string name="mic_access_text">Ashira karaoke needs microphone access.</string>
 
 </resources>

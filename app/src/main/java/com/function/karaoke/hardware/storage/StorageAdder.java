@@ -88,22 +88,21 @@ public class StorageAdder extends ViewModel implements Serializable {
                             while (!downloadUri.isSuccessful()) {
                             }
                             recording.setRecordingUrl(downloadUri.getResult().toString());
-                            addRecordingToFirestore(recording);
-                            uploadListener.onSuccess();
+                            addRecordingToFirestore(recording, uploadListener);
+//                            uploadListener.onSuccess();
                         }
                     })
                     .addOnFailureListener(e -> uploadListener.onFailure());
         }
     }
 
-    private void addRecordingToFirestore(Recording recording) {
+    private void addRecordingToFirestore(Recording recording, UploadListener uploadListener) {
         RecordingService recordingService = new RecordingService();
         recordingService.addRecordingToDataBase(recording);
-        ArtistService artistService=new ArtistService();
-        artistService.addDownloadToArtist(recording.getTitle(), new ArtistService.ArtistServiceListener() {
+        ArtistService artistService=new ArtistService(new ArtistService.ArtistServiceListener() {
             @Override
             public void onSuccess() {
-
+uploadListener.onSuccess();
             }
 
             @Override
@@ -111,6 +110,7 @@ public class StorageAdder extends ViewModel implements Serializable {
 
             }
         });
+        artistService.addDownloadToArtist(recording.getRecorderId(), recording.getArtist());
     }
 
     public interface UploadListener {

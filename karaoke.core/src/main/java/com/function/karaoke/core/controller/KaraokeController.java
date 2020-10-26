@@ -171,6 +171,7 @@ public class KaraokeController implements Recorder.IToneListener {
     public void onStop() {
         mPlayer.release();
         stopped = true;
+        mHandler.removeCallbacks(mUpdater);
 //        mRecorder.release();
     }
 

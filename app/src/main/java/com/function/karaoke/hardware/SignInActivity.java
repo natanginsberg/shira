@@ -95,6 +95,7 @@ public class SignInActivity extends AppCompatActivity {
 
                         @Override
                         public void isInDatabase(boolean inDatabase) {
+                            user = signInViewModel.getUser();
                             returnToMain();
                         }
 
