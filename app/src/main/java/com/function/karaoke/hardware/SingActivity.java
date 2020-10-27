@@ -129,7 +129,6 @@ public class SingActivity extends AppCompatActivity implements
     private boolean timerStarted = false;
     private Recording recording;
     private String timeStamp;
-
     AuthenticationDriver authenticationDriver;
     private long time;
     private boolean fileSaved = false;
@@ -147,7 +146,7 @@ public class SingActivity extends AppCompatActivity implements
 
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
+        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
         mPlayer = mKaraokeKonroller.getmPlayer();
         generateRecordingId();
 
@@ -403,6 +402,7 @@ public class SingActivity extends AppCompatActivity implements
 
     //start timer function
     void startTimer() {
+        ending = false;
         timerStarted = true;
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
         cTimer = new CountDownTimer(3500, 500) {
@@ -452,26 +452,24 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void StartProgressBar(TextView duration, int[] i, Handler hdlr, ProgressBar progressBar) {
-        new Thread(new Runnable() {
-            public void run() {
-                while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
-                    while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
-                        i[0] += 1;
-                        // Update the progress bar and display the current value in text view
-                        hdlr.post(() -> {
-                            progressBar.setProgress(i[0]);
-                            int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
-                            int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
-                            @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-                            duration.setText(text);
-                        });
-                        try {
-                            // Sleep for 1 second to show the progress slowly.
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            return;
-                        }
+        new Thread(() -> {
+            while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
+                while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
+                    i[0] += 1;
+                    // Update the progress bar and display the current value in text view
+                    hdlr.post(() -> {
+                        progressBar.setProgress(i[0]);
+                        int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
+                        int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
+                        @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+                        duration.setText(text);
+                    });
+                    try {
+                        // Sleep for 1 second to show the progress slowly.
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return;
                     }
                 }
             }
@@ -591,7 +589,6 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void playAgain(View view) {
-        //todo not updating the artist!!!!!!!
         if (!buttonClicked) {
             resetFields();
             cameraPreview.stopRecording();
@@ -599,11 +596,7 @@ public class SingActivity extends AppCompatActivity implements
             resetPage();
             deletePreviousVideos();
             resetKaraokeController();
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-            else {
-                tryLoadSong();
-            }
+            tryLoadSong();
             buttonClicked = false;
         }
     }
@@ -613,52 +606,52 @@ public class SingActivity extends AppCompatActivity implements
         restart = false;
         isRunning = false;
         isRecording = false;
-
+        generateRecordingId();
+        ending = true;
+        fileSaved = false;
     }
 
     private void resetKaraokeController() {
         if (!mKaraokeKonroller.isStopped())
             mKaraokeKonroller.onStop();
         mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
+        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
         mPlayer = mKaraokeKonroller.getmPlayer();
     }
 
     private void resetPage() {
-        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
+        setVisibleIcons();
+        setInvisibleIcons();
+        resetProgressBar();
+        deleteAllCurrentLyrics();
+    }
 
-        findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
-        findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
-
-
-        findViewById(R.id.pause).setVisibility(View.INVISIBLE);
-        findViewById(R.id.play).setVisibility(View.INVISIBLE);
-
-        ((ProgressBar) findViewById(R.id.progress_bar)).setProgress(0);
-        ((TextView) findViewById(R.id.duration)).setText("");
-
+    private void deleteAllCurrentLyrics() {
         ((TextView) findViewById(R.id.words_read)).setText("");
         ((TextView) findViewById(R.id.words_to_read)).setText("");
         ((TextView) findViewById(R.id.lyrics)).setText("");
+    }
 
+    private void resetProgressBar() {
+        ((ProgressBar) findViewById(R.id.progress_bar)).setProgress(0);
+        ((TextView) findViewById(R.id.duration)).setText("");
+    }
+
+    private void setInvisibleIcons() {
+        findViewById(R.id.open_end_options).setVisibility(View.INVISIBLE);
+        findViewById(R.id.pause).setVisibility(View.INVISIBLE);
+        findViewById(R.id.play).setVisibility(View.INVISIBLE);
 
     }
 
-//    private void delayForAFewMilliseconds() {
-//        cTimer = new CountDownTimer(1000, 1) {
-//            @SuppressLint("SetTextI18n")
-//            public void onTick(long millisUntilFinished) {
-//            }
-//
-//            public void onFinish() {
-//                cancelTimer();
-//            }
-//        };
-//        cTimer.start();
-//    }
-
+    private void setVisibleIcons() {
+        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
+        findViewById(R.id.back_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
+        findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
+    }
 
     public void openCamera() {
         cameraPreview.startBackgroundThread();
@@ -686,7 +679,6 @@ public class SingActivity extends AppCompatActivity implements
 
     private void turnCameraOn() {
         openCamera();
-
     }
 
     private void turnCameraOff() {
@@ -694,10 +686,6 @@ public class SingActivity extends AppCompatActivity implements
         cameraOn = false;
     }
 
-    /**
-     * Create directory and return file
-     * returning video file
-     */
     private File getOutputMediaFile() {
         File mediaStorageDir = new File(getCacheDir(), DIRECTORY_NAME);
         // Create storage directory if it does not exist

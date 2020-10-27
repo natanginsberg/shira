@@ -10,13 +10,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class ArtistService {
 
     public static final String COLLECTION_USERS_NAME = "artists";
     public static final String SINGLE_DOWNLOADS = "singleDownloads";
-    private static final String LAST_USER = "lastUserToUpdate";
+    private static final String UPDATING = "updating";
     private final ArtistServiceListener artistServiceListener;
     private CollectionReference artistsCollectionRef;
 
@@ -28,16 +27,16 @@ public class ArtistService {
 
     public void addDownloadToArtist(String recorderId, String artistName) {
         DocumentReference document = artistsCollectionRef.document(artistName);
-        addOneMoreDownload(recorderId, document);
+        addOneMoreDownload(document);
     }
 
-    private void addOneMoreDownload(String recorderId, DocumentReference document) {
+    private void addOneMoreDownload(DocumentReference document) {
         document.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 DocumentSnapshot document1 = task.getResult();
                 if (document1 != null) {
                     long singleDownloads = (Long) document1.get(SINGLE_DOWNLOADS);
-                    updateDownloads(document, recorderId, singleDownloads + 1);
+                    updateDownloads(document, singleDownloads + 1);
                 } else {
 
                 }
@@ -47,42 +46,46 @@ public class ArtistService {
         });
     }
 
-    private void updateDownloads(DocumentReference document, String recorderId, long i) {
+    private void updateDownloads(DocumentReference document, long i) {
         Map<String, Object> data = new HashMap<>();
         data.put(SINGLE_DOWNLOADS, i);
-        data.put(LAST_USER, recorderId);
+//        data.put(LAST_USER, recorderId);
         document.update(data).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        checkThatThereWasNoInterference(document, recorderId);
+                        artistServiceListener.onSuccess();
+//
                     }
                 }).
 
                 addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        if (e.getMessage().equals("PERMISSION_DENIED: Missing or insufficient permissions.")){
+                            addOneMoreDownload(document);
+                        }
                         artistServiceListener.onFailure();
                     }
                 });
     }
 
-    private void checkThatThereWasNoInterference(DocumentReference document, String recorderId) {
-        document.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document1 = task.getResult();
-                if (document1 != null) {
-                    if (Objects.equals((String) document1.get(LAST_USER), recorderId)) {
-                        artistServiceListener.onSuccess();
-                    }
-                } else {
-                    addOneMoreDownload(recorderId, document);
-                }
-            } else {
-
-            }
-        });
-    }
+//    private void checkThatThereWasNoInterference(DocumentReference document, String recorderId) {
+//        document.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                DocumentSnapshot document1 = task.getResult();
+//                if (document1 != null) {
+//                    if (Objects.equals((String) document1.get(LAST_USER), recorderId)) {
+//                        artistServiceListener.onSuccess();
+//                    }
+//                } else {
+//                    addOneMoreDownload(recorderId, document);
+//                }
+//            } else {
+//
+//            }
+//        });
+//    }
 
     public interface ArtistServiceListener {
         void onSuccess();

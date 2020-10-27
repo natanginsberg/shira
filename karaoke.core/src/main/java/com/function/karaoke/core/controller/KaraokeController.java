@@ -70,7 +70,7 @@ public class KaraokeController implements Recorder.IToneListener {
 //        mRecorder.release();
     }
 
-    public void init(View view, int lyrics, int wordsRead, int wordsToRead, int camera) {
+    public void init(View view, int lyrics, int wordsRead, int wordsToRead) {
         mLyrics = view.findViewById(lyrics);
         this.wordsRead = view.findViewById(wordsRead);
         this.wordsToRead = view.findViewById(wordsToRead);
@@ -218,6 +218,11 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public boolean isStopped() {
         return stopped;
+    }
+
+    public void restartPlayBack() {
+        mPlayer.release();
+        stopped = true;
     }
 
     public interface MyCustomObjectListener {

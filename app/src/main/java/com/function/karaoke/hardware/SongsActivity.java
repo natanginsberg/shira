@@ -29,9 +29,6 @@ import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
-import com.function.karaoke.hardware.storage.DatabaseDriver;
-import com.function.karaoke.hardware.storage.StorageDriver;
-import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.ui.login.LoginActivity;
 
 import java.util.Locale;
@@ -134,21 +131,21 @@ public class SongsActivity
     private void askForAudioRecordPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 
-                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
-                alertBuilder.setCancelable(true);
-                alertBuilder.setTitle(R.string.mic_access_title);
-                alertBuilder.setMessage(R.string.mic_access_text);
-                alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(SongsActivity.this,
-                                new String[]{Manifest.permission.RECORD_AUDIO},
-                                AUDIO_CODE);
-                    }
-                });
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+            alertBuilder.setCancelable(true);
+            alertBuilder.setTitle(R.string.mic_access_title);
+            alertBuilder.setMessage(R.string.mic_access_text);
+            alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    ActivityCompat.requestPermissions(SongsActivity.this,
+                            new String[]{Manifest.permission.RECORD_AUDIO},
+                            AUDIO_CODE);
+                }
+            });
 
-                AlertDialog alert = alertBuilder.create();
-                alert.show();
+            AlertDialog alert = alertBuilder.create();
+            alert.show();
 
         } else
             openNewIntent();
@@ -193,18 +190,18 @@ public class SongsActivity
      * creates a dynamic link
      */
     public void uploadPdfFile(View view) {
-        StorageDriver storageDriver = new StorageDriver();
-        NetworkTasks.uploadToGoogleDrive(storageDriver, new NetworkTasks.UploadToGoogleDriveListener() {
-            @Override
-            public void onSuccess() {
-                int k = 0;
-            }
-
-            @Override
-            public void onFail() {
-                int k = 0;
-            }
-        });
+//        StorageDriver storageDriver = new StorageDriver();
+//        NetworkTasks.uploadToGoogleDrive(storageDriver, new NetworkTasks.UploadToGoogleDriveListener() {
+//            @Override
+//            public void onSuccess() {
+//                int k = 0;
+//            }
+//
+//            @Override
+//            public void onFail() {
+//                int k = 0;
+//            }
+//        });
 
     }
 
