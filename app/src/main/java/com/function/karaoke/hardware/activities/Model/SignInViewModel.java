@@ -1,7 +1,5 @@
 package com.function.karaoke.hardware.activities.Model;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -21,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 public class SignInViewModel extends ViewModel {
 
@@ -118,7 +117,6 @@ public class SignInViewModel extends ViewModel {
     }
 
     public void isUserInDatabase(DatabaseListener databaseListener) {
-        final List<UserInfo> documentsList = new LinkedList<>();
         mAccessingDatabase = true;
         Query getUserQuery = databaseDriver.getCollectionReferenceByName(UserService.COLLECTION_USERS_NAME).whereEqualTo(UserService.UID, authenticationDriver.getUserUid());
         getUserQuery.get().addOnCompleteListener(task -> {
@@ -126,6 +124,9 @@ public class SignInViewModel extends ViewModel {
                 if (task.getResult().isEmpty()) {
                     databaseListener.isInDatabase(false);
                 } else {
+                    for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                        user = (document.toObject(UserInfo.class));
+                    }
                     databaseListener.isInDatabase(true);
                 }
             } else {
@@ -137,23 +138,20 @@ public class SignInViewModel extends ViewModel {
 
     public void firebaseAuthWithGoogle(String idToken, FirebaseAuthListener firebaseAuthListener) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        authenticationDriver.getAuth().signInWithCredential(credential).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-                FirebaseUser user = authenticationDriver.getAuth().getCurrentUser();
-                firebaseAuthListener.onSuccess(user);
+        authenticationDriver.getAuth().signInWithCredential(credential).addOnSuccessListener(authResult -> {
+            FirebaseUser user = authenticationDriver.getAuth().getCurrentUser();
+            firebaseAuthListener.onSuccess(user);
 
-            }
         });
     }
 
-    public interface DatabaseListener{
+    public interface DatabaseListener {
         void isInDatabase(boolean inDatabase);
 
         void failedToSearchDatabase();
     }
 
-    public interface FirebaseAuthListener{
+    public interface FirebaseAuthListener {
         void onSuccess(FirebaseUser firebaseUser);
 
         void onFailure();

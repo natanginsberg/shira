@@ -58,11 +58,11 @@ public class SingActivity extends AppCompatActivity implements
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
-    private static final int EXTERNAL_STORAGE_WRITE_PERMISSION = 100;
     private static final String TAG = "HELLO WORLD";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int BACK_CODE = 101;
     private static final int INTERNET_CODE = 102;
+    private static final int NO_AUDIO_CODE = 103;
     private static final int PICK_CONTACT_REQUEST = 106;
     private static final int MESSAGE_RESULT = 1;
     private static final String PLAYBACK = "playback";
@@ -72,6 +72,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final int RECORDING_ID_LENGTH = 15;
     private static final int SHARING_ERROR = 100;
     private static final int UPLOAD_ERROR = 101;
+
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
     private final int VIDEO_REQUEST = 101;
@@ -98,11 +99,9 @@ public class SingActivity extends AppCompatActivity implements
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-//            mTextureView = findViewById(R.id.camera_place);
-//            cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
+            cameraPreview.setTextureView(mTextureView);
             cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
             cameraPreview.connectCamera();
-//            cameraPreview.initiateRecorder();
         }
 
         @Override
@@ -130,39 +129,47 @@ public class SingActivity extends AppCompatActivity implements
     private boolean timerStarted = false;
     private Recording recording;
     private String timeStamp;
-
     AuthenticationDriver authenticationDriver;
     private long time;
     private boolean fileSaved = false;
     private boolean cameraOn = false;
+    private boolean permissionRequested = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         authenticationDriver = new AuthenticationDriver();
         deletePreviousVideos();
+        createCameraAndRecorderInstance();
 
         setContentView(R.layout.activity_sing);
 
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
+        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
         mPlayer = mKaraokeKonroller.getmPlayer();
         generateRecordingId();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-        } else {
-            initiateCamera();
 
+
+        if (checkCameraHardware(this)) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                permissionRequested = true;
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
+            } else {
+//                initiateCamera();
+                openCamera();
+            }
+        } else {
+            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+            cameraPreview.initiateRecorder();
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_CODE);
-        else {
-            tryLoadSong();
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, EXTERNAL_STORAGE_WRITE_PERMISSION);
-        }
+
+        tryLoadSong();
+    }
+
+    private void createCameraAndRecorderInstance() {
+        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this));
     }
 
     private void generateRecordingId() {
@@ -194,11 +201,10 @@ public class SingActivity extends AppCompatActivity implements
     }
 
 
-    private void initiateCamera() {
-//        checkCameraHardware(this);
-        cameraPreview = new CameraPreview(mTextureView, SingActivity.this);
-        openCamera();
-    }
+//    private void initiateCamera() {
+//        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this));
+//        openCamera();
+//    }
 
     /**
      * Check if this device has a camera
@@ -250,6 +256,7 @@ public class SingActivity extends AppCompatActivity implements
             ending = true;
             if (!mKaraokeKonroller.isStopped())
                 mKaraokeKonroller.onStop();
+
             if (isRecording) {
                 cameraPreview.stopRecording();
             }
@@ -326,21 +333,22 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionRequested = false;
         switch (requestCode) {
-            case AUDIO_CODE:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                    finish();
-                else
-                    tryLoadSong();
-                break;
+//            case AUDIO_CODE:
+//                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+//                    DialogBox dialogBox = DialogBox.newInstance(this, NO_AUDIO_CODE);
+//                    dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
+//                } else
+//                    tryLoadSong();
+//                break;
             case CAMERA_CODE:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-                    cameraPreview.initiateRecorder(cameraOn);
+                    cameraPreview.initiateRecorder();
+                else
+//                    initiateCamera();
+                    openCamera();
                 break;
-            case EXTERNAL_STORAGE_WRITE_PERMISSION:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    finish();
-                }
         }
     }
 
@@ -352,7 +360,7 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         if (!isChangingConfigurations()) {
-            if (!ending) {
+            if (!ending && !permissionRequested) {
                 pauseSong(this.getCurrentFocus());
             }
         }
@@ -367,7 +375,7 @@ public class SingActivity extends AppCompatActivity implements
     public void returnToMain(View view) {
         if (!buttonClicked) {
             buttonClicked = true;
-            mKaraokeKonroller.onPause();
+//            mKaraokeKonroller.onPause();
             DialogBox back = DialogBox.newInstance(this, BACK_CODE);
             back.show(getSupportFragmentManager(), "NoticeDialogFragment");
             buttonClicked = false;
@@ -394,6 +402,7 @@ public class SingActivity extends AppCompatActivity implements
 
     //start timer function
     void startTimer() {
+        ending = false;
         timerStarted = true;
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
         cTimer = new CountDownTimer(3500, 500) {
@@ -413,12 +422,7 @@ public class SingActivity extends AppCompatActivity implements
                 cameraPreview.start();
                 mKaraokeKonroller.onResume();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
-                mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
-                    @Override
-                    public void onSongEnded(boolean songIsOver) {
-                        openEndOptions(true);
-                    }
-                });
+                mKaraokeKonroller.setCustomObjectListener(songIsOver -> openEndOptions(true));
                 isRunning = true;
                 setProgressBar();
                 setPauseButton();
@@ -448,26 +452,24 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void StartProgressBar(TextView duration, int[] i, Handler hdlr, ProgressBar progressBar) {
-        new Thread(new Runnable() {
-            public void run() {
-                while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
-                    while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
-                        i[0] += 1;
-                        // Update the progress bar and display the current value in text view
-                        hdlr.post(() -> {
-                            progressBar.setProgress(i[0]);
-                            int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
-                            int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
-                            @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-                            duration.setText(text);
-                        });
-                        try {
-                            // Sleep for 1 second to show the progress slowly.
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            return;
-                        }
+        new Thread(() -> {
+            while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
+                while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
+                    i[0] += 1;
+                    // Update the progress bar and display the current value in text view
+                    hdlr.post(() -> {
+                        progressBar.setProgress(i[0]);
+                        int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
+                        int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
+                        @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+                        duration.setText(text);
+                    });
+                    try {
+                        // Sleep for 1 second to show the progress slowly.
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return;
                     }
                 }
             }
@@ -485,15 +487,7 @@ public class SingActivity extends AppCompatActivity implements
         }
 
         placePopupOnScreen();
-        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                undimBackground();
-                if (mPlayer.getCurrentPosition() != mPlayer.getDuration()) {
-//                    mKaraokeKonroller.onResume();
-                }
-            }
-        });
+        popup.setOnDismissListener(this::undimBackground);
         applyDim();
 
     }
@@ -564,14 +558,19 @@ public class SingActivity extends AppCompatActivity implements
 
     private void startResumeTimer() {
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-        cTimer = new CountDownTimer(3000, 1000) {
+        cTimer = new CountDownTimer(3500, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                if (millisUntilFinished / 1000 >= 1)
+                    ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                else ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
+                if (millisUntilFinished / 1000 >= 3)
+                    cameraPreview.prepareMediaRecorder(cameraOn);
             }
 
             public void onFinish() {
                 cancelTimer();
+                restart = false;
                 findViewById(R.id.play).setVisibility(View.INVISIBLE);
                 findViewById(R.id.pause).setVisibility(View.VISIBLE);
                 isRunning = true;
@@ -597,91 +596,73 @@ public class SingActivity extends AppCompatActivity implements
             resetPage();
             deletePreviousVideos();
             resetKaraokeController();
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 1);
-            else {
-                tryLoadSong();
-            }
+            tryLoadSong();
             buttonClicked = false;
         }
     }
 
     private void resetFields() {
         buttonClicked = true;
-        restart = true;
+        restart = false;
         isRunning = false;
         isRecording = false;
-
+        generateRecordingId();
+        ending = true;
+        fileSaved = false;
     }
 
     private void resetKaraokeController() {
         if (!mKaraokeKonroller.isStopped())
             mKaraokeKonroller.onStop();
         mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read, R.id.camera);
+        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
         mPlayer = mKaraokeKonroller.getmPlayer();
     }
 
     private void resetPage() {
-        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
+        setVisibleIcons();
+        setInvisibleIcons();
+        resetProgressBar();
+        deleteAllCurrentLyrics();
+    }
 
-        findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
-        findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
-
-
-        findViewById(R.id.pause).setVisibility(View.INVISIBLE);
-        findViewById(R.id.play).setVisibility(View.INVISIBLE);
-
-        ((ProgressBar) findViewById(R.id.progress_bar)).setProgress(0);
-        ((TextView) findViewById(R.id.duration)).setText("");
-
+    private void deleteAllCurrentLyrics() {
         ((TextView) findViewById(R.id.words_read)).setText("");
         ((TextView) findViewById(R.id.words_to_read)).setText("");
         ((TextView) findViewById(R.id.lyrics)).setText("");
+    }
 
+    private void resetProgressBar() {
+        ((ProgressBar) findViewById(R.id.progress_bar)).setProgress(0);
+        ((TextView) findViewById(R.id.duration)).setText("");
+    }
+
+    private void setInvisibleIcons() {
+        findViewById(R.id.open_end_options).setVisibility(View.INVISIBLE);
+        findViewById(R.id.pause).setVisibility(View.INVISIBLE);
+        findViewById(R.id.play).setVisibility(View.INVISIBLE);
 
     }
 
-//    private void delayForAFewMilliseconds() {
-//        cTimer = new CountDownTimer(1000, 1) {
-//            @SuppressLint("SetTextI18n")
-//            public void onTick(long millisUntilFinished) {
-//            }
-//
-//            public void onFinish() {
-//                cancelTimer();
-//            }
-//        };
-//        cTimer.start();
-//    }
-
+    private void setVisibleIcons() {
+        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
+        findViewById(R.id.back_button).setVisibility(View.VISIBLE);
+        findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
+        findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
+    }
 
     public void openCamera() {
-        if (checkCameraHardware(this)) {
-
-            //todo remove. this is for storing on external data
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
-            } else {
-                cameraPreview.startBackgroundThread();
-//                delayForAFewMilliseconds();
-                if (mTextureView.isAvailable()) {
-                    cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-                    cameraPreview.connectCamera();
-//                    cameraPreview.initiateRecorder();
-                } else {
-                    mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-                }
-                cameraOn = true;
-            }
+        cameraPreview.startBackgroundThread();
+        if (mTextureView.isAvailable()) {
+            cameraPreview.setTextureView(mTextureView);
+            cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
+            cameraPreview.connectCamera();
         } else {
-            cameraOn = false;
-            findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
-            findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
+            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
         }
+        cameraOn = true;
     }
 
     public void toggleVideo(View view) {
@@ -698,7 +679,6 @@ public class SingActivity extends AppCompatActivity implements
 
     private void turnCameraOn() {
         openCamera();
-
     }
 
     private void turnCameraOff() {
@@ -706,12 +686,7 @@ public class SingActivity extends AppCompatActivity implements
         cameraOn = false;
     }
 
-    /**
-     * Create directory and return file
-     * returning video file
-     */
     private File getOutputMediaFile() {
-        // External sdcard file location
         File mediaStorageDir = new File(getCacheDir(), DIRECTORY_NAME);
         // Create storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
@@ -741,7 +716,7 @@ public class SingActivity extends AppCompatActivity implements
                     authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
                 @Override
                 public void onSuccess() {
-
+                    Toast.makeText(SingActivity.this, "uploaded", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -832,7 +807,7 @@ public class SingActivity extends AppCompatActivity implements
 //                buttonClicked = false;
 ////                long finishTime = System.currentTimeMillis();
 ////                System.out.println("this is the time it took to upload " + ((finishTime - time) / 1000));
-////                // todo gtesting compression
+////
 //////                compressAndSaveToCloud(path.getPath(), view1);
 ////                addRecordingToFirestore();
 //
@@ -911,7 +886,7 @@ public class SingActivity extends AppCompatActivity implements
 //            view1.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
 //            long finishTime = System.currentTimeMillis();
 //            System.out.println("this is the time it took to compress and upload  " + ((finishTime - time) / 1000));
-//            // todo gtesting compression
+//
 //            addRecordingToFirestore();
 //
 //        };
@@ -932,7 +907,7 @@ public class SingActivity extends AppCompatActivity implements
 //    }
 //
     private void removeResumeOption() {
-        findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
+        popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
     }
 
 }

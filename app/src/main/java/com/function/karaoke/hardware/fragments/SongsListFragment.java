@@ -40,9 +40,6 @@ import java.util.List;
 public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
-    //    private static final int DOWNLOAD_WORDS = 100;
-//    private static final int GET_COVER_IMAGE = 101;
-//    private static final int GET_AUDIO = 102;
     private static final int ALL_SONGS_DISPLAYED = 1;
     private static final int PERSONAL_RECORDING_DISPLAYED = 2;
 
@@ -132,13 +129,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     @Override
     public void onResume() {
         super.onResume();
-//        SongsDB songsDB = mListener.getSongs();
         DatabaseSongsDB songsDB = mListener.getSongs();
         songsDB.subscribe(this);
-//        songsDB.subscribe(this);
 
         getAllSongs();
-//        songsDB.scan();
     }
 
     private void getAllSongs() {
@@ -155,12 +149,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         };
         this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
     }
-//    private class CreateObserver implements LifecycleObserver {
-//        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-//        public void connectListener() {
-//            databaseSongs.updateSongs(Collections.singletonList(urlParser.getDbSong()));
-//        }
-//    }
 
     @Override
     public void onPause() {
@@ -177,8 +165,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
         }
-//        songs = mListener.getSongs();
-//        mAdapter = new SongRecyclerViewAdapter(songs.getSongs(), mListener, ((SongsActivity) Objects.requireNonNull(getActivity())).language);
         databaseSongs = mListener.getSongs();
         mAdapter = new SongRecyclerViewAdapter(databaseSongs.getSongs(), mListener,
                 ((SongsActivity) requireActivity()).language);
@@ -267,18 +253,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnListFragmentInteractionListener {
-        //        void onListFragmentInteraction(Song item);
+
         void onListFragmentInteraction(DatabaseSong item);
 
         void onListFragmentInteraction(Recording item);
 
-        //        SongsDB getSongs();
         DatabaseSongsDB getSongs();
     }
 }

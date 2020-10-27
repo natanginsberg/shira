@@ -35,6 +35,9 @@
     <string name="no">לא</string>
     <string name="start">התחל!</string>
     <string name="ok">OK</string>
-    <string name="no_internet_alert">Alert!\nThere is no internet connection.</string>
+    <string name="no_internet_alert">אין חיבור לאינטרנט</string>
     <string name="sign_out">Sign Out</string>
+    <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
+    <string name="mic_access_title">שימוש במיקרופון חיוני</string>
+    <string name="mic_access_text">כדי להינות מחווית הקריוקי יש לאשר גישה למיקרופון</string>
 </resources>
