@@ -41,5 +41,9 @@
     <string name="mic_access_title">שימוש במיקרופון חיוני</string>
     <string name="mic_access_text">כדי להינות מחווית הקריוקי יש לאשר גישה למיקרופון</string>
     <string name="sign_in_language">כנס או הירשם ללא עלות</string>
+    <string name="my_recordings">ביצועים שלי</string>
+    <string name="sign_in">כנס/הירשם</string>
+    <string name="contact_us">צור קשר</string>
+    <string name="policy">תקנון</string>
 </resources>
 

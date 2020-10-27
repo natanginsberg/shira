@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Home"
+            android:text="@string/home"
             android:textColor="@android:color/white"
             android:textSize="15sp" />
 
@@ -72,7 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="My Recordings"
+            android:text="@string/my_recordings"
             android:textColor="@android:color/white"
             android:textSize="15sp" />
 
@@ -80,7 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Sign In"
+            android:text="@string/sign_in"
             android:textColor="@android:color/white"
             android:textSize="15sp" />
 
@@ -116,7 +116,7 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/line1"
-        android:text="Contact Us"
+        android:text="@string/contact_us"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         android:textColor="@android:color/white"/>
@@ -126,7 +126,7 @@
         android:id="@+id/policy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Policy"
+        android:text="@string/policy"
         android:textColor="@android:color/white"
         android:textSize="15sp"
         app:layout_constraintTop_toBottomOf="@id/bottom_line"
