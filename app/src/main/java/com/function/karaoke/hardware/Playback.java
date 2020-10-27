@@ -65,6 +65,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private Formatter formatter;
 
     private PlaybackStateListener playbackStateListener;
+    private boolean dynamicLink = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +86,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 createTwoPlayers();
                 initializePlayer();
             } else {
+                dynamicLink = true;
                 getDynamicLink();
             }
         }
@@ -171,7 +173,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if (players.size() == 0) {
+        if (players == null) {
+            players = new ArrayList<>();
+            createTwoPlayers();
             initializePlayer();
         }
     }
@@ -250,22 +254,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         }
     }
 
-//    private void initializePlayer() {
-//        SimpleExoPlayer player = players.get(0);
-//        playerView.setPlayer(player);
-//
-//        player.setVolume(0.5f);
-//        player.setPlayWhenReady(false);
-//        player.seekTo(currentWindow, playbackPosition);
-//        MergingMediaSource mediaSource;
-//        if (urls.size() > 0) {
-//            mediaSource = new MergingMediaSource(buildMediaSource(urls.get(0)), buildMediaSource(urls.get(1)));
-//        } else {
-//            mediaSource = new MergingMediaSource(buildMediaSource(uris.get(0)), buildMediaSource(uris.get(1)));
-//        }
-//        player.prepare(mediaSource, true, false);
-//    }
-
     private MediaSource buildMediaSource(Uri uri) {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
         return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
@@ -286,6 +274,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 player.release();
                 player = null;
             }
+        players = null;
     }
 
     private void addListeners() {
@@ -300,25 +289,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             }
         });
 
-        playerView.findViewById(R.id.exo_prev).setVisibility(View.INVISIBLE);
-        playerView.findViewById(R.id.exo_rew).setVisibility(View.INVISIBLE);
-        playerView.findViewById(R.id.exo_next).setVisibility(View.INVISIBLE);
-        playerView.findViewById(R.id.exo_ffwd).setVisibility(View.INVISIBLE);
-//        findViewById(R.id.exo_shuffle).setOnClickListener(view -> {
-//            int k = 0;
-//        });
-//        findViewById(R.id.exo_duration).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int k = 0;
-//            }
-//        });
-//        findViewById(R.id.exo_progress).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int k = 0;
-//            }
-//        });
         ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
 
 //        playerView.setOnClickListener(this);
@@ -398,74 +368,5 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         DefaultControlDispatcher controlDispatcher = new DefaultControlDispatcher();
         return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
     }
-
-
-//    private static class PlaybackStateListener implements Player.EventListener {
-//        @Override
-//        public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-//            if (playWhenReady) {
-//                switch (playbackState) {
-//                    case ExoPlayer.STATE_IDLE:
-//                        break;
-//                    case ExoPlayer.STATE_BUFFERING:
-//                        break;
-//                    case ExoPlayer.STATE_READY:
-//                        break;
-//                    case ExoPlayer.STATE_ENDED:
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        }
-//    }
-
-//    private void updateProgress() {
-//        if (!isVisible() || !isAttachedToWindow) {
-//            return;
-//        }
-//
-//        @Nullable Player player = this.player;
-//        long position = 0;
-//        long bufferedPosition = 0;
-//        if (player != null) {
-//            position = currentWindowOffset + player.getContentPosition();
-//            bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
-//        }
-//        if (positionView != null && !scrubbing) {
-//            positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-//        }
-//        if (timeBar != null) {
-//            timeBar.setPosition(position);
-//            timeBar.setBufferedPosition(bufferedPosition);
-//        }
-//        if (progressUpdateListener != null) {
-//            progressUpdateListener.onProgressUpdate(position, bufferedPosition);
-//        }
-//
-//        // Cancel any pending updates and schedule a new one if necessary.
-//        removeCallbacks(updateProgressAction);
-//        int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
-//        if (player != null && player.isPlaying()) {
-//            long mediaTimeDelayMs =
-//                    timeBar != null ? timeBar.getPreferredUpdateDelay() : MAX_UPDATE_INTERVAL_MS;
-//
-//            // Limit delay to the start of the next full second to ensure position display is smooth.
-//            long mediaTimeUntilNextFullSecondMs = 1000 - position % 1000;
-//            mediaTimeDelayMs = Math.min(mediaTimeDelayMs, mediaTimeUntilNextFullSecondMs);
-//
-//            // Calculate the delay until the next update in real time, taking playback speed into account.
-//            float playbackSpeed = player.getPlaybackParameters().speed;
-//            long delayMs =
-//                    playbackSpeed > 0 ? (long) (mediaTimeDelayMs / playbackSpeed) : MAX_UPDATE_INTERVAL_MS;
-//
-//            // Constrain the delay to avoid too frequent / infrequent updates.
-//            delayMs = Util.constrainValue(delayMs, timeBarMinUpdateIntervalMs, MAX_UPDATE_INTERVAL_MS);
-//            postDelayed(updateProgressAction, delayMs);
-//        } else if (playbackState != Player.STATE_ENDED && playbackState != Player.STATE_IDLE) {
-//            postDelayed(updateProgressAction, MAX_UPDATE_INTERVAL_MS);
-//        }
-//    }
-
 
 }

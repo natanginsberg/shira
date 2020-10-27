@@ -57,7 +57,7 @@
                 android:layout_width="50dp"
                 android:layout_height="30dp"
                 android:layout_gravity="center"
-                android:background="@drawable/blue_rec"
+                android:background="@drawable/gold_rec"
                 android:elevation="8dp"
                 android:text="@string/play"
                 android:textColor="@android:color/holo_blue_light"

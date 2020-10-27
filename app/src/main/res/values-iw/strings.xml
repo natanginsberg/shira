@@ -40,4 +40,5 @@
     <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
     <string name="mic_access_title">שימוש במיקרופון חיוני</string>
     <string name="mic_access_text">כדי להינות מחווית הקריוקי יש לאשר גישה למיקרופון</string>
+    <string name="sign_in_language">כנס או הירשם ללא עלות</string>
 </resources>

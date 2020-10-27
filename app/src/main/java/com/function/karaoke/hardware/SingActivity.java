@@ -564,8 +564,7 @@ public class SingActivity extends AppCompatActivity implements
                 if (millisUntilFinished / 1000 >= 1)
                     ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
                 else ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
-                if (millisUntilFinished / 1000 >= 3)
-                    cameraPreview.prepareMediaRecorder(cameraOn);
+
             }
 
             public void onFinish() {

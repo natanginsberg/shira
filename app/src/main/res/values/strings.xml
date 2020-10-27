@@ -49,5 +49,6 @@
     <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
     <string name="mic_access_title">Microphone permission necessary</string>
     <string name="mic_access_text">Ashira karaoke needs microphone access.</string>
+    <string name="sign_in_language">Sign in to your account or \n create a new account</string>
 
 </resources>

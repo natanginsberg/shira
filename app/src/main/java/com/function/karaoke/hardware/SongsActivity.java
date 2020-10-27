@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
@@ -78,6 +79,14 @@ public class SongsActivity
         language = getResources().getConfiguration().locale.getDisplayLanguage();
     }
 
+    private void setFontCorrectly() {
+        Typeface tf = Typeface.createFromAsset(getAssets(),"fonts/ArialCE.ttf");
+        TextView tv = (TextView) findViewById(R.id.lbl_artist);
+        tv.setTypeface(tf);
+        tv = (TextView) findViewById(R.id.lbl_title);
+        tv.setTypeface(tf);
+    }
+
     private void addSignInClick() {
         findViewById(R.id.sign_in_button).setOnClickListener(view -> launchSignIn());
     }
@@ -111,6 +120,7 @@ public class SongsActivity
                 String languageToDisplay = language.equals("English") ? "EN" : "עב";
                 ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
                 checkForSignedInUser();
+//                setFontCorrectly();
             }
         }.start();
     }

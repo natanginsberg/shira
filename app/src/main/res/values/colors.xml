@@ -8,5 +8,6 @@
     <color name="pressed_text_color">#8B0000</color>
     <color name="disabled_text_color">#D3D3D3</color>
     <color name="default_text_color">#ffff</color>
+    <color name="gold">#ecc30b</color>
 <!--    <color name="appColor">#55c1ff</color>-->
 </resources>

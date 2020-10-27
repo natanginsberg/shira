@@ -31,7 +31,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textSize="15sp"/>
+            android:textSize="15sp"
+            android:textColor="@android:color/white"/>
 
         <Button
             android:id="@+id/open_end_options"

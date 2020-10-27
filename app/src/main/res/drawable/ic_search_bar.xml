@@ -3,7 +3,7 @@
     android:id="@+id/listview_background_shape"
     android:shape="rectangle">
     <stroke
-        android:width="6dp"
+        android:width="4dp"
         android:color="#ffff" />
     <padding
         android:bottom="2dp"
