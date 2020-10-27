@@ -27,8 +27,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_video_camera"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="false">
+        android:theme="@style/AppTheme">
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
