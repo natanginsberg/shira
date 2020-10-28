@@ -1,11 +1,18 @@
 package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.ViewOverlay;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.annotation.NonNull;
@@ -63,6 +70,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private int contentsDisplayed = ALL_SONGS_DISPLAYED;
     private DatabaseSongsDB songsDb;
+    private View popupView;
+    private PopupWindow popup;
+    private boolean searchOpened = false;
 
 
     /**
@@ -107,23 +117,43 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void setClickListeners(View songsView) {
-        songsView.findViewById(R.id.personal_library).setOnClickListener((View.OnClickListener) view -> {
-            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-                contentsDisplayed = ALL_SONGS_DISPLAYED;
-                displayAllSongs();
-                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder, getContext().getTheme()));
-            } else if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
-                contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
-                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-                if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
-                    recordingDB = null;
-                    getAllPersonalSongs();
-                } else {
-                    displayPersonalSongs();
-                }
-                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder_clicked, getContext().getTheme()));
+//        songsView.findViewById(R.id.personal_library).setOnClickListener((View.OnClickListener) view -> {
+//            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+//                contentsDisplayed = ALL_SONGS_DISPLAYED;
+//                displayAllSongs();
+//                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder, getContext().getTheme()));
+//            } else if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
+//                contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
+//                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+//                if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
+//                    recordingDB = null;
+//                    getAllPersonalSongs();
+//                } else {
+//                    displayPersonalSongs();
+//                }
+//                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder_clicked, getContext().getTheme()));
+//            }
+//        });
+
+        songsView.findViewById(R.id.open_search).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openSearch();
             }
         });
+
+        songsView.findViewById(R.id.settings_button).setOnClickListener(view -> {
+            openSettingsPopup(view);
+        });
+    }
+
+    private void openSearch() {
+        if (searchOpened)
+            getView().findViewById(R.id.search_input).setVisibility(View.GONE);
+
+        else
+            getView().findViewById(R.id.search_input).setVisibility(View.VISIBLE);
+        searchOpened = !searchOpened;
     }
 
     @Override
@@ -247,6 +277,91 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         databaseSongs.updateSongs(searchedSongs);
     }
 
+    public void openSettingsPopup(View view) {
+        RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
+        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
+        addPopupListeners();
+        //todo set the button that is pressed either the recordings or home
+        if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+        } else
+            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+
+        placePopupOnScreen();
+        //todo get dim to work with view that returns correct object
+//        popup.setOnDismissListener(() -> undimBackground(parentView));
+//        applyDim(parentView);
+
+    }
+
+    private void addPopupListeners() {
+        popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
+        popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
+        popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
+            if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
+                contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
+                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+                if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
+                    recordingDB = null;
+                    getAllPersonalSongs();
+                } else {
+                    displayPersonalSongs();
+                }
+                ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+                ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+            }
+        });
+
+        popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
+            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+                contentsDisplayed = ALL_SONGS_DISPLAYED;
+                displayAllSongs();
+                ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+                ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+            }
+        });
+
+        popupView.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.openSignUp();
+            }
+        });
+
+    }
+
+    private void placePopupOnScreen() {
+        popup = new PopupWindow(getActivity());
+        setPopupAttributes(popup, popupView);
+        popup.showAtLocation(popupView, Gravity.START, 0, 0);
+    }
+
+    private void applyDim(View view) {
+        Drawable dim = new ColorDrawable(Color.BLACK);
+        dim.setBounds(0, 0, getView().findViewById(R.id.song_list_fragment).getWidth(), getView().findViewById(R.id.song_list_fragment).getHeight());
+        dim.setAlpha((int) (255 * (float) 0.8));
+        ViewOverlay overlay = view.findViewById(R.id.song_list_fragment).getOverlay();
+//        ViewOverlay headerOverlay = headerView.getOverlay();
+//        headerOverlay.add(dim);
+        overlay.add(dim);
+    }
+
+    public void undimBackground(View view) {
+        ViewOverlay overlay = view.findViewById(R.id.song_list_fragment).getOverlay();
+//        ViewOverlay headerOverlay = headerView.getOverlay();
+        overlay.clear();
+//        headerOverlay.clear();
+    }
+
+    private void setPopupAttributes(PopupWindow popup, View layout) {
+        int width = (int) (this.getResources().getDisplayMetrics().widthPixels * 0.719);
+        int height = (int) (this.getResources().getDisplayMetrics().heightPixels);
+        popup.setContentView(layout);
+        popup.setWidth(width);
+        popup.setHeight(height);
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -261,5 +376,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void onListFragmentInteraction(Recording item);
 
         DatabaseSongsDB getSongs();
+
+        void changeLanguage();
+
+        void openSignUp();
     }
 }

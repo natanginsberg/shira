@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/settings_popup"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/appColor">
 
@@ -21,7 +22,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerInParent="true"
             android:text="EN"
-            android:paddingStart="5dp"
+            android:paddingStart="10dp"
             android:textColor="#ffff"
             android:textSize="20sp"/>
 
@@ -36,6 +37,7 @@
             android:layout_centerInParent="true"/>
 
         <Button
+            android:id="@+id/close_popup"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:paddingEnd="10dp"
@@ -53,6 +55,7 @@
         app:layout_constraintGuide_percent="0.13" />
 
     <LinearLayout
+        android:paddingStart="10dp"
         android:layout_width="match_parent"
         android:layout_height="88dp"
         android:orientation="vertical"
@@ -61,6 +64,7 @@
         tools:layout_editor_absoluteX="-1dp">
 
         <TextView
+            android:id="@+id/home_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -69,6 +73,7 @@
             android:textSize="15sp" />
 
         <TextView
+            android:id="@+id/my_recordings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -77,6 +82,7 @@
             android:textSize="15sp" />
 
         <TextView
+            android:id="@+id/sign_in_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -99,7 +105,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.89"
+        app:layout_constraintGuide_percent="0.80"
         />
 
     <View
