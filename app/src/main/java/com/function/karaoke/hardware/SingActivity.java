@@ -176,14 +176,10 @@ public class SingActivity extends AppCompatActivity implements
         StringBuilder sb = new StringBuilder(RECORDING_ID_LENGTH);
 
         for (int i = 0; i < RECORDING_ID_LENGTH; i++) {
-
-            // generate a random number between
-            // 0 to AlphaNumericString variable length
             int index
                     = (int) (alphaNumericString.length()
                     * Math.random());
 
-            // add Character one by one in end of sb
             sb.append(alphaNumericString
                     .charAt(index));
         }
@@ -200,11 +196,6 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-
-//    private void initiateCamera() {
-//        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this));
-//        openCamera();
-//    }
 
     /**
      * Check if this device has a camera
@@ -335,13 +326,6 @@ public class SingActivity extends AppCompatActivity implements
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         permissionRequested = false;
         switch (requestCode) {
-//            case AUDIO_CODE:
-//                if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-//                    DialogBox dialogBox = DialogBox.newInstance(this, NO_AUDIO_CODE);
-//                    dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
-//                } else
-//                    tryLoadSong();
-//                break;
             case CAMERA_CODE:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
                     cameraPreview.initiateRecorder();
@@ -419,9 +403,9 @@ public class SingActivity extends AppCompatActivity implements
                 cancelTimer();
                 findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
                 makeSongNameAndArtistInvisible();
-                cameraPreview.start();
                 mKaraokeKonroller.onResume();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
+                cameraPreview.start();
                 mKaraokeKonroller.setCustomObjectListener(songIsOver -> openEndOptions(true));
                 isRunning = true;
                 setProgressBar();
@@ -574,9 +558,9 @@ public class SingActivity extends AppCompatActivity implements
                 findViewById(R.id.pause).setVisibility(View.VISIBLE);
                 isRunning = true;
                 mKaraokeKonroller.onResume();
+                cameraPreview.resumeRecording();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
                 mPlayer = mKaraokeKonroller.getmPlayer();
-                cameraPreview.resumeRecording();
                 isRecording = true;
             }
         };

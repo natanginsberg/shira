@@ -108,6 +108,7 @@ public class KaraokeController implements Recorder.IToneListener {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
                     prepared = true;
+                    mPlayer.seekTo(0);
                 }
             });
             mPlayer.prepare();
@@ -177,13 +178,8 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void onResume() {
         if (prepared) {
-//            if (mPlayer.getCurrentPosition() / 1000 < 1) {
-//                while (!prepared) {
-//                }
             mPlayer.start();
             mHandler.post(mUpdater);
-//            }
-
         }
     }
 

@@ -63,9 +63,9 @@ public class SongsActivity
     private DatabaseSong songClicked;
 
     private void updateUI() {
-        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+//        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
         findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
+//        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -173,7 +173,7 @@ public class SongsActivity
     public void signOut(View view) {
 
         findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
+//        findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
         findViewById(R.id.personal_library).setVisibility(View.INVISIBLE);
         launchSignIn();
 
@@ -189,7 +189,7 @@ public class SongsActivity
     }
 
     @Override
-    public void openSignUp(){
+    public void openSignUp() {
         launchSignIn();
     }
 

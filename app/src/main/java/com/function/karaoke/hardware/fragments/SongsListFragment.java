@@ -2,6 +2,7 @@ package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOverlay;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
+import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
@@ -55,16 +58,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private OnListFragmentInteractionListener mListener;
     private SongRecyclerViewAdapter mAdapter;
     private View songsView;
-    //    private FragmentActivity myContext;
-    //    private SongsDB songs;
-    private DatabaseSongsDB databaseSongs;
+    private DatabaseSongsDB currentDatabaseSongs;
     private RecyclerView recyclerView;
-    //    private List<SongsDB> previousSongs = new ArrayList<>();
     private List<DatabaseSongsDB> previousSongs = new ArrayList<>();
     private String previousQuery = "";
     private DatabaseDriver databaseDriver;
-    //    private List<DatabaseSong> allSongs = new ArrayList<>();
-//    private UrlHolder urlParser;
     private RecordingService recordingService;
     private RecordingDB recordingDB;
 
@@ -73,6 +71,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private View popupView;
     private PopupWindow popup;
     private boolean searchOpened = false;
+    private Genres genres;
+    private View view;
+    private DatabaseSongsDB allSongsDatabase = new DatabaseSongsDB();
+    private TextView genreClicked;
+    private TextView allSongsTextView;
 
 
     /**
@@ -98,8 +101,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                              Bundle savedInstanceState) {
         songsView = inflater.inflate(R.layout.fragment_song_list, container, false);
 
-        // Set the adapter
-//        if (view instanceof RecyclerView) {
         Context context = songsView.getContext();
         recyclerView = (RecyclerView) songsView.findViewById(R.id.list);
         if (mColumnCount <= 1) {
@@ -108,32 +109,97 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
         recyclerView.setAdapter(mAdapter);
-//        }
+        addSearchListener();
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
         this.recordingService = new RecordingService();
         setClickListeners(songsView);
+        view = songsView;
+        addGenres();
         return songsView;
     }
 
+    private void addGenres() {
+        final Observer<Genres> searchObserver = products -> {
+            genres = products;
+            if (genres != null)
+                addGenresToScreen();
+        };
+        this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
+    }
+
+    private void addGenresToScreen() {
+        LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.genres);
+        List<String> currentLanguageGenres;
+        if (((SongsActivity) getActivity()).language.equals("English"))
+            currentLanguageGenres = genres.getEnglishGenres();
+        else
+            currentLanguageGenres = genres.getHebrewGenres();
+        for (int i = 0; i < currentLanguageGenres.size(); i++) {
+            TextView genre = setGenreBar(currentLanguageGenres, i);
+
+            linearLayout.addView(genre);
+        }
+    }
+
+    private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
+        String genre = currentLanguageGenres.get(i);
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/ArialUnicodeMS.ttf");
+        TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
+        String textToDisplay = "   " + genre + "   |";
+        textView.setText(textToDisplay);
+        textView.setTypeface(tf);
+        if (i == 0) {
+            setGenreClicked(textView);
+            allSongsTextView = textView;
+        }
+        int finalI = i;
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (genreClicked == textView) {
+                    getAllSongsFromGenre("כל השירים");
+                    setTextOfClickedToBlack();
+                    setGenreClicked(allSongsTextView);
+                } else {
+                    setTextOfClickedToBlack();
+                    setGenreClicked(textView);
+                    getAllSongsFromGenre(genres.getHebrewGenres().get(finalI));
+                }
+
+            }
+        });
+        return textView;
+    }
+
+    private void setTextOfClickedToBlack() {
+        genreClicked.setTextColor(Color.BLACK);
+    }
+
+    private void setGenreClicked(TextView textView) {
+        textView.setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+        genreClicked = textView;
+    }
+
+    private void getAllSongsFromGenre(String genre) {
+        List<DatabaseSong> searchedSongs = new ArrayList<>();
+        if (genre.equals("כל השירים"))
+            searchedSongs = allSongsDatabase.getSongs();
+        else {
+            for (DatabaseSong song : allSongsDatabase.getSongs()) {
+                if (song.getGenre().toLowerCase().equals(genre)) {
+                    searchedSongs.add(song);
+
+                }
+            }
+        }
+        currentDatabaseSongs.updateSongs(searchedSongs);
+        mAdapter.notifyDataSetChanged();
+    }
+
+
     private void setClickListeners(View songsView) {
-//        songsView.findViewById(R.id.personal_library).setOnClickListener((View.OnClickListener) view -> {
-//            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-//                contentsDisplayed = ALL_SONGS_DISPLAYED;
-//                displayAllSongs();
-//                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder, getContext().getTheme()));
-//            } else if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
-//                contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
-//                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-//                if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
-//                    recordingDB = null;
-//                    getAllPersonalSongs();
-//                } else {
-//                    displayPersonalSongs();
-//                }
-//                ((Button) songsView.findViewById(R.id.personal_library)).setBackground(getResources().getDrawable(R.drawable.folder_clicked, getContext().getTheme()));
-//            }
-//        });
 
         songsView.findViewById(R.id.open_search).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,7 +232,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void getAllSongs() {
-        final Observer<List<DatabaseSong>> searchObserver = products -> databaseSongs.updateSongs(products);
+        final Observer<List<DatabaseSong>> searchObserver = products -> {
+            currentDatabaseSongs.updateSongs(products);
+            allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
+            allSongsDatabase.updateSongs(currentDatabaseSongs.getSongs());
+        };
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
 
@@ -195,8 +265,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             throw new RuntimeException(context.toString()
                     + " must implement OnListFragmentInteractionListener");
         }
-        databaseSongs = mListener.getSongs();
-        mAdapter = new SongRecyclerViewAdapter(databaseSongs.getSongs(), mListener,
+        currentDatabaseSongs = mListener.getSongs();
+        mAdapter = new SongRecyclerViewAdapter(currentDatabaseSongs.getSongs(), mListener,
                 ((SongsActivity) requireActivity()).language);
     }
 
@@ -238,17 +308,17 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             public boolean onQueryTextChange(String query) {
                 if (query.length() >= 1) {
                     if (query.length() > previousQuery.length()) {
-                        addCopyOfSongsDBToList(databaseSongs);
+                        addCopyOfSongsDBToList(currentDatabaseSongs);
                         getSongsSearchedFor(query.toLowerCase());
                     } else {
-                        databaseSongs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
+                        currentDatabaseSongs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
                         previousSongs.remove(previousSongs.size() - 1);
                     }
                     mAdapter.notifyDataSetChanged();
                     previousQuery = query;
                 } else {
                     if (previousSongs.size() != 0) {
-                        databaseSongs.updateSongs(previousSongs.get(0).getSongs());
+                        currentDatabaseSongs.updateSongs(previousSongs.get(0).getSongs());
                         mAdapter.notifyDataSetChanged();
                         previousSongs = new ArrayList<>();
                         previousQuery = "";
@@ -268,13 +338,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void getSongsSearchedFor(String query) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();
-        for (DatabaseSong song : databaseSongs.getSongs()) {
+        for (DatabaseSong song : currentDatabaseSongs.getSongs()) {
             if (song.getTitle().toLowerCase().contains(query) || song.getArtist().toLowerCase().contains(query)) {
                 searchedSongs.add(song);
 
             }
         }
-        databaseSongs.updateSongs(searchedSongs);
+        currentDatabaseSongs.updateSongs(searchedSongs);
     }
 
     public void openSettingsPopup(View view) {
@@ -287,12 +357,33 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
         } else
             ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+        setSignInOrOut();
 
         placePopupOnScreen();
         //todo get dim to work with view that returns correct object
-//        popup.setOnDismissListener(() -> undimBackground(parentView));
-//        applyDim(parentView);
+        popup.setOnDismissListener(() -> undimBackground());
+        applyDim();
 
+    }
+
+    private void setSignInOrOut() {
+        AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+        TextView signInOrOutButton = ((TextView) popupView.findViewById(R.id.sign_in_button));
+        if (authenticationDriver.getUserUid() != null)
+            signInOrOutButton.setText(getResources().getText(R.string.sign_out));
+
+        signInOrOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (authenticationDriver.getUserUid() != null) {
+                    mListener.openSignUp();
+                    signInOrOutButton.setText(getResources().getText(R.string.sign_in));
+                } else {
+                    mListener.openSignUp();
+                    signInOrOutButton.setText(getResources().getText(R.string.sign_out));
+                }
+            }
+        });
     }
 
     private void addPopupListeners() {
@@ -322,12 +413,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             }
         });
 
-        popupView.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.openSignUp();
-            }
-        });
+//        Q qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqeeeeeeeeeeeeeeeeeeeeee3`
 
     }
 
@@ -337,18 +423,18 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popup.showAtLocation(popupView, Gravity.START, 0, 0);
     }
 
-    private void applyDim(View view) {
+    private void applyDim() {
         Drawable dim = new ColorDrawable(Color.BLACK);
-        dim.setBounds(0, 0, getView().findViewById(R.id.song_list_fragment).getWidth(), getView().findViewById(R.id.song_list_fragment).getHeight());
-        dim.setAlpha((int) (255 * (float) 0.8));
-        ViewOverlay overlay = view.findViewById(R.id.song_list_fragment).getOverlay();
+        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        dim.setAlpha((int) (255 * (float) 0.5));
+        ViewOverlay overlay = view.getOverlay();
 //        ViewOverlay headerOverlay = headerView.getOverlay();
 //        headerOverlay.add(dim);
         overlay.add(dim);
     }
 
-    public void undimBackground(View view) {
-        ViewOverlay overlay = view.findViewById(R.id.song_list_fragment).getOverlay();
+    public void undimBackground() {
+        ViewOverlay overlay = view.getOverlay();
 //        ViewOverlay headerOverlay = headerView.getOverlay();
         overlay.clear();
 //        headerOverlay.clear();

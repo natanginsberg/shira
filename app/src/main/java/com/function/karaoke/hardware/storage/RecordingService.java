@@ -70,9 +70,7 @@ public class RecordingService {
 
     public void addRecordingToDataBase(Recording recording) {
         recordingsCollectionRef.add(recording);
-
     }
-
 }
 
 

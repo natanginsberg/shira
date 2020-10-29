@@ -157,10 +157,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         players.add(new SimpleExoPlayer.Builder(this).build());
     }
 
-//    private void createPplayer() {
-//        players.add(new SimpleExoPlayer.Builder(this).build());
-//    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -252,6 +248,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 //            player.sets
 
         }
+
     }
 
     private MediaSource buildMediaSource(Uri uri) {
@@ -266,21 +263,29 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     private void releasePlayers() {
-        for (SimpleExoPlayer player : players)
-            if (player != null) {
-                playWhenReady = player.getPlayWhenReady();
-                playbackPosition = player.getCurrentPosition();
-                currentWindow = player.getCurrentWindowIndex();
-                player.release();
-                player = null;
-            }
-        players = null;
+        if (players != null) {
+            for (SimpleExoPlayer player : players)
+                if (player != null) {
+                    playWhenReady = player.getPlayWhenReady();
+                    playbackPosition = player.getCurrentPosition();
+                    currentWindow = player.getCurrentWindowIndex();
+                    player.release();
+                    player = null;
+                }
+            players = null;
+        }
     }
 
     private void addListeners() {
         findViewById(R.id.exo_play).setOnClickListener(view -> {
-            for (SimpleExoPlayer player : players) {
+            while (!(players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
+            }
+//            for (SimpleExoPlayer player : players) {
+            for (int i = 0; i < 2; i++) {
+//                if (i == 1) {
+                SimpleExoPlayer player = players.get(i);
                 player.setPlayWhenReady(true);
+//                }
             }
         });
         findViewById(R.id.exo_pause).setOnClickListener(view -> {

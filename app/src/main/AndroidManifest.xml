@@ -39,7 +39,7 @@
             android:name=".Playback"
             android:label="@string/title_activity_playback"
             android:screenOrientation="portrait">
-            <intent-filter android:label="shira">
+            <intent-filter android:label="ashira">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />

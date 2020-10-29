@@ -62,7 +62,7 @@ public class ArtistService {
                 addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        if (e.getMessage().equals("PERMISSION_DENIED: Missing or insufficient permissions.")){
+                        if (e.getMessage().equals("PERMISSION_DENIED: Missing or insufficient permissions.")) {
                             addOneMoreDownload(document);
                         }
                         artistServiceListener.onFailure();

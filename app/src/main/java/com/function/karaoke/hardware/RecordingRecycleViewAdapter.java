@@ -70,7 +70,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
                     .inflate(R.layout.recording_display_item, parent, false);
         } else {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.hebrew_resource_file, parent, false);
+                    .inflate(R.layout.hebrew_recording_display, parent, false);
         }
         return new ViewHolder(view);
     }
