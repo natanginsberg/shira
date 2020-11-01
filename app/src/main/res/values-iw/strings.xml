@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SHIRA</string>
+    <string name="app_name">ASHIRA</string>
     <string name="prompt_user_name">שם משתמש</string>
     <string name="prompt_email">אימייל</string>
     <string name="prompt_password">סיסמה </string>

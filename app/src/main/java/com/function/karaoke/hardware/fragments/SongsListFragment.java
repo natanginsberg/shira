@@ -246,6 +246,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 recordingDB = new RecordingDB(personalRecordings);
                 displayPersonalSongs();
             }
+
         };
         this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
     }

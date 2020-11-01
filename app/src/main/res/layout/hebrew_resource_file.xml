@@ -53,7 +53,7 @@
                 android:background="@drawable/gold_rec"
                 android:elevation="8dp"
                 android:text="@string/play"
-                android:textColor="@android:color/holo_blue_light"
+                android:textColor="@color/gold"
                 android:textSize="12sp" />
 
         </LinearLayout>
