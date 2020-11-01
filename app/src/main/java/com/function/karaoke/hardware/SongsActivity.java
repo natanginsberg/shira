@@ -126,8 +126,8 @@ public class SongsActivity
 
     @Override
     public void onListFragmentInteraction(DatabaseSong item) {
-        askForAudioRecordPermission();
         songClicked = item;
+        askForAudioRecordPermission();
     }
 
     private void askForAudioRecordPermission() {

@@ -40,7 +40,6 @@ import java.util.List;
  */
 public class CameraPreview {
 
-    private static final int CAMERA_CODE = 101;
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private AppCompatActivity activity;
     private TextureView mTextureView;
@@ -136,7 +135,7 @@ public class CameraPreview {
         }
     }
 
-    public void setTextureView(TextureView textureView){
+    public void setTextureView(TextureView textureView) {
         this.mTextureView = textureView;
     }
 
@@ -274,14 +273,14 @@ public class CameraPreview {
     public void prepareMediaRecorder(boolean cameraOn) {
 //        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO)
 //                == PackageManager.PERMISSION_GRANTED) {
-            try {
-                createVideoFileName();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            createVideoFileName();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 //            startRecord();
 //            mMediaRecorder.start();
-            setMediaRecorder(cameraOn);
+        setMediaRecorder(cameraOn);
 //        } else {
 //
 //        }
@@ -289,7 +288,7 @@ public class CameraPreview {
 
     private void setupMediaRecorder() {
         mMediaRecorder = new MediaRecorder();
-        if (mCamera!=null)
+        if (mCamera != null)
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
@@ -297,7 +296,7 @@ public class CameraPreview {
 
         mMediaRecorder.setOutputFile(fileName);
         CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-        if (mCamera!=null) {
+        if (mCamera != null) {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
             mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
@@ -320,7 +319,7 @@ public class CameraPreview {
     private void setMediaRecorder(boolean cameraOn) {
         try {
             setupMediaRecorder();
-            if (mCamera!=null) {
+            if (mCamera != null) {
                 SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
                 surfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
                 Surface previewSurface = new Surface(surfaceTexture);
@@ -372,5 +371,9 @@ public class CameraPreview {
 
     public void start() {
         mMediaRecorder.start();
+    }
+
+    public MediaRecorder getmMediaRecorder(){
+        return mMediaRecorder;
     }
 }

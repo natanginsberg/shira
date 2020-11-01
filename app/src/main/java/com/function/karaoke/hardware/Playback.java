@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -45,6 +46,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private static final String AUDIO_TOKEN = "audioToken";
     private static final String VIDEO_TOKEN = "videoToken";
     private static final int RECORDING_URL = 0;
+    private static final String LENGTH_OF_AUDIO_PLAYED = "length of audio played";
+    private static final String DELAY = "delay";
 
     private int ready = 0;
 
@@ -67,6 +70,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private PlaybackStateListener playbackStateListener;
     private boolean dynamicLink = false;
 
+    private int delay;
+    private int length;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +83,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                delay = getIntent().getIntExtra(DELAY, 0);
+                length = getIntent().getIntExtra(LENGTH_OF_AUDIO_PLAYED, 0);
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
@@ -205,20 +213,29 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
+                player.setVolume(1f);
+
+//                if (delay != 0) {
+//                    player.seekTo(currentWindow, delay);
+//                }
+            } else {
+                player.setVolume(0.5f);
             }
-            player.setVolume(0.5f);
-            player.setPlayWhenReady(false);
             player.seekTo(currentWindow, playbackPosition);
+            player.setPlayWhenReady(false);
             MediaSource mediaSource;
             if (urls.size() > 0)
                 mediaSource = buildMediaSource(urls.get(i));
             else
                 mediaSource = buildMediaSource(uris.get(i));
+            ClippingMediaSource clippingMediaSource = null;
+            if (i == RECORDING_URL && delay != 0) {
+                clippingMediaSource = new ClippingMediaSource(mediaSource, delay * 1000, 1000000000);
+            }
             player.addListener(new Player.EventListener() {
 
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-//                    if (playWhenReady) {
                     switch (playbackState) {
                         case ExoPlayer.STATE_ENDED:
                             for (SimpleExoPlayer p : players) {
@@ -230,21 +247,13 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                             break;
                     }
                 }
-
-//                @Override
-//                public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-//                    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-//                        players.get(0).setPlayWhenReady(false);
-//                        players.get(1).seekTo(currentWindow, player.getContentPosition());
-//                        for (SimpleExoPlayer p : players) {
-//                            p.setPlayWhenReady(true);
-//                        }
-//                    }
-//                }
-
             });
             player.addListener(this);
-            player.prepare(mediaSource, true, false);
+            if (clippingMediaSource != null){
+                player.prepare(clippingMediaSource);
+            } else
+                player.prepare(mediaSource, false, false);
+
 //            player.sets
 
         }
@@ -295,8 +304,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         });
 
         ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
-
-//        playerView.setOnClickListener(this);
 
     }
 

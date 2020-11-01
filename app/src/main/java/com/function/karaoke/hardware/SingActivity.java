@@ -72,6 +72,8 @@ public class SingActivity extends AppCompatActivity implements
     private static final int RECORDING_ID_LENGTH = 15;
     private static final int SHARING_ERROR = 100;
     private static final int UPLOAD_ERROR = 101;
+    private static final String DELAY = "delay";
+    private static final String LENGTH_OF_AUDIO_PLAYED = "length of audio played";
 
     private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
@@ -134,6 +136,8 @@ public class SingActivity extends AppCompatActivity implements
     private boolean fileSaved = false;
     private boolean cameraOn = false;
     private boolean permissionRequested = false;
+    private CustomMediaPlayer customMediaPlayer;
+    private long lengthOfAudioPlayed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +152,7 @@ public class SingActivity extends AppCompatActivity implements
         mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
         mPlayer = mKaraokeKonroller.getmPlayer();
+
         generateRecordingId();
 
 
@@ -207,6 +212,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void tryLoadSong() {
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
+        customMediaPlayer = new CustomMediaPlayer(this, song.getSongResourceFile());
         checkForInternetConnection();
         NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
             @Override
@@ -245,9 +251,10 @@ public class SingActivity extends AppCompatActivity implements
     public void callback(String result) {
         if (result.equals("yes")) {
             ending = true;
-            if (!mKaraokeKonroller.isStopped())
+            if (!mKaraokeKonroller.isStopped()) {
                 mKaraokeKonroller.onStop();
-
+                customMediaPlayer.onStop();
+            }
             if (isRecording) {
                 cameraPreview.stopRecording();
             }
@@ -267,9 +274,14 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void openNewIntent(Uri uriFromFile) {
+        MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
+        int duration = mp.getDuration();
+        int delay = (int) (duration - lengthOfAudioPlayed);
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
         intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
+        intent.putExtra(DELAY, delay);
+        intent.putExtra(LENGTH_OF_AUDIO_PLAYED, lengthOfAudioPlayed);
         startActivity(intent);
     }
 
@@ -288,7 +300,9 @@ public class SingActivity extends AppCompatActivity implements
     private void stopRecordingAndSong() {
         ending = true;
         if (!mKaraokeKonroller.isStopped()) {
+            lengthOfAudioPlayed = customMediaPlayer.getCurrentPosition();
             mKaraokeKonroller.onStop();
+            customMediaPlayer.onStop();
             findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
         }
         if (isRecording) {
@@ -394,18 +408,23 @@ public class SingActivity extends AppCompatActivity implements
             public void onTick(long millisUntilFinished) {
                 if (millisUntilFinished / 1000 >= 1)
                     ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-                else ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
+                else {
+                    ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
+                    cameraPreview.start();
+                }
                 if (millisUntilFinished / 1000 >= 3)
                     cameraPreview.prepareMediaRecorder(cameraOn);
             }
 
             public void onFinish() {
                 cancelTimer();
+                while (!customMediaPlayer.isPlayerReady()) {
+                }
                 findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
                 makeSongNameAndArtistInvisible();
+                customMediaPlayer.startSong();
                 mKaraokeKonroller.onResume();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
-                cameraPreview.start();
                 mKaraokeKonroller.setCustomObjectListener(songIsOver -> openEndOptions(true));
                 isRunning = true;
                 setProgressBar();
@@ -526,6 +545,7 @@ public class SingActivity extends AppCompatActivity implements
         findViewById(R.id.play).setVisibility(View.VISIBLE);
         isRunning = false;
         mKaraokeKonroller.onPause();
+        customMediaPlayer.pauseSong();
         if (isRecording) {
             cameraPreview.pauseRecording();
 //            isRecording = false;
@@ -558,6 +578,7 @@ public class SingActivity extends AppCompatActivity implements
                 findViewById(R.id.pause).setVisibility(View.VISIBLE);
                 isRunning = true;
                 mKaraokeKonroller.onResume();
+                customMediaPlayer.startSong();
                 cameraPreview.resumeRecording();
                 findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
                 mPlayer = mKaraokeKonroller.getmPlayer();
