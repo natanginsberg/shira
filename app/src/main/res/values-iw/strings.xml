@@ -45,4 +45,6 @@
     <string name="sign_in">כנס/הירשם</string>
     <string name="contact_us">צור קשר</string>
     <string name="policy">תקנון</string>
+    <string name="sign_in_title">לא משתמש רשום</string>
+    <string name="recording_sign_in_text">כדי לשמור ולצפות בביצועים עליך להירשם</string>
 </resources>

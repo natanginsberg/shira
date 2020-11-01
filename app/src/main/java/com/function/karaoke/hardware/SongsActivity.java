@@ -125,6 +125,23 @@ public class SongsActivity
     }
 
     @Override
+    public void alertUserToSignIn(){
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+        alertBuilder.setCancelable(true);
+        alertBuilder.setTitle(R.string.sign_in_title);
+        alertBuilder.setMessage(R.string.recording_sign_in_text);
+        alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ActivityCompat.requestPermissions(SongsActivity.this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        AUDIO_CODE);
+            }
+        });
+
+    }
+
+    @Override
     public void onListFragmentInteraction(DatabaseSong item) {
         songClicked = item;
         askForAudioRecordPermission();

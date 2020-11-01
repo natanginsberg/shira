@@ -76,6 +76,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private DatabaseSongsDB allSongsDatabase = new DatabaseSongsDB();
     private TextView genreClicked;
     private TextView allSongsTextView;
+    private AuthenticationDriver authenticationDriver;
 
 
     /**
@@ -245,10 +246,18 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             if (personalRecordings != null) {
                 recordingDB = new RecordingDB(personalRecordings);
                 displayPersonalSongs();
+                view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+            } else {
+                updateUINoRecordings();
             }
 
         };
         this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
+    }
+
+    private void updateUINoRecordings() {
+        view.findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
+        ((TextView) view.findViewById(R.id.no_recordings_text)).setText("Sorry, you have no recording");
     }
 
     @Override
@@ -368,7 +377,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void setSignInOrOut() {
-        AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+        authenticationDriver = new AuthenticationDriver();
         TextView signInOrOutButton = ((TextView) popupView.findViewById(R.id.sign_in_button));
         if (authenticationDriver.getUserUid() != null)
             signInOrOutButton.setText(getResources().getText(R.string.sign_out));
@@ -391,17 +400,21 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
         popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
-            if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
-                contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
-                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-                if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
-                    recordingDB = null;
-                    getAllPersonalSongs();
-                } else {
-                    displayPersonalSongs();
+            if (authenticationDriver.isSignIn()) {
+                if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
+                    contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
+                    AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
+                        recordingDB = null;
+                        getAllPersonalSongs();
+                    } else {
+                        displayPersonalSongs();
+                    }
+                    ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+                    ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
                 }
-                ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-                ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+            } else {
+                mListener.alertUserToSignIn();
             }
         });
 
@@ -413,9 +426,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
             }
         });
-
-//        Q qsqqqqqqqqqqqqqqqqqqqqqqqqqqqqqeeeeeeeeeeeeeeeeeeeeee3`
-
     }
 
     private void placePopupOnScreen() {
@@ -467,5 +477,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void changeLanguage();
 
         void openSignUp();
+
+        void alertUserToSignIn();
     }
 }
