@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware;
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,7 +70,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
                     .inflate(R.layout.recording_display_item, parent, false);
         } else {
             view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.hebrew_resource_file, parent, false);
+                    .inflate(R.layout.hebrew_recording_display, parent, false);
         }
         return new ViewHolder(view);
     }
@@ -125,8 +126,10 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         }
 
         public void setItem(Recording song) {
+            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialCEBold.ttf");
             mItem = song;
             mLblTitle.setText(song.getTitle());
+            mLblTitle.setTypeface(tf);
             mLblArtist.setText(song.getArtist());
             String date = manipulateDateToBePretty(song.getDate());
             mDate.setText(date);

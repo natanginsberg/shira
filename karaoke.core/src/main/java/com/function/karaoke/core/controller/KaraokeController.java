@@ -1,10 +1,8 @@
 package com.function.karaoke.core.controller;
 
 import android.annotation.SuppressLint;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Build;
+import android.media.MediaRecorder;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
@@ -39,6 +37,7 @@ public class KaraokeController implements Recorder.IToneListener {
     private LyricsView mLyrics;
     private TextView wordsRead;
     private TextView wordsToRead;
+
 //    private ToneRender mToneRender;
 
     private final Runnable mUpdater = new Runnable() {
@@ -92,22 +91,40 @@ public class KaraokeController implements Recorder.IToneListener {
 
     }
 
+//    private void loadAudio(String url) {
+//        try {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//                mPlayer.setAudioAttributes(new AudioAttributes.Builder()
+//                        .setUsage(AudioAttributes.USAGE_MEDIA)
+//                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+//                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+//                        .build());
+//            } else {
+//                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//            }
+//            mPlayer.setDataSource(url);
+//            mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                @Override
+//                public void onPrepared(MediaPlayer mediaPlayer) {
+//                    prepared = true;
+//                    mPlayer.seekTo(0);
+//                }
+//            });
+//            mPlayer.prepare();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     private void loadAudio(String url) {
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                mPlayer.setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                        .build());
-            } else {
-                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            }
             mPlayer.setDataSource(url);
+            mPlayer.setVolume(0, 0);
             mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {
                     prepared = true;
+                    mPlayer.seekTo(0);
                 }
             });
             mPlayer.prepare();
@@ -177,13 +194,8 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void onResume() {
         if (prepared) {
-//            if (mPlayer.getCurrentPosition() / 1000 < 1) {
-//                while (!prepared) {
-//                }
             mPlayer.start();
             mHandler.post(mUpdater);
-//            }
-
         }
     }
 

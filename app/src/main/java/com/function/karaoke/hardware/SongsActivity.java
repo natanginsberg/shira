@@ -63,9 +63,9 @@ public class SongsActivity
     private DatabaseSong songClicked;
 
     private void updateUI() {
-        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+//        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
         findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
+//        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -77,6 +77,7 @@ public class SongsActivity
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
     }
+
 
     private void addSignInClick() {
         findViewById(R.id.sign_in_button).setOnClickListener(view -> launchSignIn());
@@ -111,6 +112,7 @@ public class SongsActivity
                 String languageToDisplay = language.equals("English") ? "EN" : "עב";
                 ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
                 checkForSignedInUser();
+//                setFontCorrectly();
             }
         }.start();
     }
@@ -123,9 +125,26 @@ public class SongsActivity
     }
 
     @Override
+    public void alertUserToSignIn(){
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+        alertBuilder.setCancelable(true);
+        alertBuilder.setTitle(R.string.sign_in_title);
+        alertBuilder.setMessage(R.string.recording_sign_in_text);
+        alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ActivityCompat.requestPermissions(SongsActivity.this,
+                        new String[]{Manifest.permission.RECORD_AUDIO},
+                        AUDIO_CODE);
+            }
+        });
+
+    }
+
+    @Override
     public void onListFragmentInteraction(DatabaseSong item) {
-        askForAudioRecordPermission();
         songClicked = item;
+        askForAudioRecordPermission();
     }
 
     private void askForAudioRecordPermission() {
@@ -171,18 +190,24 @@ public class SongsActivity
     public void signOut(View view) {
 
         findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
-        findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
+//        findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
         findViewById(R.id.personal_library).setVisibility(View.INVISIBLE);
         launchSignIn();
 
     }
 
-    public void changeLanguage(View view) {
+    @Override
+    public void changeLanguage() {
         if (!language.equals("English")) {
             setLocale("en");
         } else {
             setLocale("iw");
         }
+    }
+
+    @Override
+    public void openSignUp() {
+        launchSignIn();
     }
 
 

@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -45,6 +46,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private static final String AUDIO_TOKEN = "audioToken";
     private static final String VIDEO_TOKEN = "videoToken";
     private static final int RECORDING_URL = 0;
+    private static final String LENGTH_OF_AUDIO_PLAYED = "length of audio played";
+    private static final String DELAY = "delay";
 
     private int ready = 0;
 
@@ -65,6 +68,10 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private Formatter formatter;
 
     private PlaybackStateListener playbackStateListener;
+    private boolean dynamicLink = false;
+
+    private int delay;
+    private int length;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                delay = getIntent().getIntExtra(DELAY, 0);
+                length = getIntent().getIntExtra(LENGTH_OF_AUDIO_PLAYED, 0);
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
@@ -85,6 +94,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 createTwoPlayers();
                 initializePlayer();
             } else {
+                dynamicLink = true;
                 getDynamicLink();
             }
         }
@@ -155,10 +165,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         players.add(new SimpleExoPlayer.Builder(this).build());
     }
 
-//    private void createPplayer() {
-//        players.add(new SimpleExoPlayer.Builder(this).build());
-//    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -171,7 +177,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if (players.size() == 0) {
+        if (players == null) {
+            players = new ArrayList<>();
+            createTwoPlayers();
             initializePlayer();
         }
     }
@@ -205,20 +213,29 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
+                player.setVolume(1f);
+
+//                if (delay != 0) {
+//                    player.seekTo(currentWindow, delay);
+//                }
+            } else {
+                player.setVolume(0.5f);
             }
-            player.setVolume(0.5f);
-            player.setPlayWhenReady(false);
             player.seekTo(currentWindow, playbackPosition);
+            player.setPlayWhenReady(false);
             MediaSource mediaSource;
             if (urls.size() > 0)
                 mediaSource = buildMediaSource(urls.get(i));
             else
                 mediaSource = buildMediaSource(uris.get(i));
+            ClippingMediaSource clippingMediaSource = null;
+            if (i == RECORDING_URL && delay != 0) {
+                clippingMediaSource = new ClippingMediaSource(mediaSource, delay * 1000, 1000000000);
+            }
             player.addListener(new Player.EventListener() {
 
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-//                    if (playWhenReady) {
                     switch (playbackState) {
                         case ExoPlayer.STATE_ENDED:
                             for (SimpleExoPlayer p : players) {
@@ -230,41 +247,18 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                             break;
                     }
                 }
-
-//                @Override
-//                public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-//                    if (reason == Player.DISCONTINUITY_REASON_PERIOD_TRANSITION) {
-//                        players.get(0).setPlayWhenReady(false);
-//                        players.get(1).seekTo(currentWindow, player.getContentPosition());
-//                        for (SimpleExoPlayer p : players) {
-//                            p.setPlayWhenReady(true);
-//                        }
-//                    }
-//                }
-
             });
             player.addListener(this);
-            player.prepare(mediaSource, true, false);
+            if (clippingMediaSource != null){
+                player.prepare(clippingMediaSource);
+            } else
+                player.prepare(mediaSource, false, false);
+
 //            player.sets
 
         }
-    }
 
-//    private void initializePlayer() {
-//        SimpleExoPlayer player = players.get(0);
-//        playerView.setPlayer(player);
-//
-//        player.setVolume(0.5f);
-//        player.setPlayWhenReady(false);
-//        player.seekTo(currentWindow, playbackPosition);
-//        MergingMediaSource mediaSource;
-//        if (urls.size() > 0) {
-//            mediaSource = new MergingMediaSource(buildMediaSource(urls.get(0)), buildMediaSource(urls.get(1)));
-//        } else {
-//            mediaSource = new MergingMediaSource(buildMediaSource(uris.get(0)), buildMediaSource(uris.get(1)));
-//        }
-//        player.prepare(mediaSource, true, false);
-//    }
+    }
 
     private MediaSource buildMediaSource(Uri uri) {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
@@ -278,20 +272,29 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     private void releasePlayers() {
-        for (SimpleExoPlayer player : players)
-            if (player != null) {
-                playWhenReady = player.getPlayWhenReady();
-                playbackPosition = player.getCurrentPosition();
-                currentWindow = player.getCurrentWindowIndex();
-                player.release();
-                player = null;
-            }
+        if (players != null) {
+            for (SimpleExoPlayer player : players)
+                if (player != null) {
+                    playWhenReady = player.getPlayWhenReady();
+                    playbackPosition = player.getCurrentPosition();
+                    currentWindow = player.getCurrentWindowIndex();
+                    player.release();
+                    player = null;
+                }
+            players = null;
+        }
     }
 
     private void addListeners() {
         findViewById(R.id.exo_play).setOnClickListener(view -> {
-            for (SimpleExoPlayer player : players) {
+            while (!(players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
+            }
+//            for (SimpleExoPlayer player : players) {
+            for (int i = 0; i < 2; i++) {
+//                if (i == 1) {
+                SimpleExoPlayer player = players.get(i);
                 player.setPlayWhenReady(true);
+//                }
             }
         });
         findViewById(R.id.exo_pause).setOnClickListener(view -> {
@@ -300,28 +303,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             }
         });
 
-        playerView.findViewById(R.id.exo_prev).setVisibility(View.INVISIBLE);
-        playerView.findViewById(R.id.exo_rew).setVisibility(View.INVISIBLE);
-        playerView.findViewById(R.id.exo_next).setVisibility(View.INVISIBLE);
-        playerView.findViewById(R.id.exo_ffwd).setVisibility(View.INVISIBLE);
-//        findViewById(R.id.exo_shuffle).setOnClickListener(view -> {
-//            int k = 0;
-//        });
-//        findViewById(R.id.exo_duration).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int k = 0;
-//            }
-//        });
-//        findViewById(R.id.exo_progress).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                int k = 0;
-//            }
-//        });
         ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
-
-//        playerView.setOnClickListener(this);
 
     }
 
@@ -398,74 +380,5 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         DefaultControlDispatcher controlDispatcher = new DefaultControlDispatcher();
         return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
     }
-
-
-//    private static class PlaybackStateListener implements Player.EventListener {
-//        @Override
-//        public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-//            if (playWhenReady) {
-//                switch (playbackState) {
-//                    case ExoPlayer.STATE_IDLE:
-//                        break;
-//                    case ExoPlayer.STATE_BUFFERING:
-//                        break;
-//                    case ExoPlayer.STATE_READY:
-//                        break;
-//                    case ExoPlayer.STATE_ENDED:
-//                        break;
-//                    default:
-//                        break;
-//                }
-//            }
-//        }
-//    }
-
-//    private void updateProgress() {
-//        if (!isVisible() || !isAttachedToWindow) {
-//            return;
-//        }
-//
-//        @Nullable Player player = this.player;
-//        long position = 0;
-//        long bufferedPosition = 0;
-//        if (player != null) {
-//            position = currentWindowOffset + player.getContentPosition();
-//            bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
-//        }
-//        if (positionView != null && !scrubbing) {
-//            positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-//        }
-//        if (timeBar != null) {
-//            timeBar.setPosition(position);
-//            timeBar.setBufferedPosition(bufferedPosition);
-//        }
-//        if (progressUpdateListener != null) {
-//            progressUpdateListener.onProgressUpdate(position, bufferedPosition);
-//        }
-//
-//        // Cancel any pending updates and schedule a new one if necessary.
-//        removeCallbacks(updateProgressAction);
-//        int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
-//        if (player != null && player.isPlaying()) {
-//            long mediaTimeDelayMs =
-//                    timeBar != null ? timeBar.getPreferredUpdateDelay() : MAX_UPDATE_INTERVAL_MS;
-//
-//            // Limit delay to the start of the next full second to ensure position display is smooth.
-//            long mediaTimeUntilNextFullSecondMs = 1000 - position % 1000;
-//            mediaTimeDelayMs = Math.min(mediaTimeDelayMs, mediaTimeUntilNextFullSecondMs);
-//
-//            // Calculate the delay until the next update in real time, taking playback speed into account.
-//            float playbackSpeed = player.getPlaybackParameters().speed;
-//            long delayMs =
-//                    playbackSpeed > 0 ? (long) (mediaTimeDelayMs / playbackSpeed) : MAX_UPDATE_INTERVAL_MS;
-//
-//            // Constrain the delay to avoid too frequent / infrequent updates.
-//            delayMs = Util.constrainValue(delayMs, timeBarMinUpdateIntervalMs, MAX_UPDATE_INTERVAL_MS);
-//            postDelayed(updateProgressAction, delayMs);
-//        } else if (playbackState != Player.STATE_ENDED && playbackState != Player.STATE_IDLE) {
-//            postDelayed(updateProgressAction, MAX_UPDATE_INTERVAL_MS);
-//        }
-//    }
-
 
 }

@@ -1,8 +1,5 @@
 package com.function.karaoke.hardware.utils;
 
-import android.os.Environment;
-import android.util.Log;
-
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Container;
 import com.coremedia.iso.boxes.TimeToSampleBox;
@@ -11,16 +8,19 @@ import com.googlecode.mp4parser.DataSource;
 import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Mp4TrackImpl;
+import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.builder.DefaultMp4Builder;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+import com.googlecode.mp4parser.authoring.tracks.AppendTrack;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 
 public class SyncFileData {
 
@@ -31,9 +31,6 @@ public class SyncFileData {
         boolean isError = false;
         for (TrackBox trackBox : trackBoxes) {
             TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
-            // Detect if first sample is a problem and fix it in isoFile
-            // This is a hack. The audio deltas are 1024 for my files, and video deltas about 3000
-            // 10000 seems sufficient since for 30 fps the normal delta is about 3000
             if (firstEntry.getDelta() > 10000) {
                 isError = true;
                 firstEntry.setDelta(3000);
@@ -56,4 +53,5 @@ public class SyncFileData {
         }
         return mFilePath;
     }
+
 }

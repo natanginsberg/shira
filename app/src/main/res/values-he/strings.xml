@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SHIRA</string>
+    <string name="app_name">ASHIRA</string>
     <string name="prompt_user_name">שם משתמש</string>
     <string name="prompt_email">אימייל</string>
     <string name="prompt_password">סיסמה </string>
@@ -27,7 +27,7 @@
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">הירשם/התחבר</string>
     <string name="search">חפש</string>
-    <string name="home">לעמוד הראשי</string>
+    <string name="home">עמוד הראשי</string>
     <string name="save_recording">שמור</string>
 
     <string name="back_to_home_dialog">בטוח שרוצה לצאת?</string>
@@ -40,5 +40,12 @@
     <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
     <string name="mic_access_title">שימוש במיקרופון חיוני</string>
     <string name="mic_access_text">כדי להינות מחווית הקריוקי יש לאשר גישה למיקרופון</string>
+    <string name="sign_in_language">הירשם כדי לצפות בביצועים שלך</string>
+    <string name="my_recordings">ביצועים שלי</string>
+    <string name="sign_in">כנס/הירשם</string>
+    <string name="contact_us">צור קשר</string>
+    <string name="policy">תקנון</string>
+    <string name="sign_in_title">לא משתמש רשום</string>
+    <string name="recording_sign_in_text">כדי לשמור ולצפות בביצועים עליך להירשם</string>
 </resources>
 
