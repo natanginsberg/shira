@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
+//apply plugin: 'kotlin-android'
+//apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-kapt'
 //apply plugin:  kotlin("jvm") version "1.4.0"
 
 android {
@@ -11,8 +11,8 @@ android {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 4
-        versionName "1.1"
+        versionCode 8
+        versionName "1.126"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         repositories {
             mavenCentral()
@@ -88,9 +88,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-dynamic-links:19.1.0'
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0-M1'
-
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2'
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0-M1'
+//
+//    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2'
 
     def work_version = "2.4.0"
 

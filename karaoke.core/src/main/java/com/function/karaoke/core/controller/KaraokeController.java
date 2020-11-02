@@ -119,7 +119,6 @@ public class KaraokeController implements Recorder.IToneListener {
     private void loadAudio(String url) {
         try {
             mPlayer.setDataSource(url);
-            mPlayer.setVolume(0, 0);
             mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mediaPlayer) {

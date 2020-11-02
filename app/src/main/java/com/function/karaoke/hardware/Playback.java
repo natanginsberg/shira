@@ -62,7 +62,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private boolean playWhenReady;
     private long playbackPosition;
     private int currentWindow;
-    private boolean scrubbing;
     private TextView positionView;
     private StringBuilder formatBuilder;
     private Formatter formatter;
@@ -309,7 +308,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     @Override
     public void onScrubStart(TimeBar timeBar, long position) {
-        scrubbing = true;
         if (positionView != null) {
             positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
         }
@@ -324,7 +322,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     @Override
     public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
-        scrubbing = false;
         if (!canceled && players != null) {
             for (SimpleExoPlayer player : players) {
                 player.setPlayWhenReady(false);

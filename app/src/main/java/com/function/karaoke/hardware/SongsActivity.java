@@ -29,7 +29,7 @@ import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
-import com.function.karaoke.hardware.ui.login.LoginActivity;
+//import com.function.karaoke.hardware.ui.login.LoginActivity;
 
 import java.util.Locale;
 
@@ -133,11 +133,11 @@ public class SongsActivity
         alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ActivityCompat.requestPermissions(SongsActivity.this,
-                        new String[]{Manifest.permission.RECORD_AUDIO},
-                        AUDIO_CODE);
+                
             }
         });
+        AlertDialog alert = alertBuilder.create();
+        alert.show();
 
     }
 
@@ -182,10 +182,10 @@ public class SongsActivity
         return dbSongs;
     }
 
-    public void openLogInActivity(View view) {
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-    }
+//    public void openLogInActivity(View view) {
+//        Intent intent = new Intent(this, LoginActivity.class);
+//        startActivity(intent);
+//    }
 
     public void signOut(View view) {
 
