@@ -255,8 +255,8 @@ public class CameraPreview {
     }
 
     private void createVideoFolder() {
-        File moviewFile = activity.getCacheDir();
-        mVideoFolder = new File(moviewFile, DIRECTORY_NAME);
+        File movieFile = activity.getCacheDir();
+        mVideoFolder = new File(movieFile, DIRECTORY_NAME);
         if (!mVideoFolder.exists()) {
             mVideoFolder.mkdirs();
         }

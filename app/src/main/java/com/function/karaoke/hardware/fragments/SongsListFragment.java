@@ -146,11 +146,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
         String genre = currentLanguageGenres.get(i);
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/ArialUnicodeMS.ttf");
+//        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/ArialUnicodeMS.ttf");
         TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
+        textView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+        textView.setTextColor(Color.BLACK);
         String textToDisplay = "   " + genre + "   |";
         textView.setText(textToDisplay);
-        textView.setTypeface(tf);
+//        textView.setTypeface(tf);
         if (i == 0) {
             setGenreClicked(textView);
             allSongsTextView = textView;

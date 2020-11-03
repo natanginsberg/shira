@@ -372,17 +372,23 @@ public class SingActivity extends AppCompatActivity implements
         ending = false;
         timerStarted = true;
         findViewById(R.id.countdown).setVisibility(View.VISIBLE);
+        final boolean[] prepared = {false};
         cTimer = new CountDownTimer(3500, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                if (millisUntilFinished / 1000 >= 1)
+                if (millisUntilFinished / 1000 >= 1) {
                     ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+                }
                 else {
                     ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
+                    if (!prepared[0])
+                        cameraPreview.prepareMediaRecorder(cameraOn);
                     cameraPreview.start();
                 }
-                if (millisUntilFinished / 1000 >= 3)
+                if (millisUntilFinished / 1000 >= 1 && !prepared[0]){
+                    prepared[0] =true;
                     cameraPreview.prepareMediaRecorder(cameraOn);
+                }
             }
 
             public void onFinish() {

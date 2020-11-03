@@ -127,13 +127,13 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
 
         public void setItem(DatabaseSong song) {
-            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
+//            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
             mItem = song;
             mLblTitle.setText(song.getTitle());
-            mLblTitle.setTypeface(tf);
-            tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
+//            mLblTitle.setTypeface(tf);
+//            tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
             mLblArtist.setText(song.getArtist());
-            mLblArtist.setTypeface(tf);
+//            mLblArtist.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())
                     .placeholder(R.drawable.ic_cover_empty)

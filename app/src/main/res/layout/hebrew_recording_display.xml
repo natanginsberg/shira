@@ -35,14 +35,17 @@
                     style="@android:style/TextAppearance.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="Song Title" />
+                    tools:text="Song Title"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-thin"/>
 
                 <TextView
                     android:id="@+id/lbl_artist"
                     style="@android:style/TextAppearance.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="Artist" />
+                    tools:text="Artist"
+                    android:fontFamily="sans-serif-light"/>
             </LinearLayout>
 
             <TextView
@@ -50,7 +53,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_weight="0.5" />
+                android:layout_weight="0.5"
+                android:fontFamily="sans-serif-light"/>
 
             <Button
                 android:id="@+id/play_button"

@@ -303,7 +303,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         });
 
         ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
-
     }
 
     @Override
