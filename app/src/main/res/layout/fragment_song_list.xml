@@ -30,33 +30,6 @@
             android:padding="10dp"
             android:textColor="@color/sing_up_hover" />
 
-        <TextView
-            android:id="@+id/language"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerInParent="true"
-            android:text="EN"
-            android:textColor="#ffff"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/language_changer"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/language"
-            android:background="@drawable/ic_language_button"
-            android:onClick="changeLanguage"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/personal_library"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_toRightOf="@id/language_changer"
-            android:background="@drawable/folder"
-            android:visibility="invisible" />
 
         <Button
             android:id="@+id/settings_button"
@@ -67,40 +40,6 @@
             android:onClick="openSettingsPopup"
             android:padding="10dp"
             android:textColor="@color/sing_up_hover" />
-
-        <Button
-            android:id="@+id/sign_in_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/skinny_rec"
-            android:onClick="openLogInActivity"
-            android:padding="3dp"
-            android:text="@string/log_in_sign_up"
-            android:textColor="@color/sing_up_hover"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/sign_out_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/skinny_rec"
-            android:onClick="signOut"
-            android:padding="3dp"
-            android:text="@string/sign_out"
-            android:textColor="@color/sing_up_hover"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/testButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:onClick="uploadPdfFile"
-            android:text="upload"
-            android:visibility="invisible" />
-
 
     </RelativeLayout>
 

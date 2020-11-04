@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.view.ViewOverlay;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCaller;
@@ -37,6 +36,7 @@ import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
+import com.function.karaoke.hardware.ui.SongsActivityUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +77,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private TextView genreClicked;
     private TextView allSongsTextView;
     private AuthenticationDriver authenticationDriver;
+    private SongsActivityUI songsActivityUI;
 
 
     /**
@@ -116,6 +117,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         this.recordingService = new RecordingService();
         setClickListeners(songsView);
         view = songsView;
+        songsActivityUI = new SongsActivityUI(view);
         addGenres();
         return songsView;
     }
@@ -363,45 +365,17 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     public void openSettingsPopup(View view) {
-        RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
-        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
-        addPopupListeners();
-        //todo set the button that is pressed either the recordings or home
-        if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-        } else
-            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-        setSignInOrOut();
-
-        placePopupOnScreen();
-        //todo get dim to work with view that returns correct object
-        popup.setOnDismissListener(() -> undimBackground());
-        applyDim();
-
-    }
-
-    private void setSignInOrOut() {
         authenticationDriver = new AuthenticationDriver();
-        TextView signInOrOutButton = ((TextView) popupView.findViewById(R.id.sign_in_button));
-        if (authenticationDriver.getUserUid() != null)
-            signInOrOutButton.setText(getResources().getText(R.string.sign_out));
+        songsActivityUI.openSettingsPopup(getContext(), authenticationDriver.isSignIn(), contentsDisplayed);
+        popupView = songsActivityUI.getPopupView();
+        popup = songsActivityUI.getPopup();
+        addPopupListeners();
+        songsActivityUI.getPopup().setOnDismissListener(this::undimBackground);
 
-        signInOrOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (authenticationDriver.getUserUid() != null) {
-                    mListener.openSignUp();
-                    signInOrOutButton.setText(getResources().getText(R.string.sign_in));
-                } else {
-                    mListener.openSignUp();
-                    signInOrOutButton.setText(getResources().getText(R.string.sign_out));
-                }
-            }
-        });
     }
 
     private void addPopupListeners() {
+
         popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
         popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
@@ -431,37 +405,27 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
             }
         });
+
+        popupView.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (authenticationDriver.getUserUid() != null) {
+                    mListener.openSignUp();
+                    songsActivityUI.changeTextForSignInButton(getResources().getText(R.string.sign_in));
+                } else {
+                    mListener.openSignUp();
+                    songsActivityUI.changeTextForSignInButton(getResources().getText(R.string.sign_out));
+                }
+            }
+        });
     }
 
-    private void placePopupOnScreen() {
-        popup = new PopupWindow(getActivity());
-        setPopupAttributes(popup, popupView);
-        popup.showAtLocation(popupView, Gravity.START, 0, 0);
-    }
-
-    private void applyDim() {
-        Drawable dim = new ColorDrawable(Color.BLACK);
-        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
-        dim.setAlpha((int) (255 * (float) 0.5));
-        ViewOverlay overlay = view.getOverlay();
-//        ViewOverlay headerOverlay = headerView.getOverlay();
-//        headerOverlay.add(dim);
-        overlay.add(dim);
-    }
 
     public void undimBackground() {
         ViewOverlay overlay = view.getOverlay();
 //        ViewOverlay headerOverlay = headerView.getOverlay();
         overlay.clear();
 //        headerOverlay.clear();
-    }
-
-    private void setPopupAttributes(PopupWindow popup, View layout) {
-        int width = (int) (this.getResources().getDisplayMetrics().widthPixels * 0.719);
-        int height = (int) (this.getResources().getDisplayMetrics().heightPixels);
-        popup.setContentView(layout);
-        popup.setWidth(width);
-        popup.setHeight(height);
     }
 
 

@@ -53,34 +53,22 @@ public class SingActivity extends AppCompatActivity implements
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
-    private static final String TAG = "HELLO WORLD";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int BACK_CODE = 101;
     private static final int INTERNET_CODE = 102;
-    private static final int NO_AUDIO_CODE = 103;
-    private static final int PICK_CONTACT_REQUEST = 106;
     private static final int MESSAGE_RESULT = 1;
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
-    private static final CharSequence AUDIO_TOKEN = "audioToken";
-    private static final CharSequence VIDEO_TOKEN = "videoToken";
-    private static final int RECORDING_ID_LENGTH = 15;
     private static final int SHARING_ERROR = 100;
     private static final int UPLOAD_ERROR = 101;
     private static final String DELAY = "delay";
-    private static final String LENGTH_OF_AUDIO_PLAYED = "length of audio played";
 
-    private final int AUDIO_CODE = 1;
     private final int CAMERA_CODE = 2;
-    private final int VIDEO_REQUEST = 101;
-    private String alphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789"
-            + "abcdefghijklmnopqrstuvxyz";
     private String recordingId;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
     @SuppressWarnings("SpellCheckingInspection")
     private KaraokeController mKaraokeKonroller;
-    private View popupView;
     private PopupWindow popup;
     private DatabaseSong song;
 
@@ -122,11 +110,9 @@ public class SingActivity extends AppCompatActivity implements
     private boolean timerStarted = false;
     private String timeStamp;
     AuthenticationDriver authenticationDriver;
-    private long time;
     private boolean fileSaved = false;
     private boolean cameraOn = false;
     private boolean permissionRequested = false;
-    //    private CustomMediaPlayer customMediaPlayer;
     private long lengthOfAudioPlayed;
     private SingActivityUI activityUI;
     private int delay;
@@ -259,7 +245,6 @@ public class SingActivity extends AppCompatActivity implements
         intent.putExtra(PLAYBACK, uriFromFile.toString());
         intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
         intent.putExtra(DELAY, delay);
-        intent.putExtra(LENGTH_OF_AUDIO_PLAYED, lengthOfAudioPlayed);
         startActivity(intent);
     }
 
@@ -612,26 +597,6 @@ public class SingActivity extends AppCompatActivity implements
         shareLink();
     }
 
-//    private void addFilesToStorageForLinking(Uri path) {
-//        if (!fileSaved) {
-//            fileSaved = true;
-//            storageAdder = new StorageAdder(path);
-//            storageAdder.uploadRecording(new Recording(song, timeStamp,
-//                    authenticationDriver.getUserUid(), recordingId, delay), new StorageAdder.UploadListener() {
-//                @Override
-//                public void onSuccess() {
-//                    Toast.makeText(SingActivity.this, "uploaded", Toast.LENGTH_SHORT).show();
-//                }
-//
-//                @Override
-//                public void onFailure() {
-//                    showFailure(UPLOAD_ERROR);
-//                }
-//            });
-//        }
-//        shareLink();
-//    }
-
     private void showFailure(int error) {
         switch (error) {
             case SHARING_ERROR:
@@ -684,17 +649,16 @@ public class SingActivity extends AppCompatActivity implements
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 Toast.makeText(getApplicationContext(), "E-Mail sent successfully", Toast.LENGTH_LONG).show();
+            } else {
+                Toast toast = Toast.makeText(this, "Email failed to send", Toast.LENGTH_LONG);
+                toast.show();
             }
         }
 
     }
 
     public void saveRecordingToTheCloud(View view) {
-        time = System.currentTimeMillis();
-//        View view1 = (View) view.getParent();
-//        view1.findViewById(R.id.upload_progress_wheel).setVisibility(View.VISIBLE);
         File postParseVideoFile = wrapUpSong();
-//        saveToCloud(Uri.fromFile(postParseVideoFile), view1);
         saveToCloud(postParseVideoFile);
     }
 

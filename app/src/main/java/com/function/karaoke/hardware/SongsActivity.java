@@ -64,7 +64,7 @@ public class SongsActivity
 
     private void updateUI() {
 //        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
-        findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
+//        findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
 //        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
     }
 
@@ -78,10 +78,6 @@ public class SongsActivity
         language = getResources().getConfiguration().locale.getDisplayLanguage();
     }
 
-
-    private void addSignInClick() {
-        findViewById(R.id.sign_in_button).setOnClickListener(view -> launchSignIn());
-    }
 
     private void launchSignIn() {
         mGetContent.launch(new Intent(this, SignInActivity.class));
@@ -106,11 +102,8 @@ public class SongsActivity
 
             public void onFinish() {
                 setContentView(R.layout.activity_songs);
-                addSignInClick();
-//                mTextureView = (TextureView) findViewById(R.id.camera_place);
-//                cameraPreview = new CameraPreview(mTextureView, SongsActivity.this);
-                String languageToDisplay = language.equals("English") ? "EN" : "עב";
-                ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
+//                String languageToDisplay = language.equals("English") ? "EN" : "עב";
+//                ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
                 checkForSignedInUser();
 //                setFontCorrectly();
             }
@@ -182,19 +175,6 @@ public class SongsActivity
         return dbSongs;
     }
 
-//    public void openLogInActivity(View view) {
-//        Intent intent = new Intent(this, LoginActivity.class);
-//        startActivity(intent);
-//    }
-
-    public void signOut(View view) {
-
-        findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
-//        findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.personal_library).setVisibility(View.INVISIBLE);
-        launchSignIn();
-
-    }
 
     @Override
     public void changeLanguage() {
@@ -208,26 +188,6 @@ public class SongsActivity
     @Override
     public void openSignUp() {
         launchSignIn();
-    }
-
-
-    /**
-     * creates a dynamic link
-     */
-    public void uploadPdfFile(View view) {
-//        StorageDriver storageDriver = new StorageDriver();
-//        NetworkTasks.uploadToGoogleDrive(storageDriver, new NetworkTasks.UploadToGoogleDriveListener() {
-//            @Override
-//            public void onSuccess() {
-//                int k = 0;
-//            }
-//
-//            @Override
-//            public void onFail() {
-//                int k = 0;
-//            }
-//        });
-
     }
 
 

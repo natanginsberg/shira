@@ -60,7 +60,6 @@
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
         -->
-        <activity android:name=".Testing.SignUp" />
         <activity
             android:name=".ui.login.LoginActivity"
             android:label="@string/title_activity_login" />

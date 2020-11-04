@@ -70,7 +70,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private boolean dynamicLink = false;
 
     private int delay;
-    private int length;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +82,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
                 delay = getIntent().getIntExtra(DELAY, 0);
-                length = getIntent().getIntExtra(LENGTH_OF_AUDIO_PLAYED, 0);
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {

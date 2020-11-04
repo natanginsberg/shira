@@ -48,5 +48,6 @@
     <string name="sign_in_title">לא משתמש רשום</string>
     <string name="recording_sign_in_text">כדי לשמור ולצפות בביצועים עליך להירשם</string>
     <string name="no_recordings">אין לך ביצועים לשמוע</string>
+    <string name="language_displayed">עב</string>
 </resources>
 
