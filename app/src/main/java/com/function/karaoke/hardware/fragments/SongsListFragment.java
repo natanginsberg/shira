@@ -248,9 +248,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
             if (personalRecordings != null) {
                 recordingDB = new RecordingDB(personalRecordings);
-                displayPersonalSongs();
                 view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                displayPersonalSongs();
             } else {
+                currentDatabaseSongs.updateSongs(new ArrayList<>());
+                mAdapter.notifyDataSetChanged();
                 updateUINoRecordings();
             }
 
@@ -260,7 +262,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void updateUINoRecordings() {
         view.findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.no_recordings_text)).setText("Sorry, you have no recording");
+        ((TextView) view.findViewById(R.id.no_recordings_text)).setText(R.string.no_recordings);
     }
 
     @Override

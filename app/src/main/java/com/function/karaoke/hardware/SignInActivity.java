@@ -95,7 +95,13 @@ public class SignInActivity extends AppCompatActivity {
 
                         @Override
                         public void isInDatabase(boolean inDatabase) {
-                            user = signInViewModel.getUser();
+                            if (inDatabase) {
+                                user = signInViewModel.getUser();
+                            } else {
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getUid());
+
+                                signInViewModel.addNewUserToDatabase(user);
+                            }
                             returnToMain();
                         }
 

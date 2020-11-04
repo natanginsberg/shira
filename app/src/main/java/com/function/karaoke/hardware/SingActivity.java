@@ -129,6 +129,7 @@ public class SingActivity extends AppCompatActivity implements
     //    private CustomMediaPlayer customMediaPlayer;
     private long lengthOfAudioPlayed;
     private SingActivityUI activityUI;
+    private int delay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,9 +254,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void openNewIntent(Uri uriFromFile) {
-        MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
-        int duration = mp.getDuration();
-        int delay = (int) (duration - lengthOfAudioPlayed);
+
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
         intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
@@ -268,12 +267,20 @@ public class SingActivity extends AppCompatActivity implements
         try {
             stopRecordingAndSong();
             File file = cameraPreview.getVideo();
-            return SyncFileData.parseVideo(file, getOutputMediaFile());
+            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile());
+            setDelay(Uri.fromFile(newlyParsedFile));
+            return newlyParsedFile;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void setDelay(Uri uriFromFile) {
+        MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
+        int duration = mp.getDuration();
+        delay = (int) (duration - lengthOfAudioPlayed);
     }
 
     private void stopRecordingAndSong() {
@@ -378,15 +385,14 @@ public class SingActivity extends AppCompatActivity implements
             public void onTick(long millisUntilFinished) {
                 if (millisUntilFinished / 1000 >= 1) {
                     ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-                }
-                else {
+                } else {
                     ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
 //                    if (!prepared[0])
 //                        cameraPreview.prepareMediaRecorder(cameraOn);
 //                    cameraPreview.start();
                 }
-                if (millisUntilFinished / 1000 >= 1 && !prepared[0]){
-                    prepared[0] =true;
+                if (millisUntilFinished / 1000 >= 1 && !prepared[0]) {
+                    prepared[0] = true;
                     cameraPreview.prepareMediaRecorder(cameraOn);
                 }
             }
@@ -601,30 +607,30 @@ public class SingActivity extends AppCompatActivity implements
 
     public void share(View view) {
         File postParseVideoFile = wrapUpSong();
-        addFilesToStorageForLinking(Uri.fromFile(postParseVideoFile));
-    }
-
-    private void addFilesToStorageForLinking(Uri path) {
-        if (!fileSaved) {
-            fileSaved = true;
-            storageAdder = new StorageAdder(path);
-            storageAdder.uploadRecording(new Recording(song, timeStamp,
-                    authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
-                @Override
-                public void onSuccess() {
-                    Toast.makeText(SingActivity.this, "uploaded", Toast.LENGTH_SHORT).show();
-                }
-
-                @Override
-                public void onFailure() {
-                    showFailure(UPLOAD_ERROR);
-
-
-                }
-            });
-        }
+//        addFilesToStorageForLinking(Uri.fromFile(postParseVideoFile));
+        saveToCloud(postParseVideoFile);
         shareLink();
     }
+
+//    private void addFilesToStorageForLinking(Uri path) {
+//        if (!fileSaved) {
+//            fileSaved = true;
+//            storageAdder = new StorageAdder(path);
+//            storageAdder.uploadRecording(new Recording(song, timeStamp,
+//                    authenticationDriver.getUserUid(), recordingId, delay), new StorageAdder.UploadListener() {
+//                @Override
+//                public void onSuccess() {
+//                    Toast.makeText(SingActivity.this, "uploaded", Toast.LENGTH_SHORT).show();
+//                }
+//
+//                @Override
+//                public void onFailure() {
+//                    showFailure(UPLOAD_ERROR);
+//                }
+//            });
+//        }
+//        shareLink();
+//    }
 
     private void showFailure(int error) {
         switch (error) {
@@ -640,7 +646,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void shareLink() {
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-                .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid()))
+                .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
                 .setDomainUriPrefix("https://singJewish.page.link")
                 // Set parameters
                 // ...
@@ -697,23 +703,8 @@ public class SingActivity extends AppCompatActivity implements
         if (!fileSaved) {
             fileSaved = true;
             storageAdder = new StorageAdder(Uri.fromFile(path));
-//            final Observer<String> urlObserver = url -> {
-////                videoUrl = url;
-////                playback = true;
-//                buttonClicked = false;
-////                long finishTime = System.currentTimeMillis();
-////                System.out.println("this is the time it took to upload " + ((finishTime - time) / 1000));
-////
-//////                compressAndSaveToCloud(path.getPath(), view1);
-////                addRecordingToFirestore();
-//
-//
-//            };
-////            storageAdder.uploadVideo().observe(this, urlObserver);
-
-
             storageAdder.uploadRecording(new Recording(song, timeStamp,
-                    authenticationDriver.getUserUid(), recordingId), new StorageAdder.UploadListener() {
+                    authenticationDriver.getUserUid(), recordingId, delay), new StorageAdder.UploadListener() {
                 @Override
                 public void onSuccess() {
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
@@ -725,82 +716,10 @@ public class SingActivity extends AppCompatActivity implements
                 }
             });
 
-
-//            WorkRequest uploadWorkRequest =
-//                    new OneTimeWorkRequest.Builder(UploadRecordingTask.class).setInputData(new Data.Builder()
-//                            .putString("path", Uri.fromFile(path).toString())
-//                            .build()
-//                    )
-//                            .build();
-//            WorkManager
-//                    .getInstance(this)
-//                    .enqueue(uploadWorkRequest);
-
         }
     }
 
 
 //    //todo think about compressing the files
-//    private void compressAndSaveToCloud(String path, View view1) {
-//
-//        time = System.currentTimeMillis();
-//        File dir = getCacheDir();
-//        File file = new File(dir, "video recording.mp4");
-//        if (file.length() > 0) {
-//            boolean deleted = file.delete();
-//        }
-//        String destPath = file.toString();
-////        VideoCompressor.start();
-//        VideoCompress.compressVideoLow(path, destPath, new VideoCompress.CompressListener() {
-//            @Override
-//            public void onStart() {
-//
-//            }
-//
-//            @Override
-//            public void onSuccess() {
-//                startUpload(file, view1);
-//            }
-//
-//            @Override
-//            public void onFail() {
-//            }
-//
-//            @Override
-//            public void onProgress(float percent) {
-//            }
-//        });
-//
-//    }
-//
-//    private void startUpload(File path, View view1) {
-//        StorageAdder storageAdder = new StorageAdder(Uri.fromFile(path));
-//        final Observer<String> urlObserver = url -> {
-//            videoUrl = url;
-//            playback = true;
-//            buttonClicked = false;
-//            view1.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-//            long finishTime = System.currentTimeMillis();
-//            System.out.println("this is the time it took to compress and upload  " + ((finishTime - time) / 1000));
-//
-//            addRecordingToFirestore();
-//
-//        };
-//        storageAdder.uploadVideo().observe(this, urlObserver);
-//
-//    }
-//
-//    private void addRecordingToFirestore() {
-//        RecordingService recordingService = new RecordingService();
-//        createNewRecordingFeatures();
-//        recordingService.addRecordingToDataBase(recording);
-//    }
-
-    //    private void createNewRecordingFeatures() {
-//        recording = new Recording(videoUrl, song.getSongResourceFile(), song.getArtist(),
-//                song.getImageResourceFile(), song.getTitle(), timeStamp,
-//                authenticationDriver.getUserUid(), recordingId);
-//    }
-//
 
 }

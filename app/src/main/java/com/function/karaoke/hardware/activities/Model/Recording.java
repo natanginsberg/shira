@@ -11,13 +11,14 @@ public class Recording implements Serializable, SongDisplay {
     private String title;
     private String imageResourceFile;
     private String artist;
+    private int delay;
 
     public Recording() {
     }
 
     public Recording(String recordingUrl, String audioFileUrl, String artistName,
                      String imageResourceFIle, String title, String date,
-                     String recorderId, String recordingId) {
+                     String recorderId, String recordingId, int delay) {
         this.title = title;
         this.recordingUrl = recordingUrl;
         this.artist = artistName;
@@ -26,10 +27,11 @@ public class Recording implements Serializable, SongDisplay {
         this.date = date;
         this.recorderId = recorderId;
         this.recordingId = recordingId;
+        this.delay = delay;
     }
 
     public Recording(DatabaseSong song, String date,
-                     String recorderId, String recordingId) {
+                     String recorderId, String recordingId, int delay) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
         this.audioFileUrl = song.getSongResourceFile();
@@ -37,6 +39,7 @@ public class Recording implements Serializable, SongDisplay {
         this.date = date;
         this.recorderId = recorderId;
         this.recordingId = recordingId;
+        this.delay = delay;
     }
 
 
@@ -102,5 +105,13 @@ public class Recording implements Serializable, SongDisplay {
 
     public void setRecordingId(String recordingId) {
         this.recordingId = recordingId;
+    }
+
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
     }
 }

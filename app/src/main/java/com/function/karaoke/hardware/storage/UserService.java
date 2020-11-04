@@ -1,10 +1,12 @@
 package com.function.karaoke.hardware.storage;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -65,7 +67,12 @@ public class UserService extends ViewModel {
     }
 
     public void addUserToDatabase(UserInfo user) {
-        usersCollectionRef.add(user);
+        usersCollectionRef.add(user).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                throw new RuntimeException("failed to add to firestore");
+            }
+        });
     }
 
 //    public LiveData<UserInfo> getUserById(String userId) {

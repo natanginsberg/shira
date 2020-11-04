@@ -90,6 +90,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
                 urls.add(recording.getRecordingUrl());
                 urls.add(recording.getAudioFileUrl());
+                delay = recording.getDelay();
                 createTwoPlayers();
                 initializePlayer();
             } else {
@@ -124,6 +125,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
                             String recordingId = deepLink.getQueryParameter("recId");
                             String recorderId = deepLink.getQueryParameter("uid");
+                            delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
                             addUrls(recordingId, recorderId);
                         }
                         // findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
@@ -218,7 +220,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 //                    player.seekTo(currentWindow, delay);
 //                }
             } else {
-                player.setVolume(0.5f);
+                player.setVolume(1f);
             }
             player.seekTo(currentWindow, playbackPosition);
             player.setPlayWhenReady(false);
@@ -248,7 +250,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 }
             });
             player.addListener(this);
-            if (clippingMediaSource != null){
+            if (clippingMediaSource != null) {
                 player.prepare(clippingMediaSource);
             } else
                 player.prepare(mediaSource, false, false);
@@ -286,14 +288,10 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     private void addListeners() {
         findViewById(R.id.exo_play).setOnClickListener(view -> {
-            while (!(players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
-            }
-//            for (SimpleExoPlayer player : players) {
-            for (int i = 0; i < 2; i++) {
-//                if (i == 1) {
-                SimpleExoPlayer player = players.get(i);
-                player.setPlayWhenReady(true);
-//                }
+            if ((players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
+                for (SimpleExoPlayer player : players) {
+                    player.setPlayWhenReady(true);
+                }
             }
         });
         findViewById(R.id.exo_pause).setOnClickListener(view -> {

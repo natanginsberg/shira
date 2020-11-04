@@ -56,5 +56,6 @@
     <string name="policy">Policy</string>
     <string name="sign_in_title">Not a User</string>
     <string name="recording_sign_in_text">You must sign in to view recordings</string>
+    <string name="no_recordings">Sorry,\n you have no recordings</string>
 
 </resources>
