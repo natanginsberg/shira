@@ -31,17 +31,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textSize="15sp"
-            android:textColor="@android:color/white"/>
+            android:textColor="@android:color/white"
+            android:textSize="15sp" />
 
         <Button
             android:id="@+id/open_end_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="7dp"
             android:layout_alignParentEnd="true"
+            android:background="@drawable/skinny_rec"
             android:onClick="openEndOptions"
             android:text="@string/done"
-            android:visibility="invisible"/>
+            android:textColor="@android:color/white"
+            android:visibility="invisible"
+            android:elevation="10dp" />
 
 
     </RelativeLayout>
@@ -90,9 +94,9 @@
             android:layout_weight="2">
 
             <ImageView
+                android:id="@+id/album_cover"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/album_cover"/>
+                android:layout_height="match_parent" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -115,7 +119,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:textSize="28sp"/>
+                    android:textSize="28sp" />
 
                 <TextView
                     android:id="@+id/words_to_read"
@@ -138,20 +142,20 @@
                     android:id="@+id/song_name_2"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:textColor="@color/default_text_color"
                     android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="center"/>
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/artist_name"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
+                    android:layout_gravity="center"
                     android:layout_weight="1"
                     android:textColor="@color/default_text_color"
-                    android:textSize="15sp"
-                    android:layout_gravity="center"/>
+                    android:textSize="15sp" />
 
             </LinearLayout>
 

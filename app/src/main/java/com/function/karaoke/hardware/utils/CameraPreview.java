@@ -26,7 +26,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +43,7 @@ import java.util.List;
 public class CameraPreview {
 
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
+    private final Context context;
     private AppCompatActivity activity;
     private TextureView mTextureView;
     private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
@@ -99,6 +102,8 @@ public class CameraPreview {
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
 
+    private boolean preparedCalled = false;
+
     public File getVideo() {
         return mVideoFile;
     }
@@ -119,12 +124,14 @@ public class CameraPreview {
     private Size mVideoSize;
     private MediaRecorder mMediaRecorder;
 
-    public CameraPreview(TextureView textureView, AppCompatActivity activity, boolean hasCamera) {
+    public CameraPreview(TextureView textureView, AppCompatActivity activity, boolean hasCamera, Context context) {
 //        if (hasCamera)
 //            mTextureView = textureView;
         this.activity = activity;
         createVideoFolder();
         mMediaRecorder = new MediaRecorder();
+        this.context = context;
+
     }
 
     public void closeCamera() {
@@ -271,19 +278,12 @@ public class CameraPreview {
     }
 
     public void prepareMediaRecorder(boolean cameraOn) {
-//        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO)
-//                == PackageManager.PERMISSION_GRANTED) {
         try {
             createVideoFileName();
         } catch (IOException e) {
             e.printStackTrace();
         }
-//            startRecord();
-//            mMediaRecorder.start();
         setMediaRecorder(cameraOn);
-//        } else {
-//
-//        }
     }
 
     private void setupMediaRecorder() {
@@ -304,13 +304,14 @@ public class CameraPreview {
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-
-//        mMediaRecorder.setAudioChannels(2);
+//
+        mMediaRecorder.setAudioChannels(2);
         mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
         mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
             mMediaRecorder.prepare();
+            mMediaRecorder.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -370,10 +371,34 @@ public class CameraPreview {
     }
 
     public void start() {
-        mMediaRecorder.start();
+        PrintWriter writer = null;
+        try {
+            writer = new PrintWriter(mVideoFile);
+            writer.print("");
+            writer.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+            if (mVideoFile.length() < 1000)
+
+                    mMediaRecorder.start();
+
+             else
+                throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
+
     }
 
-    public MediaRecorder getmMediaRecorder(){
+//    private void isCameraAvailable() {
+//        mCameraManager.registerAvailabilityCallback(new CameraManager.AvailabilityCallback() {
+//            @Override
+//            public void onCameraUnavailable(@NonNull String cameraId) {
+//                throw new RuntimeException("Camera NOt available");
+//            }
+//        }, mBackgroundHandler);
+//    }
+
+
+    public MediaRecorder getmMediaRecorder() {
         return mMediaRecorder;
     }
 }

@@ -166,7 +166,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void createCameraAndRecorderInstance() {
-        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this));
+        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this), this);
     }
 
     private void deletePreviousVideos() {
@@ -381,9 +381,9 @@ public class SingActivity extends AppCompatActivity implements
                 }
                 else {
                     ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
-                    if (!prepared[0])
-                        cameraPreview.prepareMediaRecorder(cameraOn);
-                    cameraPreview.start();
+//                    if (!prepared[0])
+//                        cameraPreview.prepareMediaRecorder(cameraOn);
+//                    cameraPreview.start();
                 }
                 if (millisUntilFinished / 1000 >= 1 && !prepared[0]){
                     prepared[0] =true;

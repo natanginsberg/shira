@@ -223,6 +223,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         else
             getView().findViewById(R.id.search_input).setVisibility(View.VISIBLE);
         searchOpened = !searchOpened;
+
     }
 
     @Override
