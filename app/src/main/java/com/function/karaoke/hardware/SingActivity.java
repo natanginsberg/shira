@@ -274,10 +274,10 @@ public class SingActivity extends AppCompatActivity implements
             lengthOfAudioPlayed = mPlayer.getCurrentPosition();
             mKaraokeKonroller.onStop();
 //            customMediaPlayer.onStop();
-            findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
         }
         if (isRecording) {
             cameraPreview.stopRecording();
+            isRecording = false;
         }
         activityUI.removeResumeOptionFromPopup();
     }
@@ -453,7 +453,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void openEndOptions(View view) {
-        if (mPlayer.getCurrentPosition() / 1000.0 > 2) {
+        if (mPlayer != null && mPlayer.getCurrentPosition() / 1000.0 > 2) {
             pauseSong(view);
             openEndOptions(false);
         }
@@ -658,6 +658,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void saveRecordingToTheCloud(View view) {
+
         File postParseVideoFile = wrapUpSong();
         saveToCloud(postParseVideoFile);
     }

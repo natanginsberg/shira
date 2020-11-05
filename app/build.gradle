@@ -12,8 +12,10 @@ android {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 23
-        versionName "1.1302" +
+        versionCode 32
+        versionName "1.1311" +
+                "" +
+                "" +
                 ""
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         repositories {

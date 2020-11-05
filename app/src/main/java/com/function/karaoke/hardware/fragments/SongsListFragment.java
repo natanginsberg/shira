@@ -3,9 +3,8 @@ package com.function.karaoke.hardware.fragments;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +36,7 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
+import com.function.karaoke.hardware.utils.Converter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +97,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     }
 
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -111,7 +110,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
         recyclerView.setAdapter(mAdapter);
-        addSearchListener();
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
         this.recordingService = new RecordingService();
@@ -152,6 +150,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
         textView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
         textView.setTextColor(Color.BLACK);
+        setTextViewAttributes(textView);
         String textToDisplay = "   " + genre + "   |";
         textView.setText(textToDisplay);
 //        textView.setTypeface(tf);
@@ -176,6 +175,12 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             }
         });
         return textView;
+    }
+
+    private void setTextViewAttributes(TextView textView) {
+        textView.setHeight(Converter.convertDpToPx(24));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
     }
 
     private void setTextOfClickedToBlack() {
@@ -209,23 +214,12 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         songsView.findViewById(R.id.open_search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                openSearch();
+                songsActivityUI.openSearchBar(searchOpened);
+                searchOpened = !searchOpened;
             }
         });
 
-        songsView.findViewById(R.id.settings_button).setOnClickListener(view -> {
-            openSettingsPopup(view);
-        });
-    }
-
-    private void openSearch() {
-        if (searchOpened)
-            getView().findViewById(R.id.search_input).setVisibility(View.GONE);
-
-        else
-            getView().findViewById(R.id.search_input).setVisibility(View.VISIBLE);
-        searchOpened = !searchOpened;
-
+        songsView.findViewById(R.id.settings_button).setOnClickListener(this::openSettingsPopup);
     }
 
     @Override
@@ -375,9 +369,42 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void addPopupListeners() {
+        languageChangeListener();
+        dismissButtonListener();
+        myRecordingsToDisplayListener();
+        homeButtonListener();
+        signInButtonListener();
 
-        popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
-        popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
+
+    }
+
+    private void signInButtonListener() {
+        popupView.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (authenticationDriver.getUserUid() != null) {
+                    mListener.openSignUp();
+                    popup.dismiss();
+                } else {
+                    mListener.openSignUp();
+                    popup.dismiss();
+                }
+            }
+        });
+    }
+
+    private void homeButtonListener() {
+        popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
+            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+                contentsDisplayed = ALL_SONGS_DISPLAYED;
+                displayAllSongs();
+                ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
+                ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+            }
+        });
+    }
+
+    private void myRecordingsToDisplayListener() {
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
             if (authenticationDriver.isSignIn()) {
                 if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
@@ -396,36 +423,20 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 mListener.alertUserToSignIn();
             }
         });
+    }
 
-        popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
-            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-                contentsDisplayed = ALL_SONGS_DISPLAYED;
-                displayAllSongs();
-                ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-                ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
-            }
-        });
+    private void dismissButtonListener() {
+        popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
+    }
 
-        popupView.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (authenticationDriver.getUserUid() != null) {
-                    mListener.openSignUp();
-                    songsActivityUI.changeTextForSignInButton(getResources().getText(R.string.sign_in));
-                } else {
-                    mListener.openSignUp();
-                    songsActivityUI.changeTextForSignInButton(getResources().getText(R.string.sign_out));
-                }
-            }
-        });
+    private void languageChangeListener() {
+        popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
     }
 
 
     public void undimBackground() {
         ViewOverlay overlay = view.getOverlay();
-//        ViewOverlay headerOverlay = headerView.getOverlay();
         overlay.clear();
-//        headerOverlay.clear();
     }
 
 

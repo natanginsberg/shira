@@ -26,7 +26,6 @@
             android:layout_alignBottom="@id/settings_button"
             android:layout_alignParentEnd="true"
             android:background="@drawable/ic_baseline_search_24"
-            android:onClick="openSearch"
             android:padding="10dp"
             android:textColor="@color/sing_up_hover" />
 
@@ -76,7 +75,6 @@
     <HorizontalScrollView
         android:background="@android:color/white"
         android:layout_marginTop="10dp"
-        android:paddingBottom="10dp"
         android:id="@+id/genre_scrolling"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -99,7 +97,9 @@
         android:layout_height="@dimen/no_hardcode_dimension"
         android:background="@android:color/white"
         android:clipToPadding="false"
-        android:padding="@dimen/recycler_padding"
+        android:paddingLeft="@dimen/recycler_padding"
+        android:paddingRight="@dimen/recycler_padding"
+        android:paddingTop="10dp"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

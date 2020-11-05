@@ -291,7 +291,7 @@ public class CameraPreview {
         if (mCamera != null)
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
         mMediaRecorder.setOutputFile(fileName);
@@ -388,17 +388,4 @@ public class CameraPreview {
 
     }
 
-//    private void isCameraAvailable() {
-//        mCameraManager.registerAvailabilityCallback(new CameraManager.AvailabilityCallback() {
-//            @Override
-//            public void onCameraUnavailable(@NonNull String cameraId) {
-//                throw new RuntimeException("Camera NOt available");
-//            }
-//        }, mBackgroundHandler);
-//    }
-
-
-    public MediaRecorder getmMediaRecorder() {
-        return mMediaRecorder;
-    }
 }

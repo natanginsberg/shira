@@ -58,6 +58,7 @@ public class SongsActivityUI {
 
     private void placePopupOnScreen() {
         popup = new PopupWindow(context);
+        popup.setFocusable(true);
         setPopupAttributes(popup, popupView);
         popup.showAtLocation(popupView, Gravity.START, 0, 0);
     }
@@ -90,5 +91,14 @@ public class SongsActivityUI {
 
     public void changeTextForSignInButton(CharSequence text){
         ((TextView)popupView.findViewById(R.id.sign_in_button)).setText(text);
+    }
+
+    public void openSearchBar(boolean isSearchOpen){
+        if (isSearchOpen)
+            view.findViewById(R.id.search_input).setVisibility(View.GONE);
+
+        else
+            view.findViewById(R.id.search_input).setVisibility(View.VISIBLE);
+
     }
 }

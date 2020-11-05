@@ -79,6 +79,7 @@ public class SingActivityUI {
 
     private void placePopupOnScreen(Context context) {
         popup = new PopupWindow(context);
+        popup.setFocusable(true);
         setPopupAttributes(context, popup, popupView);
         popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
     }
