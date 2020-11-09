@@ -271,7 +271,7 @@ public class SingActivity extends AppCompatActivity implements
     private void stopRecordingAndSong() {
         ending = true;
         if (!mKaraokeKonroller.isStopped()) {
-            lengthOfAudioPlayed = mPlayer.getCurrentPosition();
+
             mKaraokeKonroller.onStop();
 //            customMediaPlayer.onStop();
         }
@@ -438,6 +438,8 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void openEndOptions(boolean songEnded) {
+        if (songEnded)
+            lengthOfAudioPlayed = mPlayer.getDuration();
         activityUI.openEndPopup(this, songEnded);
         popup = activityUI.getPopup();
         popup.setOnDismissListener(() -> activityUI.undimBackground());
@@ -454,6 +456,7 @@ public class SingActivity extends AppCompatActivity implements
 
     public void openEndOptions(View view) {
         if (mPlayer != null && mPlayer.getCurrentPosition() / 1000.0 > 2) {
+            lengthOfAudioPlayed = mPlayer.getCurrentPosition();
             pauseSong(view);
             openEndOptions(false);
         }

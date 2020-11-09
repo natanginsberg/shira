@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -20,7 +19,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -81,12 +79,6 @@ public class SignInActivity extends AppCompatActivity {
 
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
 //            throw new RuntimeException("the app got here  ");
-            task.addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    throw new RuntimeException("the app crashed again here failed to get a task from google");
-                }
-            });
             handleSignInResult(task);
         }
     }
@@ -130,7 +122,7 @@ public class SignInActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure() {
-                    returnToMain();
+                    finish();
 
                 }
             });
@@ -141,8 +133,10 @@ public class SignInActivity extends AppCompatActivity {
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            throw new RuntimeException("the api statuc code is  " + e.getStatusCode());
+            throw new RuntimeException("the api status code is  " + e.getStatusCode());
 //            updateUI(null);
+        } catch (Exception e) {
+            throw new RuntimeException("this is a general error  " + e);
         }
     }
 

@@ -25,7 +25,7 @@ public class SyncFileData {
         List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
         for (TrackBox trackBox : trackBoxes) {
             TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
-            if (firstEntry.getDelta() > 8000) {
+            if (firstEntry.getDelta() > 10000) {
                 isError = true;
                 firstEntry.setDelta(3000);
             }
@@ -43,8 +43,23 @@ public class SyncFileData {
             FileChannel fc = new RandomAccessFile(filePath, "rw").getChannel();
             out.writeContainer(fc);
             fc.close();
+            isFileInSync(file);
             return file;
         }
         return mFilePath;
+    }
+
+    private static void isFileInSync(File mFilePath) throws IOException {
+        DataSource channel = new FileDataSourceImpl(mFilePath.getAbsolutePath());
+        IsoFile isoFile = new IsoFile(channel);
+        List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
+        for (TrackBox trackBox : trackBoxes) {
+            TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(0);
+            if (firstEntry.getDelta() > 10000) {
+                throw new RuntimeException("the song is not in sync");
+//                firstEntry.setDelta(3000);
+//            }
+            }
+        }
     }
 }

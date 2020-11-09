@@ -300,7 +300,7 @@ public class CameraPreview {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
             mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
-            mMediaRecorder.setVideoEncodingBitRate(1000000);
+            mMediaRecorder.setVideoEncodingBitRate(1300000);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);

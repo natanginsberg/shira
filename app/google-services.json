@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "701925650903-6qu6dumk728eovgepbc2bmkeh55jsa8s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.function.karaoke.hardware",
+            "certificate_hash": "b00892f334fc9f684ca06d83d2fa05076d1eb7d8"
+          }
+        },
+        {
           "client_id": "701925650903-0jpaq3fn1unjf1la9jvcu9jcau7ouem7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
