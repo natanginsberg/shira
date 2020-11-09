@@ -378,7 +378,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
                 if (millisUntilFinished / 1000 >= 1 && !prepared[0]) {
                     prepared[0] = true;
-                    cameraPreview.prepareMediaRecorder(cameraOn);
+                    cameraPreview.prepareMediaRecorder();
                 }
             }
 

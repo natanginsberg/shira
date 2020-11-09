@@ -46,28 +46,6 @@ public class CameraPreview {
     private final Context context;
     private AppCompatActivity activity;
     private TextureView mTextureView;
-    private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
-        @Override
-        public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-            setupCamera(width, height);
-            connectCamera();
-        }
-
-        @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
-
-        }
-
-        @Override
-        public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-            return false;
-        }
-
-        @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
-
-        }
-    };
     private CameraDevice mCamera;
     private CameraDevice.StateCallback mCameraStateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -101,8 +79,6 @@ public class CameraPreview {
         ORIENTATIONS.append(Surface.ROTATION_180, 180);
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
-
-    private boolean preparedCalled = false;
 
     public File getVideo() {
         return mVideoFile;
@@ -277,13 +253,13 @@ public class CameraPreview {
         mVideoFile = videoFile;
     }
 
-    public void prepareMediaRecorder(boolean cameraOn) {
+    public void prepareMediaRecorder() {
         try {
             createVideoFileName();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        setMediaRecorder(cameraOn);
+        setMediaRecorder();
     }
 
     private void setupMediaRecorder() {
@@ -291,7 +267,7 @@ public class CameraPreview {
         if (mCamera != null)
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
         mMediaRecorder.setOutputFile(fileName);
@@ -304,7 +280,7 @@ public class CameraPreview {
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-//
+
         mMediaRecorder.setAudioChannels(2);
         mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
         mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
@@ -317,7 +293,7 @@ public class CameraPreview {
         }
     }
 
-    private void setMediaRecorder(boolean cameraOn) {
+    private void setMediaRecorder() {
         try {
             setupMediaRecorder();
             if (mCamera != null) {
@@ -379,12 +355,12 @@ public class CameraPreview {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-            if (mVideoFile.length() < 1000)
+        if (mVideoFile.length() < 1000)
 
-                    mMediaRecorder.start();
+            mMediaRecorder.start();
 
-             else
-                throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
+        else
+            throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
 
     }
 
