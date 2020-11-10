@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class SingActivity extends AppCompatActivity implements
         DialogBox.CallbackListener {
@@ -124,6 +125,8 @@ public class SingActivity extends AppCompatActivity implements
     private long lengthOfAudioPlayed;
     private SingActivityUI activityUI;
     private int delay;
+    private File artistFile;
+    private File jsonFileFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -683,11 +686,11 @@ public class SingActivity extends AppCompatActivity implements
             ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                 @Override
                 public void onSuccess() {
-                    //todo delete temp artist file
+                    artistFile.delete();
                     storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
                         @Override
                         public void onSuccess() {
-                            //todo delete all json file
+                            deleteJsonFolder();
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
                         }
 
@@ -707,20 +710,26 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
+    private void deleteJsonFolder() {
+        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+            child.delete();
+        jsonFileFolder.delete();
+    }
+
     private void createEmptyFileForArtist(File folder) throws IOException {
-        File artistFile = new File(folder, ARTIST_FILE + ".txt");
+        artistFile = new File(folder, ARTIST_FILE + ".txt");
         FileWriter writer = new FileWriter(artistFile);
         writer.write("32");
         writer.close();
     }
 
     private String createTempFiles() {
-        File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
-        if (!folder.exists())
-            folder.mkdirs();
+        jsonFileFolder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
+        if (!jsonFileFolder.exists())
+            jsonFileFolder.mkdirs();
         try {
-            createEmptyFileForArtist(folder);
-            return createVideoFileName(folder);
+            createEmptyFileForArtist(jsonFileFolder);
+            return createVideoFileName(jsonFileFolder);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -37,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
+import java.util.Objects;
 
 //import com.function.karaoke.hardware.ui.login.LoginActivity;
 
@@ -72,6 +73,7 @@ public class SongsActivity
                 }
             });
     private DatabaseSong songClicked;
+    private File artistFile;
 
     private void updateUI() {
 //        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
@@ -101,11 +103,11 @@ public class SongsActivity
                     ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                         @Override
                         public void onSuccess() {
-                            //todo delete temp artist file
+                            artistFile.delete();
                             storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
                                 @Override
                                 public void onSuccess() {
-                                    //todo delete all json file
+                                    deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
                                 }
 
@@ -126,7 +128,7 @@ public class SongsActivity
                     storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
                         @Override
                         public void onSuccess() {
-                            //todo delete all json file
+                            deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
                         }
 
@@ -145,13 +147,20 @@ public class SongsActivity
         }
     }
 
+    private void deleteJsonFolder(File folder) {
+        for (File child : Objects.requireNonNull(folder.listFiles()))
+            child.delete();
+        folder.delete();
+    }
+
+
     private InputStream getFileInputStream(File folder) throws IOException {
         File videoFile = new File(folder, JSON_FILE_NAME + ".json");
         return new FileInputStream(videoFile);
     }
 
     private boolean artistFileExists(File folder) throws IOException {
-        File artistFile = new File(folder, ARTIST_FILE + ".txt");
+        artistFile = new File(folder, ARTIST_FILE + ".txt");
         return artistFile.exists();
     }
 

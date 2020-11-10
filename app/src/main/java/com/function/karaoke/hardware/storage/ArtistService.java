@@ -37,11 +37,7 @@ public class ArtistService {
                 if (document1 != null) {
                     long singleDownloads = (Long) document1.get(SINGLE_DOWNLOADS);
                     updateDownloads(document, singleDownloads + 1);
-                } else {
-
                 }
-            } else {
-
             }
         });
     }
@@ -54,6 +50,8 @@ public class ArtistService {
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        //todo deelte artist file
+
                         artistServiceListener.onSuccess();
 //
                     }
