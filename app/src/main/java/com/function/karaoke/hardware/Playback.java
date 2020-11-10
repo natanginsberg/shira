@@ -212,13 +212,13 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
-                player.setVolume(0.5f);
+                player.setVolume(0.8f);
 
 //                if (delay != 0) {
 //                    player.seekTo(currentWindow, delay);
 //                }
             } else {
-                player.setVolume(0.25f);
+                player.setVolume(0.5f);
             }
             player.seekTo(currentWindow, playbackPosition);
             player.setPlayWhenReady(false);

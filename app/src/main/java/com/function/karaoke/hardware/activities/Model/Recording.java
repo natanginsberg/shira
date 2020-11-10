@@ -1,5 +1,8 @@
 package com.function.karaoke.hardware.activities.Model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
 
 public class Recording implements Serializable, SongDisplay {
@@ -7,7 +10,7 @@ public class Recording implements Serializable, SongDisplay {
     private String recorderId;
     private String recordingUrl;
     private String audioFileUrl;
-    String date;
+    private String date;
     private String title;
     private String imageResourceFile;
     private String artist;
@@ -113,5 +116,19 @@ public class Recording implements Serializable, SongDisplay {
 
     public void setDelay(int delay) {
         this.delay = delay;
+    }
+
+    public JSONObject putRecordingInJsonObject() throws JSONException {
+        JSONObject recording = new JSONObject();
+        recording.put("recordingId", recordingId);
+        recording.put("recorderId", recorderId);
+        recording.put("title", title);
+        recording.put("artist", artist);
+        recording.put("date", date);
+        recording.put("audioFileUrl", audioFileUrl);
+        recording.put("imageFileUrl", imageResourceFile);
+        recording.put("delay", delay);
+        return recording;
+
     }
 }

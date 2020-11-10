@@ -17,7 +17,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
@@ -26,9 +25,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private static final int RC_SIGN_IN = 101;
-    private static final String TAG = "signed in";
     private GoogleSignInClient mGoogleSignInClient;
-    private SignInButton signInButton;
     private AuthenticationDriver authenticationDriver;
     private UserInfo user;
     private Observer<Boolean> gettingNewUserSucceeded;
@@ -52,12 +49,7 @@ public class SignInActivity extends AppCompatActivity {
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
-        findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signIn();
-            }
-        });
+        findViewById(R.id.sign_in_button).setOnClickListener(view -> signIn());
 
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
@@ -138,10 +130,6 @@ public class SignInActivity extends AppCompatActivity {
         } catch (Exception e) {
             throw new RuntimeException("this is a general error  " + e);
         }
-    }
-
-    private void userInDatabase(FirebaseUser firebaseUser) {
-
     }
 
     private void returnToMain() {

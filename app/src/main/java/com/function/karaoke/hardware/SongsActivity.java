@@ -11,8 +11,6 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -26,18 +24,31 @@ import androidx.fragment.app.FragmentActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
+import com.function.karaoke.hardware.storage.ArtistService;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
-//import com.function.karaoke.hardware.ui.login.LoginActivity;
+import com.function.karaoke.hardware.storage.StorageAdder;
+import com.function.karaoke.hardware.utils.JsonCreator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+
+//import com.function.karaoke.hardware.ui.login.LoginActivity;
 
 public class SongsActivity
         extends FragmentActivity
         implements SongsListFragment.OnListFragmentInteractionListener {
 
     private static final int AUDIO_CODE = 101;
+    private static final String JSON_FILE_NAME = "savedJson";
+    private static final String JSON_DIRECTORY_NAME = "jsonFile";
+    private static final String ARTIST_FILE = "artistUpdated";
+
     public String language;
     Locale myLocale;
     //    private SongsDB mSongs;
@@ -71,11 +82,77 @@ public class SongsActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
         pack = this.getPackageName();
 
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
+    }
+
+    private void checkForFilesToUpload() {
+        File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
+        if (folder.exists()) {
+            try {
+                boolean artistFileExists = artistFileExists(folder);
+                SaveItems saveItems = JsonCreator.getDatabaseFromInputStream(getFileInputStream(folder));
+                StorageAdder storageAdder = new StorageAdder(saveItems.getFile());
+                if (artistFileExists) {
+                    ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
+                        @Override
+                        public void onSuccess() {
+                            //todo delete temp artist file
+                            storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                                @Override
+                                public void onSuccess() {
+                                    //todo delete all json file
+//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+                                }
+
+                                @Override
+                                public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure() {
+
+                        }
+                    });
+                    artistService.addDownloadToArtist(saveItems.getArtist());
+                } else {
+                    storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                        @Override
+                        public void onSuccess() {
+                            //todo delete all json file
+//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+                        }
+
+                        @Override
+                        public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                        }
+                    });
+
+                }
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private InputStream getFileInputStream(File folder) throws IOException {
+        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
+        return new FileInputStream(videoFile);
+    }
+
+    private boolean artistFileExists(File folder) throws IOException {
+        File artistFile = new File(folder, ARTIST_FILE + ".txt");
+        return artistFile.exists();
     }
 
 
@@ -118,7 +195,7 @@ public class SongsActivity
     }
 
     @Override
-    public void alertUserToSignIn(){
+    public void alertUserToSignIn() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setCancelable(true);
         alertBuilder.setTitle(R.string.sign_in_title);
@@ -126,7 +203,7 @@ public class SongsActivity
         alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                
+
             }
         });
         AlertDialog alert = alertBuilder.create();

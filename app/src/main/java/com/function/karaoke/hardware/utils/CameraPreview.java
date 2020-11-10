@@ -104,9 +104,9 @@ public class CameraPreview {
 //        if (hasCamera)
 //            mTextureView = textureView;
         this.activity = activity;
+        this.context = context;
         createVideoFolder();
         mMediaRecorder = new MediaRecorder();
-        this.context = context;
 
     }
 
@@ -238,8 +238,9 @@ public class CameraPreview {
     }
 
     private void createVideoFolder() {
-        File movieFile = activity.getCacheDir();
-        mVideoFolder = new File(movieFile, DIRECTORY_NAME);
+//        File movieFile = activity.getCacheDir();
+//        File movieFile = context.getFilesDir();
+        mVideoFolder = new File(context.getFilesDir(), DIRECTORY_NAME);
         if (!mVideoFolder.exists()) {
             mVideoFolder.mkdirs();
         }
@@ -248,7 +249,7 @@ public class CameraPreview {
     private void createVideoFileName() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMM_HHmmss").format(new Date());
         String prepend = "VIDEO" + timeStamp + "_";
-        File videoFile = File.createTempFile(prepend, ".mp4", mVideoFolder);
+        File videoFile = new File(mVideoFolder, prepend + ".mp4");
         fileName = videoFile.getAbsolutePath();
         mVideoFile = videoFile;
     }
@@ -267,7 +268,7 @@ public class CameraPreview {
         if (mCamera != null)
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 
         mMediaRecorder.setOutputFile(fileName);

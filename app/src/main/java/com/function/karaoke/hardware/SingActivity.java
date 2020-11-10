@@ -30,12 +30,14 @@ import androidx.core.text.HtmlCompat;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.storage.ArtistService;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.ui.SingActivityUI;
 import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.GenerateRandomId;
+import com.function.karaoke.hardware.utils.JsonCreator;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,6 +45,7 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,6 +57,9 @@ public class SingActivity extends AppCompatActivity implements
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
+    private static final String JSON_DIRECTORY_NAME = "jsonFile";
+
+
     private static final int BACK_CODE = 101;
     private static final int INTERNET_CODE = 102;
     private static final int MESSAGE_RESULT = 1;
@@ -62,6 +68,8 @@ public class SingActivity extends AppCompatActivity implements
     private static final int SHARING_ERROR = 100;
     private static final int UPLOAD_ERROR = 101;
     private static final String DELAY = "delay";
+    private static final String JSON_FILE_NAME = "savedJson";
+    private static final String ARTIST_FILE = "artistUpdated";
 
     private final int CAMERA_CODE = 2;
     private String recordingId;
@@ -157,7 +165,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void deletePreviousVideos() {
-        File dir = new File(getCacheDir(), DIRECTORY_NAME);
+        File dir = new File(this.getFilesDir(), DIRECTORY_NAME);
         if (dir.exists()) {
             for (File f : dir.listFiles()) {
                 f.delete();
@@ -305,14 +313,12 @@ public class SingActivity extends AppCompatActivity implements
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         permissionRequested = false;
-        switch (requestCode) {
-            case CAMERA_CODE:
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-                    cameraPreview.initiateRecorder();
-                else
+        if (requestCode == CAMERA_CODE) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                cameraPreview.initiateRecorder();
+            else
 //                    initiateCamera();
-                    openCamera();
-                break;
+                openCamera();
         }
     }
 
@@ -323,10 +329,8 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     protected void onPause() {
-        if (!isChangingConfigurations()) {
-            if (!ending && !permissionRequested) {
-                pauseSong(this.getCurrentFocus());
-            }
+        if (!ending && !permissionRequested) {
+            pauseSong(this.getCurrentFocus());
         }
         super.onPause();
     }
@@ -577,7 +581,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private File getOutputMediaFile() {
-        File mediaStorageDir = new File(getCacheDir(), DIRECTORY_NAME);
+        File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
         // Create storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
@@ -594,6 +598,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void share(View view) {
+        // todo make only signed in people access this
         File postParseVideoFile = wrapUpSong();
 //        addFilesToStorageForLinking(Uri.fromFile(postParseVideoFile));
         saveToCloud(postParseVideoFile);
@@ -670,24 +675,65 @@ public class SingActivity extends AppCompatActivity implements
     private void saveToCloud(File path) {
         if (!fileSaved) {
             fileSaved = true;
+            Recording recording = new Recording(song, timeStamp,
+                    authenticationDriver.getUserUid(), recordingId, delay);
+            String jsonFilePath = createTempFiles();
+            JsonCreator.createJsonObject(Uri.fromFile(path).toString(), recording, jsonFilePath);
             storageAdder = new StorageAdder(Uri.fromFile(path));
-            storageAdder.uploadRecording(new Recording(song, timeStamp,
-                    authenticationDriver.getUserUid(), recordingId, delay), new StorageAdder.UploadListener() {
+            ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                 @Override
                 public void onSuccess() {
+                    //todo delete temp artist file
+                    storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
+                        @Override
+                        public void onSuccess() {
+                            //todo delete all json file
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+                        }
+
+                        @Override
+                        public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                        }
+                    });
                 }
 
                 @Override
                 public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+
                 }
             });
-
+            artistService.addDownloadToArtist(song.getArtist());
         }
     }
+
+    private void createEmptyFileForArtist(File folder) throws IOException {
+        File artistFile = new File(folder, ARTIST_FILE + ".txt");
+        FileWriter writer = new FileWriter(artistFile);
+        writer.write("32");
+        writer.close();
+    }
+
+    private String createTempFiles() {
+        File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
+        if (!folder.exists())
+            folder.mkdirs();
+        try {
+            createEmptyFileForArtist(folder);
+            return createVideoFileName(folder);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String createVideoFileName(File folder) throws IOException {
+        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
+        return videoFile.getAbsolutePath();
+    }
+}
 
 
 //    //todo think about compressing the files
 
-}
+

@@ -25,7 +25,7 @@ public class ArtistService {
         this.artistServiceListener = artistServiceListener;
     }
 
-    public void addDownloadToArtist(String recorderId, String artistName) {
+    public void addDownloadToArtist(String artistName) {
         DocumentReference document = artistsCollectionRef.document(artistName);
         addOneMoreDownload(document);
     }
@@ -69,23 +69,6 @@ public class ArtistService {
                     }
                 });
     }
-
-//    private void checkThatThereWasNoInterference(DocumentReference document, String recorderId) {
-//        document.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                DocumentSnapshot document1 = task.getResult();
-//                if (document1 != null) {
-//                    if (Objects.equals((String) document1.get(LAST_USER), recorderId)) {
-//                        artistServiceListener.onSuccess();
-//                    }
-//                } else {
-//                    addOneMoreDownload(recorderId, document);
-//                }
-//            } else {
-//
-//            }
-//        });
-//    }
 
     public interface ArtistServiceListener {
         void onSuccess();

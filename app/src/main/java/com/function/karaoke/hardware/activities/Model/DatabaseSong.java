@@ -44,6 +44,13 @@ public class DatabaseSong implements Serializable, SongDisplay {
         this.songReference = songReference;
     }
 
+    public DatabaseSong(String title, String artist, String imageResourceFile, String songResourceFile){
+        this.title= title;
+        this.artist=artist;
+        this.imageResourceFile = imageResourceFile;
+        this.songResourceFile = songResourceFile;
+    }
+
     public String getArtist() {
         return artist;
     }
