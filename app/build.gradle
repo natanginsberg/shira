@@ -12,8 +12,8 @@ android {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 47
-        versionName "1.1326" +
+        versionCode 48
+        versionName "1.1327" +
                 "" +
                 "" +
                 "" +
@@ -42,7 +42,7 @@ android {
 
     configurations {
         cleanedAnnotations
-        compile.exclude group: 'org.jetbrains' , module:'annotations'
+        compile.exclude group: 'org.jetbrains', module: 'annotations'
     }
 }
 

@@ -25,15 +25,18 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private static final int RC_SIGN_IN = 101;
+    private static final String RESULT_CODE = "code";
     private GoogleSignInClient mGoogleSignInClient;
     private AuthenticationDriver authenticationDriver;
     private UserInfo user;
     private Observer<Boolean> gettingNewUserSucceeded;
     private SignInViewModel signInViewModel;
+    private int code = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        extractCodeExtrasIfExist();
         authenticationDriver = new AuthenticationDriver();
         signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
         setContentView(R.layout.activity_sign_in);
@@ -53,6 +56,12 @@ public class SignInActivity extends AppCompatActivity {
 
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
+    }
+
+    private void extractCodeExtrasIfExist() {
+        if (getIntent().getExtras() != null) {
+            code = getIntent().getIntExtra(RESULT_CODE, 0);
+        }
     }
 
     private void signIn() {
@@ -136,7 +145,10 @@ public class SignInActivity extends AppCompatActivity {
         Intent intent = new Intent(this, SongsActivity.class);
         intent.putExtra("User", user);
 //            onActivityResult(0, RESULT_OK, intent);
-        setResult(RESULT_OK, intent);
+        if (code != -1)
+            setResult(code, intent);
+        else
+            setResult(RESULT_OK, intent);
         finish();
     }
 

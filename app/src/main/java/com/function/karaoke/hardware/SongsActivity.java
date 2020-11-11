@@ -54,11 +54,8 @@ public class SongsActivity
     Locale myLocale;
     //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
-    private String pack;
     private AuthenticationDriver authenticationDriver;
     private UserInfo userInfo;
-    // GetContent creates an ActivityResultLauncher<String> to allow you to pass
-    // in the mime type you'd like to allow the user to select
     private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -86,7 +83,6 @@ public class SongsActivity
         super.onCreate(savedInstanceState);
         checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
-        pack = this.getPackageName();
 
         showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();

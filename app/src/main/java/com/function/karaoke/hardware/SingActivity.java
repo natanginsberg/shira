@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.text.Html;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.PopupWindow;
@@ -21,11 +20,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -41,7 +41,6 @@ import com.function.karaoke.hardware.utils.JsonCreator;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
@@ -72,6 +71,9 @@ public class SingActivity extends AppCompatActivity implements
     private static final String DELAY = "delay";
     private static final String JSON_FILE_NAME = "savedJson";
     private static final String ARTIST_FILE = "artistUpdated";
+    private static final String RESULT_CODE = "code";
+    private static final int SAVE = 101;
+    private static final int SHARE = 102;
 
     private final int CAMERA_CODE = 2;
     private String recordingId;
@@ -128,6 +130,17 @@ public class SingActivity extends AppCompatActivity implements
     private int delay;
     private File artistFile;
     private File jsonFileFolder;
+
+    private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getData() != null) {
+                    if (result.getResultCode() == SAVE) {
+                        saveRecordingToTheCloud(this.getCurrentFocus());
+                    } else if (result.getResultCode() == SHARE) {
+                        share(this.getCurrentFocus());
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -474,12 +487,9 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.songPaused();
         isRunning = false;
         mKaraokeKonroller.onPause();
-//        customMediaPlayer.pauseSong();
         if (isRecording) {
             cameraPreview.pauseRecording();
-//            isRecording = false;
         }
-//        cameraPreview.stopRecording();
     }
 
     public void resumeSong(View view) {
@@ -525,7 +535,6 @@ public class SingActivity extends AppCompatActivity implements
             cameraPreview.stopRecording();
             popup.dismiss();
             activityUI.resetPage();
-//            resetPage();
             deletePreviousVideos();
             resetKaraokeController();
             tryLoadSong();
@@ -586,7 +595,6 @@ public class SingActivity extends AppCompatActivity implements
 
     private File getOutputMediaFile() {
         File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
-        // Create storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
                 return null;
@@ -604,11 +612,10 @@ public class SingActivity extends AppCompatActivity implements
     public void share(View view) {
         if (authenticationDriver.isSignIn()) {
             File postParseVideoFile = wrapUpSong();
-//        addFilesToStorageForLinking(Uri.fromFile(postParseVideoFile));
             saveToCloud(postParseVideoFile);
             shareLink();
         } else {
-            //todo make a link to open the sign in option
+            launchSignIn(SHARE);
         }
     }
 
@@ -643,7 +650,6 @@ public class SingActivity extends AppCompatActivity implements
                             sendDataThroughIntent(link);
 
 
-
                         } else {
                             showFailure(SHARING_ERROR);
                             // Error
@@ -654,14 +660,11 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void sendDataThroughIntent(String link) {
-//        String body = "<a href=\"" + link + "\">" + link + "</a>";
         String data = "Listen to me sing\n" + link;
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(
                 Intent.EXTRA_TEXT, data);
-//                Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
-//                "testing");
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
     }
@@ -686,8 +689,13 @@ public class SingActivity extends AppCompatActivity implements
             File postParseVideoFile = wrapUpSong();
             saveToCloud(postParseVideoFile);
         } else {
-            //todo make a link here to allow him to sign in
+            launchSignIn(SAVE);
+
         }
+    }
+
+    private void launchSignIn(int code) {
+        mGetContent.launch(new Intent(this, SignInActivity.class).putExtra(RESULT_CODE, code));
     }
 
     //    private void saveToCloud(Uri path, View view1) {

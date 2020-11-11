@@ -47,29 +47,20 @@
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "example://gizmos” -->
-                <!--                <data-->
-                <!--                    android:host="example.com"-->
-                <!--                    android:scheme="https" />-->
-                <!--                <data-->
-                <!--                    android:host="example.com"-->
-                <!--                    android:scheme="https" />-->
+
                 <data
                     android:host="singjewish.page.link"
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        <!--
-               Set to true if your app is Standalone, that is, it does not require the handheld
-               app to run.
-        -->
+
         <activity
             android:name=".ToneActivity"
             android:exported="true" />
         <activity
             android:name=".Testing.test"
             android:exported="true"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SingActivity"
             android:screenOrientation="portrait" />
