@@ -55,7 +55,7 @@
                 <!--                    android:host="example.com"-->
                 <!--                    android:scheme="https" />-->
                 <data
-                    android:host="singJewish.page.link"
+                    android:host="singjewish.page.link"
                     android:scheme="https" />
             </intent-filter>
         </activity>

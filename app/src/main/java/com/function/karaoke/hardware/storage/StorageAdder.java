@@ -8,11 +8,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.Serializable;
@@ -80,19 +82,25 @@ public class StorageAdder extends ViewModel implements Serializable {
         if (videoUri != null) {
             String destFileName = "images/" + recording.getDate();
             StorageReference ref = this.storageReference.child(destFileName);
-            ref.putFile(videoUri)
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
-//                            while (!downloadUri.isSuccessful()) {
-//                            }
-                            recording.setRecordingUrl(downloadUri.getResult().toString());
-                            addRecordingToFirestore(recording, uploadListener);
-//                            uploadListener.onSuccess();
-                        }
-                    })
-                    .addOnFailureListener(e -> uploadListener.onFailure());
+            StorageTask<UploadTask.TaskSnapshot> uploadTask = ref.putFile(videoUri);
+            Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                if (!task.isSuccessful()) {
+                    throw task.getException();
+                }
+
+                // Continue with the task to get the download URL
+                return ref.getDownloadUrl();
+            }).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Uri downloadUri = task.getResult();
+                    recording.setRecordingUrl(downloadUri.toString());
+                    addRecordingToFirestore(recording, uploadListener);
+                } else {
+                    // Handle failures
+                    // ...
+                    uploadListener.onFailure();
+                }
+            });
         }
     }
 
@@ -100,18 +108,6 @@ public class StorageAdder extends ViewModel implements Serializable {
         RecordingService recordingService = new RecordingService();
         recordingService.addRecordingToDataBase(recording);
         uploadListener.onSuccess();
-//        ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
-//            @Override
-//            public void onSuccess() {
-//
-//            }
-//
-//            @Override
-//            public void onFailure() {
-//
-//            }
-//        });
-//        artistService.addDownloadToArtist(recording.getArtist());
     }
 
     public interface UploadListener {

@@ -50,10 +50,7 @@ public class ArtistService {
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        //todo deelte artist file
-
                         artistServiceListener.onSuccess();
-//
                     }
                 }).
 

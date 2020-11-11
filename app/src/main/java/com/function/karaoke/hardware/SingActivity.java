@@ -41,6 +41,7 @@ import com.function.karaoke.hardware.utils.JsonCreator;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.DynamicLink;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
@@ -601,11 +602,14 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void share(View view) {
-        // todo make only signed in people access this
-        File postParseVideoFile = wrapUpSong();
+        if (authenticationDriver.isSignIn()) {
+            File postParseVideoFile = wrapUpSong();
 //        addFilesToStorageForLinking(Uri.fromFile(postParseVideoFile));
-        saveToCloud(postParseVideoFile);
-        shareLink();
+            saveToCloud(postParseVideoFile);
+            shareLink();
+        } else {
+            //todo make a link to open the sign in option
+        }
     }
 
     private void showFailure(int error) {
@@ -622,8 +626,9 @@ public class SingActivity extends AppCompatActivity implements
 
     private void shareLink() {
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+//                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
                 .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
-                .setDomainUriPrefix("https://singJewish.page.link")
+                .setDomainUriPrefix("https://singjewish.page.link")
                 // Set parameters
                 // ...
                 .buildShortDynamicLink()
@@ -634,17 +639,11 @@ public class SingActivity extends AppCompatActivity implements
                             // Short link created
                             Uri shortLink = task.getResult().getShortLink();
                             Uri flowchartLink = task.getResult().getPreviewLink();
-                            String link = flowchartLink.toString();
+                            String link = shortLink.toString();
+                            sendDataThroughIntent(link);
 
 
-                            String body = "<a href=\"" + link + "\">" + link + "</a>";
-                            String data = "Listen to me sing\n" + body;
-                            Intent sendIntent = new Intent(Intent.ACTION_SEND);
-                            sendIntent.setType("text/plain");
-                            sendIntent.putExtra(
-                                    Intent.EXTRA_TEXT,
-                                    Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
-                            startActivity(sendIntent);
+
                         } else {
                             showFailure(SHARING_ERROR);
                             // Error
@@ -652,6 +651,19 @@ public class SingActivity extends AppCompatActivity implements
                         }
                     }
                 });
+    }
+
+    private void sendDataThroughIntent(String link) {
+//        String body = "<a href=\"" + link + "\">" + link + "</a>";
+        String data = "Listen to me sing\n" + link;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(
+                Intent.EXTRA_TEXT, data);
+//                Html.fromHtml(data, HtmlCompat.FROM_HTML_MODE_LEGACY));
+//                "testing");
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -670,8 +682,12 @@ public class SingActivity extends AppCompatActivity implements
 
     public void saveRecordingToTheCloud(View view) {
 
-        File postParseVideoFile = wrapUpSong();
-        saveToCloud(postParseVideoFile);
+        if (authenticationDriver.isSignIn()) {
+            File postParseVideoFile = wrapUpSong();
+            saveToCloud(postParseVideoFile);
+        } else {
+            //todo make a link here to allow him to sign in
+        }
     }
 
     //    private void saveToCloud(Uri path, View view1) {
