@@ -40,16 +40,10 @@ import java.util.Locale;
 public class Playback extends AppCompatActivity implements TimeBar.OnScrubListener, PlaybackStateListener {
 
     public static final String RECORDING = "recording";
-    private static final int SAVE_VIDEO = 111;
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
-    private static final String AUDIO_TOKEN = "audioToken";
-    private static final String VIDEO_TOKEN = "videoToken";
     private static final int RECORDING_URL = 0;
-    private static final String LENGTH_OF_AUDIO_PLAYED = "length of audio played";
     private static final String DELAY = "delay";
-
-    private int ready = 0;
 
     private List<String> urls = new ArrayList<>();
     private List<Uri> uris = new ArrayList<>();
@@ -57,9 +51,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private PlayerView playerView;
     private List<SimpleExoPlayer> players = new ArrayList<>();
 
-    private com.function.karaoke.core.controller.KaraokeController.MyCustomObjectListener listener;
-
-    private boolean playWhenReady;
     private long playbackPosition;
     private int currentWindow;
     private TextView positionView;
@@ -140,7 +131,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
                     @Override
                     public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "getDynamicLink:onFailure", e);
                     }
                 });
     }
@@ -235,15 +225,11 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-                    switch (playbackState) {
-                        case ExoPlayer.STATE_ENDED:
-                            for (SimpleExoPlayer p : players) {
-                                p.setPlayWhenReady(false);
-                                p.seekTo(currentWindow, 0);
-                            }
-                            break;
-                        default:
-                            break;
+                    if (playbackState == ExoPlayer.STATE_ENDED) {
+                        for (SimpleExoPlayer p : players) {
+                            p.setPlayWhenReady(false);
+                            p.seekTo(currentWindow, 0);
+                        }
                     }
                 }
             });
@@ -275,7 +261,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         if (players != null) {
             for (SimpleExoPlayer player : players)
                 if (player != null) {
-                    playWhenReady = player.getPlayWhenReady();
+//                    playWhenReady = player.getPlayWhenReady();
                     playbackPosition = player.getCurrentPosition();
                     currentWindow = player.getCurrentWindowIndex();
                     player.release();
@@ -303,21 +289,21 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     @Override
-    public void onScrubStart(TimeBar timeBar, long position) {
+    public void onScrubStart(@NonNull TimeBar timeBar, long position) {
         if (positionView != null) {
             positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
         }
     }
 
     @Override
-    public void onScrubMove(TimeBar timeBar, long position) {
+    public void onScrubMove(@NonNull TimeBar timeBar, long position) {
         if (positionView != null) {
             positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
         }
     }
 
     @Override
-    public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
+    public void onScrubStop(@NonNull TimeBar timeBar, long position, boolean canceled) {
         if (!canceled && players != null) {
             for (SimpleExoPlayer player : players) {
                 player.setPlayWhenReady(false);
