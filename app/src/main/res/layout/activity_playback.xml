@@ -17,8 +17,14 @@
             android:id="@+id/surface_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:controller_layout_id="@layout/exop"/>
+            app:controller_layout_id="@layout/custom_exo_playerview"/>
 
 
     </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/exo_pr_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 </FrameLayout>

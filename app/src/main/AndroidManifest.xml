@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.android.vending.BILLING" />
+
 
     <uses-feature
         android:name="android.hardware.microphone"
@@ -19,6 +21,7 @@
     <uses-feature
         android:name="android.hardware.audio.output"
         android:required="true" />
+
 
     <application
         android:allowBackup="false"

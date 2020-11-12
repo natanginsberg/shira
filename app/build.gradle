@@ -12,8 +12,8 @@ android {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 48
-        versionName "1.1327" +
+        versionCode 49
+        versionName "1.1328" +
                 "" +
                 "" +
                 "" +
@@ -95,6 +95,10 @@ dependencies {
 //    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0-M1'
 //
 //    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2'
+
+    def billing_version = "3.0.0"
+
+    implementation "com.android.billingclient:billing:$billing_version"
 
     def work_version = "2.4.0"
 

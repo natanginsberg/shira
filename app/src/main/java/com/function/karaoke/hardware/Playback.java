@@ -252,6 +252,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 player.prepare(clippingMediaSource);
             } else
                 player.prepare(mediaSource, false, false);
+            findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
 
 //            player.sets
 
