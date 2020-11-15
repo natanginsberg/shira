@@ -63,6 +63,7 @@ public class DatabaseSong implements Serializable, SongDisplay {
         return songResourceFile;
     }
 
+    // do not delete, neseccary for the parsing.
     public String getTextResourceFile() {
         return textResourceFile;
     }

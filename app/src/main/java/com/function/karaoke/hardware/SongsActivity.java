@@ -25,6 +25,7 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
+import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.ArtistService;
@@ -83,8 +84,8 @@ public class SongsActivity
         super.onCreate(savedInstanceState);
         checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
-
-        showPromo();
+        checkForSignedInUser();
+//        showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
     }
 
@@ -194,7 +195,7 @@ public class SongsActivity
 
     private void checkForSignedInUser() {
         authenticationDriver = new AuthenticationDriver();
-        if (authenticationDriver.getUserUid() != null) {
+        if (authenticationDriver.getUserUid() == null) {
             updateUI();
         }
     }
@@ -217,8 +218,14 @@ public class SongsActivity
     }
 
     @Override
-    public void onListFragmentInteraction(DatabaseSong item) {
-        songClicked = item;
+    public void signOut() {
+        authenticationDriver.signOut();
+
+    }
+
+    @Override
+    public void onListFragmentInteraction(SongDisplay item) {
+        songClicked = (DatabaseSong) item;
         askForAudioRecordPermission();
     }
 

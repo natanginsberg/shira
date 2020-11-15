@@ -58,5 +58,7 @@
     <string name="recording_sign_in_text">You must sign in to view recordings</string>
     <string name="no_recordings">Sorry,\n you have no recordings</string>
     <string name="language_displayed">EN</string>
+    <string name="open">view</string>
+    <string name="continue_as_guest">Continue as Guest</string>
 
 </resources>

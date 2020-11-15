@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.RecordingRecycleViewAdapter;
 import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -32,6 +31,8 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
+import com.function.karaoke.hardware.activities.Model.RecordingDisplay;
+import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
@@ -103,7 +104,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         songsView = inflater.inflate(R.layout.fragment_song_list, container, false);
 
         Context context = songsView.getContext();
-        recyclerView = (RecyclerView) songsView.findViewById(R.id.list);
+        recyclerView = songsView.findViewById(R.id.list);
         if (mColumnCount <= 1) {
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
         } else {
@@ -130,7 +131,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void addGenresToScreen() {
-        LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.genres);
+        LinearLayout linearLayout = view.findViewById(R.id.genres);
         List<String> currentLanguageGenres;
         if (((SongsActivity) getActivity()).language.equals("English"))
             currentLanguageGenres = genres.getEnglishGenres();
@@ -233,6 +234,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void getAllSongs() {
         final Observer<List<DatabaseSong>> searchObserver = products -> {
+            view.findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
             currentDatabaseSongs.updateSongs(products);
             allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
             allSongsDatabase.updateSongs(currentDatabaseSongs.getSongs());
@@ -278,7 +280,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         }
         currentDatabaseSongs = mListener.getSongs();
         mAdapter = new SongRecyclerViewAdapter(currentDatabaseSongs.getSongs(), mListener,
-                ((SongsActivity) requireActivity()).language);
+                ((SongsActivity) requireActivity()).language, getActivity().getResources().getString(R.string.play));
     }
 
     @Override
@@ -296,13 +298,25 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void displayAllSongs() {
         recyclerView.setAdapter(mAdapter);
-        mAdapter.setData(songsDb.getSongs());
+        mAdapter.setData(songsDb.getSongs(), getActivity().getResources().getString(R.string.play));
         mAdapter.notifyDataSetChanged();
     }
 
     private void displayPersonalSongs() {
-        RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
-        recyclerView.setAdapter(recordAdapter);
+        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
+        mAdapter.notifyDataSetChanged();
+//        RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
+//        recyclerView.setAdapter(recordAdapter);
+    }
+
+    private List<RecordingDisplay> makeListOfRecordingDisplay() {
+        List<RecordingDisplay> recordingDisplays = new ArrayList<>();
+        for (Recording recording : recordingDB.getRecordings()) {
+            if (recordingDisplays.stream().noneMatch(o -> o.getTitle().equals(recording.getTitle())))
+                recordingDisplays.add(new RecordingDisplay(recording.getImageResourceFile(),
+                        recording.getArtist(), recording.getTitle()));
+        }
+        return recordingDisplays;
     }
 
 
@@ -386,7 +400,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     mListener.openSignUp();
                     popup.dismiss();
                 } else {
-                    mListener.openSignUp();
+                    mListener.signOut();
                     popup.dismiss();
                 }
             }
@@ -448,7 +462,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
      */
     public interface OnListFragmentInteractionListener {
 
-        void onListFragmentInteraction(DatabaseSong item);
+        void onListFragmentInteraction(SongDisplay item);
 
         void onListFragmentInteraction(Recording item);
 
@@ -459,5 +473,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void openSignUp();
 
         void alertUserToSignIn();
+
+        void signOut();
     }
 }

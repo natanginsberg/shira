@@ -1,9 +1,9 @@
 package com.function.karaoke.hardware;
 
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -47,18 +47,19 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
     };
 
-    private List<DatabaseSong> mValues;
+    private List<SongDisplay> mValues;
     private List<Recording> mRecordings;
     private final OnListFragmentInteractionListener mListener;
     private String language;
+    private String text;
 
     //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
 //        setData(items);
 //        mListener = listener;
 //        this.language = language;
 //    }
-    public SongRecyclerViewAdapter(List<DatabaseSong> items, OnListFragmentInteractionListener listener, String language) {
-        setData(items);
+    public SongRecyclerViewAdapter(List<? extends SongDisplay> items, OnListFragmentInteractionListener listener, String language, String textToDisplay) {
+        setData(items, textToDisplay);
         mListener = listener;
         this.language = language;
     }
@@ -99,9 +100,10 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         return mValues.size();
     }
 
-    public void setData(List<DatabaseSong> songs) {
+    public void setData(List<? extends SongDisplay> songs, String textToDisplay) {
         mValues = new ArrayList<>(songs); // make a copy
         Collections.sort(mValues, mComparator);
+        text = textToDisplay;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -111,7 +113,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         private final ImageView mCover;
 
         //        public Song mItem;
-        public DatabaseSong mItem;
+        public SongDisplay mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -119,6 +121,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             mLblTitle = view.findViewById(R.id.lbl_title);
             mLblArtist = view.findViewById(R.id.lbl_artist);
             mCover = view.findViewById(R.id.img_cover);
+            ((Button)view.findViewById(R.id.play_button)).setText(text);
         }
 
         @Override
@@ -126,7 +129,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             return super.toString() + " '" + mLblArtist.getText() + "'";
         }
 
-        public void setItem(DatabaseSong song) {
+        public void setItem(SongDisplay song) {
 //            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
             mItem = song;
             mLblTitle.setText(song.getTitle());

@@ -49,4 +49,6 @@
     <string name="recording_sign_in_text">כדי לשמור ולצפות בביצועים עליך להירשם</string>
     <string name="no_recordings">אין לך ביצועים לשמוע</string>
     <string name="language_displayed">עב</string>
+    <string name="open">פתח</string>
+    <string name="continue_as_guest">המשך כאורח</string>
 </resources>

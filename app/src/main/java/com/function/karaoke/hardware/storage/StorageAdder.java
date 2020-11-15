@@ -59,24 +59,6 @@ public class StorageAdder extends ViewModel implements Serializable {
         return resultsLiveData;
     }
 
-//    public LiveData<String> uploadRecording(Recording recording) {
-//        final MutableLiveData<String> resultsLiveData = new MutableLiveData<>();
-//        if (videoUri != null) {
-//            String destFileName = "images/" + System.currentTimeMillis();
-//            StorageReference ref = this.storageReference.child(destFileName);
-//            ref.putFile(videoUri)
-//                    .addOnSuccessListener((UploadTask.TaskSnapshot taskSnapshot) -> {
-//                        Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
-//                        while (!downloadUri.isSuccessful()) {
-//                        }
-//                        resultsLiveData.setValue(downloadUri.getResult().toString());
-//                        recording.setRecordingUrl(downloadUri.getResult().toString());
-//                        addRecordingToFirestore(recording);
-//                    })
-//                    .addOnFailureListener(e -> Log.w(TAG, "Error on uploadImage", e));
-//        }
-//        return resultsLiveData;
-//    }
 
     public void uploadRecording(Recording recording, UploadListener uploadListener) {
         if (videoUri != null) {

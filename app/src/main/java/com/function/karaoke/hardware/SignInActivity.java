@@ -38,6 +38,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         extractCodeExtrasIfExist();
         authenticationDriver = new AuthenticationDriver();
+        checkForSignedInUser();
         signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
         setContentView(R.layout.activity_sign_in);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -56,6 +57,13 @@ public class SignInActivity extends AppCompatActivity {
 
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
+    }
+
+    private void checkForSignedInUser() {
+        if (authenticationDriver.getUserUid() != null) {
+            Intent intent = new Intent(this, SongsActivity.class);
+            startActivity(intent);
+        }
     }
 
     private void extractCodeExtrasIfExist() {
@@ -174,9 +182,9 @@ public class SignInActivity extends AppCompatActivity {
 
     public void signOut(View view) {
         authenticationDriver.signOut();
-        mGoogleSignInClient.signOut();
+//        mGoogleSignInClient.signOut();
         findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-        findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
+//        findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
     }
 
     public void backToMain(View view) {
