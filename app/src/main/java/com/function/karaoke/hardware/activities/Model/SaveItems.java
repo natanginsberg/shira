@@ -4,10 +4,10 @@ import android.net.Uri;
 
 public class SaveItems {
 
-    private Uri file = null;
+    private String file = null;
     private Recording recording = null;
 
-    public SaveItems(Uri file, Recording recording) {
+    public SaveItems(String fileUri, Recording recording) {
         this.file = file;
         this.recording = recording;
     }
@@ -23,7 +23,7 @@ public class SaveItems {
         return recording.getArtist();
     }
 
-    public Uri getFile() {
+    public String getFile() {
         return file;
     }
 }

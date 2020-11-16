@@ -30,6 +30,7 @@ import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.ArtistService;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.StorageAdder;
+import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.JsonCreator;
 
 import java.io.File;
@@ -96,7 +97,7 @@ public class SongsActivity
                 boolean artistFileExists = artistFileExists(folder);
                 SaveItems saveItems = JsonCreator.getDatabaseFromInputStream(getFileInputStream(folder));
                 // todo fix this it is wrong!!!!
-                StorageAdder storageAdder = new StorageAdder(saveItems.getFile(), this, new File("dg"));
+                StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()), this);
                 if (artistFileExists) {
                     ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                         @Override
@@ -124,18 +125,29 @@ public class SongsActivity
     }
 
     private void uploadRecording(StorageAdder storageAdder, SaveItems saveItems, File folder) {
-        storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+        NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
             @Override
             public void onSuccess() {
-                deleteJsonFolder(folder);
+                storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                    @Override
+                    public void onSuccess() {
+                        deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+                    }
+
+                    @Override
+                    public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                    }
+                });
             }
 
             @Override
-            public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+            public void onFail() {
+                int k = 0;
             }
         });
+
     }
 
     private void deleteJsonFolder(File folder) {

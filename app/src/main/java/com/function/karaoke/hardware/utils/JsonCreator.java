@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,10 +36,10 @@ public class JsonCreator {
 
     }
 
-    public static void createJsonObject(String videoUriToString, Recording recording, String storageFilePath) {
+    public static void createJsonObject(File videoPath, Recording recording, String storageFilePath) {
         try {
             JSONObject saveItems = new JSONObject();
-            saveItems.put("filePath", videoUriToString);
+            saveItems.put("filePath", videoPath.getPath());
             saveItems.put("recording", recording.putRecordingInJsonObject());
             putJsonInFile(storageFilePath, saveItems);
         } catch (JSONException e) {
@@ -76,7 +77,7 @@ public class JsonCreator {
             throws JSONException, IOException {
         JSONObject dbJsonRawObject = new JSONObject(readInputStreamToString(jsonFileInputStream));
 
-        Uri fileUri = Uri.parse(dbJsonRawObject.getString("filePath"));
+        String fileUri = dbJsonRawObject.getString("filePath");
         JSONObject recordingToAdd = dbJsonRawObject.getJSONObject("recording");
         DatabaseSong song = new DatabaseSong(recordingToAdd.getString("title"),
                 recordingToAdd.getString("artist"),

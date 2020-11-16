@@ -705,8 +705,8 @@ public class SingActivity extends AppCompatActivity implements
             Recording recording = new Recording(song, timeStamp,
                     authenticationDriver.getUserUid(), recordingId, delay);
             String jsonFilePath = createTempFiles();
-            JsonCreator.createJsonObject(Uri.fromFile(path).toString(), recording, jsonFilePath);
-            storageAdder = new StorageAdder(Uri.fromFile(path), this, path);
+            JsonCreator.createJsonObject(path, recording, jsonFilePath);
+            storageAdder = new StorageAdder(path, this);
             ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                 @Override
                 public void onSuccess() {
@@ -736,7 +736,7 @@ public class SingActivity extends AppCompatActivity implements
 
                 @Override
                 public void onFailure() {
-
+                    int k = 0;
                 }
             });
             artistService.addDownloadToArtist(song.getArtist());

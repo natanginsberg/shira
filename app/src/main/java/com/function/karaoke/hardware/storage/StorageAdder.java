@@ -11,12 +11,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.tasks.NetworkTasks;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 
 import software.amazon.awssdk.regions.Region;
@@ -29,20 +25,22 @@ import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
 public class StorageAdder extends ViewModel implements Serializable {
     private final String BUCKET_NAME = "recordings-of-songs";
     private final File file;
-//    private FirebaseStorage storage;
+    //    private FirebaseStorage storage;
 //    private StorageReference storageReference;
     private static final String TAG = "StorageDriver";
-    private Uri videoUri;
+    private String videoUri;
     private Context context;
     private AmazonS3Client s3Client;
+    private boolean setUp;
+    private String accessKey;
+    private String sKey;
 
-    public StorageAdder(Uri videoUri, Context context, File file) {
+    public StorageAdder(File videoUri, Context context) {
 //        this.storage = FirebaseStorage.getInstance();
 //        this.storageReference = storage.getReference();
-        this.videoUri = videoUri;
+        this.file = videoUri;
         this.context = context;
-        this.file = file;
-        setUpStorage();
+        getKeys();
     }
 
 //    public LiveData<String> uploadVideo() {
@@ -101,30 +99,40 @@ public class StorageAdder extends ViewModel implements Serializable {
     }
 
 
-    private void setUpStorage() {
+    private void getKeys() {
         DatabaseDriver dd = new DatabaseDriver();
-        dd.getKeys(this::finishSetUp);
+        dd.getKeys(new DatabaseDriver.KeyListener() {
+            @Override
+            public void onSuccess(String id, String secretKey) {
+                accessKey = id;
+                sKey = secretKey;
+                finishSetUp();
+            }
+        });
     }
 
-    private void finishSetUp(String accessKey, String secretKey) {
+    public void finishSetUp() {
 
         Region region = Region.US_EAST_1;
 
         final String END_POINT = "https://s3.wasabisys.com";
-
+        while (accessKey == null) {
+        }
         AWSCredentials myCredentials = new BasicAWSCredentials(
-                accessKey, secretKey);
+                accessKey, sKey);
 
         s3Client = new AmazonS3Client(myCredentials);
         s3Client.setRegion(com.amazonaws.regions.Region.getRegion(region.toString()));
-        s3Client.setObjectAcl(BUCKET_NAME, file.getName(), CannedAccessControlList.PublicRead);
         s3Client.setEndpoint(END_POINT);
-
+        setUp = true;
     }
 
-    public String uploadFile() throws IOException {
+    public String uploadFile() {
+        while (!setUp) {
+        }
         PutObjectRequest por = new PutObjectRequest(BUCKET_NAME, file.getName(), file).withCannedAcl(CannedAccessControlList.PublicRead);
         s3Client.putObject(por);
+        s3Client.setObjectAcl(BUCKET_NAME, file.getName(), CannedAccessControlList.PublicRead);
         return null;
     }
 
@@ -150,6 +158,10 @@ public class StorageAdder extends ViewModel implements Serializable {
         void onSuccess();
 
         void onFailure();
+    }
+
+    public interface SetUpListener {
+        void onSuccess();
     }
 
 }
