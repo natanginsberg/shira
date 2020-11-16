@@ -706,20 +706,29 @@ public class SingActivity extends AppCompatActivity implements
                     authenticationDriver.getUserUid(), recordingId, delay);
             String jsonFilePath = createTempFiles();
             JsonCreator.createJsonObject(Uri.fromFile(path).toString(), recording, jsonFilePath);
-            storageAdder = new StorageAdder(Uri.fromFile(path));
+            storageAdder = new StorageAdder(Uri.fromFile(path), this, path);
             ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                 @Override
                 public void onSuccess() {
                     artistFile.delete();
-                    storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
+                    NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
                         @Override
                         public void onSuccess() {
-                            deleteJsonFolder();
-//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+                            storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
+                                @Override
+                                public void onSuccess() {
+                                    deleteJsonFolder();
+                                }
+
+                                @Override
+                                public void onFailure() {
+
+                                }
+                            });
                         }
 
                         @Override
-                        public void onFailure() {
+                        public void onFail() {
 //                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
                         }
                     });

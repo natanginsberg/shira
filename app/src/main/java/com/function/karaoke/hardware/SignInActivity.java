@@ -2,6 +2,7 @@ package com.function.karaoke.hardware;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Toast;
 
@@ -36,6 +37,29 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        showPromo();
+    }
+
+
+    private void showPromo() {
+        setContentView(R.layout.promo);
+        //todo set for when the app loads from the server
+        setTimer();
+    }
+
+    private void setTimer() {
+        new CountDownTimer(1000, 1) {
+
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                initiateActivity();
+            }
+        }.start();
+    }
+
+    private void initiateActivity() {
         extractCodeExtrasIfExist();
         authenticationDriver = new AuthenticationDriver();
         checkForSignedInUser();
@@ -49,6 +73,7 @@ public class SignInActivity extends AppCompatActivity {
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        mGoogleSignInClient.signOut();
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
@@ -58,6 +83,7 @@ public class SignInActivity extends AppCompatActivity {
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
     }
+
 
     private void checkForSignedInUser() {
         if (authenticationDriver.getUserUid() != null) {
@@ -180,17 +206,9 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
-    public void signOut(View view) {
-        authenticationDriver.signOut();
-//        mGoogleSignInClient.signOut();
-        findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-//        findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
-    }
-
     public void backToMain(View view) {
         Intent intent = new Intent(this, SongsActivity.class);
 //            onActivityResult(0, RESULT_OK, intent);
-        setResult(RESULT_OK, intent);
-        finish();
+        startActivity(intent);
     }
 }

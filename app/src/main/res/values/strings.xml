@@ -60,5 +60,6 @@
     <string name="language_displayed">EN</string>
     <string name="open">view</string>
     <string name="continue_as_guest">Continue as Guest</string>
+    <string name="from_toker_fm">From \n Toker FM</string>
 
 </resources>

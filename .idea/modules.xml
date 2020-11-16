@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TestProject.iml" filepath="$PROJECT_DIR$/.idea/modules/TestProject.iml" group="TestProject" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="TestProject/app" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/karaoke.core/karaoke.core.iml" filepath="$PROJECT_DIR$/.idea/modules/karaoke.core/karaoke.core.iml" group="TestProject/karaoke.core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/TestProject.iml" filepath="$PROJECT_DIR$/.idea/modules/TestProject.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/TestProject.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/TestProject.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/karaoke.core/TestProject.karaoke.core.iml" filepath="$PROJECT_DIR$/.idea/modules/karaoke.core/TestProject.karaoke.core.iml" />
     </modules>
   </component>
 </project>

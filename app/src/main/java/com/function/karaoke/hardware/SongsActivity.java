@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 
 import androidx.activity.result.ActivityResult;
@@ -87,6 +86,7 @@ public class SongsActivity
         checkForSignedInUser();
 //        showPromo();
         language = getResources().getConfiguration().locale.getDisplayLanguage();
+        setContentView(R.layout.activity_songs);
     }
 
     private void checkForFilesToUpload() {
@@ -95,24 +95,15 @@ public class SongsActivity
             try {
                 boolean artistFileExists = artistFileExists(folder);
                 SaveItems saveItems = JsonCreator.getDatabaseFromInputStream(getFileInputStream(folder));
-                StorageAdder storageAdder = new StorageAdder(saveItems.getFile());
+                // todo fix this it is wrong!!!!
+                StorageAdder storageAdder = new StorageAdder(saveItems.getFile(), this, new File("dg"));
                 if (artistFileExists) {
                     ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                         @Override
                         public void onSuccess() {
                             artistFile.delete();
-                            storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
-                                @Override
-                                public void onSuccess() {
-                                    deleteJsonFolder(folder);
-//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-                                }
+                            uploadRecording(storageAdder, saveItems, folder);
 
-                                @Override
-                                public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-                                }
-                            });
                         }
 
                         @Override
@@ -122,19 +113,7 @@ public class SongsActivity
                     });
                     artistService.addDownloadToArtist(saveItems.getArtist());
                 } else {
-                    storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
-                        @Override
-                        public void onSuccess() {
-                            deleteJsonFolder(folder);
-//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-                        }
-
-                        @Override
-                        public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-                        }
-                    });
-
+                    uploadRecording(storageAdder, saveItems, folder);
                 }
 
 
@@ -142,6 +121,21 @@ public class SongsActivity
                 e.printStackTrace();
             }
         }
+    }
+
+    private void uploadRecording(StorageAdder storageAdder, SaveItems saveItems, File folder) {
+        storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+            @Override
+            public void onSuccess() {
+                deleteJsonFolder(folder);
+//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+            }
+        });
     }
 
     private void deleteJsonFolder(File folder) {
@@ -171,28 +165,6 @@ public class SongsActivity
         super.onResume();
     }
 
-    private void showPromo() {
-        setContentView(R.layout.promo);
-        //todo set for when the app loads from the server
-        setTimer();
-    }
-
-    private void setTimer() {
-        new CountDownTimer(5000, 1) {
-
-            public void onTick(long millisUntilFinished) {
-            }
-
-            public void onFinish() {
-                setContentView(R.layout.activity_songs);
-//                String languageToDisplay = language.equals("English") ? "EN" : "עב";
-//                ((TextView) findViewById(R.id.language)).setText(languageToDisplay);
-                checkForSignedInUser();
-//                setFontCorrectly();
-            }
-        }.start();
-    }
-
     private void checkForSignedInUser() {
         authenticationDriver = new AuthenticationDriver();
         if (authenticationDriver.getUserUid() == null) {
@@ -220,7 +192,6 @@ public class SongsActivity
     @Override
     public void signOut() {
         authenticationDriver.signOut();
-
     }
 
     @Override

@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.RecordingRecycleViewAdapter;
 import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -303,10 +304,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void displayPersonalSongs() {
-        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
-        mAdapter.notifyDataSetChanged();
-//        RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
-//        recyclerView.setAdapter(recordAdapter);
+//        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
+//        mAdapter.notifyDataSetChanged();
+        RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
+        recyclerView.setAdapter(recordAdapter);
     }
 
     private List<RecordingDisplay> makeListOfRecordingDisplay() {
@@ -397,12 +398,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             @Override
             public void onClick(View view) {
                 if (authenticationDriver.getUserUid() != null) {
-                    mListener.openSignUp();
-                    popup.dismiss();
-                } else {
                     mListener.signOut();
-                    popup.dismiss();
+                } else {
+                    mListener.openSignUp();
                 }
+                popup.dismiss();
             }
         });
     }

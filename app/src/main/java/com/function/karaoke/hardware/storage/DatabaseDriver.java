@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.function.karaoke.hardware.activities.Model.Genres;
+import com.function.karaoke.hardware.activities.Model.Keys;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -13,6 +14,7 @@ import com.google.firebase.storage.StorageReference;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DatabaseDriver {
 
@@ -74,6 +76,29 @@ public class DatabaseDriver {
             int k = 0;
         });
         return resultsLiveData;
+    }
+
+    public void getKeys(KeyListener keyListener) {
+        final MutableLiveData<Genres> resultsLiveData = new MutableLiveData<>();
+        AtomicReference<Keys> keys = new AtomicReference<>();
+        getCollectionReferenceByName("keys")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            keys.set(document.toObject(Keys.class));
+                        }
+                        if (keys.get().getAccessKeyId() != null) {
+                            keyListener.onSuccess(keys.get().getAccessKeyId(), keys.get().getPrivateKey());
+                        }
+                    }
+                }).addOnFailureListener(e -> {
+            int k = 0;
+        });
+    }
+
+    public interface KeyListener {
+        void onSuccess(String id, String secretKey);
     }
 
 }
