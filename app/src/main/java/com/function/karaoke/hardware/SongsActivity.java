@@ -96,8 +96,7 @@ public class SongsActivity
             try {
                 boolean artistFileExists = artistFileExists(folder);
                 SaveItems saveItems = JsonCreator.getDatabaseFromInputStream(getFileInputStream(folder));
-                // todo fix this it is wrong!!!!
-                StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()), this);
+                StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
                 if (artistFileExists) {
                     ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                         @Override

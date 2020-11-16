@@ -1,6 +1,5 @@
 package com.function.karaoke.hardware.storage;
 
-import android.content.Context;
 import android.net.Uri;
 
 import androidx.lifecycle.ViewModel;
@@ -25,21 +24,14 @@ import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
 public class StorageAdder extends ViewModel implements Serializable {
     private final String BUCKET_NAME = "recordings-of-songs";
     private final File file;
-    //    private FirebaseStorage storage;
-//    private StorageReference storageReference;
     private static final String TAG = "StorageDriver";
-    private String videoUri;
-    private Context context;
     private AmazonS3Client s3Client;
     private boolean setUp;
     private String accessKey;
     private String sKey;
 
-    public StorageAdder(File videoUri, Context context) {
-//        this.storage = FirebaseStorage.getInstance();
-//        this.storageReference = storage.getReference();
-        this.file = videoUri;
-        this.context = context;
+    public StorageAdder(File file) {
+        this.file = file;
         getKeys();
     }
 
@@ -101,25 +93,16 @@ public class StorageAdder extends ViewModel implements Serializable {
 
     private void getKeys() {
         DatabaseDriver dd = new DatabaseDriver();
-        dd.getKeys(new DatabaseDriver.KeyListener() {
-            @Override
-            public void onSuccess(String id, String secretKey) {
-                accessKey = id;
-                sKey = secretKey;
-                finishSetUp();
-            }
-        });
+        dd.getKeys((id, secretKey) -> finishSetUp(accessKey, secretKey));
     }
 
-    public void finishSetUp() {
+    private void finishSetUp(String accessKey, String secretKey) {
 
         Region region = Region.US_EAST_1;
 
         final String END_POINT = "https://s3.wasabisys.com";
-        while (accessKey == null) {
-        }
         AWSCredentials myCredentials = new BasicAWSCredentials(
-                accessKey, sKey);
+                accessKey, secretKey);
 
         s3Client = new AmazonS3Client(myCredentials);
         s3Client.setRegion(com.amazonaws.regions.Region.getRegion(region.toString()));

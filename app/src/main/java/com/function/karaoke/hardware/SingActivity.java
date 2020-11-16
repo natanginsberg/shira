@@ -706,7 +706,7 @@ public class SingActivity extends AppCompatActivity implements
                     authenticationDriver.getUserUid(), recordingId, delay);
             String jsonFilePath = createTempFiles();
             JsonCreator.createJsonObject(path, recording, jsonFilePath);
-            storageAdder = new StorageAdder(path, this);
+            storageAdder = new StorageAdder(path);
             ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
                 @Override
                 public void onSuccess() {
