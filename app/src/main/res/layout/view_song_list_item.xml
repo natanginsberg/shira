@@ -1,70 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
-    android:orientation="vertical">
+    android:layout_height="50dp"
+    app:layout_constraintHeight_percent="0.12">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="69dp"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
+            android:layout_marginStart="20dp"
             android:id="@+id/img_cover"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:paddingEnd="5dp"
-            android:layout_gravity="center_vertical"/>
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1"
+            app:layout_constraintHeight_percent="0.7"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:paddingStart="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/img_cover"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/lbl_title"
+                style="@android:style/TextAppearance.Medium"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingStart="5dp"
-                android:gravity="center_vertical">
+                android:fontFamily="sans-serif-thin"
+                android:textStyle="bold"
+                tools:text="Song Title" />
 
-                <TextView
-                    android:id="@+id/lbl_title"
-                    style="@android:style/TextAppearance.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    tools:text="Song Title"
-                    android:fontFamily="sans-serif-thin"/>
-
-                <TextView
-                    android:id="@+id/lbl_artist"
-                    style="@android:style/TextAppearance.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:text="Artist"
-                    android:fontFamily="sans-serif-light"/>
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/play_button"
-                android:layout_width="50dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center"
-                android:background="@drawable/gold_rec"
-                android:elevation="8dp"
-                android:text="@string/play"
-                android:textColor="@color/gold"
-                android:textSize="12sp" />
-
+            <TextView
+                android:id="@+id/lbl_artist"
+                style="@android:style/TextAppearance.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-light"
+                tools:text="Artist" />
         </LinearLayout>
-    </LinearLayout>
+
+        <Button
+            android:layout_marginEnd="20dp"
+            android:id="@+id/play_button"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_gravity="center"
+            android:background="@drawable/gold_rec"
+            android:elevation="8dp"
+            android:text="@string/play"
+            android:textColor="@color/gold"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="2.7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.17" />
+
+        <!--        </LinearLayout>-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#808080"/>
-</LinearLayout>
+        android:background="#808080"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

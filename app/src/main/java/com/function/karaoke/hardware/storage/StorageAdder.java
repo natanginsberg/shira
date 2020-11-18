@@ -27,8 +27,6 @@ public class StorageAdder extends ViewModel implements Serializable {
     private static final String TAG = "StorageDriver";
     private AmazonS3Client s3Client;
     private boolean setUp;
-    private String accessKey;
-    private String sKey;
 
     public StorageAdder(File file) {
         this.file = file;
@@ -93,7 +91,7 @@ public class StorageAdder extends ViewModel implements Serializable {
 
     private void getKeys() {
         DatabaseDriver dd = new DatabaseDriver();
-        dd.getKeys((id, secretKey) -> finishSetUp(accessKey, secretKey));
+        dd.getKeys(this::finishSetUp);
     }
 
     private void finishSetUp(String accessKey, String secretKey) {
@@ -141,10 +139,6 @@ public class StorageAdder extends ViewModel implements Serializable {
         void onSuccess();
 
         void onFailure();
-    }
-
-    public interface SetUpListener {
-        void onSuccess();
     }
 
 }

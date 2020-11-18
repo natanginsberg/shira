@@ -57,7 +57,7 @@ public class SongsActivity
     private DatabaseSongsDB dbSongs;
     private AuthenticationDriver authenticationDriver;
     private UserInfo userInfo;
-    private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+    private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
@@ -168,7 +168,9 @@ public class SongsActivity
 
 
     private void launchSignIn() {
-        mGetContent.launch(new Intent(this, SignInActivity.class));
+        Intent intent = new Intent(this, SignInActivity.class);
+        intent.putExtra("callback", true);
+        mGetContent.launch(intent);
     }
 
     @Override

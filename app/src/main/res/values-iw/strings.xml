@@ -52,4 +52,6 @@
     <string name="open">פתח</string>
     <string name="continue_as_guest">המשך כאורח</string>
     <string name="from_toker_fm">מבית טוקר FM</string>
+    <string name="all_songs">שירים</string>
+    <string name="My_recordings">הביצועים שלי</string>
 </resources>

@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
-    public static Song parse(List<String> data) throws Exception {
+    public static Song parse(List<String> data) {
         Song song = new Song();
         Song.Line lastLine = null;
         for (int i = 0; i < data.size() - 1; i++) {

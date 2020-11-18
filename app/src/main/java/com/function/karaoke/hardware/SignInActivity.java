@@ -33,17 +33,24 @@ public class SignInActivity extends AppCompatActivity {
     private Observer<Boolean> gettingNewUserSucceeded;
     private SignInViewModel signInViewModel;
     private int code = -1;
+    private boolean callback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        extractIntentParams();
         showPromo();
+    }
+
+    private void extractIntentParams() {
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("callback")) {
+            callback = true;
+        }
     }
 
 
     private void showPromo() {
         setContentView(R.layout.promo);
-        //todo set for when the app loads from the server
         setTimer();
     }
 
@@ -63,6 +70,19 @@ public class SignInActivity extends AppCompatActivity {
         extractCodeExtrasIfExist();
         authenticationDriver = new AuthenticationDriver();
         checkForSignedInUser();
+
+    }
+
+
+    private void checkForSignedInUser() {
+        if (authenticationDriver.getUserUid() != null) {
+            Intent intent = new Intent(this, SongsActivity.class);
+            startActivity(intent);
+        } else
+            openSignIn();
+    }
+
+    private void openSignIn() {
         signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
         setContentView(R.layout.activity_sign_in);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -82,14 +102,6 @@ public class SignInActivity extends AppCompatActivity {
 
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
-    }
-
-
-    private void checkForSignedInUser() {
-        if (authenticationDriver.getUserUid() != null) {
-            Intent intent = new Intent(this, SongsActivity.class);
-            startActivity(intent);
-        }
     }
 
     private void extractCodeExtrasIfExist() {
@@ -166,10 +178,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
         } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
             throw new RuntimeException("the api status code is  " + e.getStatusCode());
-//            updateUI(null);
         } catch (Exception e) {
             throw new RuntimeException("this is a general error  " + e);
         }
@@ -183,7 +192,10 @@ public class SignInActivity extends AppCompatActivity {
             setResult(code, intent);
         else
             setResult(RESULT_OK, intent);
-        finish();
+        if (callback)
+            finish();
+        else
+            startActivity(intent);
     }
 
     private void setUpGettingNewUserSucceeded() {

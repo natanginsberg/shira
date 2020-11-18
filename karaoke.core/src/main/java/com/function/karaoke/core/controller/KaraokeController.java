@@ -73,9 +73,6 @@ public class KaraokeController implements Recorder.IToneListener {
         mLyrics = view.findViewById(lyrics);
         this.wordsRead = view.findViewById(wordsRead);
         this.wordsToRead = view.findViewById(wordsToRead);
-//        mToneRender = view.findViewById(camera);
-//        mToneRender.setTextField(mLyrics);
-//        mToneRender.setTones(mTones); // risky a bit, but we all are in the UI thread
     }
 
     public boolean load(List<String> lines, String audioUrl) {
@@ -120,12 +117,9 @@ public class KaraokeController implements Recorder.IToneListener {
         try {
             mPlayer.setDataSource(url);
 //            mPlayer.setVolume(0, 0);
-            mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    prepared = true;
-                    mPlayer.seekTo(0);
-                }
+            mPlayer.setOnPreparedListener(mediaPlayer -> {
+                prepared = true;
+                mPlayer.seekTo(0);
             });
             mPlayer.prepare();
         } catch (IOException e) {

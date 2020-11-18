@@ -61,6 +61,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private boolean dynamicLink = false;
 
     private int delay;
+    private boolean locked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,6 +291,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     @Override
     public void onScrubStart(@NonNull TimeBar timeBar, long position) {
+        timeBar.setEnabled(!locked);
+        locked = true;
         if (positionView != null) {
             positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
         }
@@ -305,23 +308,53 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     @Override
     public void onScrubStop(@NonNull TimeBar timeBar, long position, boolean canceled) {
         if (!canceled && players != null) {
+
             for (SimpleExoPlayer player : players) {
                 player.setPlayWhenReady(false);
             }
             for (SimpleExoPlayer player : players) {
                 seekToTimeBarPosition(player, position);
             }
+            long startTime = System.currentTimeMillis();
             while (!(players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
+                long endTime = System.currentTimeMillis();
+                if ((endTime - startTime) / 1000 > 1) {
+                    releasePlayersAndStartFromThisTime(position);
+                    timeBar.setEnabled(true);
+                    locked = false;
+                    startAgain();
+                    return;
+                }
+
             }
 //            for (SimpleExoPlayer player : players) {
             if (players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY) {
                 players.get(1).setPlayWhenReady(true);
                 players.get(0).setPlayWhenReady(true);
             }
-//                seekToTimeBarPosition(player, position);
-//            }
+            locked = false;
+            timeBar.setEnabled(true);
 
         }
+
+    }
+
+    private void startAgain() {
+        for (SimpleExoPlayer player : players)
+            player.setPlayWhenReady(true);
+    }
+
+    private void releasePlayersAndStartFromThisTime(long position) {
+        for (SimpleExoPlayer player : players)
+            if (player != null) {
+//                    playWhenReady = player.getPlayWhenReady();
+                playbackPosition = position;
+                currentWindow = player.getCurrentWindowIndex();
+                player.release();
+            }
+        players = new ArrayList<>();
+        createTwoPlayers();
+        initializePlayer();
 
     }
 

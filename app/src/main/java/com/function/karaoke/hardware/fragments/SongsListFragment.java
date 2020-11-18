@@ -1,15 +1,18 @@
 package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.LayoutDirection;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOverlay;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -41,7 +44,10 @@ import com.function.karaoke.hardware.ui.SongsActivityUI;
 import com.function.karaoke.hardware.utils.Converter;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A fragment representing a list of Songs.
@@ -134,15 +140,45 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private void addGenresToScreen() {
         LinearLayout linearLayout = view.findViewById(R.id.genres);
         List<String> currentLanguageGenres;
-        if (((SongsActivity) getActivity()).language.equals("English"))
+        String currentLanguage = Locale.getDefault().getLanguage();
+
+        String phoneLanguage = Resources.getSystem().getConfiguration().getLocales().get(0).getLanguage();
+
+        if (currentLanguage.equals("en"))
             currentLanguageGenres = genres.getEnglishGenres();
         else
             currentLanguageGenres = genres.getHebrewGenres();
+
+        if (!currentLanguage.equals(phoneLanguage))
+            Collections.reverse(currentLanguageGenres);
         for (int i = 0; i < currentLanguageGenres.size(); i++) {
             TextView genre = setGenreBar(currentLanguageGenres, i);
 
             linearLayout.addView(genre);
+            genre.post(new Runnable() {
+                @Override
+                public void run() {
+                    HorizontalScrollView hz = view.findViewById(R.id.genre_scrolling);
+                    linearLayout.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (currentLanguage.equals("iw"))
+                                hz.fullScroll(View.FOCUS_RIGHT);
+                        }
+                    });
+                }
+            });
         }
+        HorizontalScrollView hz = view.findViewById(R.id.genre_scrolling);
+        linearLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                if (currentLanguage.equals("iw"))
+                    hz.fullScroll(View.FOCUS_RIGHT);
+            }
+        });
+
+
     }
 
     private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
@@ -156,7 +192,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         String textToDisplay = "   " + genre + "   |";
         textView.setText(textToDisplay);
 //        textView.setTypeface(tf);
-        if (i == 0) {
+        if (genre.equals("כל השירים") || genre.equals("All Songs")) {
             setGenreClicked(textView);
             allSongsTextView = textView;
         }
@@ -414,6 +450,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 displayAllSongs();
                 ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
                 ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+                ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.all_songs);
             }
         });
     }
@@ -432,6 +469,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     }
                     ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
                     ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+                    ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.My_recordings);
                 }
             } else {
                 mListener.alertUserToSignIn();

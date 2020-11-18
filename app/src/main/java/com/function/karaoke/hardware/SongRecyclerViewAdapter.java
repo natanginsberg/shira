@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
-import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
@@ -27,16 +26,6 @@ import java.util.List;
  * specified {@link OnListFragmentInteractionListener}.
  */
 public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder> {
-
-    // there can be other sort strategies and filters
-//    private static final Comparator<Song> mComparator = new Comparator<Song>() {
-//        @Override
-//        public int compare(Song a, Song b) {
-//            if (!a.artist.equalsIgnoreCase(b.artist))
-//                return a.artist.compareToIgnoreCase(b.artist);
-//            return a.title.compareToIgnoreCase(b.title);
-//        }
-//    };
 
     private static final Comparator<SongDisplay> mComparator = new Comparator<SongDisplay>() {
         @Override
@@ -68,13 +57,16 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        if (language.equals("English")) {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.view_song_list_item, parent, false);
-        } else {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.hebrew_resource_file, parent, false);
-        }
+        view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.view_song_list_item, parent, false);
+        if (language.equals("English"))
+            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        else
+            view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.height = (parent.getHeight() / 8);
+        view.setLayoutParams(layoutParams);
+
         return new ViewHolder(view);
     }
 
@@ -121,7 +113,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             mLblTitle = view.findViewById(R.id.lbl_title);
             mLblArtist = view.findViewById(R.id.lbl_artist);
             mCover = view.findViewById(R.id.img_cover);
-            ((Button)view.findViewById(R.id.play_button)).setText(text);
+            ((Button) view.findViewById(R.id.play_button)).setText(text);
         }
 
         @Override

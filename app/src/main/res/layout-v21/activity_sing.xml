@@ -20,8 +20,9 @@
 
         <Button
             android:id="@+id/back_button"
-            android:layout_width="25dp"
+            android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_centerVertical="true"
             android:layout_margin="5dp"
             android:background="@drawable/ic_back_arrow"
             android:onClick="returnToMain" />
@@ -38,14 +39,15 @@
             android:id="@+id/open_end_options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="7dp"
             android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="7dp"
             android:background="@drawable/skinny_rec"
+            android:elevation="10dp"
             android:onClick="openEndOptions"
             android:text="@string/done"
             android:textColor="@android:color/white"
-            android:visibility="invisible"
-            android:elevation="10dp" />
+            android:visibility="invisible" />
 
 
     </RelativeLayout>
@@ -62,14 +64,14 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:progressDrawable="@drawable/horizontal_progress_bar"
-            />
+            android:layoutDirection="ltr"
+            android:progressDrawable="@drawable/horizontal_progress_bar" />
 
         <TextView
             android:id="@+id/duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
             android:textColor="@android:color/white" />
     </RelativeLayout>
 
@@ -175,24 +177,15 @@
                 android:layout_height="match_parent"
                 android:layout_centerInParent="true" />
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/camera_toggle_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_below="@id/play_button"
-                android:layout_alignStart="@id/play_button"
-                android:layout_alignEnd="@id/play_button"
-                android:gravity="center"
-                android:onClick="toggleVideo"
-                android:splitTrack="true" />
-
-            <ImageView
-                android:id="@+id/video_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_below="@id/play_button"
-                android:layout_alignLeft="@id/camera_toggle_button"
-                android:background="@drawable/ic_video_camera_foreground" />
+                android:layout_centerHorizontal="true"
+                android:checked="true"
+                android:paddingTop="18dp"
+                android:thumb="@drawable/ic_video_camera_foreground" />
 
             <Button
                 android:id="@+id/play_button"
@@ -202,7 +195,8 @@
                 android:background="@color/appColor"
                 android:onClick="playMusic"
                 android:text="@string/play"
-                android:textColor="@color/default_text_color" />
+                android:textColor="@color/default_text_color"
+                android:visibility="invisible"/>
 
             <Button
                 android:id="@+id/pause"

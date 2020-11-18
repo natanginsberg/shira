@@ -41,7 +41,6 @@ public class SingActivityUI {
     public void setSurfaceForRecording(boolean cameraOn) {
         view.findViewById(R.id.play_button).setVisibility(View.GONE);
         view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
         if (!cameraOn)
             view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
 
@@ -50,7 +49,6 @@ public class SingActivityUI {
 
     public void turnOffCameraOptions() {
         view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.video_icon).setVisibility(View.INVISIBLE);
     }
 
     public void clearLyricsScreen() {
@@ -62,6 +60,7 @@ public class SingActivityUI {
         view.findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
         view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
     }
 
     public void openEndPopup(Context context, boolean songEnded) {
@@ -71,10 +70,8 @@ public class SingActivityUI {
         if (songEnded) {
             popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
         }
-
         placePopupOnScreen(context);
         applyDim();
-
     }
 
     private void placePopupOnScreen(Context context) {
@@ -131,13 +128,11 @@ public class SingActivityUI {
         view.findViewById(R.id.open_end_options).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.pause).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
-
     }
 
     private void setVisibleIcons() {
         view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
         view.findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.video_icon).setVisibility(View.VISIBLE);
         view.findViewById(R.id.back_button).setVisibility(View.VISIBLE);
         view.findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
         view.findViewById(R.id.artist_name).setVisibility(View.VISIBLE);

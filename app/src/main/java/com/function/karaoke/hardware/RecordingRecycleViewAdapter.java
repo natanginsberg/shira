@@ -64,13 +64,16 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        if (language.equals("English")) {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recording_display_item, parent, false);
-        } else {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.hebrew_recording_display, parent, false);
-        }
+        view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.recording_display_item, parent, false);
+        if (language.equals("English"))
+            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        else
+
+            view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+        layoutParams.height = (parent.getHeight() / 8);
+        view.setLayoutParams(layoutParams);
         return new ViewHolder(view);
     }
 
