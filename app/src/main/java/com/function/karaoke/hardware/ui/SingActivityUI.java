@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -145,5 +146,15 @@ public class SingActivityUI {
     public void songPaused() {
         view.findViewById(R.id.pause).setVisibility(View.INVISIBLE);
         view.findViewById(R.id.play).setVisibility(View.VISIBLE);
+    }
+
+    @SuppressLint("SetTextI18n")
+    public void displayTimeForCountdown(long millisUntilFinished){
+        if (millisUntilFinished / 1000 >= 1) {
+            ((TextView) view.findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+            view.findViewById(R.id.countdown).setVisibility(View.VISIBLE);
+        } else {
+            ((TextView) view.findViewById(R.id.countdown)).setText(R.string.start);
+        }
     }
 }

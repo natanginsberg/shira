@@ -5,11 +5,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -24,36 +28,43 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.core.controller.KaraokeController;
+import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.storage.ArtistService;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
+import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.tasks.OpenCameraAsync;
 import com.function.karaoke.hardware.ui.SingActivityUI;
+import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.CameraPreview;
+import com.function.karaoke.hardware.utils.Checks;
 import com.function.karaoke.hardware.utils.GenerateRandomId;
-import com.function.karaoke.hardware.utils.JsonCreator;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 public class SingActivity extends AppCompatActivity implements
         DialogBox.CallbackListener {
@@ -77,24 +88,20 @@ public class SingActivity extends AppCompatActivity implements
     private static final int SAVE = 101;
     private static final int SHARE = 102;
     private final int CAMERA_CODE = 2;
-
-    private String recordingId;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
+    AuthenticationDriver authenticationDriver;
+    private String recordingId;
     @SuppressWarnings("SpellCheckingInspection")
     private KaraokeController mKaraokeKonroller;
     private PopupWindow popup;
     private DatabaseSong song;
-
     private boolean isRunning = true;
     private boolean restart = false;
     private boolean buttonClicked = false;
-
     private TextureView mTextureView;
     private CameraPreview cameraPreview;
-
-
-    private TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
+    private final TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
             cameraPreview.setTextureView(mTextureView);
@@ -125,14 +132,13 @@ public class SingActivity extends AppCompatActivity implements
     private boolean permissionRequested = false;
     private StorageAdder storageAdder;
     private String timeStamp;
-    AuthenticationDriver authenticationDriver;
     private long lengthOfAudioPlayed;
     private SingActivityUI activityUI;
     private int delay;
     private File artistFile;
     private File jsonFileFolder;
 
-    private ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+    private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getData() != null) {
                     if (result.getResultCode() == SAVE) {
@@ -142,6 +148,8 @@ public class SingActivity extends AppCompatActivity implements
                     }
                 }
             });
+    private Billing billingSession;
+    private boolean itemBought = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,7 +171,7 @@ public class SingActivity extends AppCompatActivity implements
         recordingId = GenerateRandomId.generateRandomId();
 
 
-        if (checkCameraHardware(this)) {
+        if (Checks.checkCameraHardware(this)) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 permissionRequested = true;
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_CODE);
@@ -185,7 +193,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void createCameraAndRecorderInstance() {
-        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, checkCameraHardware(this), this);
+        cameraPreview = new CameraPreview(mTextureView, SingActivity.this, Checks.checkCameraHardware(this), this);
     }
 
     private void deletePreviousVideos() {
@@ -197,37 +205,31 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    /**
-     * Check if this device has a camera
-     */
-    private boolean checkCameraHardware(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
-    }
-
-
     private void tryLoadSong() {
 
 //        customMediaPlayer = new CustomMediaPlayer(this, song.getSongResourceFile());
-        checkForInternetConnection();
-        NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
-            @Override
-            public void onSuccess() {
-                if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+        if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext())) {
+//        checkForInternetConnection();
+            NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
+                @Override
+                public void onSuccess() {
+                    if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+                        finish();
+                    }
+                }
+
+                @Override
+                public void onFail() {
                     finish();
                 }
-            }
-
-            @Override
-            public void onFail() {
-                finish();
-            }
-        });
-        if (null != song) {
-            blurAlbumInBackground();
+            });
+            if (null != song) {
+                blurAlbumInBackground();
 //            addArtistToScreen();
-            activityUI.addArtistToScreen();
-            activityUI.setBackgroundColor();
+                activityUI.addArtistToScreen();
+                activityUI.setBackgroundColor();
 //            findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
+            }
         }
     }
 
@@ -319,16 +321,23 @@ public class SingActivity extends AppCompatActivity implements
 //                .load(song.getImageResourceFile())
 //                .placeholder(R.drawable.ic_cover_empty)
 //                .fit()
-//                .into((ImageView)findViewById(R.id.album_cover));
-////        View view = findViewById(R.id.words);
-//        BlurBuilder blurBuilder = new BlurBuilder();
-//        Bitmap blurredBitmap = null;
-//        try {
-//            blurredBitmap = blurBuilder.blur(view.getContext(), Picasso.get().load(song.getImageResourceFile()).get());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        view.setBackground(new BitmapDrawable(Resources.getSystem(), blurredBitmap));
+//                .into((ImageView) findViewById(R.id.album_cover));
+        GetBlurImage getBlurImage = new GetBlurImage();
+        getBlurImage.execute();
+//        View view = findViewById(R.id.words);
+//        view.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                Bitmap blurredBitmap = null;
+//                try {
+//                    blurredBitmap = BlurBuilder.blur(getBaseContext(), Picasso.get().load(song.getImageResourceFile()).get());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                view.setBackground(new BitmapDrawable(Resources.getSystem(), blurredBitmap));
+//            }
+//        });
+
     }
 
 
@@ -393,12 +402,7 @@ public class SingActivity extends AppCompatActivity implements
         cTimer = new CountDownTimer(3800, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                if (millisUntilFinished / 1000 >= 1) {
-                    ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-                    findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-                } else {
-                    ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
-                }
+                activityUI.displayTimeForCountdown(millisUntilFinished);
                 if (millisUntilFinished / 1000 >= 1 && !prepared[0]) {
                     prepared[0] = true;
                     cameraPreview.prepareMediaRecorder();
@@ -499,12 +503,7 @@ public class SingActivity extends AppCompatActivity implements
         cTimer = new CountDownTimer(3800, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                if (millisUntilFinished / 1000 >= 1) {
-                    ((TextView) findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-                    findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-                } else {
-                    ((TextView) findViewById(R.id.countdown)).setText(R.string.start);
-                }
+                activityUI.displayTimeForCountdown(millisUntilFinished);
             }
 
             public void onFinish() {
@@ -541,6 +540,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void resetFields() {
+        itemBought = false;
         buttonClicked = true;
         restart = false;
         isRunning = false;
@@ -571,14 +571,6 @@ public class SingActivity extends AppCompatActivity implements
                 }
             }
         });
-//        cameraPreview.startBackgroundThread();
-//        if (mTextureView.isAvailable()) {
-//            cameraPreview.setTextureView(mTextureView);
-//            cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-//            cameraPreview.connectCamera();
-//        } else {
-//            mTextureView.setSurfaceTextureListener(mSurfaceTextureListener);
-//        }
         OpenCameraAsync.openCamera(cameraPreview, mTextureView, mSurfaceTextureListener, new OpenCameraAsync.OpenCameraListener() {
             @Override
             public void onSuccess() {
@@ -619,13 +611,61 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void share(View view) {
-        if (authenticationDriver.isSignIn()) {
-            File postParseVideoFile = wrapUpSong();
-            saveToCloud(postParseVideoFile);
-            shareLink();
-        } else {
+        if (authenticationDriver.isSignIn())
+            if (!itemBought)
+                startBilling(SHARE);
+            else
+                share();
+        else
             launchSignIn(SHARE);
-        }
+
+    }
+
+    private void share() {
+        File postParseVideoFile = wrapUpSong();
+        saveToCloud(postParseVideoFile);
+        shareLink();
+    }
+
+    private void startBilling(int funcToCall) {
+
+        billingSession = new Billing(SingActivity.this, new PurchasesUpdatedListener() {
+            @Override
+            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
+
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
+                        && purchases != null) {
+                    for (Purchase purchase : purchases) {
+                        if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+                            itemBought = true;
+                            billingSession.handlePurchase(purchase);
+                            if (funcToCall == SAVE)
+                                save();
+                            else
+                                share();
+
+                        } else
+                            waitForPurchaseToFinish();
+                        // the credit card is taking time
+                    }
+                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                    int k = 0;
+                    // the user pressed back
+                    // Handle an error caused by a user cancelling the purchase flow.
+                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
+                    int k = 0;
+                    // if the credit card was cancelled
+                    // Handle any other error codes.
+                } else {
+                    int k = 0;
+                }
+            }
+        });
+
+    }
+
+    private void waitForPurchaseToFinish() {
+
     }
 
     private void showFailure(int error) {
@@ -693,14 +733,16 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void saveRecordingToTheCloud(View view) {
-
-        if (authenticationDriver.isSignIn()) {
-            File postParseVideoFile = wrapUpSong();
-            saveToCloud(postParseVideoFile);
-        } else {
+        if (authenticationDriver.isSignIn())
+            if (!itemBought) startBilling(SAVE);
+            else save();
+        else
             launchSignIn(SAVE);
+    }
 
-        }
+    private void save() {
+        File postParseVideoFile = wrapUpSong();
+        saveToCloud(postParseVideoFile);
     }
 
     private void launchSignIn(int code) {
@@ -713,75 +755,51 @@ public class SingActivity extends AppCompatActivity implements
             fileSaved = true;
             Recording recording = new Recording(song, timeStamp,
                     authenticationDriver.getUserUid(), recordingId, delay);
-            String jsonFilePath = createTempFiles();
-            JsonCreator.createJsonObject(path, recording, jsonFilePath);
-            storageAdder = new StorageAdder(path);
-            ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
-                @Override
-                public void onSuccess() {
-                    artistFile.delete();
-                    NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
-                        @Override
-                        public void onSuccess() {
-                            storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
-                                @Override
-                                public void onSuccess() {
-                                    deleteJsonFolder();
-                                }
-
-                                @Override
-                                public void onFailure() {
-
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onFail() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-                        }
-                    });
-                }
-
-                @Override
-                public void onFailure() {
-                    int k = 0;
-                }
-            });
-            artistService.addDownloadToArtist(song.getArtist());
+            CloudUpload cloudUpload = new CloudUpload(recording, this.getFilesDir(), song);
+            cloudUpload.saveToCloud(path);
         }
     }
 
-    private void deleteJsonFolder() {
-        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-            child.delete();
-        jsonFileFolder.delete();
-    }
+    private class GetBlurImage extends AsyncTask<String, Void, GetBlurImage.Result> {
+        GetBlurImage.Result result = null;
 
-    private void createEmptyFileForArtist(File folder) throws IOException {
-        artistFile = new File(folder, ARTIST_FILE + ".txt");
-        FileWriter writer = new FileWriter(artistFile);
-        writer.write("32");
-        writer.close();
-    }
 
-    private String createTempFiles() {
-        jsonFileFolder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
-        if (!jsonFileFolder.exists())
-            jsonFileFolder.mkdirs();
-        try {
-            createEmptyFileForArtist(jsonFileFolder);
-            return createVideoFileName(jsonFileFolder);
-        } catch (IOException e) {
-            e.printStackTrace();
+        @Override
+        protected Result doInBackground(String... params) {
+            try {
+                result = new Result(BlurBuilder.blur(getBaseContext(), Picasso.get().load(song.getImageResourceFile()).get()));
+                return result;
+            } catch (IOException e) {
+                return new Result(e);
+            }
+
         }
-        return null;
+
+        @Override
+        protected void onPostExecute(GetBlurImage.Result result) {
+            findViewById(R.id.words).setBackground(new BitmapDrawable(Resources.getSystem(), result.bitmap));
+        }
+
+        /**
+         * Wrapper class that serves as a union of a result value and an exception. When the download
+         * task has completed, either the result value or exception can be a non-null value.
+         * This allows you to pass exceptions to the UI thread that were thrown during doInBackground().
+         */
+        private class Result {
+            public Bitmap bitmap;
+            public Exception exception;
+
+            public Result(Bitmap bitmap) {
+                this.bitmap = bitmap;
+            }
+
+            public Result(Exception exception) {
+                this.exception = exception;
+            }
+        }
     }
 
-    private String createVideoFileName(File folder) throws IOException {
-        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
-        return videoFile.getAbsolutePath();
-    }
+
 }
 
 

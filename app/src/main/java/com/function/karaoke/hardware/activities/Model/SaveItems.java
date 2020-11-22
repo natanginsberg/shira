@@ -7,7 +7,7 @@ public class SaveItems {
     private String file = null;
     private Recording recording = null;
 
-    public SaveItems(String fileUri, Recording recording) {
+    public SaveItems(String file, Recording recording) {
         this.file = file;
         this.recording = recording;
     }
