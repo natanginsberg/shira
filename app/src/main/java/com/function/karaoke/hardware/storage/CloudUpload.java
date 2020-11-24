@@ -3,48 +3,46 @@ package com.function.karaoke.hardware.storage;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
-import com.function.karaoke.hardware.utils.JsonCreator;
+import com.function.karaoke.hardware.utils.JsonHandler;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Objects;
 
 public class CloudUpload {
 
-    private static final String JSON_FILE_NAME = "savedJson";
-    private static final String ARTIST_FILE = "artistUpdated";
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
 
     private final Recording recording;
-    private final DatabaseSong song;
     private final File folder;
+    private final String artist;
     private StorageAdder storageAdder;
-    private File artistFile;
-    private File jsonFileFolder;
+    private final File jsonFileFolder;
+    private final UploadListener uploadListener;
 
-    public CloudUpload(Recording recording, File folder, DatabaseSong song) {
+    public CloudUpload(Recording recording, File folder, String artist, UploadListener uploadListener) {
         this.recording = recording;
         this.folder = folder;
-        this.song = song;
+        this.artist = artist;
+        this.uploadListener = uploadListener;
+        jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
     }
 
-    //    private void saveToCloud(Uri path, View view1) {
+
     public void saveToCloud(File path) {
-        String jsonFilePath = createTempFiles();
-        JsonCreator.createJsonObject(path, recording, jsonFilePath);
+//        JsonCreator.createJsonObject(path, recording, folder);
         storageAdder = new StorageAdder(path);
         ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
             @Override
             public void onSuccess() {
-                artistFile.delete();
+                deleteArtistFile(path);
                 NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
                     @Override
                     public void onSuccess() {
                         storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
                             @Override
                             public void onSuccess() {
-                                deleteJsonFolder();
+                                deleteJsonFile(path.getName());
+                                uploadListener.onSuccess(path);
                             }
 
                             @Override
@@ -66,38 +64,26 @@ public class CloudUpload {
                 int k = 0;
             }
         });
-        artistService.addDownloadToArtist(song.getArtist());
+        artistService.addDownloadToArtist(artist);
     }
 
-    private void deleteJsonFolder() {
-        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-            child.delete();
-        jsonFileFolder.delete();
+    private void deleteArtistFile(File path) {
+        JsonHandler.deleteArtistFile(folder, path.getName());
+//        File artistFile = new File(jsonFileFolder, ARTIST_FILE + ".txt");
+//        artistFile.delete();
     }
 
-    private void createEmptyFileForArtist(File folder) throws IOException {
-        artistFile = new File(folder, ARTIST_FILE + ".txt");
-        FileWriter writer = new FileWriter(artistFile);
-        writer.write("32");
-        writer.close();
+    private void deleteJsonFile(String name) {
+        (new File(jsonFileFolder, name + ".json")).delete();
+        if (jsonFileFolder.list() == null || Objects.requireNonNull(jsonFileFolder.list()).length == 0)
+            jsonFileFolder.delete();
     }
 
-    private String createTempFiles() {
-        jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
-        if (!jsonFileFolder.exists())
-            jsonFileFolder.mkdirs();
-        try {
-            createEmptyFileForArtist(jsonFileFolder);
-            return createJsonFile(jsonFileFolder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
-    private String createJsonFile(File folder) throws IOException {
-        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
-        return videoFile.getAbsolutePath();
+    public interface UploadListener {
+        void onSuccess(File file);
+
+        void onFailure();
     }
 
 }

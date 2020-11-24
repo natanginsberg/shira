@@ -157,4 +157,8 @@ public class SingActivityUI {
             ((TextView) view.findViewById(R.id.countdown)).setText(R.string.start);
         }
     }
+
+    public void showPlayButton(){
+        view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+    }
 }

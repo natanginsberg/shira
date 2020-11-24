@@ -1,7 +1,5 @@
 package com.function.karaoke.hardware.activities.Model;
 
-import android.net.Uri;
-
 public class SaveItems {
 
     private String file = null;
@@ -19,7 +17,7 @@ public class SaveItems {
         return recording;
     }
 
-    public String getArtist(){
+    public String getArtist() {
         return recording.getArtist();
     }
 

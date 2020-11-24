@@ -10,16 +10,23 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeResponseListener;
+import com.android.billingclient.api.Purchase;
+import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
@@ -31,12 +38,14 @@ import com.function.karaoke.hardware.storage.ArtistService;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
-import com.function.karaoke.hardware.utils.JsonCreator;
+import com.function.karaoke.hardware.utils.Billing;
+import com.function.karaoke.hardware.utils.JsonHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -50,7 +59,9 @@ public class SongsActivity
     private static final String JSON_FILE_NAME = "savedJson";
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
     private static final String ARTIST_FILE = "artistUpdated";
+    private static final String DIRECTORY_NAME = "camera2videoImageNew";
 
+    private Billing billingSession;
     public String language;
     Locale myLocale;
     //    private SongsDB mSongs;
@@ -85,9 +96,44 @@ public class SongsActivity
         checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
         checkForSignedInUser();
+
 //        showPromo();
-        language = getResources().getConfiguration().locale.getDisplayLanguage();
+        language = getResources().getConfiguration().getLocales().get(0).getDisplayLanguage();
         setContentView(R.layout.activity_songs);
+        billingSession = new Billing(SongsActivity.this, new PurchasesUpdatedListener() {
+            @Override
+            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
+
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
+                        && purchases != null) {
+                    for (Purchase purchase : purchases) {
+                        if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+                            billingSession.handlePurchase(purchase);
+                        }
+                        // the credit card is taking time
+                    }
+                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                    int k = 0;
+                    Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
+                    // the user pressed back
+                    // Handle an error caused by a user cancelling the purchase flow.
+                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
+                    Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
+                    // if the credit card was cancelled
+                    // Handle any other error codes.
+                } else {
+                    Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
+                    int k = 0;
+                }
+            }
+        }, false, new ConsumeResponseListener() {
+            @Override
+            public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String s) {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+//                    uploadPendingJsonFile();
+                }
+            }
+        });
     }
 
     private void checkForFilesToUpload() {
@@ -95,30 +141,52 @@ public class SongsActivity
         if (folder.exists()) {
             try {
                 boolean artistFileExists = artistFileExists(folder);
-                SaveItems saveItems = JsonCreator.getDatabaseFromInputStream(getFileInputStream(folder));
-                StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
-                if (artistFileExists) {
-                    ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
-                        @Override
-                        public void onSuccess() {
-                            artistFile.delete();
-                            uploadRecording(storageAdder, saveItems, folder);
+//                List<SaveItems> savedItems = createListOfSavedItems(folder);
+                if (Objects.requireNonNull(folder.list()).length > 0) {
+                    SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(folder, 1));
+                    StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
+                    if (artistFileExists) {
+                        ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
+                            @Override
+                            public void onSuccess() {
+                                artistFile.delete();
+                                uploadRecording(storageAdder, saveItems, folder);
 
-                        }
+                            }
 
-                        @Override
-                        public void onFailure() {
+                            @Override
+                            public void onFailure() {
 
-                        }
-                    });
-                    artistService.addDownloadToArtist(saveItems.getArtist());
-                } else {
-                    uploadRecording(storageAdder, saveItems, folder);
+                            }
+                        });
+                        artistService.addDownloadToArtist(saveItems.getArtist());
+                    } else {
+                        uploadRecording(storageAdder, saveItems, folder);
+                    }
+
+
                 }
-
-
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        } else {
+            deleteSongsFolder();
+        }
+    }
+
+    private List<SaveItems> createListOfSavedItems(File folder) {
+        return null;
+//        jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+//        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+//            child.delete();
+//        jsonFileFolder.delete();
+    }
+
+    private void deleteSongsFolder() {
+        File dir = new File(this.getFilesDir(), DIRECTORY_NAME);
+        if (dir.exists()) {
+            for (File f : Objects.requireNonNull(dir.listFiles())) {
+                f.delete();
             }
         }
     }
@@ -130,7 +198,10 @@ public class SongsActivity
                 storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
                     @Override
                     public void onSuccess() {
-                        deleteJsonFolder(folder);
+                        File recordingFile = (new File(saveItems.getFile()));
+                        recordingFile.delete();
+                        deleteJsonFile(folder, recordingFile.getName());
+//                        deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
                     }
 
@@ -149,15 +220,16 @@ public class SongsActivity
 
     }
 
-    private void deleteJsonFolder(File folder) {
-        for (File child : Objects.requireNonNull(folder.listFiles()))
-            child.delete();
-        folder.delete();
+    private void deleteJsonFile(File folder, String name) {
+        (new File(folder, name + ".json")).delete();
+        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+        if (jsonFileFolder.list() == null || Objects.requireNonNull(jsonFileFolder.list()).length == 0)
+            jsonFileFolder.delete();
     }
 
-
-    private InputStream getFileInputStream(File folder) throws IOException {
-        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
+    private InputStream getFileInputStream(File folder, int index) throws IOException {
+//        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
+        File videoFile = folder.listFiles()[index];
         return new FileInputStream(videoFile);
     }
 
@@ -220,14 +292,10 @@ public class SongsActivity
             alertBuilder.setCancelable(true);
             alertBuilder.setTitle(R.string.mic_access_title);
             alertBuilder.setMessage(R.string.mic_access_text);
-            alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
+            alertBuilder.setPositiveButton(android.R.string.yes, (dialog, which) ->
                     ActivityCompat.requestPermissions(SongsActivity.this,
                             new String[]{Manifest.permission.RECORD_AUDIO},
-                            AUDIO_CODE);
-                }
-            });
+                            AUDIO_CODE));
 
             AlertDialog alert = alertBuilder.create();
             alert.show();

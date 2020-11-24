@@ -63,29 +63,6 @@ public class StorageAdder extends ViewModel implements Serializable {
         Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
         recording.setRecordingUrl(downloadUri.toString());
         addRecordingToFirestore(recording, uploadListener);
-//        if (videoUri != null) {
-//            String destFileName = "images/" + recording.getDate();
-//            StorageReference ref = this.storageReference.child(destFileName);
-//            StorageTask<UploadTask.TaskSnapshot> uploadTask = ref.putFile(videoUri);
-//            Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
-//                if (!task.isSuccessful()) {
-//                    throw task.getException();
-//                }
-//
-//                // Continue with the task to get the download URL
-//                return ref.getDownloadUrl();
-//            }).addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    Uri downloadUri = task.getResult();
-//                    recording.setRecordingUrl(downloadUri.toString());
-//                    addRecordingToFirestore(recording, uploadListener);
-//                } else {
-//                    // Handle failures
-//                    // ...
-//                    uploadListener.onFailure();
-//                }
-//            });
-//        }
     }
 
 

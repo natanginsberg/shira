@@ -2,7 +2,6 @@ package com.function.karaoke.hardware;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -10,8 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -36,15 +33,16 @@ import androidx.core.content.ContextCompat;
 
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
-import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.tasks.OpenCameraAsync;
 import com.function.karaoke.hardware.ui.SingActivityUI;
@@ -52,6 +50,7 @@ import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.Checks;
 import com.function.karaoke.hardware.utils.GenerateRandomId;
+import com.function.karaoke.hardware.utils.JsonHandler;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -60,7 +59,9 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -72,21 +73,18 @@ public class SingActivity extends AppCompatActivity implements
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
-    private static final String JSON_DIRECTORY_NAME = "jsonFile";
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
     private static final String DELAY = "delay";
-    private static final String JSON_FILE_NAME = "savedJson";
-    private static final String ARTIST_FILE = "artistUpdated";
     private static final String RESULT_CODE = "code";
 
     private static final int BACK_CODE = 101;
-    private static final int INTERNET_CODE = 102;
     private static final int MESSAGE_RESULT = 1;
     private static final int SHARING_ERROR = 100;
     private static final int UPLOAD_ERROR = 101;
     private static final int SAVE = 101;
     private static final int SHARE = 102;
+    private static final int CAMERA_ERROR = 111;
     private final int CAMERA_CODE = 2;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
@@ -130,13 +128,10 @@ public class SingActivity extends AppCompatActivity implements
     private boolean fileSaved = false;
     private boolean cameraOn = false;
     private boolean permissionRequested = false;
-    private StorageAdder storageAdder;
     private String timeStamp;
     private long lengthOfAudioPlayed;
     private SingActivityUI activityUI;
     private int delay;
-    private File artistFile;
-    private File jsonFileFolder;
 
     private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -150,13 +145,14 @@ public class SingActivity extends AppCompatActivity implements
             });
     private Billing billingSession;
     private boolean itemBought = false;
+    private boolean keepVideo = false;
+    private File postParseVideoFile;
+    private Recording recording;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         authenticationDriver = new AuthenticationDriver();
-        //todo delete only if file was uploaded or if saved
-        deletePreviousVideos();
         createCameraAndRecorderInstance();
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song);
@@ -169,8 +165,12 @@ public class SingActivity extends AppCompatActivity implements
         mPlayer = mKaraokeKonroller.getmPlayer();
 
         recordingId = GenerateRandomId.generateRandomId();
+        checkForPermissionAndOpenCamera();
+        tryLoadSong();
+        activityUI.showPlayButton();
+    }
 
-
+    private void checkForPermissionAndOpenCamera() {
         if (Checks.checkCameraHardware(this)) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 permissionRequested = true;
@@ -183,27 +183,12 @@ public class SingActivity extends AppCompatActivity implements
             activityUI.turnOffCameraOptions();
             cameraPreview.initiateRecorder();
         }
-
-        tryLoadSong();
-        showPlayButton();
-    }
-
-    private void showPlayButton() {
-        findViewById(R.id.play_button).setVisibility(View.VISIBLE);
     }
 
     private void createCameraAndRecorderInstance() {
         cameraPreview = new CameraPreview(mTextureView, SingActivity.this, Checks.checkCameraHardware(this), this);
     }
 
-    private void deletePreviousVideos() {
-        File dir = new File(this.getFilesDir(), DIRECTORY_NAME);
-        if (dir.exists()) {
-            for (File f : dir.listFiles()) {
-                f.delete();
-            }
-        }
-    }
 
     private void tryLoadSong() {
 
@@ -233,19 +218,6 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    private void checkForInternetConnection() {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if (networkInfo == null || !networkInfo.isConnected() ||
-                (networkInfo.getType() != ConnectivityManager.TYPE_WIFI
-                        && networkInfo.getType() != ConnectivityManager.TYPE_MOBILE)) {
-            // If no connectivity, cancel task and update Callback with null data.
-            DialogBox dialogBox = DialogBox.newInstance(this, INTERNET_CODE);
-            dialogBox.show(getSupportFragmentManager(), "NoticeDialogFragment");
-        }
-    }
-
     @Override
     public void callback(String result) {
         if (result.equals("yes")) {
@@ -257,10 +229,18 @@ public class SingActivity extends AppCompatActivity implements
             if (isRecording) {
                 cameraPreview.stopRecording();
             }
+            if (!keepVideo)
+                deleteVideo();
             finish();
         } else if (result.equals("ok")) {
             finish();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        DialogBox back = DialogBox.newInstance(this, BACK_CODE);
+        back.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
 
     public void playback(View view) {
@@ -370,6 +350,11 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     public void returnToMain(View view) {
@@ -527,16 +512,22 @@ public class SingActivity extends AppCompatActivity implements
 
     public void playAgain(View view) {
         if (!buttonClicked) {
+            if (!keepVideo)
+                deleteVideo();
             resetFields();
             cameraPreview.stopRecording();
             popup.dismiss();
             activityUI.resetPage();
-            deletePreviousVideos();
+            //todo deal with deleting
+//            deletePreviousVideos();
             resetKaraokeController();
             tryLoadSong();
             buttonClicked = false;
-            showPlayButton();
         }
+    }
+
+    private void deleteVideo() {
+        cameraPreview.getVideo().delete();
     }
 
     private void resetFields() {
@@ -579,7 +570,7 @@ public class SingActivity extends AppCompatActivity implements
 
             @Override
             public void onFail() {
-                //todo deal with fail
+                showFailure(CAMERA_ERROR);
             }
         });
 
@@ -611,6 +602,10 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void share(View view) {
+//        if (!ending) {
+//            saveSongToJsonFile();
+//        }
+
         if (authenticationDriver.isSignIn())
             if (!itemBought)
                 startBilling(SHARE);
@@ -621,14 +616,38 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
-    private void share() {
-        File postParseVideoFile = wrapUpSong();
-        saveToCloud(postParseVideoFile);
-        shareLink();
+//    private void saveSongToJsonFile() {
+//        postParseVideoFile = wrapUpSong();
+//        recording = new Recording(song, timeStamp,
+//                authenticationDriver.getUserUid(), recordingId, delay);
+//        JsonHandler.createJsonObject(postParseVideoFile, recording, this.getFilesDir());
+//    }
+
+    private void saveSongToTempJsonFile() {
+        postParseVideoFile = wrapUpSong();
+        recording = new Recording(song, timeStamp,
+                authenticationDriver.getUserUid(), recordingId, delay);
+        JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
     }
 
-    private void startBilling(int funcToCall) {
+    private void share() {
 
+        shareLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
+    }
+
+    private void share(File jsonFile) {
+        try {
+            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
+            saveToCloud(saveItems);
+            shareLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
+                    Integer.toString(saveItems.getRecording().getDelay()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void startBilling(int funcToCall) {
         billingSession = new Billing(SingActivity.this, new PurchasesUpdatedListener() {
             @Override
             public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
@@ -636,37 +655,55 @@ public class SingActivity extends AppCompatActivity implements
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
                         && purchases != null) {
                     for (Purchase purchase : purchases) {
+                        keepVideo = true;
+                        saveSongToTempJsonFile();
                         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+//                          saveSongToJsonFile();
                             itemBought = true;
                             billingSession.handlePurchase(purchase);
-                            if (funcToCall == SAVE)
-                                save();
-                            else
-                                share();
 
-                        } else
-                            waitForPurchaseToFinish();
+                        }
                         // the credit card is taking time
                     }
                 } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-                    int k = 0;
-                    // the user pressed back
-                    // Handle an error caused by a user cancelling the purchase flow.
+                    deletePendingJsonFile();
+                    keepVideo = false;
+                    Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
+
                 } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
-                    int k = 0;
-                    // if the credit card was cancelled
-                    // Handle any other error codes.
+                    deletePendingJsonFile();
+                    keepVideo = false;
+                    Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
+
                 } else {
-                    int k = 0;
+                    deletePendingJsonFile();
+                    keepVideo = false;
+                    Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, true, new ConsumeResponseListener() {
+            @Override
+            public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String purchaseToken) {
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                    File jsonFile = renameJsonPendingFile();
+                    if (funcToCall == SAVE)
+                        save(jsonFile);
+                    else
+                        share(jsonFile);
                 }
             }
         });
 
     }
 
-    private void waitForPurchaseToFinish() {
-
+    private void deletePendingJsonFile() {
+        JsonHandler.deletePendingJsonFile(this.getFilesDir());
     }
+
+    private File renameJsonPendingFile() {
+        return JsonHandler.renameJsonPendingFile(this.getFilesDir());
+    }
+
 
     private void showFailure(int error) {
         switch (error) {
@@ -676,14 +713,17 @@ public class SingActivity extends AppCompatActivity implements
             case UPLOAD_ERROR:
                 Toast.makeText(this, "video failed to load", Toast.LENGTH_SHORT).show();
                 break;
+            case CAMERA_ERROR:
+                Toast.makeText(this, "Camera failed to open", Toast.LENGTH_SHORT).show();
+                break;
         }
 
     }
 
-    private void shareLink() {
+    private void shareLink(String recordingId, String userId, String delay) {
         Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
 //                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
-                .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
+                .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + userId + "&delay=" + delay))
                 .setDomainUriPrefix("https://singjewish.page.link")
                 // Set parameters
                 // ...
@@ -733,30 +773,64 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void saveRecordingToTheCloud(View view) {
+//        if (!ending) {
+//            saveSongToJsonFile();
+//        }
         if (authenticationDriver.isSignIn())
             if (!itemBought) startBilling(SAVE);
-            else save();
-        else
-            launchSignIn(SAVE);
+//            else save();
+            else
+                launchSignIn(SAVE);
     }
 
-    private void save() {
-        File postParseVideoFile = wrapUpSong();
-        saveToCloud(postParseVideoFile);
+//    private void save() {
+//
+//        keepVideo = true;
+////        File postParseVideoFile = wrapUpSong();
+//        saveToCloud(postParseVideoFile);
+//    }
+
+    private void save(File jsonFile) {
+        try {
+            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
+            saveToCloud(saveItems);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
+    private InputStream getFileInputStream(File file) throws IOException {
+//        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
+        return new FileInputStream(file);
+    }
+
 
     private void launchSignIn(int code) {
         mGetContent.launch(new Intent(this, SignInActivity.class).putExtra(RESULT_CODE, code));
     }
 
     //    private void saveToCloud(Uri path, View view1) {
-    private void saveToCloud(File path) {
+    private void saveToCloud(SaveItems saveItems) {
         if (!fileSaved) {
             fileSaved = true;
-            Recording recording = new Recording(song, timeStamp,
-                    authenticationDriver.getUserUid(), recordingId, delay);
-            CloudUpload cloudUpload = new CloudUpload(recording, this.getFilesDir(), song);
-            cloudUpload.saveToCloud(path);
+            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
+                @Override
+                public void onSuccess(File file) {
+                    deleteVideo(file);
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            });
+            cloudUpload.saveToCloud(new File(saveItems.getFile()));
+        }
+    }
+
+    private void deleteVideo(File file) {
+        if (file.delete()) {
+            int k = 0;
         }
     }
 

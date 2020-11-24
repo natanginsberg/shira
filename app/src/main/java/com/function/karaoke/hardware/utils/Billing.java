@@ -21,10 +21,14 @@ public class Billing {
 
     private final BillingClient billingClient;
     private final Activity activity;
+    private final ConsumeResponseListener consumeResponseListener;
     private int counter = 0;
+    private final boolean displayProducts;
 
-    public Billing(Activity activity, PurchasesUpdatedListener purchasesUpdatedListener) {
+    public Billing(Activity activity, PurchasesUpdatedListener purchasesUpdatedListener, boolean displayProducts, ConsumeResponseListener consumeResponseListener) {
         this.activity = activity;
+        this.consumeResponseListener = consumeResponseListener;
+        this.displayProducts = displayProducts;
         billingClient = BillingClient.newBuilder(activity)
                 .setListener(purchasesUpdatedListener)
                 .enablePendingPurchases()
@@ -38,7 +42,10 @@ public class Billing {
             public void onBillingSetupFinished(BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     // The BillingClient is ready. You can query purchases here.
-                    displayProducts();
+                    if (displayProducts)
+                        displayProducts();
+                    else
+                        acknowledgePreviousOrders();
                 }
             }
 
@@ -56,15 +63,22 @@ public class Billing {
         });
     }
 
+    private void acknowledgePreviousOrders() {
+        Purchase.PurchasesResult allPurchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
+        if (allPurchases.getPurchasesList() != null)
+            for (Purchase purchase : allPurchases.getPurchasesList()) {
+                if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED)
+                    handlePurchase(purchase);
+
+            }
+    }
+
     private void showToastUnableToConnect() {
         Toast.makeText(activity.getBaseContext(), "Unable to connect", Toast.LENGTH_SHORT).show();
     }
 
     private void displayProducts() {
-        Purchase.PurchasesResult allPurchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP);
-        for (Purchase purchase : allPurchases.getPurchasesList()) {
-            handlePurchase(purchase);
-        }
+
         List<String> skuList = new ArrayList<>();
         skuList.add("karaoke_test");
         SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
@@ -73,6 +87,8 @@ public class Billing {
                 (billingResult, skuDetailsList) -> {
                     if (skuDetailsList.size() != 0) {
                         startFlow(skuDetailsList);
+                    } else {
+                        Toast.makeText(activity.getBaseContext(), "No items for sale at the moment", Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -96,12 +112,12 @@ public class Billing {
                             .setPurchaseToken(purchase.getPurchaseToken())
                             .build();
 
-            ConsumeResponseListener listener = (billingResult, purchaseToken) -> {
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    // Handle the success of the consume operation.
-                }
-            };
-            billingClient.consumeAsync(consumeParams, listener);
+//            ConsumeResponseListener listener = (BillingResult billingResult, String purchaseToken) -> {
+//                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+//                    // Handle the success of the consume operation.
+//                }
+//            };
+            billingClient.consumeAsync(consumeParams, consumeResponseListener);
         }
     }
 }

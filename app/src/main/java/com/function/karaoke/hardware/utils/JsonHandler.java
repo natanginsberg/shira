@@ -1,7 +1,5 @@
 package com.function.karaoke.hardware.utils;
 
-import android.net.Uri;
-
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
@@ -19,8 +17,13 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Objects;
 
-public class JsonCreator {
+public class JsonHandler {
+
+    private static final String JSON_FILE_NAME = "savedJson";
+    private static final String ARTIST_FILE = "artistUpdated";
+    private static final String JSON_DIRECTORY_NAME = "jsonFile";
 
     private static void putJsonInFile(String storageFilePath, JSONObject jsonObject) {
         String userString = jsonObject.toString();
@@ -36,8 +39,21 @@ public class JsonCreator {
 
     }
 
-    public static void createJsonObject(File videoPath, Recording recording, String storageFilePath) {
+    public static void createJsonObject(File videoPath, Recording recording, File folder) {
         try {
+            String storageFilePath = createTempFiles(folder, videoPath.getName());
+            JSONObject saveItems = new JSONObject();
+            saveItems.put("filePath", videoPath.getPath());
+            saveItems.put("recording", recording.putRecordingInJsonObject());
+            putJsonInFile(storageFilePath, saveItems);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public static void createTempJsonObject(File videoPath, Recording recording, File folder) {
+        try {
+            String storageFilePath = createTempFiles(folder, videoPath.getName() + "Pending");
             JSONObject saveItems = new JSONObject();
             saveItems.put("filePath", videoPath.getPath());
             saveItems.put("recording", recording.putRecordingInJsonObject());
@@ -90,4 +106,57 @@ public class JsonCreator {
         return new SaveItems(fileUri, recording);
     }
 
+    private static void createEmptyFileForArtist(File folder, String videoPath) throws IOException {
+        File artistFile = new File(folder, videoPath + ".txt");
+        FileWriter writer = new FileWriter(artistFile);
+        writer.write("32");
+        writer.close();
+    }
+
+    private static String createTempFiles(File folder, String videoPath) {
+        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+        if (!jsonFileFolder.exists())
+            jsonFileFolder.mkdirs();
+        try {
+            createEmptyFileForArtist(jsonFileFolder, videoPath);
+            return createJsonFile(jsonFileFolder, videoPath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static String createJsonFile(File folder, String videoPath) throws IOException {
+        File videoFile = new File(folder, videoPath + "artist.json");
+        return videoFile.getAbsolutePath();
+    }
+
+    public static File renameJsonPendingFile(File folder) {
+        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+            if (child.getName().contains("Pending")) {
+                File secondName = new File(jsonFileFolder, child.getName().replaceAll("Pending", ""));
+                child.renameTo(secondName);
+                if (!child.getName().contains("artist")) {
+                    return secondName;
+                }
+            }
+        return null;
+    }
+
+    public static void deletePendingJsonFile(File folder) {
+        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+            if (child.getName().contains("Pending")) {
+                child.delete();
+            }
+    }
+
+    public static void deleteArtistFile(File folder, String name){
+        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+            if (child.getName().contains(name) && child.getName().contains("artist")) {
+                child.delete();
+            }
+    }
 }
