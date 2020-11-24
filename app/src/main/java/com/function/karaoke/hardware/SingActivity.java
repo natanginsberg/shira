@@ -616,13 +616,6 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
-//    private void saveSongToJsonFile() {
-//        postParseVideoFile = wrapUpSong();
-//        recording = new Recording(song, timeStamp,
-//                authenticationDriver.getUserUid(), recordingId, delay);
-//        JsonHandler.createJsonObject(postParseVideoFile, recording, this.getFilesDir());
-//    }
-
     private void saveSongToTempJsonFile() {
         postParseVideoFile = wrapUpSong();
         recording = new Recording(song, timeStamp,
@@ -809,14 +802,14 @@ public class SingActivity extends AppCompatActivity implements
         mGetContent.launch(new Intent(this, SignInActivity.class).putExtra(RESULT_CODE, code));
     }
 
-    //    private void saveToCloud(Uri path, View view1) {
     private void saveToCloud(SaveItems saveItems) {
         if (!fileSaved) {
             fileSaved = true;
             CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
                 @Override
                 public void onSuccess(File file) {
-                    deleteVideo(file);
+//                    deleteVideo(file);
+                    keepVideo = false;
                 }
 
                 @Override

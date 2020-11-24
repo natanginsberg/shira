@@ -69,8 +69,6 @@ public class CloudUpload {
 
     private void deleteArtistFile(File path) {
         JsonHandler.deleteArtistFile(folder, path.getName());
-//        File artistFile = new File(jsonFileFolder, ARTIST_FILE + ".txt");
-//        artistFile.delete();
     }
 
     private void deleteJsonFile(String name) {

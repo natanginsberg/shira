@@ -34,8 +34,8 @@ import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
-import com.function.karaoke.hardware.storage.ArtistService;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
+import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
@@ -45,6 +45,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -130,41 +131,49 @@ public class SongsActivity
             @Override
             public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String s) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-//                    uploadPendingJsonFile();
+                    renamePendingFiles();
+                    checkForFilesToUpload();
                 }
             }
         });
+    }
+
+    private void renamePendingFiles() {
+        JsonHandler.renameJsonPendingFile(this.getFilesDir());
     }
 
     private void checkForFilesToUpload() {
         File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
         if (folder.exists()) {
             try {
-                boolean artistFileExists = artistFileExists(folder);
-//                List<SaveItems> savedItems = createListOfSavedItems(folder);
-                if (Objects.requireNonNull(folder.list()).length > 0) {
-                    SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(folder, 1));
-                    StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
-                    if (artistFileExists) {
-                        ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
-                            @Override
-                            public void onSuccess() {
-                                artistFile.delete();
-                                uploadRecording(storageAdder, saveItems, folder);
+                List<File> listOfAllFiles = Arrays.asList(Objects.requireNonNull(folder.listFiles()));
+                for (File child : listOfAllFiles) {
+                    if (child.getName().contains("Pending"))
+                        continue;
+                    if (child.getName().contains("artist"))
+                        continue;
+                    else {
+                        SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
+                        if (artistFileExists(child, listOfAllFiles)) {
+                            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
+                                @Override
+                                public void onSuccess(File file) {
+                                    deleteVideo(file);
+                                }
 
-                            }
+                                @Override
+                                public void onFailure() {
 
-                            @Override
-                            public void onFailure() {
+                                }
+                            });
+                            cloudUpload.saveToCloud(new File(saveItems.getFile()));
 
-                            }
-                        });
-                        artistService.addDownloadToArtist(saveItems.getArtist());
-                    } else {
-                        uploadRecording(storageAdder, saveItems, folder);
+                        } else {
+                            StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
+                            uploadRecording(storageAdder, saveItems, folder);
+                        }
+
                     }
-
-
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -172,15 +181,22 @@ public class SongsActivity
         } else {
             deleteSongsFolder();
         }
+
     }
 
-    private List<SaveItems> createListOfSavedItems(File folder) {
-        return null;
-//        jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
-//        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-//            child.delete();
-//        jsonFileFolder.delete();
+    private void deleteVideo(File file) {
+        file.delete();
     }
+
+    private boolean artistFileExists(File child, List<File> listOfAllFiles) {
+        for (File file : listOfAllFiles) {
+            if (file.getName().contains(child.getName().replace(".json", "")) && file.getName().contains("artist")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private void deleteSongsFolder() {
         File dir = new File(this.getFilesDir(), DIRECTORY_NAME);
@@ -227,15 +243,8 @@ public class SongsActivity
             jsonFileFolder.delete();
     }
 
-    private InputStream getFileInputStream(File folder, int index) throws IOException {
-//        File videoFile = new File(folder, JSON_FILE_NAME + ".json");
-        File videoFile = folder.listFiles()[index];
-        return new FileInputStream(videoFile);
-    }
-
-    private boolean artistFileExists(File folder) throws IOException {
-        artistFile = new File(folder, ARTIST_FILE + ".txt");
-        return artistFile.exists();
+    private InputStream getFileInputStream(File file) throws IOException {
+        return new FileInputStream(file);
     }
 
 
