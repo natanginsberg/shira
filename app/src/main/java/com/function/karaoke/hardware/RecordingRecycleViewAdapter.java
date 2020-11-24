@@ -137,7 +137,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             mDate.setText(date);
             Picasso.get()
                     .load(song.getImageResourceFile())
-                    .placeholder(R.drawable.ic_cover_empty)
+                    .placeholder(R.drawable.plain_rec)
                     .fit()
                     .into(mCover);
         }

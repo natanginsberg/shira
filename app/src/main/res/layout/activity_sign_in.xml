@@ -89,7 +89,7 @@
         android:id="@+id/guest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="backToMain"
+        android:onClick="continueAsGuest"
         android:text="@string/continue_as_guest"
         android:textSize="15sp"
         android:textColor="@color/purple_hover"

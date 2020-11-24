@@ -286,6 +286,8 @@ public class SongsActivity
     @Override
     public void signOut() {
         authenticationDriver.signOut();
+        launchSignIn();
+
     }
 
     @Override
@@ -347,7 +349,7 @@ public class SongsActivity
         Resources res = getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();
-        conf.locale = myLocale;
+        conf.setLocale(myLocale);
         res.updateConfiguration(conf, dm);
         Intent refresh = new Intent(this, SongsActivity.class);
         startActivity(refresh);

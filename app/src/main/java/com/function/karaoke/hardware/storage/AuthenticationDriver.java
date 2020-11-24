@@ -1,5 +1,7 @@
 package com.function.karaoke.hardware.storage;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -34,6 +36,12 @@ public class AuthenticationDriver {
 
     public void signOut() {
         auth.signOut();
+    }
+
+    public void createGuestId(OnCompleteListener<AuthResult> listener){
+        auth.signInAnonymously()
+                .addOnCompleteListener(listener);
+
     }
 
 }

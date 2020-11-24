@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware;
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -122,16 +123,19 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
 
         public void setItem(SongDisplay song) {
-//            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
             mItem = song;
             mLblTitle.setText(song.getTitle());
-//            mLblTitle.setTypeface(tf);
-//            tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialUnicodeMS.ttf");
             mLblArtist.setText(song.getArtist());
+//            if (!language.equals("English")) {
+            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
+            mLblTitle.setTypeface(tf);
+            mLblArtist.setTypeface(tf);
+            ((Button) mView.findViewById(R.id.play_button)).setTypeface(tf);
+//            }
 //            mLblArtist.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())
-                    .placeholder(R.drawable.ic_cover_empty)
+                    .placeholder(R.drawable.plain_rec)
                     .fit()
                     .into(mCover);
         }

@@ -5,7 +5,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.LayoutDirection;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,8 +42,9 @@ import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
 import com.function.karaoke.hardware.utils.Converter;
 
+import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -86,6 +86,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private TextView allSongsTextView;
     private AuthenticationDriver authenticationDriver;
     private SongsActivityUI songsActivityUI;
+    private String currentLanguage;
 
 
     /**
@@ -140,17 +141,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private void addGenresToScreen() {
         LinearLayout linearLayout = view.findViewById(R.id.genres);
         List<String> currentLanguageGenres;
-        String currentLanguage = Locale.getDefault().getLanguage();
-
+        currentLanguage = getResources().getConfiguration().getLocales().get(0).getLanguage();
         String phoneLanguage = Resources.getSystem().getConfiguration().getLocales().get(0).getLanguage();
 
-        if (currentLanguage.equals("en"))
-            currentLanguageGenres = genres.getEnglishGenres();
-        else
-            currentLanguageGenres = genres.getHebrewGenres();
+//        if (currentLanguage.equals("en"))
+        currentLanguageGenres = genres.getEnglishGenres();
+//        else
+//            currentLanguageGenres = genres.getHebrewGenres();
 
-        if (!currentLanguage.equals(phoneLanguage))
-            Collections.reverse(currentLanguageGenres);
+//        if (!currentLanguage.equals(phoneLanguage))
+//            Collections.reverse(currentLanguageGenres);
         for (int i = 0; i < currentLanguageGenres.size(); i++) {
             TextView genre = setGenreBar(currentLanguageGenres, i);
 
@@ -186,13 +186,18 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 //        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/ArialUnicodeMS.ttf");
         TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
-        textView.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
         textView.setTextColor(Color.BLACK);
         setTextViewAttributes(textView);
-        String textToDisplay = "   " + genre + "   |";
+        String genreToDisplay;
+        if (currentLanguage.equals("en")) {
+            genreToDisplay = genre.split(",")[0];
+        } else {
+            genreToDisplay = genre.split(",")[1];
+        }
+        String textToDisplay = "   " + genreToDisplay + "   |";
         textView.setText(textToDisplay);
 //        textView.setTypeface(tf);
-        if (genre.equals("כל השירים") || genre.equals("All Songs")) {
+        if (genre.contains("כל השירים")) {
             setGenreClicked(textView);
             allSongsTextView = textView;
         }
@@ -207,7 +212,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 } else {
                     setTextOfClickedToBlack();
                     setGenreClicked(textView);
-                    getAllSongsFromGenre(genres.getHebrewGenres().get(finalI));
+                    getAllSongsFromGenre(genre.split(",")[1]);
                 }
 
             }
@@ -219,6 +224,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         textView.setHeight(Converter.convertDpToPx(24));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
         textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
+        textView.setTypeface(tf, Typeface.NORMAL);
     }
 
     private void setTextOfClickedToBlack() {
@@ -238,7 +245,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             for (DatabaseSong song : allSongsDatabase.getSongs()) {
                 if (song.getGenre().toLowerCase().equals(genre)) {
                     searchedSongs.add(song);
-
                 }
             }
         }

@@ -13,7 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.storage.AuthenticationDriver;
 
 public class SongsActivityUI {
 
@@ -29,7 +28,7 @@ public class SongsActivityUI {
         this.view = songsActivity;
     }
 
-    public void openSettingsPopup(Context context, boolean isUserSignedIn, int contentsDisplayed){
+    public void openSettingsPopup(Context context, boolean isUserSignedIn, int contentsDisplayed) {
         this.context = context;
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -43,7 +42,6 @@ public class SongsActivityUI {
         setSignInOrOut(isUserSignedIn);
 
         placePopupOnScreen();
-        //todo get dim to work with view that returns correct object
         applyDim();
 
     }
@@ -60,7 +58,10 @@ public class SongsActivityUI {
         popup = new PopupWindow(context);
         popup.setFocusable(true);
         setPopupAttributes(popup, popupView);
-        popup.showAtLocation(popupView, Gravity.START, 0, 0);
+        int[] location = new int[2];
+        view.findViewById(R.id.settings_button).getLocationOnScreen(location);
+        popup.showAtLocation(popupView, Gravity.START,
+                Math.abs(view.getWidth() - location[0]) < Math.abs(location[0]) ? view.getWidth() : 0, 0);
     }
 
     private void applyDim() {
@@ -89,11 +90,11 @@ public class SongsActivityUI {
         return popupView;
     }
 
-    public void changeTextForSignInButton(CharSequence text){
-        ((TextView)popupView.findViewById(R.id.sign_in_button)).setText(text);
+    public void changeTextForSignInButton(CharSequence text) {
+        ((TextView) popupView.findViewById(R.id.sign_in_button)).setText(text);
     }
 
-    public void openSearchBar(boolean isSearchOpen){
+    public void openSearchBar(boolean isSearchOpen) {
         if (isSearchOpen)
             view.findViewById(R.id.search_input).setVisibility(View.GONE);
 

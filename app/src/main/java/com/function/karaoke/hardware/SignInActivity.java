@@ -6,6 +6,7 @@ import android.os.CountDownTimer;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -19,7 +20,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignInActivity extends AppCompatActivity {
@@ -27,6 +30,8 @@ public class SignInActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 101;
     private static final String RESULT_CODE = "code";
+    private static final String SING_ACTIVITY = "sing activity";
+    private static final String CALLBACK = "callback";
     private GoogleSignInClient mGoogleSignInClient;
     private AuthenticationDriver authenticationDriver;
     private UserInfo user;
@@ -43,9 +48,10 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void extractIntentParams() {
-        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("callback")) {
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(CALLBACK)) {
             callback = true;
         }
+
     }
 
 
@@ -75,7 +81,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private void checkForSignedInUser() {
-        if (authenticationDriver.getUserUid() != null) {
+        if (authenticationDriver.getUserUid() != null && !authenticationDriver.getUserEmail().equals("")) {
             Intent intent = new Intent(this, SongsActivity.class);
             startActivity(intent);
         } else
@@ -85,6 +91,7 @@ public class SignInActivity extends AppCompatActivity {
     private void openSignIn() {
         signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
         setContentView(R.layout.activity_sign_in);
+        checkIfGuestIsPermitted();
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken("701925650903-cmh7htvq718jbea95a0ukbkmlttqb56b.apps.googleusercontent.com")
                 .requestEmail()
@@ -102,6 +109,11 @@ public class SignInActivity extends AppCompatActivity {
 
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
+    }
+
+    private void checkIfGuestIsPermitted() {
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(SING_ACTIVITY))
+            findViewById(R.id.guest).setVisibility(View.INVISIBLE);
     }
 
     private void extractCodeExtrasIfExist() {
@@ -133,12 +145,7 @@ public class SignInActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-//            if (completedTask.isCanceled()){
-
-//            }
-
-//            Signed in successfully, show authenticated UI.
-//            updateUI(account);
+//
             signInViewModel.firebaseAuthWithGoogle(account.getIdToken(), new SignInViewModel.FirebaseAuthListener() {
                 @Override
                 public void onSuccess(FirebaseUser firebaseUser) {
@@ -210,7 +217,6 @@ public class SignInActivity extends AppCompatActivity {
                     signInViewModel.setLoginState(LoginState.NEW_USER_SIGN_UP);
                 }
             } else {
-                Toast.makeText(this, "unable to sign in", Toast.LENGTH_LONG).show();
                 signInViewModel.setLoginState(LoginState.NOT_SIGN_IN);
             }
 //            updateAccordingToLoginState();
@@ -218,9 +224,32 @@ public class SignInActivity extends AppCompatActivity {
     }
 
 
-    public void backToMain(View view) {
+    public void continueAsGuest(View view) {
+        signInViewModel.createGuestId(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    // Sign in success, update UI with the signed-in user's information
+                    openMain();
+                } else {
+                    makeToastForError();
+                    // If sign in fails, display a message to the user.
+//                    Log.w(TAG, "signInAnonymously:failure", task.getException());
+//                    Toast.makeText(AnonymousAuthActivity.this, "Authentication failed.",
+//                            Toast.LENGTH_SHORT).show();
+//                    updateUI(null);
+                }
+            }
+        });
+
+    }
+
+    private void openMain() {
         Intent intent = new Intent(this, SongsActivity.class);
-//            onActivityResult(0, RESULT_OK, intent);
         startActivity(intent);
+    }
+
+    private void makeToastForError() {
+        Toast.makeText(this, "Sorry, there is a problem with our servers", Toast.LENGTH_LONG).show();
     }
 }

@@ -1,5 +1,8 @@
 package com.function.karaoke.hardware.activities.Model;
 
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -9,7 +12,9 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.UserService;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
@@ -143,6 +148,13 @@ public class SignInViewModel extends ViewModel {
             firebaseAuthListener.onSuccess(user);
 
         });
+    }
+
+    public void createGuestId(OnCompleteListener<AuthResult> listener){
+        authenticationDriver.createGuestId(listener);
+    }
+
+    private void updateUI(FirebaseUser user) {
     }
 
     public interface DatabaseListener {

@@ -85,6 +85,8 @@ public class SingActivity extends AppCompatActivity implements
     private static final int SAVE = 101;
     private static final int SHARE = 102;
     private static final int CAMERA_ERROR = 111;
+    private static final String SING_ACTIVITY = "sing activity";
+    private static final String CALLBACK = "callback";
     private final int CAMERA_CODE = 2;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
@@ -605,8 +607,8 @@ public class SingActivity extends AppCompatActivity implements
 //        if (!ending) {
 //            saveSongToJsonFile();
 //        }
-
-        if (authenticationDriver.isSignIn())
+        if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
+                !authenticationDriver.getUserEmail().equals(""))
             if (!itemBought)
                 startBilling(SHARE);
             else
@@ -766,14 +768,10 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void saveRecordingToTheCloud(View view) {
-//        if (!ending) {
-//            saveSongToJsonFile();
-//        }
-        if (authenticationDriver.isSignIn())
+        if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
             if (!itemBought) startBilling(SAVE);
-//            else save();
-            else
-                launchSignIn(SAVE);
+        } else
+            launchSignIn(SAVE);
     }
 
 //    private void save() {
@@ -799,7 +797,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void launchSignIn(int code) {
-        mGetContent.launch(new Intent(this, SignInActivity.class).putExtra(RESULT_CODE, code));
+        mGetContent.launch(new Intent(this, SignInActivity.class).putExtra(RESULT_CODE, code).putExtra(SING_ACTIVITY, true).putExtra(CALLBACK, true));
     }
 
     private void saveToCloud(SaveItems saveItems) {
