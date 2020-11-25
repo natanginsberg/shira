@@ -55,8 +55,7 @@
             android:id="@+id/open_search"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:background="@drawable/ic_baseline_search_24"
-            android:textColor="@color/sing_up_hover"
+            android:background="@drawable/ic_search_outline"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="0.8"
             app:layout_constraintEnd_toEndOf="@id/search_icon_guide"
@@ -84,11 +83,12 @@
         android:id="@+id/search_input"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginEnd="36dp"
         android:layout_marginTop="7dp"
+        android:layout_marginEnd="36dp"
         android:background="@drawable/ic_search_bar"
         android:focusable="false"
         android:inputType="textPersonName"
+        android:layoutDirection="locale"
         android:visibility="gone"
         app:iconifiedByDefault="false"
         app:layout_constraintEnd_toEndOf="parent"
@@ -100,7 +100,7 @@
         app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintWidth_percent="0.81"
         app:queryHint="@string/search"
-        app:searchIcon="@drawable/ic_search_bar_icon" />
+        app:searchIcon="@drawable/ic_search_outline_app_color" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/song_list"

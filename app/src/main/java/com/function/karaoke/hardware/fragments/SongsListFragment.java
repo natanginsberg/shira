@@ -41,6 +41,7 @@ import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
 import com.function.karaoke.hardware.utils.Converter;
+import com.function.karaoke.hardware.utils.OnSwipeTouchListener;
 
 import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
 
@@ -184,7 +185,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
         String genre = currentLanguageGenres.get(i);
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/ArialUnicodeMS.ttf");
         TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
         textView.setTextColor(Color.BLACK);
         setTextViewAttributes(textView);
@@ -222,10 +222,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void setTextViewAttributes(TextView textView) {
         textView.setHeight(Converter.convertDpToPx(24));
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
         textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
-        textView.setTypeface(tf, Typeface.NORMAL);
+//        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
+        textView.setTypeface(Typeface.SANS_SERIF);
     }
 
     private void setTextOfClickedToBlack() {
@@ -417,11 +417,28 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void openSettingsPopup(View view) {
         authenticationDriver = new AuthenticationDriver();
-        songsActivityUI.openSettingsPopup(getContext(), authenticationDriver.isSignIn(), contentsDisplayed);
+        songsActivityUI.openSettingsPopup(getContext(), authenticationDriver.isSignIn()
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""),
+                contentsDisplayed);
         popupView = songsActivityUI.getPopupView();
         popup = songsActivityUI.getPopup();
         addPopupListeners();
         songsActivityUI.getPopup().setOnDismissListener(this::undimBackground);
+        popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()){
+            public void onSwipeTop() {
+            }
+            public void onSwipeRight() {
+                if (currentLanguage.equals("iw"))
+                    popup.dismiss();
+            }
+            public void onSwipeLeft() {
+                if (!currentLanguage.equals("iw"))
+                popup.dismiss();
+            }
+            public void onSwipeBottom() {
+            }
+
+        });
 
     }
 
@@ -484,7 +501,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void dismissButtonListener() {
-        popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
+//        popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
     }
 
     private void languageChangeListener() {

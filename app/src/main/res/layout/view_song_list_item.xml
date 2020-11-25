@@ -7,14 +7,16 @@
     app:layout_constraintHeight_percent="0.12">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/song_items"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_marginStart="20dp"
             android:id="@+id/img_cover"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
@@ -55,28 +57,32 @@
         </LinearLayout>
 
         <Button
-            android:layout_marginEnd="20dp"
+
             android:id="@+id/play_button"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_gravity="center"
             android:background="@drawable/gold_rec"
             android:elevation="8dp"
+            android:gravity="center"
             android:text="@string/play"
             android:textColor="@color/gold"
-            android:textSize="12sp"
+            android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="2.7"
+            app:layout_constraintDimensionRatio="2.5"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.17" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#808080"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/song_items"
+            app:layout_constraintRight_toRightOf="@id/song_items"/>
         <!--        </LinearLayout>-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#808080"
-        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

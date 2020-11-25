@@ -99,7 +99,7 @@ public class SongsActivity
         checkForSignedInUser();
 
 //        showPromo();
-        language = getResources().getConfiguration().getLocales().get(0).getDisplayLanguage();
+        language = getResources().getConfiguration().getLocales().get(0).getLanguage();
         setContentView(R.layout.activity_songs);
         billingSession = new Billing(SongsActivity.this, new PurchasesUpdatedListener() {
             @Override
@@ -330,7 +330,7 @@ public class SongsActivity
 
     @Override
     public void changeLanguage() {
-        if (!language.equals("English")) {
+        if (language.equals("iw")) {
             setLocale("en");
         } else {
             setLocale("iw");

@@ -7,51 +7,65 @@
     android:layout_height="match_parent"
     android:background="@color/appColor">
 
-    <RelativeLayout
-        android:id="@+id/topPart"
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/language_guide"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="10dp"
-        app:layout_constraintBottom_toTopOf="@id/heading_guide"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
 
-        <TextView
-            android:id="@+id/language"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"
-            android:paddingStart="10dp"
-            android:text="@string/language_displayed"
-            android:textColor="#ffff"
-            android:textSize="20sp" />
+    <TextView
+        android:id="@+id/language"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:gravity="center"
+        android:text="@string/language_displayed"
+        android:textColor="#ffff"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@id/heading_guide"
+        app:layout_constraintEnd_toEndOf="@id/language_guide"
+        app:layout_constraintHeight_percent="0.08"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.079" />
 
-        <Button
-            android:id="@+id/language_changer"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_centerInParent="true"
-            android:layout_marginLeft="10dp"
-            android:layout_toEndOf="@id/language"
-            android:background="@drawable/ic_language_button"
-            android:onClick="changeLanguage" />
+    <Button
+        android:id="@+id/language_changer"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/ic_globe_outline"
+        android:onClick="changeLanguage"
+        app:layout_constraintBottom_toBottomOf="@id/language"
+        app:layout_constraintEnd_toStartOf="@id/language"
+        app:layout_constraintHeight_percent="0.04"
+        app:layout_constraintTop_toTopOf="@id/language"
+        app:layout_constraintWidth_percent="0.075" />
 
-        <Button
-            android:id="@+id/close_popup"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/ic_baseline_close_24"
-            android:paddingEnd="10dp" />
+    <View
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/circle"
+        app:layout_constraintBottom_toBottomOf="@id/language_changer"
+        app:layout_constraintLeft_toLeftOf="@id/language_changer"
+        app:layout_constraintRight_toRightOf="@id/language_changer"
+        app:layout_constraintTop_toTopOf="@id/language_changer" />
+    <!--        <Button-->
+    <!--            android:id="@+id/close_popup"-->
+    <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--            app:layout_constraintHeight_percent="0.04"-->
+    <!--            app:layout_constraintWidth_percent="0.075"-->
+    <!--            android:layout_alignParentEnd="true"-->
+    <!--            android:layout_centerVertical="true"-->
+    <!--            android:background="@drawable/ic_baseline_close_24"-->
+    <!--            android:paddingEnd="10dp" />-->
 
-        <TextView
-            android:id="@+id/hello_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+    <!--        <TextView-->
+    <!--            android:id="@+id/hello_user"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_centerInParent="true" />-->
 
-    </RelativeLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/heading_guide"
@@ -65,8 +79,7 @@
         android:layout_height="88dp"
         android:orientation="vertical"
         android:paddingStart="10dp"
-        app:layout_constraintBottom_toTopOf="@id/middle_guide"
-        app:layout_constraintTop_toBottomOf="@id/heading_guide"
+        app:layout_constraintTop_toBottomOf="@id/middle_guide"
         tools:layout_editor_absoluteX="-1dp">
 
         <TextView
@@ -87,44 +100,55 @@
             android:textColor="@android:color/white"
             android:textSize="15sp" />
 
-        <TextView
-            android:id="@+id/sign_in_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/sign_in"
-            android:textColor="@android:color/white"
-            android:textSize="15sp" />
-
 
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/sign_in_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_weight="1"
+        android:text="@string/sign_in"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@id/language"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/language" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/middle_guide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.25" />
+        app:layout_constraintGuide_percent="0.18" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/policy_guide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.80" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/bottom_line"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.80" />
+        app:layout_constraintGuide_percent="0.88" />
 
     <View
         android:id="@+id/line1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/black"
-        app:layout_constraintBottom_toTopOf="@id/contact_us"
-        app:layout_constraintTop_toBottomOf="@id/policy" />
+        android:background="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/bottom_line" />
 
     <TextView
         android:id="@+id/contact_us"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:text="@string/contact_us"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -140,9 +164,8 @@
         android:paddingStart="10dp"
         android:text="@string/policy"
         android:textColor="@android:color/white"
-        android:textSize="15sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bottom_line" />
+        app:layout_constraintTop_toBottomOf="@id/policy_guide" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
