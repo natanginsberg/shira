@@ -67,7 +67,7 @@
             app:layout_constraintEnd_toStartOf="@id/play_button"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
+        <TextView
             android:id="@+id/play_button"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"

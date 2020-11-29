@@ -2,7 +2,6 @@ package com.function.karaoke.core.controller;
 
 import android.annotation.SuppressLint;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
@@ -148,7 +147,7 @@ public class KaraokeController implements Recorder.IToneListener {
                         if (i < mSong.lines.size() - 1) {
                             wordsToRead.setText(mSong.lines.get(i + 1).toString());
                         } else {
-//                            wordsToRead.setText(" ");
+                            wordsToRead.setText(" ");
                         }
                         mCurrentLine = line;
                         mLyrics.setLine(mCurrentLine);

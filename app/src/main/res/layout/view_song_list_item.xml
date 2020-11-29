@@ -56,7 +56,7 @@
                 tools:text="Artist" />
         </LinearLayout>
 
-        <Button
+        <TextView
 
             android:id="@+id/play_button"
             android:layout_width="@dimen/no_hardcode_dimension"
@@ -81,7 +81,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/song_items"
             app:layout_constraintRight_toRightOf="@id/song_items"/>
-        <!--        </LinearLayout>-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

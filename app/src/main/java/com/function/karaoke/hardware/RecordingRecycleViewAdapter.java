@@ -4,7 +4,6 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -46,10 +45,9 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             return a.getTitle().compareToIgnoreCase(b.getTitle());
         }
     };
-
-    private List<Recording> mValues;
     private final OnListFragmentInteractionListener mListener;
-    private String language;
+    private List<Recording> mValues;
+    private final String language;
 
     //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
 //        setData(items);
@@ -86,7 +84,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
 
         // making the click only on the button and not on the whole icon
 
-        holder.itemView.findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (null != mListener) {
@@ -140,7 +138,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
             mLblTitle.setTypeface(tf);
             mLblArtist.setTypeface(tf);
-            ((Button) mView.findViewById(R.id.play_button)).setTypeface(tf);
+            ((TextView) mView.findViewById(R.id.play_button)).setTypeface(tf);
             mDate.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())
