@@ -43,12 +43,8 @@ import com.function.karaoke.hardware.ui.SongsActivityUI;
 import com.function.karaoke.hardware.utils.Converter;
 import com.function.karaoke.hardware.utils.OnSwipeTouchListener;
 
-import org.apache.http.impl.client.SystemDefaultCredentialsProvider;
-
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A fragment representing a list of Songs.
@@ -56,7 +52,7 @@ import java.util.Locale;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller {
+public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller, SongsActivityUI.SongsUIListener {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final int ALL_SONGS_DISPLAYED = 1;
@@ -125,119 +121,26 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         this.recordingService = new RecordingService();
         setClickListeners(songsView);
         view = songsView;
-        songsActivityUI = new SongsActivityUI(view);
+        songsActivityUI = new SongsActivityUI(view, this, getCurrentLanguage(), getContext());
         addGenres();
         return songsView;
+    }
+
+    private String getCurrentLanguage() {
+        return getResources().getConfiguration().getLocales().get(0).getLanguage();
     }
 
     private void addGenres() {
         final Observer<Genres> searchObserver = products -> {
             genres = products;
             if (genres != null)
-                addGenresToScreen();
+                songsActivityUI.addGenresToScreen(genres);
         };
         this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
     }
 
-    private void addGenresToScreen() {
-        LinearLayout linearLayout = view.findViewById(R.id.genres);
-        List<String> currentLanguageGenres;
-        currentLanguage = getResources().getConfiguration().getLocales().get(0).getLanguage();
-        String phoneLanguage = Resources.getSystem().getConfiguration().getLocales().get(0).getLanguage();
-
-//        if (currentLanguage.equals("en"))
-        currentLanguageGenres = genres.getEnglishGenres();
-//        else
-//            currentLanguageGenres = genres.getHebrewGenres();
-
-//        if (!currentLanguage.equals(phoneLanguage))
-//            Collections.reverse(currentLanguageGenres);
-        for (int i = 0; i < currentLanguageGenres.size(); i++) {
-            TextView genre = setGenreBar(currentLanguageGenres, i);
-
-            linearLayout.addView(genre);
-            genre.post(new Runnable() {
-                @Override
-                public void run() {
-                    HorizontalScrollView hz = view.findViewById(R.id.genre_scrolling);
-                    linearLayout.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (currentLanguage.equals("iw"))
-                                hz.fullScroll(View.FOCUS_RIGHT);
-                        }
-                    });
-                }
-            });
-        }
-        HorizontalScrollView hz = view.findViewById(R.id.genre_scrolling);
-        linearLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                if (currentLanguage.equals("iw"))
-                    hz.fullScroll(View.FOCUS_RIGHT);
-            }
-        });
-
-
-    }
-
-    private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
-        String genre = currentLanguageGenres.get(i);
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
-        textView.setTextColor(Color.BLACK);
-        setTextViewAttributes(textView);
-        String genreToDisplay;
-        if (currentLanguage.equals("en")) {
-            genreToDisplay = genre.split(",")[0];
-        } else {
-            genreToDisplay = genre.split(",")[1];
-        }
-        String textToDisplay = "   " + genreToDisplay + "   |";
-        textView.setText(textToDisplay);
-//        textView.setTypeface(tf);
-        if (genre.contains("כל השירים")) {
-            setGenreClicked(textView);
-            allSongsTextView = textView;
-        }
-        int finalI = i;
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (genreClicked == textView) {
-                    getAllSongsFromGenre("כל השירים");
-                    setTextOfClickedToBlack();
-                    setGenreClicked(allSongsTextView);
-                } else {
-                    setTextOfClickedToBlack();
-                    setGenreClicked(textView);
-                    getAllSongsFromGenre(genre.split(",")[1]);
-                }
-
-            }
-        });
-        return textView;
-    }
-
-    private void setTextViewAttributes(TextView textView) {
-        textView.setHeight(Converter.convertDpToPx(24));
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
-        textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-//        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
-        textView.setTypeface(Typeface.SANS_SERIF);
-    }
-
-    private void setTextOfClickedToBlack() {
-        genreClicked.setTextColor(Color.BLACK);
-    }
-
-    private void setGenreClicked(TextView textView) {
-        textView.setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-        genreClicked = textView;
-    }
-
-    private void getAllSongsFromGenre(String genre) {
+    @Override
+    public void getAllSongsFromGenre(String genre) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();
         if (genre.equals("כל השירים"))
             searchedSongs = allSongsDatabase.getSongs();
@@ -417,24 +320,27 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void openSettingsPopup(View view) {
         authenticationDriver = new AuthenticationDriver();
-        songsActivityUI.openSettingsPopup(getContext(), authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""),
+        songsActivityUI.openSettingsPopup(authenticationDriver.isSignIn()
+                        && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""),
                 contentsDisplayed);
         popupView = songsActivityUI.getPopupView();
         popup = songsActivityUI.getPopup();
         addPopupListeners();
         songsActivityUI.getPopup().setOnDismissListener(this::undimBackground);
-        popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()){
+        popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
             public void onSwipeTop() {
             }
+
             public void onSwipeRight() {
                 if (currentLanguage.equals("iw"))
                     popup.dismiss();
             }
+
             public void onSwipeLeft() {
                 if (!currentLanguage.equals("iw"))
-                popup.dismiss();
+                    popup.dismiss();
             }
+
             public void onSwipeBottom() {
             }
 

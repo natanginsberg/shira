@@ -2,17 +2,25 @@ package com.function.karaoke.hardware.ui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.activities.Model.Genres;
+import com.function.karaoke.hardware.utils.Converter;
+
+import java.util.List;
 
 public class SongsActivityUI {
 
@@ -20,21 +28,25 @@ public class SongsActivityUI {
     private static final int PERSONAL_RECORDING_DISPLAYED = 2;
 
     private final View view;
+    private final SongsUIListener listener;
+    private final String currentLanguage;
     private View popupView;
     private PopupWindow popup;
-    private Context context;
+    private final Context context;
+    private TextView allSongsTextView;
+    private TextView genreClicked;
 
-    public SongsActivityUI(View songsActivity) {
+    public SongsActivityUI(View songsActivity, SongsUIListener listener, String currentLanguage, Context context) {
         this.view = songsActivity;
+        this.listener = listener;
+        this.context = context;
+        this.currentLanguage = currentLanguage;
     }
 
-    public void openSettingsPopup(Context context, boolean isUserSignedIn, int contentsDisplayed) {
-        this.context = context;
+    public void openSettingsPopup(boolean isUserSignedIn, int contentsDisplayed) {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
-//        addPopupListeners();
-        //todo set the button that is pressed either the recordings or home
         if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
             ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold, context.getTheme()));
         } else
@@ -76,10 +88,9 @@ public class SongsActivityUI {
 
     private void setPopupAttributes(PopupWindow popup, View layout) {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.719);
-        int height = (int) (context.getResources().getDisplayMetrics().heightPixels);
         popup.setContentView(layout);
         popup.setWidth(width);
-        popup.setHeight(height);
+        popup.setHeight(view.getHeight());
     }
 
     public PopupWindow getPopup() {
@@ -101,5 +112,101 @@ public class SongsActivityUI {
         else
             view.findViewById(R.id.search_input).setVisibility(View.VISIBLE);
 
+    }
+
+    public void addGenresToScreen(Genres genres) {
+        LinearLayout linearLayout = view.findViewById(R.id.genres);
+        List<String> currentLanguageGenres;
+
+        currentLanguageGenres = genres.getGenres();
+
+        for (int i = 0; i < currentLanguageGenres.size(); i++) {
+            TextView genre = setGenreBar(currentLanguageGenres, i);
+
+            linearLayout.addView(genre);
+            genre.post(new Runnable() {
+                @Override
+                public void run() {
+                    HorizontalScrollView hz = view.findViewById(R.id.genre_scrolling);
+                    linearLayout.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (currentLanguage.equals("iw"))
+                                hz.fullScroll(View.FOCUS_RIGHT);
+                        }
+                    });
+                }
+            });
+        }
+        HorizontalScrollView hz = view.findViewById(R.id.genre_scrolling);
+        linearLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                if (currentLanguage.equals("iw"))
+                    hz.fullScroll(View.FOCUS_RIGHT);
+            }
+        });
+
+
+    }
+
+    private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
+        String genre = currentLanguageGenres.get(i);
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
+        textView.setTextColor(Color.BLACK);
+        setTextViewAttributes(textView);
+        String genreToDisplay;
+        if (currentLanguage.equals("en")) {
+            genreToDisplay = genre.split(",")[0];
+        } else {
+            genreToDisplay = genre.split(",")[1];
+        }
+        String textToDisplay = "   " + genreToDisplay + "   |";
+        textView.setText(textToDisplay);
+//        textView.setTypeface(tf);
+        if (genre.contains("כל השירים")) {
+            setGenreClicked(textView);
+            allSongsTextView = textView;
+        }
+        int finalI = i;
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (genreClicked == textView) {
+                    listener.getAllSongsFromGenre("כל השירים");
+                    setTextOfClickedToBlack();
+                    setGenreClicked(allSongsTextView);
+                } else {
+                    setTextOfClickedToBlack();
+                    setGenreClicked(textView);
+                    listener.getAllSongsFromGenre(genre.split(",")[1]);
+                }
+
+            }
+        });
+        return textView;
+    }
+
+    private void setTextViewAttributes(TextView textView) {
+        textView.setHeight(Converter.convertDpToPx(24));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f);
+        textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+//        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
+        textView.setTypeface(Typeface.SANS_SERIF);
+    }
+
+    private void setTextOfClickedToBlack() {
+        genreClicked.setTextColor(Color.BLACK);
+    }
+
+    private void setGenreClicked(TextView textView) {
+        textView.setTextColor(context.getResources().getColor(R.color.gold, context.getTheme()));
+        genreClicked = textView;
+    }
+
+
+    public interface SongsUIListener {
+        void getAllSongsFromGenre(String genre);
     }
 }

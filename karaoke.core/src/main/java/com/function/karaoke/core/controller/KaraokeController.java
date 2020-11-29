@@ -71,7 +71,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void init(View view, int lyrics, int wordsRead, int wordsToRead) {
         mLyrics = view.findViewById(lyrics);
-        this.wordsRead = view.findViewById(wordsRead);
+//        this.wordsRead = view.findViewById(wordsRead);
         this.wordsToRead = view.findViewById(wordsToRead);
     }
 
@@ -142,13 +142,13 @@ public class KaraokeController implements Recorder.IToneListener {
 //            }
 //            for (Song.Line line : mSong.lines) {
                     if (line.isIn(position)) {
-                        if (i > 0) {
-                            wordsRead.setText(mSong.lines.get(i - 1).toString());
-                        }
+//                        if (i > 0) {
+//                            wordsRead.setText(mSong.lines.get(i - 1).toString());
+//                        }
                         if (i < mSong.lines.size() - 1) {
                             wordsToRead.setText(mSong.lines.get(i + 1).toString());
                         } else {
-                            wordsToRead.setText(" ");
+//                            wordsToRead.setText(" ");
                         }
                         mCurrentLine = line;
                         mLyrics.setLine(mCurrentLine);

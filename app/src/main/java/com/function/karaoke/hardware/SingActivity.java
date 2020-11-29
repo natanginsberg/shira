@@ -8,15 +8,19 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -57,6 +61,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -124,6 +129,26 @@ public class SingActivity extends AppCompatActivity implements
 
         }
     };
+
+    private final Target target = new Target() {
+        @Override
+        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            // Bitmap is loaded, use image here
+            Bitmap bm = BlurBuilder.blur(getBaseContext(), bitmap);
+            findViewById(R.id.album_cover).setBackground((new BitmapDrawable(getResources(), bm)));
+        }
+
+        @Override
+        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+            Toast.makeText(getBaseContext(), "failed to load album", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+        }
+
+    };
     private boolean isRecording = false;
     private boolean ending = false;
     private boolean timerStarted = false;
@@ -150,6 +175,8 @@ public class SingActivity extends AppCompatActivity implements
     private boolean keepVideo = false;
     private File postParseVideoFile;
     private Recording recording;
+    private DisplayMetrics metrics;
+    private boolean measured = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,15 +188,26 @@ public class SingActivity extends AppCompatActivity implements
 
         setContentView(R.layout.activity_sing);
 
+        final ImageView tv = findViewById(R.id.album_cover);
+        final ViewTreeObserver observer = tv.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (!measured) {
+                    measured = true;
+                    blurAlbumInBackground();
+                }
+            }
+        });
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
         mPlayer = mKaraokeKonroller.getmPlayer();
-
         recordingId = GenerateRandomId.generateRandomId();
         checkForPermissionAndOpenCamera();
         tryLoadSong();
         activityUI.showPlayButton();
+//        blurAlbumInBackground();
     }
 
     private void checkForPermissionAndOpenCamera() {
@@ -211,7 +249,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
             });
             if (null != song) {
-                blurAlbumInBackground();
+
 //            addArtistToScreen();
                 activityUI.addArtistToScreen();
                 activityUI.setBackgroundColor();
@@ -297,15 +335,35 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.removeResumeOptionFromPopup();
     }
 
-
     private void blurAlbumInBackground() {
-//        Picasso.get()
-//                .load(song.getImageResourceFile())
-//                .placeholder(R.drawable.ic_cover_empty)
-//                .fit()
-//                .into((ImageView) findViewById(R.id.album_cover));
-        GetBlurImage getBlurImage = new GetBlurImage();
-        getBlurImage.execute();
+        ImageView imageView = findViewById(R.id.album_cover);
+
+
+
+        Picasso.get()
+                .load(song.getImageResourceFile())
+//                .resize(8000,8000)\
+                .into(target);
+//                .into((ImageView) findViewById(R.id.album_cover), new com.squareup.picasso.Callback() {
+//                    @Override
+//                    public void onSuccess() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError() {
+//
+//                    }
+//                });
+        metrics = new DisplayMetrics();
+        getWindowManager()
+                .getDefaultDisplay()
+                .getMetrics(metrics);
+//        GetBlurImage getBlurImage = new GetBlurImage();
+//        getBlurImage.execute(metrics);
+
+//        Bitmap bitmap = BlurBuilder.blur(imageView);
+//        ((ImageView) findViewById(R.id.album_cover)).setBackground((new BitmapDrawable(Resources.getSystem(), bitmap)));
 //        View view = findViewById(R.id.words);
 //        view.post(new Runnable() {
 //            @Override
@@ -529,7 +587,8 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void deleteVideo() {
-        cameraPreview.getVideo().delete();
+        if (cameraPreview.getVideo() != null)
+            cameraPreview.getVideo().delete();
     }
 
     private void resetFields() {
@@ -825,14 +884,15 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    private class GetBlurImage extends AsyncTask<String, Void, GetBlurImage.Result> {
+    private class GetBlurImage extends AsyncTask<DisplayMetrics, Void, GetBlurImage.Result> {
         GetBlurImage.Result result = null;
 
 
         @Override
-        protected Result doInBackground(String... params) {
+        protected Result doInBackground(DisplayMetrics... params) {
             try {
-                result = new Result(BlurBuilder.blur(getBaseContext(), Picasso.get().load(song.getImageResourceFile()).get()));
+                result = new Result(BlurBuilder.blur(getBaseContext(), Picasso.get().load(song.getImageResourceFile()).get(), params[0]))
+                ;
                 return result;
             } catch (IOException e) {
                 return new Result(e);
@@ -842,7 +902,8 @@ public class SingActivity extends AppCompatActivity implements
 
         @Override
         protected void onPostExecute(GetBlurImage.Result result) {
-            findViewById(R.id.words).setBackground(new BitmapDrawable(Resources.getSystem(), result.bitmap));
+            Bitmap newBitmap = Bitmap.createBitmap(result.bitmap, 0, 0, metrics.widthPixels, findViewById(R.id.words).getHeight());
+            findViewById(R.id.words).setBackground((new BitmapDrawable(Resources.getSystem(), newBitmap)));
         }
 
         /**

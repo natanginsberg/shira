@@ -1,8 +1,10 @@
 package com.function.karaoke.hardware;
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -135,6 +137,11 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             mLblArtist.setText(song.getArtist());
             String date = manipulateDateToBePretty(song.getDate());
             mDate.setText(date);
+            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
+            mLblTitle.setTypeface(tf);
+            mLblArtist.setTypeface(tf);
+            ((Button) mView.findViewById(R.id.play_button)).setTypeface(tf);
+            mDate.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)

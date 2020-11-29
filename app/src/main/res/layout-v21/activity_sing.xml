@@ -83,7 +83,7 @@
         android:layout_below="@id/progress_bar_layout"
         android:layout_centerInParent="true"
         android:layout_gravity="center"
-        android:background="@android:color/holo_blue_bright"
+        android:background="@color/appColor"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -99,41 +99,52 @@
             <ImageView
                 android:id="@+id/album_cover"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"/>
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/words_read"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:textSize="24sp"
-                    tools:ignore="NestedWeights" />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/lyrics_guide"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_percent="0.5" />
+
+
+                <!--                <TextView-->
+                <!--                    android:id="@+id/words_read"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="match_parent"-->
+                <!--                    android:layout_weight="1"-->
+                <!--                    android:gravity="center"-->
+                <!--                    android:textSize="24sp"-->
+                <!--                    tools:ignore="NestedWeights" />-->
 
 
                 <com.function.karaoke.core.views.LyricsView
                     android:id="@+id/lyrics"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
                     android:background="@color/transparent_white"
                     android:gravity="center"
-                    android:textSize="28sp" />
+                    android:textSize="28sp"
+                    app:layout_constraintBottom_toTopOf="@+id/lyrics_guide" />
 
                 <TextView
                     android:id="@+id/words_to_read"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:background="@color/transparent_white"
                     android:gravity="center"
-                    android:textSize="24sp" />
+                    android:textSize="24sp"
+                    app:layout_constraintTop_toTopOf="@+id/lyrics_guide" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/song_and_artist_names"
