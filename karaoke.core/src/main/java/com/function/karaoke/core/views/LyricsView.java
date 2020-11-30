@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * Created by ink on 2018-01-09.
  */
 
-public class LyricsView extends TextView {
+public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
 
     private Song.Line mLine;
 
@@ -30,6 +30,8 @@ public class LyricsView extends TextView {
 
     private int syllableNumber = -1;
     private CountDownTimer cTimer = null;
+
+    private float originalPlace = 0;
     //    private int pos = 0;
     boolean lastWord = false;
 
@@ -73,4 +75,15 @@ public class LyricsView extends TextView {
         setText(mText);
     }
 
+    public Song.Line getmLine() {
+        return mLine;
+    }
+
+    public void setOriginalPlace(float place){
+        originalPlace = place;
+    }
+
+    public float getOriginalPlace() {
+        return originalPlace;
+    }
 }

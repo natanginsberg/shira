@@ -128,10 +128,8 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         }
 
         public void setItem(Recording song) {
-//            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(),"fonts/ArialCEBold.ttf");
             mItem = song;
             mLblTitle.setText(song.getTitle());
-//            mLblTitle.setTypeface(tf);
             mLblArtist.setText(song.getArtist());
             String date = manipulateDateToBePretty(song.getDate());
             mDate.setText(date);

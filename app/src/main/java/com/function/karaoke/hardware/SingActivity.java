@@ -201,7 +201,9 @@ public class SingActivity extends AppCompatActivity implements
         });
         mTextureView = findViewById(R.id.surface_camera);
         mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
+        mKaraokeKonroller.init(this);
+        mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
+                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
         mPlayer = mKaraokeKonroller.getmPlayer();
         recordingId = GenerateRandomId.generateRandomId();
         checkForPermissionAndOpenCamera();
@@ -209,6 +211,7 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.showPlayButton();
 //        blurAlbumInBackground();
     }
+
 
     private void checkForPermissionAndOpenCamera() {
         if (Checks.checkCameraHardware(this)) {
@@ -339,7 +342,6 @@ public class SingActivity extends AppCompatActivity implements
         ImageView imageView = findViewById(R.id.album_cover);
 
 
-
         Picasso.get()
                 .load(song.getImageResourceFile())
 //                .resize(8000,8000)\
@@ -355,10 +357,10 @@ public class SingActivity extends AppCompatActivity implements
 //
 //                    }
 //                });
-        metrics = new DisplayMetrics();
-        getWindowManager()
-                .getDefaultDisplay()
-                .getMetrics(metrics);
+//        metrics = new DisplayMetrics();
+//        getWindowManager()
+//                .getDefaultDisplay()
+//                .getMetrics(metrics);
 //        GetBlurImage getBlurImage = new GetBlurImage();
 //        getBlurImage.execute(metrics);
 
@@ -606,7 +608,9 @@ public class SingActivity extends AppCompatActivity implements
         if (!mKaraokeKonroller.isStopped())
             mKaraokeKonroller.onStop();
         mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(findViewById(R.id.root), R.id.lyrics, R.id.words_read, R.id.words_to_read);
+        mKaraokeKonroller.init(this);
+        mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
+                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
         mPlayer = mKaraokeKonroller.getmPlayer();
     }
 

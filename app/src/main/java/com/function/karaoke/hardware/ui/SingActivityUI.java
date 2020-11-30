@@ -115,7 +115,7 @@ public class SingActivityUI {
     }
 
     private void deleteAllCurrentLyrics() {
-        ((TextView) view.findViewById(R.id.words_read)).setText("");
+//        ((TextView) view.findViewById(R.id.words_read)).setText("");
         ((TextView) view.findViewById(R.id.words_to_read)).setText("");
         ((TextView) view.findViewById(R.id.lyrics)).setText("");
     }
