@@ -69,6 +69,7 @@ public class KaraokeController implements Recorder.IToneListener {
     private Context context;
     private LyricsView twoLinesAhead;
     private LyricsView threeLinesAhead;
+    private int lyricsHeight = 0;
 
 
     public KaraokeController() {
@@ -208,9 +209,9 @@ public class KaraokeController implements Recorder.IToneListener {
 
     private void changeLines() {
         setOriginalYs();
-        float topDelta =  -100f - mLyrics.getOriginalPlace();
+        float topDelta = -lyricsHeight - mLyrics.getOriginalPlace();
         float secondDelta = mLyrics.getY() - wordsToRead.getOriginalPlace();
-        float thirdDelta =  wordsToRead.getY() - twoLinesAhead.getOriginalPlace();
+        float thirdDelta = wordsToRead.getY() - twoLinesAhead.getOriginalPlace();
         float bottomDelta = twoLinesAhead.getY() - threeLinesAhead.getOriginalPlace();
         tempViews.push(mLyrics);
 
@@ -242,16 +243,18 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     private void setOriginalYs() {
-        if (mLyrics.getOriginalPlace() == 0){
+        if (mLyrics.getOriginalPlace() == 0) {
             mLyrics.setOriginalPlace(mLyrics.getY());
+            if (lyricsHeight == 0)
+                lyricsHeight = mLyrics.getHeight();
         }
-        if (wordsToRead.getOriginalPlace() == 0){
+        if (wordsToRead.getOriginalPlace() == 0) {
             wordsToRead.setOriginalPlace(wordsToRead.getY());
         }
-        if (twoLinesAhead.getOriginalPlace() == 0){
+        if (twoLinesAhead.getOriginalPlace() == 0) {
             twoLinesAhead.setOriginalPlace(twoLinesAhead.getY());
         }
-        if (threeLinesAhead.getOriginalPlace() == 0){
+        if (threeLinesAhead.getOriginalPlace() == 0) {
             threeLinesAhead.setOriginalPlace(threeLinesAhead.getY());
         }
     }
@@ -287,8 +290,7 @@ public class KaraokeController implements Recorder.IToneListener {
 //        set.connect(lyricsView.getId(), ConstraintSet.TOP, bottomGuide.getId(), ConstraintSet.TOP, 0);
         set.connect(lyricsView.getId(), ConstraintSet.RIGHT, wordSpace.getId(), ConstraintSet.RIGHT, 0);
         set.connect(lyricsView.getId(), ConstraintSet.LEFT, wordSpace.getId(), ConstraintSet.LEFT, 0);
-
-        set.constrainHeight(lyricsView.getId(), ConstraintSet.WRAP_CONTENT);
+        set.constrainHeight(lyricsView.getId(), lyricsHeight);
         set.constrainedWidth(lyricsView.getId(), true);
         set.applyTo(wordSpace);
         return lyricsView;
