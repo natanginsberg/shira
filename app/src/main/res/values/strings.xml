@@ -63,5 +63,6 @@
     <string name="from_toker_fm">From \n Toker FM</string>
     <string name="all_songs">All Songs</string>
     <string name="My_recordings">My Recordings</string>
+    <string name="share_question">Do you want to share with friends and family? Press Share</string>
 
 </resources>

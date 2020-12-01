@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -42,11 +41,10 @@ public class KaraokeController implements Recorder.IToneListener {
 
     private boolean prepared = false;
     private boolean stopped = false;
-    private LinkedList<LyricsView> tempViews = new LinkedList<>();
+    private final LinkedList<LyricsView> tempViews = new LinkedList<>();
 
     // views
     private LyricsView mLyrics;
-    private TextView wordsRead;
     private LyricsView wordsToRead;
     private ConstraintLayout wordSpace;
 
@@ -113,30 +111,6 @@ public class KaraokeController implements Recorder.IToneListener {
 
     }
 
-//    private void loadAudio(String url) {
-//        try {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//                mPlayer.setAudioAttributes(new AudioAttributes.Builder()
-//                        .setUsage(AudioAttributes.USAGE_MEDIA)
-//                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-//                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-//                        .build());
-//            } else {
-//                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            }
-//            mPlayer.setDataSource(url);
-//            mPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-//                @Override
-//                public void onPrepared(MediaPlayer mediaPlayer) {
-//                    prepared = true;
-//                    mPlayer.seekTo(0);
-//                }
-//            });
-//            mPlayer.prepare();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
     private void loadAudio(String url) {
         try {
@@ -218,7 +192,6 @@ public class KaraokeController implements Recorder.IToneListener {
 //        mLyrics.animate().translationY(topDelta).setDuration(500).start();
 //        wordsToRead.animate().translationY(secondDelta).setDuration(500).start();
 //        twoLinesAhead.animate().translationY(bottomDelta).setDuration(500).start();
-        LyricsView tempView = mLyrics;
 
         ObjectAnimator animation = scrollViewUp(topDelta, mLyrics, 1);
         animation.addListener(new AnimatorListenerAdapter() {
@@ -358,12 +331,7 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     public boolean isStopped() {
-        return stopped;
-    }
-
-    public void restartPlayBack() {
-        mPlayer.release();
-        stopped = true;
+        return !stopped;
     }
 
     public interface MyCustomObjectListener {

@@ -81,7 +81,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             @Override
             public void onClick(View view) {
                 if (null != mListener) {
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onListFragmentInteractionPlay(holder.mItem);
                 }
             }
         });

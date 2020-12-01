@@ -114,10 +114,13 @@ public class SingActivityUI {
         setVisibleIcons();
     }
 
+
     private void deleteAllCurrentLyrics() {
-//        ((TextView) view.findViewById(R.id.words_read)).setText("");
-        ((TextView) view.findViewById(R.id.words_to_read)).setText("");
         ((TextView) view.findViewById(R.id.lyrics)).setText("");
+        ((TextView) view.findViewById(R.id.words_to_read)).setText("");
+        ((TextView) view.findViewById(R.id.words_to_read_2)).setText("");
+        ((TextView) view.findViewById(R.id.words_to_read_3)).setText("");
+
     }
 
     private void resetProgressBar() {

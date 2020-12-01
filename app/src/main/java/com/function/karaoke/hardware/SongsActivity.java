@@ -40,6 +40,7 @@ import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
+import com.function.karaoke.hardware.utils.ShareLink;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,6 +62,7 @@ public class SongsActivity
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
     private static final String ARTIST_FILE = "artistUpdated";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
+    private static final int SHARING_ERROR = 100;
 
     private Billing billingSession;
     public String language;
@@ -291,7 +293,7 @@ public class SongsActivity
     }
 
     @Override
-    public void onListFragmentInteraction(SongDisplay item) {
+    public void onListFragmentInteractionPlay(SongDisplay item) {
         songClicked = (DatabaseSong) item;
         askForAudioRecordPermission();
     }
@@ -316,10 +318,25 @@ public class SongsActivity
     }
 
     @Override
-    public void onListFragmentInteraction(Recording item) {
+    public void onListFragmentInteractionPlay(Recording item) {
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(SingActivity.RECORDING, item);
         startActivity(intent);
+    }
+
+    @Override
+    public void onListFragmentInteractionShare(Recording item) {
+        try {
+            ShareLink.shareLink(item, this);
+        } catch (IndexOutOfBoundsException e) {
+            showFailure(SHARING_ERROR);
+        }
+    }
+
+    private void showFailure(int error){
+        if (error == SHARING_ERROR){
+            Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

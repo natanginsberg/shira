@@ -429,9 +429,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
      */
     public interface OnListFragmentInteractionListener {
 
-        void onListFragmentInteraction(SongDisplay item);
+        void onListFragmentInteractionPlay(SongDisplay item);
 
-        void onListFragmentInteraction(Recording item);
+        void onListFragmentInteractionPlay(Recording item);
+
+        void onListFragmentInteractionShare(Recording item);
 
         DatabaseSongsDB getSongs();
 

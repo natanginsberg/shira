@@ -55,6 +55,7 @@ import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.Checks;
 import com.function.karaoke.hardware.utils.GenerateRandomId;
 import com.function.karaoke.hardware.utils.JsonHandler;
+import com.function.karaoke.hardware.utils.ShareLink;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -265,7 +266,7 @@ public class SingActivity extends AppCompatActivity implements
     public void callback(String result) {
         if (result.equals("yes")) {
             ending = true;
-            if (!mKaraokeKonroller.isStopped()) {
+            if (mKaraokeKonroller.isStopped()) {
                 mKaraokeKonroller.onStop();
 //                customMediaPlayer.onStop();
             }
@@ -326,7 +327,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void stopRecordingAndSong() {
         ending = true;
-        if (!mKaraokeKonroller.isStopped()) {
+        if (mKaraokeKonroller.isStopped()) {
 
             mKaraokeKonroller.onStop();
 //            customMediaPlayer.onStop();
@@ -339,46 +340,9 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void blurAlbumInBackground() {
-        ImageView imageView = findViewById(R.id.album_cover);
-
-
         Picasso.get()
                 .load(song.getImageResourceFile())
-//                .resize(8000,8000)\
                 .into(target);
-//                .into((ImageView) findViewById(R.id.album_cover), new com.squareup.picasso.Callback() {
-//                    @Override
-//                    public void onSuccess() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError() {
-//
-//                    }
-//                });
-//        metrics = new DisplayMetrics();
-//        getWindowManager()
-//                .getDefaultDisplay()
-//                .getMetrics(metrics);
-//        GetBlurImage getBlurImage = new GetBlurImage();
-//        getBlurImage.execute(metrics);
-
-//        Bitmap bitmap = BlurBuilder.blur(imageView);
-//        ((ImageView) findViewById(R.id.album_cover)).setBackground((new BitmapDrawable(Resources.getSystem(), bitmap)));
-//        View view = findViewById(R.id.words);
-//        view.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                Bitmap blurredBitmap = null;
-//                try {
-//                    blurredBitmap = BlurBuilder.blur(getBaseContext(), Picasso.get().load(song.getImageResourceFile()).get());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                view.setBackground(new BitmapDrawable(Resources.getSystem(), blurredBitmap));
-//            }
-//        });
 
     }
 
@@ -441,8 +405,8 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    //start timer function
     void startTimer() {
+        activityUI.clearLyricsScreen();
         ending = false;
         timerStarted = true;
         final boolean[] prepared = {false};
@@ -458,7 +422,6 @@ public class SingActivity extends AppCompatActivity implements
 
             public void onFinish() {
                 cancelTimer();
-                activityUI.clearLyricsScreen();
 //                customMediaPlayer.startSong();
                 mKaraokeKonroller.onResume();
                 mKaraokeKonroller.setCustomObjectListener(songIsOver -> openEndOptions(true));
@@ -605,7 +568,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void resetKaraokeController() {
-        if (!mKaraokeKonroller.isStopped())
+        if (mKaraokeKonroller.isStopped())
             mKaraokeKonroller.onStop();
         mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(this);
@@ -690,15 +653,25 @@ public class SingActivity extends AppCompatActivity implements
 
     private void share() {
 
-        shareLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
+//        shareLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
+        try {
+            ShareLink.shareLink(recording, this);
+        } catch (IndexOutOfBoundsException e) {
+            showFailure(SHARING_ERROR);
+        }
     }
 
     private void share(File jsonFile) {
         try {
             SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
             saveToCloud(saveItems);
-            shareLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
-                    Integer.toString(saveItems.getRecording().getDelay()));
+            try {
+                ShareLink.shareLink(recording, this);
+            } catch (IndexOutOfBoundsException e) {
+                showFailure(SHARING_ERROR);
+            }
+//            shareLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
+//                    Integer.toString(saveItems.getRecording().getDelay()));
         } catch (IOException e) {
             e.printStackTrace();
         }
