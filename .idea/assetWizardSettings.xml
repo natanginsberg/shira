@@ -92,6 +92,7 @@
                                               <map>
                                                 <entry key="color" value="000000" />
                                                 <entry key="imagePath" value="C:\Users\Natan\Downloads\logo1.png" />
+                                                <entry key="scalingPercent" value="260" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -124,8 +125,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="foregroundLayerName" value="ic_app_launcher" />
-                                      <entry key="outputName" value="ic_video_camera" />
+                                      <entry key="outputName" value="ic_ashira_logo" />
+                                      <entry key="previewDensity" value="MEDIUM" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -289,6 +290,11 @@
                                           </PersistentState>
                                         </value>
                                       </entry>
+                                    </map>
+                                  </option>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="previewDensity" value="MEDIUM" />
                                     </map>
                                   </option>
                                 </PersistentState>

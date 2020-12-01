@@ -61,7 +61,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void setTimer() {
-        new CountDownTimer(1000, 1) {
+        new CountDownTimer(500, 500) {
 
             public void onTick(long millisUntilFinished) {
             }

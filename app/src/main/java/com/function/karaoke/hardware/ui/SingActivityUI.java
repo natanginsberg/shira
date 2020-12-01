@@ -152,7 +152,7 @@ public class SingActivityUI {
     }
 
     @SuppressLint("SetTextI18n")
-    public void displayTimeForCountdown(long millisUntilFinished){
+    public void displayTimeForCountdown(long millisUntilFinished) {
         if (millisUntilFinished / 1000 >= 1) {
             ((TextView) view.findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
             view.findViewById(R.id.countdown).setVisibility(View.VISIBLE);
@@ -161,7 +161,7 @@ public class SingActivityUI {
         }
     }
 
-    public void showPlayButton(){
+    public void showPlayButton() {
         view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
     }
 }

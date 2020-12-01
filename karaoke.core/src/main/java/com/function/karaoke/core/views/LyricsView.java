@@ -10,6 +10,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.function.karaoke.core.model.Song;
+import com.function.phone.core.R;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +39,7 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        mSpan = new ForegroundColorSpan(getResources().getColor(android.R.color.holo_red_light));
+        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.purple_hover));
     }
 
     @SuppressLint("SetTextI18n")

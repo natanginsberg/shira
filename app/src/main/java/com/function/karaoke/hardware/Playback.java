@@ -227,10 +227,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 @Override
                 public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
                     if (playbackState == ExoPlayer.STATE_ENDED) {
-                        for (SimpleExoPlayer p : players) {
-                            p.setPlayWhenReady(false);
-                            p.seekTo(currentWindow, 0);
-                        }
+                        releasePlayers();
+                        finish();
                     }
                 }
             });
