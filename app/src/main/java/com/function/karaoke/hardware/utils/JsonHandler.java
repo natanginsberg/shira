@@ -39,10 +39,10 @@ public class JsonHandler {
 
     }
 
-    public static void createTempJsonObject(File videoPath, Recording recording, File folder) {
+    public static void createTempJsonObject(File videoPath, Recording recording, File appFolder) {
         try {
-            deletePreviousPendingFiles(folder);
-            String storageFilePath = createTempFiles(folder, videoPath.getName() + "Pending");
+            deletePreviousPendingFiles(appFolder);
+            String storageFilePath = createTempFiles(appFolder, videoPath.getName() + "Pending");
             JSONObject saveItems = new JSONObject();
             saveItems.put("filePath", videoPath.getPath());
             saveItems.put("recording", recording.putRecordingInJsonObject());
@@ -95,15 +95,15 @@ public class JsonHandler {
         return new SaveItems(fileUri, recording);
     }
 
-    private static void createEmptyFileForArtist(File folder, String videoPath) throws IOException {
-        File artistFile = new File(folder, videoPath + "artist.txt");
+    private static void createEmptyFileForArtist(File jsonFolder, String videoPath) throws IOException {
+        File artistFile = new File(jsonFolder, videoPath + "artist.txt");
         FileWriter writer = new FileWriter(artistFile);
         writer.write("32");
         writer.close();
     }
 
-    private static String createTempFiles(File folder, String videoPath) {
-        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+    private static String createTempFiles(File appFolder, String videoPath) {
+        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
         if (!jsonFileFolder.exists())
             jsonFileFolder.mkdirs();
         try {
@@ -115,48 +115,52 @@ public class JsonHandler {
         return null;
     }
 
-    private static String createJsonFile(File folder, String videoPath) throws IOException {
-        File videoFile = new File(folder, videoPath + ".json");
+    private static String createJsonFile(File jsonFolder, String videoPath) throws IOException {
+        File videoFile = new File(jsonFolder, videoPath + ".json");
         return videoFile.getAbsolutePath();
     }
 
-    public static File renameJsonPendingFile(File folder) {
-        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+    public static File renameJsonPendingFile(File appFolder) {
+        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
         File fileToReturn = null;
-        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-            if (child.getName().contains("Pending")) {
-                File secondName = new File(jsonFileFolder, child.getName().replaceAll("Pending", ""));
-                child.renameTo(secondName);
-                if (!child.getName().contains("artist")) {
-                    fileToReturn = secondName;
+        if (jsonFileFolder.listFiles() != null)
+            for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+                if (child.getName().contains("Pending")) {
+                    File secondName = new File(jsonFileFolder, child.getName().replaceAll("Pending", ""));
+                    child.renameTo(secondName);
+                    if (!child.getName().contains("artist")) {
+                        fileToReturn = secondName;
+                    }
                 }
-            }
         return fileToReturn;
     }
 
-    public static void deletePendingJsonFile(File folder) {
+    public static void deletePendingJsonFile(File appFolder) {
 
-        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
-        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-            if (child.getName().contains("Pending")) {
-                child.delete();
-            }
+        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
+        if (jsonFileFolder.listFiles() != null)
+            for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+                if (child.getName().contains("Pending")) {
+                    child.delete();
+                }
     }
 
-    private static void deletePreviousPendingFiles(File folder) {
-        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
-        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-            if (child.getName().contains("Pending")) {
-                child.delete();
-            }
+    private static void deletePreviousPendingFiles(File appFolder) {
+        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
+        if (jsonFileFolder.listFiles() != null)
+            for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+                if (child.getName().contains("Pending")) {
+                    child.delete();
+                }
     }
 
-    public static void deleteArtistFile(File folder, String name) {
-        File jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
-        for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-            if (child.getName().contains(name) && child.getName().contains("artist")) {
-                child.delete();
-            }
+    public static void deleteArtistFile(File appFolder, String name) {
+        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
+        if (jsonFileFolder.listFiles() != null)
+            for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+                if (child.getName().contains(name) && child.getName().contains("artist")) {
+                    child.delete();
+                }
     }
 
 

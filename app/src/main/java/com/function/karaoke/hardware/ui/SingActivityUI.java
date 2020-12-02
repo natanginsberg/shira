@@ -120,7 +120,6 @@ public class SingActivityUI {
         ((TextView) view.findViewById(R.id.words_to_read)).setText("");
         ((TextView) view.findViewById(R.id.words_to_read_2)).setText("");
         ((TextView) view.findViewById(R.id.words_to_read_3)).setText("");
-
     }
 
     private void resetProgressBar() {

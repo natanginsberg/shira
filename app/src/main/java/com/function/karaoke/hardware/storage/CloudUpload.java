@@ -12,18 +12,18 @@ public class CloudUpload {
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
 
     private final Recording recording;
-    private final File folder;
+    private final File appFolder;
     private final String artist;
     private StorageAdder storageAdder;
     private final File jsonFileFolder;
     private final UploadListener uploadListener;
 
-    public CloudUpload(Recording recording, File folder, String artist, UploadListener uploadListener) {
+    public CloudUpload(Recording recording, File appFolder, String artist, UploadListener uploadListener) {
         this.recording = recording;
-        this.folder = folder;
+        this.appFolder = appFolder;
         this.artist = artist;
         this.uploadListener = uploadListener;
-        jsonFileFolder = new File(folder, JSON_DIRECTORY_NAME);
+        jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
     }
 
 
@@ -67,7 +67,7 @@ public class CloudUpload {
     }
 
     private void deleteArtistFile(File path) {
-        JsonHandler.deleteArtistFile(folder, path.getName());
+        JsonHandler.deleteArtistFile(appFolder, path.getName());
     }
 
     private void deleteJsonFile(String name) {
