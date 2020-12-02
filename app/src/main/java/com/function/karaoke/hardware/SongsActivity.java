@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
@@ -41,6 +42,9 @@ import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
 import com.function.karaoke.hardware.utils.ShareLink;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -326,15 +330,40 @@ public class SongsActivity
 
     @Override
     public void onListFragmentInteractionShare(Recording item) {
-        try {
-            ShareLink.shareLink(item, this);
-        } catch (IndexOutOfBoundsException e) {
-            showFailure(SHARING_ERROR);
-        }
+        Task<ShortDynamicLink> link = ShareLink.createLink(item);
+        link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+            @Override
+            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                if (task.isSuccessful()) {
+                    // Short link created
+                    Uri shortLink = task.getResult().getShortLink();
+                    Uri flowchartLink = task.getResult().getPreviewLink();
+                    String link = shortLink.toString();
+                    sendDataThroughIntent(link);
+
+
+                } else {
+                    showFailure(SHARING_ERROR);
+                    // Error
+                    // ...
+                }
+            }
+        });
+
     }
 
-    private void showFailure(int error){
-        if (error == SHARING_ERROR){
+    private void sendDataThroughIntent(String link) {
+        String data = "Listen to me sing\n" + link;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(
+                Intent.EXTRA_TEXT, data);
+        sendIntent.setType("text/plain");
+        startActivity(sendIntent);
+    }
+
+    private void showFailure(int error) {
+        if (error == SHARING_ERROR) {
             Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
         }
     }

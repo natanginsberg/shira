@@ -555,11 +555,9 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
             if (!keepVideo)
                 deleteVideo();
-            findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
+            activityUI.makeLoadingBarVisible();
             findViewById(R.id.word_space).setVisibility(View.INVISIBLE);
-            popup.dismiss();
             cameraPreview.stopRecording();
-
             refreshWindow();
         }
     }
@@ -653,24 +651,55 @@ public class SingActivity extends AppCompatActivity implements
 
     private void share() {
 
-//        shareLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
-        try {
-            ShareLink.shareLink(recording, this);
-        } catch (IndexOutOfBoundsException e) {
-            showFailure(SHARING_ERROR);
-        }
+//        createLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
+
+            Task<ShortDynamicLink> link = ShareLink.createLink(recording);
+            link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                @Override
+                public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                    if (task.isSuccessful()) {
+                        // Short link created
+                        Uri shortLink = task.getResult().getShortLink();
+                        Uri flowchartLink = task.getResult().getPreviewLink();
+                        String link = shortLink.toString();
+                        sendDataThroughIntent(link);
+
+
+                    } else {
+                        showFailure(SHARING_ERROR);
+                        // Error
+                        // ...
+                    }
+                }
+            });
     }
 
     private void share(File jsonFile) {
         try {
             SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
             saveToCloud(saveItems);
-            try {
-                ShareLink.shareLink(recording, this);
-            } catch (IndexOutOfBoundsException e) {
-                showFailure(SHARING_ERROR);
-            }
-//            shareLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
+
+                Task<ShortDynamicLink> link = ShareLink.createLink(recording);
+                link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+                    @Override
+                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                        if (task.isSuccessful()) {
+                            // Short link created
+                            Uri shortLink = task.getResult().getShortLink();
+                            Uri flowchartLink = task.getResult().getPreviewLink();
+                            String link = shortLink.toString();
+                            sendDataThroughIntent(link);
+
+
+                        } else {
+                            showFailure(SHARING_ERROR);
+                            // Error
+                            // ...
+                        }
+                    }
+                });
+
+//            createLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
 //                    Integer.toString(saveItems.getRecording().getDelay()));
         } catch (IOException e) {
             e.printStackTrace();
@@ -751,33 +780,6 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
-    private void shareLink(String recordingId, String userId, String delay) {
-        Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
-//                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
-                .setLink(Uri.parse("https://www.example.com/?recId=" + recordingId + "&uid=" + userId + "&delay=" + delay))
-                .setDomainUriPrefix("https://singjewish.page.link")
-                // Set parameters
-                // ...
-                .buildShortDynamicLink()
-                .addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            // Short link created
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
-                            String link = shortLink.toString();
-                            sendDataThroughIntent(link);
-
-
-                        } else {
-                            showFailure(SHARING_ERROR);
-                            // Error
-                            // ...
-                        }
-                    }
-                });
-    }
 
     private void sendDataThroughIntent(String link) {
         String data = "Listen to me sing\n" + link;

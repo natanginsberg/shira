@@ -14,9 +14,9 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginLeft="5dp"
         android:orientation="horizontal"
         app:layout_constraintHeight_percent="0.07"
         app:layout_constraintTop_toTopOf="parent">
@@ -150,7 +150,7 @@
                         android:gravity="center"
                         android:textSize="24sp"
                         app:layout_constraintBottom_toTopOf="@+id/lyrics_guide1"
-                        app:layout_constraintTop_toTopOf="parent"/>
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <com.function.karaoke.core.views.LyricsView
                         android:id="@+id/words_to_read"
@@ -158,8 +158,8 @@
                         android:layout_height="@dimen/no_hardcode_dimension"
                         android:gravity="center"
                         android:textSize="20sp"
-                        app:layout_constraintTop_toTopOf="@+id/lyrics_guide1"
-                        app:layout_constraintBottom_toTopOf="@id/lyrics_guide2"/>
+                        app:layout_constraintBottom_toTopOf="@id/lyrics_guide2"
+                        app:layout_constraintTop_toTopOf="@+id/lyrics_guide1" />
 
                     <com.function.karaoke.core.views.LyricsView
                         android:id="@+id/words_to_read_2"
@@ -194,19 +194,8 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
 
-
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ProgressBar
-                    android:id="@+id/play_again_progress"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    android:visibility="invisible"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
@@ -226,7 +215,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <TextView
+                <ImageView
                     android:id="@+id/artist_name"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"
@@ -289,14 +278,12 @@
     </LinearLayout>
 
 
-
-
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/camera_toggle_button"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:checked="true"
         android:layout_marginTop="15dp"
+        android:checked="true"
         android:thumb="@drawable/ic_video_camera_foreground"
         app:layout_constraintHeight_percent="0.04"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -72,7 +72,7 @@ public class SingActivityUI {
             popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
         }
         placePopupOnScreen(context);
-        applyDim();
+        applyDim(view.findViewById(R.id.sing_song).getOverlay());
     }
 
     private void placePopupOnScreen(Context context) {
@@ -82,11 +82,11 @@ public class SingActivityUI {
         popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
     }
 
-    private void applyDim() {
+    private void applyDim(ViewOverlay overlay) {
         Drawable dim = new ColorDrawable(Color.BLACK);
         dim.setBounds(0, 0, view.findViewById(R.id.sing_song).getWidth(), view.findViewById(R.id.sing_song).getHeight());
         dim.setAlpha((int) (255 * (float) 0.8));
-        ViewOverlay overlay = view.findViewById(R.id.sing_song).getOverlay();
+//        ViewOverlay overlay = view.findViewById(R.id.sing_song).getOverlay();
         overlay.add(dim);
     }
 
@@ -107,39 +107,13 @@ public class SingActivityUI {
         return popup;
     }
 
-    public void resetPage() {
-        deleteAllCurrentLyrics();
-        resetProgressBar();
-        setInvisibleIcons();
-        setVisibleIcons();
+
+    public void makeLoadingBarVisible(){
+        applyDim(popupView.getOverlay());
+        popupView.findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
+
     }
 
-
-    private void deleteAllCurrentLyrics() {
-        ((TextView) view.findViewById(R.id.lyrics)).setText("");
-        ((TextView) view.findViewById(R.id.words_to_read)).setText("");
-        ((TextView) view.findViewById(R.id.words_to_read_2)).setText("");
-        ((TextView) view.findViewById(R.id.words_to_read_3)).setText("");
-    }
-
-    private void resetProgressBar() {
-        ((ProgressBar) view.findViewById(R.id.progress_bar)).setProgress(0);
-        ((TextView) view.findViewById(R.id.duration)).setText("");
-    }
-
-    private void setInvisibleIcons() {
-        view.findViewById(R.id.open_end_options).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.pause).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
-    }
-
-    private void setVisibleIcons() {
-        view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.back_button).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
-    }
 
     public void removeResumeOptionFromPopup() {
         popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
