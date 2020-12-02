@@ -110,7 +110,7 @@ public class SingActivityUI {
 
     public void makeLoadingBarVisible(){
         applyDim(popupView.getOverlay());
-        popupView.findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
+//        popupView.findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
 
     }
 

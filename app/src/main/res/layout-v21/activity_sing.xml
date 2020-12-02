@@ -38,6 +38,16 @@
             android:textColor="@android:color/white"
             android:textSize="15sp" />
 
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"
+            android:layout_alignStart="@id/open_end_options"
+            android:id="@+id/headphones"
+            android:background="@drawable/ic_baseline_headset_24"
+            android:layout_marginEnd="10dp"
+            android:visibility="invisible"/>
+
         <Button
             android:id="@+id/open_end_options"
             android:layout_width="wrap_content"
@@ -215,7 +225,7 @@
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
-                <ImageView
+                <TextView
                     android:id="@+id/artist_name"
                     android:layout_width="wrap_content"
                     android:layout_height="0dp"

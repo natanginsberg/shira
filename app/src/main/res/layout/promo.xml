@@ -56,6 +56,7 @@
         app:layout_constraintVertical_chainStyle="spread"
         android:text="@string/from_toker_fm"
         android:gravity="center"
+        android:textSize="15sp"
         android:textColor="@color/appColor"/>
 
 

@@ -235,10 +235,6 @@ public class KaraokeController implements Recorder.IToneListener {
     private ObjectAnimator scrollViewUp(float yDelta, LyricsView view2, int nu) {
 //        xDelta = 0;
 //        yDelta = -126;
-        System.out.println(
-                "this is the y if the text view   " + view2.getmLine() +
-                        " this is the y coordinate " + view2.getY() + " id " + view2.getId() +
-                        " this is the y move " + yDelta + " this is the number of view " + nu);
 
         ObjectAnimator animation = ObjectAnimator.ofFloat(view2, "translationY", yDelta);
 //        animation.setRepeatMode(0);

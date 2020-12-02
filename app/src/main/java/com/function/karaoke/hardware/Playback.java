@@ -44,6 +44,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private static final String AUDIO_FILE = "audio";
     private static final int RECORDING_URL = 0;
     private static final String DELAY = "delay";
+    private static final String EARPHONES_USED = "empty";
 
     private List<String> urls = new ArrayList<>();
     private List<Uri> uris = new ArrayList<>();
@@ -62,6 +63,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     private int delay;
     private boolean locked = false;
+    private boolean earphonesUsed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,14 +74,18 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
-                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                if (getIntent().getExtras().containsKey(AUDIO_FILE))
+                    uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                else
+                    earphonesUsed = true;
                 delay = getIntent().getIntExtra(DELAY, 0);
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
                 Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
                 urls.add(recording.getRecordingUrl());
-                urls.add(recording.getAudioFileUrl());
+                if (!recording.getAudioFileUrl().equals(EARPHONES_USED))
+                    urls.add(recording.getAudioFileUrl());
                 delay = recording.getDelay();
                 createTwoPlayers();
                 initializePlayer();
@@ -141,7 +147,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         final Observer<Recording> recordingObserver = recording -> {
             if (recording != null) {
                 urls.add(recording.getRecordingUrl());
-                urls.add(recording.getAudioFileUrl());
+                if (!recording.getAudioFileUrl().equals(EARPHONES_USED))
+                    urls.add(recording.getAudioFileUrl());
                 createTwoPlayers();
                 initializePlayer();
             }
@@ -152,7 +159,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     private void createTwoPlayers() {
         players.add(new SimpleExoPlayer.Builder(this).build());
-        players.add(new SimpleExoPlayer.Builder(this).build());
+        if (!earphonesUsed)
+            players.add(new SimpleExoPlayer.Builder(this).build());
     }
 
     @Override
@@ -199,11 +207,11 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     private void initializePlayer() {
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < players.size(); i++) {
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
-                player.setVolume(0.8f);
+                player.setVolume(0.7f);
 
 //                if (delay != 0) {
 //                    player.seekTo(currentWindow, delay);
@@ -270,9 +278,17 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         }
     }
 
+    private boolean playersAreReady() {
+        for (SimpleExoPlayer player : players) {
+            if (player.getPlaybackState() != Player.STATE_READY)
+                return false;
+        }
+        return true;
+    }
+
     private void addListeners() {
         findViewById(R.id.exo_play).setOnClickListener(view -> {
-            if ((players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
+            if (playersAreReady()) {
                 for (SimpleExoPlayer player : players) {
                     player.setPlayWhenReady(true);
                 }
@@ -314,7 +330,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 seekToTimeBarPosition(player, position);
             }
             long startTime = System.currentTimeMillis();
-            while (!(players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY)) {
+            while (!(playersAreReady())) {
                 long endTime = System.currentTimeMillis();
                 if ((endTime - startTime) / 1000 > 1) {
                     releasePlayersAndStartFromThisTime(position);
@@ -326,8 +342,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
             }
 //            for (SimpleExoPlayer player : players) {
-            if (players.get(0).getPlaybackState() == Player.STATE_READY && players.get(1).getPlaybackState() == Player.STATE_READY) {
-                players.get(1).setPlayWhenReady(true);
+            if (playersAreReady()) {
+                if (players.size() > 1)
+                    players.get(1).setPlayWhenReady(true);
                 players.get(0).setPlayWhenReady(true);
             }
             locked = false;

@@ -283,7 +283,7 @@ public class CameraPreview {
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
         mMediaRecorder.setAudioChannels(2);
-        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+        mMediaRecorder.setAudioEncodingBitRate(128);
         mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {

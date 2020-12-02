@@ -2,7 +2,13 @@ package com.function.karaoke.hardware;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothProfile;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -59,7 +65,6 @@ import com.function.karaoke.hardware.utils.ShareLink;
 import com.function.karaoke.hardware.utils.SyncFileData;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -178,6 +183,12 @@ public class SingActivity extends AppCompatActivity implements
     private Recording recording;
     private DisplayMetrics metrics;
     private boolean measured = false;
+    private BroadcastReceiver mReceiver;
+    private boolean Microphone_Plugged_in = false;
+    private boolean ml;
+    private boolean bluetoothConnected = false;
+    private boolean bluetoothConnectionExists = false;
+    private boolean earphonesUsed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -210,9 +221,96 @@ public class SingActivity extends AppCompatActivity implements
         checkForPermissionAndOpenCamera();
         loadSong();
         activityUI.showPlayButton();
+        createHeadphoneReceiver();
+        createBluetoothReceiver();
+        checkIfHeadsetIsPairedAlready();
 //        blurAlbumInBackground();
     }
 
+    private void createBluetoothReceiver() {
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+
+                if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+//                    if (isBluetoothHeadsetConnected(device))
+                    bluetoothConnected = true;
+                    showHeadphones();
+                    //Device found
+                } else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+
+                    bluetoothConnected = true;
+                    showHeadphones();
+                    //Device is now connected
+                } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
+                    bluetoothConnected = false;
+                    bluetoothConnectionExists = false;
+                    hideHeadphonesIfNothingElseConnected();
+                    //Device has disconnected
+                }
+            }
+        };
+        IntentFilter receiverFilter = new IntentFilter();
+        receiverFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        receiverFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        receiverFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(mReceiver, receiverFilter);
+    }
+
+    private void hideHeadphonesIfNothingElseConnected() {
+        if (!Microphone_Plugged_in && !bluetoothConnectionExists && !bluetoothConnected)
+            findViewById(R.id.headphones).setVisibility(View.INVISIBLE);
+    }
+
+    private void showHeadphones() {
+        findViewById(R.id.headphones).setVisibility(View.VISIBLE);
+    }
+
+    private void createHeadphoneReceiver() {
+        mReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+                int iii = 2;
+                if (Intent.ACTION_HEADSET_PLUG.equals(action)) {
+                    iii = intent.getIntExtra("state", -1);
+                    if (Integer.valueOf(iii) == 0) {
+                        Microphone_Plugged_in = false;
+                        hideHeadphonesIfNothingElseConnected();
+                        Toast.makeText(getApplicationContext(), "microphone not plugged in", Toast.LENGTH_LONG).show();
+                        promptUserToConnectEarphones();
+                    }
+                    if (Integer.valueOf(iii) == 1) {
+                        Microphone_Plugged_in = true;
+                        showHeadphones();
+                        Toast.makeText(getApplicationContext(), "microphone plugged in", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        };
+        IntentFilter receiverFilter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(mReceiver, receiverFilter);
+    }
+
+    private void promptUserToConnectEarphones() {
+        //todo advise to add earphones for better experience
+    }
+
+    private void checkIfHeadsetIsPairedAlready() {
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if (adapter != null && adapter.isEnabled()) {
+            int[] profiles = {BluetoothProfile.A2DP, BluetoothProfile.HEADSET, BluetoothProfile.HEALTH};
+            for (int profileId : profiles) {
+                if (BluetoothProfile.STATE_CONNECTED == adapter.getProfileConnectionState(profileId)) {
+                    bluetoothConnectionExists = true;
+                    showHeadphones();
+                    break;
+                }
+            }
+        }
+    }
 
     private void checkForPermissionAndOpenCamera() {
         if (Checks.checkCameraHardware(this)) {
@@ -303,18 +401,21 @@ public class SingActivity extends AppCompatActivity implements
 
     public void playback(View view) {
         if (!buttonClicked) {
+//            view.setBackgroundColor(getResources().getColor(R.color.gold, getTheme()));
             buttonClicked = true;
             File postParseVideoFile = wrapUpSong();
             buttonClicked = false;
             openNewIntent(Uri.fromFile(postParseVideoFile));
         }
+//        view.setBackgroundColor(getResources().getColor(R.color.appColor, getTheme()));
     }
 
     private void openNewIntent(Uri uriFromFile) {
 
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
-        intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
+        if (earphonesUsed)
+            intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
         intent.putExtra(DELAY, delay);
         startActivity(intent);
     }
@@ -422,6 +523,8 @@ public class SingActivity extends AppCompatActivity implements
 
     void startTimer() {
         activityUI.clearLyricsScreen();
+        if (Microphone_Plugged_in || bluetoothConnectionExists || bluetoothConnected)
+            earphonesUsed = true;
         ending = false;
         timerStarted = true;
         final boolean[] prepared = {false};
@@ -646,12 +749,40 @@ public class SingActivity extends AppCompatActivity implements
         postParseVideoFile = wrapUpSong();
         recording = new Recording(song, timeStamp,
                 authenticationDriver.getUserUid(), recordingId, delay);
+        if (earphonesUsed)
+            recording.earphonesUsed();
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
     }
 
     private void share() {
 
 //        createLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
+
+        Task<ShortDynamicLink> link = ShareLink.createLink(recording);
+        link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
+            @Override
+            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                if (task.isSuccessful()) {
+                    // Short link created
+                    Uri shortLink = task.getResult().getShortLink();
+                    Uri flowchartLink = task.getResult().getPreviewLink();
+                    String link = shortLink.toString();
+                    sendDataThroughIntent(link);
+
+
+                } else {
+                    showFailure(SHARING_ERROR);
+                    // Error
+                    // ...
+                }
+            }
+        });
+    }
+
+    private void share(File jsonFile) {
+        try {
+            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
+            saveToCloud(saveItems);
 
             Task<ShortDynamicLink> link = ShareLink.createLink(recording);
             link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
@@ -672,32 +803,6 @@ public class SingActivity extends AppCompatActivity implements
                     }
                 }
             });
-    }
-
-    private void share(File jsonFile) {
-        try {
-            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
-            saveToCloud(saveItems);
-
-                Task<ShortDynamicLink> link = ShareLink.createLink(recording);
-                link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
-                    @Override
-                    public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                        if (task.isSuccessful()) {
-                            // Short link created
-                            Uri shortLink = task.getResult().getShortLink();
-                            Uri flowchartLink = task.getResult().getPreviewLink();
-                            String link = shortLink.toString();
-                            sendDataThroughIntent(link);
-
-
-                        } else {
-                            showFailure(SHARING_ERROR);
-                            // Error
-                            // ...
-                        }
-                    }
-                });
 
 //            createLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
 //                    Integer.toString(saveItems.getRecording().getDelay()));

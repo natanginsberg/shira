@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 public class Recording implements Serializable, SongDisplay {
+    private static final String EARPHONES_USED = "empty";
     private String recordingId;
     private String recorderId;
     private String recordingUrl;
@@ -130,5 +131,9 @@ public class Recording implements Serializable, SongDisplay {
         recording.put("delay", delay);
         return recording;
 
+    }
+
+    public void earphonesUsed() {
+        audioFileUrl = EARPHONES_USED;
     }
 }

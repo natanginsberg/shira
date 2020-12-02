@@ -5,7 +5,7 @@
     android:id="@+id/end_options"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/popup_background"
+    android:background="@android:color/white"
     tools:context=".SingActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,7 +21,6 @@
             android:layout_margin="15dp"
             android:background="@drawable/ic_baseline_close_24"
             android:onClick="returnToSong"
-            app:layout_constraintDimensionRatio=".7"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.05" />
@@ -104,8 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_weight="1"
-                android:onClick="playback"
-                android:background="@color/purple_hover">
+                android:onClick="playback">
 
                 <TextView
                     android:id="@+id/playback"
@@ -143,9 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_weight="1"
-                android:onClick="playAgain"
-                android:background="@color/purple_hover"
-                >
+                android:onClick="playAgain">
 
                 <TextView
                     android:id="@+id/try_again"
@@ -175,8 +171,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_weight="1"
-                android:onClick="returnToMain"
-                android:background="@color/purple_hover">
+                android:onClick="returnToMain">
 
                 <TextView
                     android:id="@+id/exit"
@@ -202,8 +197,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_weight="1"
-                android:onClick="saveRecordingToTheCloud"
-                android:background="@color/purple_hover">
+                android:onClick="saveRecordingToTheCloud">
 
                 <ImageButton
                     android:layout_width="25dp"

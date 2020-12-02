@@ -10,5 +10,6 @@
     <color name="default_text_color">#ffff</color>
     <color name="gold">#ecc30b</color>
     <color name="transparent_white">#99d8d8d8</color>
+
 <!--    <color name="appColor">#55c1ff</color>-->
 </resources>
