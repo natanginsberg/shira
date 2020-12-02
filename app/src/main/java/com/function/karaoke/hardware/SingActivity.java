@@ -208,7 +208,7 @@ public class SingActivity extends AppCompatActivity implements
         mPlayer = mKaraokeKonroller.getmPlayer();
         recordingId = GenerateRandomId.generateRandomId();
         checkForPermissionAndOpenCamera();
-        tryLoadSong();
+        loadSong();
         activityUI.showPlayButton();
 //        blurAlbumInBackground();
     }
@@ -234,31 +234,45 @@ public class SingActivity extends AppCompatActivity implements
     }
 
 
-    private void tryLoadSong() {
+    private void loadSong() {
 
 //        customMediaPlayer = new CustomMediaPlayer(this, song.getSongResourceFile());
-        if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext())) {
+
+        if (song.getLines() == null) {
+            if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext())) {
 //        checkForInternetConnection();
-            NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
-                @Override
-                public void onSuccess() {
-                    if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+                NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
+                    @Override
+                    public void onSuccess() {
+                        if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+                            finish();
+                        }
+                    }
+
+                    @Override
+                    public void onFail() {
                         finish();
                     }
-                }
-
-                @Override
-                public void onFail() {
-                    finish();
-                }
-            });
-            if (null != song) {
+                });
+//                if (null != song) {
+//
+////            addArtistToScreen();
+//                    activityUI.addArtistToScreen();
+//                    activityUI.setBackgroundColor();
+////            findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
+//                }
+            }
+        } else {
+            if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+                finish();
+            }
+        }
+        if (null != song) {
 
 //            addArtistToScreen();
-                activityUI.addArtistToScreen();
-                activityUI.setBackgroundColor();
+            activityUI.addArtistToScreen();
+            activityUI.setBackgroundColor();
 //            findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
-            }
         }
     }
 
@@ -348,7 +362,8 @@ public class SingActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         permissionRequested = false;
         if (requestCode == CAMERA_CODE) {
@@ -444,7 +459,8 @@ public class SingActivity extends AppCompatActivity implements
     }
 
 
-    private void StartProgressBar(TextView duration, int[] i, Handler hdlr, ProgressBar progressBar) {
+    private void StartProgressBar(TextView duration, int[] i, Handler hdlr, ProgressBar
+            progressBar) {
         new Thread(() -> {
             while (!ending && i[0] < mPlayer.getDuration() / 1000 && !restart) {
                 while (!ending && isRunning && i[0] < mPlayer.getDuration() / 1000) {
@@ -539,16 +555,20 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
             if (!keepVideo)
                 deleteVideo();
-            resetFields();
-            cameraPreview.stopRecording();
+            findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
+            findViewById(R.id.word_space).setVisibility(View.INVISIBLE);
             popup.dismiss();
-            activityUI.resetPage();
-            //todo deal with deleting
-//            deletePreviousVideos();
-            resetKaraokeController();
-            tryLoadSong();
-            buttonClicked = false;
+            cameraPreview.stopRecording();
+
+            refreshWindow();
         }
+    }
+
+    private void refreshWindow() {
+        Intent intent = new Intent(this, SingActivity.class);
+        intent.putExtra(SingActivity.EXTRA_SONG, song);
+        finish();
+        startActivity(intent);
     }
 
     private void deleteVideo() {
@@ -556,26 +576,6 @@ public class SingActivity extends AppCompatActivity implements
             cameraPreview.getVideo().delete();
     }
 
-    private void resetFields() {
-        itemBought = false;
-        buttonClicked = true;
-        restart = false;
-        isRunning = false;
-        isRecording = false;
-        recordingId = GenerateRandomId.generateRandomId();
-        ending = true;
-        fileSaved = false;
-    }
-
-    private void resetKaraokeController() {
-        if (mKaraokeKonroller.isStopped())
-            mKaraokeKonroller.onStop();
-        mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(this);
-        mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
-                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
-        mPlayer = mKaraokeKonroller.getmPlayer();
-    }
 
     public void openCamera() {
         ((SwitchCompat) findViewById(R.id.camera_toggle_button)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
