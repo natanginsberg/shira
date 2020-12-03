@@ -277,13 +277,13 @@ public class CameraPreview {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
             mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
-            mMediaRecorder.setVideoEncodingBitRate(1300000);
+            mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
-        mMediaRecorder.setAudioChannels(2);
-        mMediaRecorder.setAudioEncodingBitRate(128);
+        mMediaRecorder.setAudioChannels(1);
+        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
         mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {

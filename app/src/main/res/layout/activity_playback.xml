@@ -1,23 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/appColor"
     android:padding="@dimen/box_inset_layout_padding"
     tools:context=".Playback">
 
+<!--    <Spinner-->
+<!--        android:id="@+id/playback_spinner"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:entries="@array/volumes"-->
+<!--        android:gravity="center"-->
+<!--        android:prompt="@string/playback_volume"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/video"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--        app:layout_constraintRight_toLeftOf="@id/recording_spinner" />-->
+
+<!--    <Spinner-->
+<!--        android:id="@+id/recording_spinner"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:entries="@array/volumes"-->
+<!--        android:gravity="center"-->
+<!--        android:prompt="@string/recording_volume"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/video"-->
+<!--        app:layout_constraintLeft_toRightOf="@id/playback_spinner"-->
+<!--        app:layout_constraintRight_toRightOf="parent" />-->
+
     <FrameLayout
+        android:id="@+id/video"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="15dp">
+        android:layout_margin="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/surface_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:controller_layout_id="@layout/custom_exo_playerview"/>
+            app:controller_layout_id="@layout/custom_exo_playerview" />
 
 
     </FrameLayout>
@@ -27,5 +54,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:elevation="10dp"/>
-</FrameLayout>
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

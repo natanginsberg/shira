@@ -11,6 +11,7 @@ public class DialogBox extends DialogFragment {
 
     CallbackListener callbackListener;
 
+    private static final int EARPHONES = 121;
     private final int BACK_CODE = 101;
     private final int INTERNET_CODE = 102;
     private static final int NO_AUDIO_CODE = 103;
@@ -61,6 +62,14 @@ public class DialogBox extends DialogFragment {
                         .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 callbackListener.callback("ok");
+                            }
+                        });
+                break;
+            case EARPHONES:
+                builder.setMessage(R.string.attach_earphones)
+                        .setNeutralButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                callbackListener.callback("got it");
                             }
                         });
                 break;

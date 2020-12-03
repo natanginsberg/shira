@@ -39,14 +39,14 @@
             android:textSize="15sp" />
 
         <ImageView
+            android:id="@+id/headphones"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_centerInParent="true"
-            android:layout_alignStart="@id/open_end_options"
-            android:id="@+id/headphones"
+            android:layout_marginEnd="5dp"
+            android:layout_toStartOf="@id/open_end_options"
             android:background="@drawable/ic_baseline_headset_24"
-            android:layout_marginEnd="10dp"
-            android:visibility="invisible"/>
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/open_end_options"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_margin="7dp"
+            android:layout_marginEnd="7dp"
             android:background="@drawable/skinny_rec"
             android:elevation="10dp"
             android:onClick="openEndOptions"

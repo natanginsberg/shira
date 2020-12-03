@@ -98,6 +98,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final int CAMERA_ERROR = 111;
     private static final String SING_ACTIVITY = "sing activity";
     private static final String CALLBACK = "callback";
+    private static final int EARPHONES = 121;
     private final int CAMERA_CODE = 2;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
@@ -280,7 +281,8 @@ public class SingActivity extends AppCompatActivity implements
                         Microphone_Plugged_in = false;
                         hideHeadphonesIfNothingElseConnected();
                         Toast.makeText(getApplicationContext(), "microphone not plugged in", Toast.LENGTH_LONG).show();
-                        promptUserToConnectEarphones();
+                        if (!bluetoothConnectionExists && !bluetoothConnected)
+                            promptUserToConnectEarphones();
                     }
                     if (Integer.valueOf(iii) == 1) {
                         Microphone_Plugged_in = true;
@@ -295,6 +297,9 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void promptUserToConnectEarphones() {
+        DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
+        attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
+
         //todo advise to add earphones for better experience
     }
 

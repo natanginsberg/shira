@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -63,7 +65,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     private int delay;
     private boolean locked = false;
-    private boolean earphonesUsed;
+    private boolean earphonesUsed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,18 +76,23 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
-                if (getIntent().getExtras().containsKey(AUDIO_FILE))
+                if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
                     uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
-                else
                     earphonesUsed = true;
+                } else {
+//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                }
                 delay = getIntent().getIntExtra(DELAY, 0);
                 createTwoPlayers();
                 initializePlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
                 Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
                 urls.add(recording.getRecordingUrl());
-                if (!recording.getAudioFileUrl().equals(EARPHONES_USED))
+                if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
                     urls.add(recording.getAudioFileUrl());
+                    earphonesUsed = true;
+//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                }
                 delay = recording.getDelay();
                 createTwoPlayers();
                 initializePlayer();
@@ -147,8 +154,11 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         final Observer<Recording> recordingObserver = recording -> {
             if (recording != null) {
                 urls.add(recording.getRecordingUrl());
-                if (!recording.getAudioFileUrl().equals(EARPHONES_USED))
+                if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
                     urls.add(recording.getAudioFileUrl());
+                    earphonesUsed = true;
+//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                }
                 createTwoPlayers();
                 initializePlayer();
             }
@@ -159,7 +169,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     private void createTwoPlayers() {
         players.add(new SimpleExoPlayer.Builder(this).build());
-        if (!earphonesUsed)
+        if (earphonesUsed)
             players.add(new SimpleExoPlayer.Builder(this).build());
     }
 
@@ -211,7 +221,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
-                player.setVolume(0.7f);
+                player.setVolume(0.8f);
 
 //                if (delay != 0) {
 //                    player.seekTo(currentWindow, delay);
@@ -301,7 +311,46 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         });
 
         ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
+//        addSpinnerListeners();
     }
+
+//    private void addSpinnerListeners() {
+//        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
+//        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                String volume = adapterView.getItemAtPosition(i).toString();
+//                if (volume.equals(getResources().getString(R.string.default_value))) {
+//                    players.get(0).setVolume(0.8f);
+//                } else
+//
+//                    players.get(0).setVolume(Float.valueOf(volume));
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+//        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
+//        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                if (earphonesUsed) {
+//                    String volume = adapterView.getItemAtPosition(i).toString();
+//                    if (volume.equals(getResources().getString(R.string.default_value))) {
+//                        players.get(1).setVolume(0.5f);
+//                    } else
+//                        players.get(1).setVolume(Float.valueOf(volume));
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+//    }
 
     @Override
     public void onScrubStart(@NonNull TimeBar timeBar, long position) {

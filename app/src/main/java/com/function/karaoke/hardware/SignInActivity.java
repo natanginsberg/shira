@@ -184,10 +184,8 @@ public class SignInActivity extends AppCompatActivity {
 //            signInViewModel.addNewUserToDatabase();
 
 
-        } catch (ApiException e) {
-            throw new RuntimeException("the api status code is  " + e.getStatusCode());
         } catch (Exception e) {
-            throw new RuntimeException("this is a general error  " + e);
+            Toast.makeText(this, getResources().getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
         }
     }
 

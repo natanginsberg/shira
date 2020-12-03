@@ -55,4 +55,9 @@
     <string name="all_songs">שירים</string>
     <string name="My_recordings">הביצועים שלי</string>
     <string name="share_question">רוצה לשתף עם חברים ומשפחה? לחץ שתף</string>
+    <string name="playback_volume">עוצמת הפלייבק</string>
+    <string name="recording_volume">עוצמת ההקלטה</string>
+    <string name="default_value">ברירת מחדל</string>
+    <string name="sign_in_error">ההרשמה נכשלה</string>
+    <string name="attach_earphones">תחבר אזניות בשביל חוויה יותר טובה.</string>
 </resources>
