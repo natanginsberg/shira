@@ -80,6 +80,13 @@ public class Song {
         public double to;
         public String text;
         public int tone;
+        public List<Letter> letters;
+    }
+
+    public static class Letter {
+        public double from;
+        public double to;
+        public char letter;
     }
 
     public static class Line {

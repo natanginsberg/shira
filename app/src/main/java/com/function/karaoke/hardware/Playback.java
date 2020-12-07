@@ -80,7 +80,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                     uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
                     earphonesUsed = true;
                 } else {
-//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = getIntent().getIntExtra(DELAY, 0);
                 createTwoPlayers();
@@ -91,7 +92,11 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
                     urls.add(recording.getAudioFileUrl());
                     earphonesUsed = true;
+
 //                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                } else {
+                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = recording.getDelay();
                 createTwoPlayers();
@@ -158,6 +163,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                     urls.add(recording.getAudioFileUrl());
                     earphonesUsed = true;
 //                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                } else {
+                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 createTwoPlayers();
                 initializePlayer();
@@ -217,25 +225,22 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     private void initializePlayer() {
+        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS);
         for (int i = 0; i < players.size(); i++) {
             SimpleExoPlayer player = players.get(i);
             if (i == RECORDING_URL) {
                 playerView.setPlayer(player);
                 player.setVolume(0.8f);
-
-//                if (delay != 0) {
-//                    player.seekTo(currentWindow, delay);
-//                }
             } else {
                 player.setVolume(0.5f);
             }
-            player.seekTo(currentWindow, playbackPosition);
             player.setPlayWhenReady(false);
             MediaSource mediaSource;
-            if (urls.size() > 0)
+            if (urls.size() > 0) {
                 mediaSource = buildMediaSource(urls.get(i));
-            else
+            } else {
                 mediaSource = buildMediaSource(uris.get(i));
+            }
             ClippingMediaSource clippingMediaSource = null;
             if (i == RECORDING_URL && delay != 0) {
                 clippingMediaSource = new ClippingMediaSource(mediaSource, delay * 1000, 1000000000);
@@ -253,8 +258,10 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             player.addListener(this);
             if (clippingMediaSource != null) {
                 player.prepare(clippingMediaSource);
-            } else
+            } else {
                 player.prepare(mediaSource, false, false);
+            }
+            player.seekTo(currentWindow, playbackPosition);
             findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
 
 //            player.sets
@@ -311,46 +318,45 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         });
 
         ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
-//        addSpinnerListeners();
+        addSpinnerListeners();
     }
 
-//    private void addSpinnerListeners() {
-//        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
-//        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                String volume = adapterView.getItemAtPosition(i).toString();
-//                if (volume.equals(getResources().getString(R.string.default_value))) {
-//                    players.get(0).setVolume(0.8f);
-//                } else
-//
-//                    players.get(0).setVolume(Float.valueOf(volume));
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-//        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
-//        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                if (earphonesUsed) {
-//                    String volume = adapterView.getItemAtPosition(i).toString();
-//                    if (volume.equals(getResources().getString(R.string.default_value))) {
-//                        players.get(1).setVolume(0.5f);
-//                    } else
-//                        players.get(1).setVolume(Float.valueOf(volume));
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-//    }
+    private void addSpinnerListeners() {
+        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
+        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String volume = adapterView.getItemAtPosition(i).toString();
+                if (volume.equals(getResources().getString(R.string.default_value))) {
+                    players.get(0).setVolume(0.8f);
+                } else
+                    players.get(0).setVolume(Float.valueOf(volume));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
+        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (earphonesUsed) {
+                    String volume = adapterView.getItemAtPosition(i).toString();
+                    if (volume.equals(getResources().getString(R.string.default_value))) {
+                        players.get(1).setVolume(0.7f);
+                    } else
+                        players.get(1).setVolume(Float.valueOf(volume));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
 
     @Override
     public void onScrubStart(@NonNull TimeBar timeBar, long position) {
@@ -380,21 +386,18 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
             }
             long startTime = System.currentTimeMillis();
             while (!(playersAreReady())) {
+                findViewById(R.id.exo_pr_circle).setVisibility(View.VISIBLE);
                 long endTime = System.currentTimeMillis();
-                if ((endTime - startTime) / 1000 > 1) {
+                if ((endTime - startTime) / (double) 1000 > 0.3) {
                     releasePlayersAndStartFromThisTime(position);
                     timeBar.setEnabled(true);
                     locked = false;
                     startAgain();
                     return;
                 }
-
             }
-//            for (SimpleExoPlayer player : players) {
             if (playersAreReady()) {
-                if (players.size() > 1)
-                    players.get(1).setPlayWhenReady(true);
-                players.get(0).setPlayWhenReady(true);
+                for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
             }
             locked = false;
             timeBar.setEnabled(true);
@@ -404,6 +407,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     private void startAgain() {
+
         for (SimpleExoPlayer player : players)
             player.setPlayWhenReady(true);
     }

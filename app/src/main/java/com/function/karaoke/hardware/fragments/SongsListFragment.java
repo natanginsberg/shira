@@ -197,16 +197,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             } else {
                 currentDatabaseSongs.updateSongs(new ArrayList<>());
                 mAdapter.notifyDataSetChanged();
-                updateUINoRecordings();
+                songsActivityUI.noRecordingsTextDisplay();
             }
 
         };
         this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
-    }
-
-    private void updateUINoRecordings() {
-        view.findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.no_recordings_text)).setText(R.string.no_recordings);
     }
 
     @Override
@@ -380,6 +375,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
                 ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
                 ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.all_songs);
+                view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
             }
         });
     }

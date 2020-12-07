@@ -265,23 +265,23 @@ public class CameraPreview {
 
     private void setupMediaRecorder() {
         mMediaRecorder = new MediaRecorder();
-        if (mCamera != null)
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        if (mCamera != null) {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+        }
 
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-
         mMediaRecorder.setOutputFile(fileName);
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+//        mMediaRecorder.setProfile(profile);
         if (mCamera != null) {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
-            mMediaRecorder.setVideoSize(profile.videoFrameWidth, profile.videoFrameHeight);
             mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-
+//
         mMediaRecorder.setAudioChannels(1);
         mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
         mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);

@@ -92,7 +92,12 @@ public class SongParser {
             s.text = "~";
         s.from = getTimestamp(song, pos);
         s.to = s.from + len * 60 / song.BPM;
+        s.letters = getSyllableLetters(s);
         return s;
+    }
+
+    private static List<Song.Letter> getSyllableLetters(Song.Syllable s) {
+        return null;
     }
 
     private static float getFloatValue(String line, String tag) {

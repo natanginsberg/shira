@@ -205,6 +205,12 @@ public class SongsActivityUI {
         genreClicked = textView;
     }
 
+    public void noRecordingsTextDisplay() {
+        view.findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
+        ((TextView) view.findViewById(R.id.no_recordings_text)).setText(R.string.no_recordings);
+
+    }
+
 
     public interface SongsUIListener {
         void getAllSongsFromGenre(String genre);

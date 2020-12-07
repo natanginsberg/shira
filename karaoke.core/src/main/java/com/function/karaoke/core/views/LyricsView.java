@@ -7,7 +7,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 import com.function.karaoke.core.model.Song;
 import com.function.phone.core.R;
@@ -21,25 +20,20 @@ import org.jetbrains.annotations.Nullable;
 
 public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
 
-    private Song.Line mLine;
-
-    private SpannableString mText;
-
-    private ForegroundColorSpan mSpan;
-
-    private int mCurrentChar = -1;
-
-    private int syllableNumber = -1;
-    private CountDownTimer cTimer = null;
-
-    private float originalPlace = 0;
     //    private int pos = 0;
     boolean lastWord = false;
+    private Song.Line mLine;
+    private SpannableString mText;
+    private final ForegroundColorSpan mSpan;
+    private int mCurrentChar = -1;
+    private final int syllableNumber = -1;
+    private final CountDownTimer cTimer = null;
+    private float originalPlace = 0;
 
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.purple_hover));
+        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.focused_text_color));
     }
 
     @SuppressLint("SetTextI18n")
@@ -61,12 +55,14 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
             return;
         int pos = 0;
         for (Song.Syllable s : mLine.syllables)
-            if (s.from < position)
+            if (s.to < position)
                 pos += s.text.length();
-
             else
-                break;
-
+                for (Song.Letter letter : s.letters)
+                    if (letter.from < position)
+                        pos += 1;
+                    else
+                        break;
         if (mCurrentChar == pos)
             return;
 
@@ -80,11 +76,11 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
         return mLine;
     }
 
-    public void setOriginalPlace(float place){
-        originalPlace = place;
-    }
-
     public float getOriginalPlace() {
         return originalPlace;
+    }
+
+    public void setOriginalPlace(float place) {
+        originalPlace = place;
     }
 }

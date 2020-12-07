@@ -14,6 +14,7 @@ public class UserInfo implements Serializable {
     String userEmail;
     int subscriptionType = 1;
     String id;
+    int shares;
 
     public UserInfo(){}
 
@@ -21,10 +22,11 @@ public class UserInfo implements Serializable {
         this.id = id;
     }
 
-    public UserInfo(String userEmail, String userName, String id) {
+    public UserInfo(String userEmail, String userName, String id, int shares) {
         this.userEmail = userEmail;
         this.userName = userName;
         this.id = id;
+        this.shares = shares;
     }
 
 
@@ -50,5 +52,9 @@ public class UserInfo implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public int getShares(){
+        return shares;
     }
 }

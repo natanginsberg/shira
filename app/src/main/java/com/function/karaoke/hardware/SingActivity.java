@@ -200,24 +200,10 @@ public class SingActivity extends AppCompatActivity implements
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song);
 
         setContentView(R.layout.activity_sing);
+        blurAlbumInBackground();
 
-        final ImageView tv = findViewById(R.id.album_cover);
-        final ViewTreeObserver observer = tv.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (!measured) {
-                    measured = true;
-                    blurAlbumInBackground();
-                }
-            }
-        });
         mTextureView = findViewById(R.id.surface_camera);
-        mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(this);
-        mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
-                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
-        mPlayer = mKaraokeKonroller.getmPlayer();
+        setKarokeController();
         recordingId = GenerateRandomId.generateRandomId();
         checkForPermissionAndOpenCamera();
         loadSong();
@@ -226,6 +212,14 @@ public class SingActivity extends AppCompatActivity implements
         createBluetoothReceiver();
         checkIfHeadsetIsPairedAlready();
 //        blurAlbumInBackground();
+    }
+
+    private void setKarokeController() {
+        mKaraokeKonroller = new KaraokeController();
+        mKaraokeKonroller.init(this);
+        mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
+                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
+        mPlayer = mKaraokeKonroller.getmPlayer();
     }
 
     private void createBluetoothReceiver() {
@@ -280,14 +274,14 @@ public class SingActivity extends AppCompatActivity implements
                     if (Integer.valueOf(iii) == 0) {
                         Microphone_Plugged_in = false;
                         hideHeadphonesIfNothingElseConnected();
-                        Toast.makeText(getApplicationContext(), "microphone not plugged in", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "microphone not plugged in", Toast.LENGTH_LONG).show();
                         if (!bluetoothConnectionExists && !bluetoothConnected)
                             promptUserToConnectEarphones();
                     }
                     if (Integer.valueOf(iii) == 1) {
                         Microphone_Plugged_in = true;
                         showHeadphones();
-                        Toast.makeText(getApplicationContext(), "microphone plugged in", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "microphone plugged in", Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -299,8 +293,6 @@ public class SingActivity extends AppCompatActivity implements
     private void promptUserToConnectEarphones() {
         DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
         attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
-
-        //todo advise to add earphones for better experience
     }
 
     private void checkIfHeadsetIsPairedAlready() {
@@ -338,12 +330,8 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void loadSong() {
-
-//        customMediaPlayer = new CustomMediaPlayer(this, song.getSongResourceFile());
-
         if (song.getLines() == null) {
             if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext())) {
-//        checkForInternetConnection();
                 NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
                     @Override
                     public void onSuccess() {
@@ -357,13 +345,6 @@ public class SingActivity extends AppCompatActivity implements
                         finish();
                     }
                 });
-//                if (null != song) {
-//
-////            addArtistToScreen();
-//                    activityUI.addArtistToScreen();
-//                    activityUI.setBackgroundColor();
-////            findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
-//                }
             }
         } else {
             if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
@@ -400,6 +381,7 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
+        pauseSong(findViewById(R.id.sing_song));
         DialogBox back = DialogBox.newInstance(this, BACK_CODE);
         back.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
@@ -460,9 +442,20 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void blurAlbumInBackground() {
-        Picasso.get()
-                .load(song.getImageResourceFile())
-                .into(target);
+        final ImageView tv = findViewById(R.id.album_cover);
+        final ViewTreeObserver observer = tv.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (!measured) {
+                    measured = true;
+                    Picasso.get()
+                            .load(song.getImageResourceFile())
+                            .into(target);
+                }
+            }
+        });
+
 
     }
 
@@ -494,19 +487,10 @@ public class SingActivity extends AppCompatActivity implements
         super.onPause();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
     public void returnToMain(View view) {
         if (!buttonClicked) {
             buttonClicked = true;
+            pauseSong(view);
             DialogBox back = DialogBox.newInstance(this, BACK_CODE);
             back.show(getSupportFragmentManager(), "NoticeDialogFragment");
             buttonClicked = false;
@@ -598,8 +582,10 @@ public class SingActivity extends AppCompatActivity implements
             lengthOfAudioPlayed = mPlayer.getDuration();
         activityUI.openEndPopup(this, songEnded);
         popup = activityUI.getPopup();
-        popup.setOnDismissListener(() -> activityUI.undimBackground());
-
+        popup.setOnDismissListener(() -> {
+            if (ending) finish();
+            activityUI.undimBackground();
+        });
     }
 
     //cancel timer
@@ -618,7 +604,8 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void pauseSong(View view) {
-        activityUI.songPaused();
+        if (isRunning)
+            activityUI.songPaused();
         isRunning = false;
         mKaraokeKonroller.onPause();
         if (isRecording) {
@@ -970,47 +957,6 @@ public class SingActivity extends AppCompatActivity implements
     private void deleteVideo(File file) {
         if (file.delete()) {
             int k = 0;
-        }
-    }
-
-    private class GetBlurImage extends AsyncTask<DisplayMetrics, Void, GetBlurImage.Result> {
-        GetBlurImage.Result result = null;
-
-
-        @Override
-        protected Result doInBackground(DisplayMetrics... params) {
-            try {
-                result = new Result(BlurBuilder.blur(getBaseContext(), Picasso.get().load(song.getImageResourceFile()).get(), params[0]))
-                ;
-                return result;
-            } catch (IOException e) {
-                return new Result(e);
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(GetBlurImage.Result result) {
-            Bitmap newBitmap = Bitmap.createBitmap(result.bitmap, 0, 0, metrics.widthPixels, findViewById(R.id.words).getHeight());
-            findViewById(R.id.words).setBackground((new BitmapDrawable(Resources.getSystem(), newBitmap)));
-        }
-
-        /**
-         * Wrapper class that serves as a union of a result value and an exception. When the download
-         * task has completed, either the result value or exception can be a non-null value.
-         * This allows you to pass exceptions to the UI thread that were thrown during doInBackground().
-         */
-        private class Result {
-            public Bitmap bitmap;
-            public Exception exception;
-
-            public Result(Bitmap bitmap) {
-                this.bitmap = bitmap;
-            }
-
-            public Result(Exception exception) {
-                this.exception = exception;
-            }
         }
     }
 

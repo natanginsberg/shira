@@ -8,37 +8,88 @@
     android:padding="@dimen/box_inset_layout_padding"
     tools:context=".Playback">
 
-<!--    <Spinner-->
-<!--        android:id="@+id/playback_spinner"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:entries="@array/volumes"-->
-<!--        android:gravity="center"-->
-<!--        android:prompt="@string/playback_volume"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/video"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toLeftOf="@id/recording_spinner" />-->
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp"
+        android:orientation="horizontal"
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintTop_toTopOf="parent">
 
-<!--    <Spinner-->
-<!--        android:id="@+id/recording_spinner"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:entries="@array/volumes"-->
-<!--        android:gravity="center"-->
-<!--        android:prompt="@string/recording_volume"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/video"-->
-<!--        app:layout_constraintLeft_toRightOf="@id/playback_spinner"-->
-<!--        app:layout_constraintRight_toRightOf="parent" />-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/playback_word"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/playback_volume"
+                android:textColor="@android:color/white" />
+
+            <Spinner
+                android:id="@+id/playback_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/volumes"
+                android:prompt="@string/playback_volume" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/recording_word"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/recording_volume"
+                android:textColor="@android:color/white" />
+
+            <Spinner
+                android:id="@+id/recording_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/volumes"
+                android:prompt="@string/recording_volume" />
+
+        </LinearLayout>
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/disabled"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_centerVertical="true"-->
+        <!--            android:layout_alignStart="@id/playback_spinner"-->
+        <!--            android:layout_alignEnd="@id/playback_spinner"-->
+        <!--            android:text="@string/recording_volume"-->
+        <!--            android:textColor="@android:color/white" />-->
+        <!--        -->
+        <!--        -->
+
+
+    </RelativeLayout>
+
 
     <FrameLayout
         android:id="@+id/video"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_margin="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/header">
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/surface_view"
@@ -51,12 +102,12 @@
 
     <ProgressBar
         android:id="@+id/exo_pr_circle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="center"
         android:elevation="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/video"
+        app:layout_constraintLeft_toLeftOf="@id/video"
+        app:layout_constraintRight_toRightOf="@id/video"
+        app:layout_constraintTop_toTopOf="@id/video" />
 </androidx.constraintlayout.widget.ConstraintLayout>

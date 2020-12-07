@@ -1,5 +1,6 @@
 package com.function.karaoke.core.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -84,6 +85,7 @@ public class Parser {
             syllable.to = nextSyllableStartsAt;
             syllable.from = syllable.to - 1;
             nextSyllableStartsAt = syllable.from;
+            syllable.letters = addLettersToSyllable(syllable);
             indicatorLine.syllables.add(0, syllable);
         }
         return indicatorLine;
@@ -123,6 +125,7 @@ public class Parser {
             }
             syllable.from = startTime;
             syllable.to = endTime;
+            syllable.letters = addLettersToSyllable(syllable);
             currentLine.syllables.add(syllable);
             endTime = startTime;
         }
@@ -166,11 +169,28 @@ public class Parser {
             }
             syllable.from = startTime;
             syllable.to = endTime;
+            syllable.letters = addLettersToSyllable(syllable);
             currentLine.syllables.add(syllable);
             startTime = endTime;
         }
         currentLine.to = endTime;
         return currentLine;
+    }
+
+    private static List<Song.Letter> addLettersToSyllable(Song.Syllable syllable) {
+        double totalTimeAllotted = syllable.to - syllable.from;
+        double lengthPerLetter = totalTimeAllotted / (double) syllable.text.length();
+        double currentPosition = syllable.from;
+        List<Song.Letter> letters = new ArrayList<>();
+        for (char letter : syllable.text.toCharArray()) {
+            Song.Letter l = new Song.Letter();
+            l.from = currentPosition;
+            l.to = currentPosition + lengthPerLetter;
+            currentPosition = l.to;
+            l.letter = letter;
+            letters.add(l);
+        }
+        return letters;
     }
 
     private static double getLineTimeStamp(String line) {
