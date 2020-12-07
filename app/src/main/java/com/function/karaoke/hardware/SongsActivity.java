@@ -67,6 +67,7 @@ public class SongsActivity
     private static final String ARTIST_FILE = "artistUpdated";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int SHARING_ERROR = 100;
+    private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
 
     private Billing billingSession;
     public String language;
@@ -305,8 +306,10 @@ public class SongsActivity
     @Override
     public void openEmailIntent() {
         Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"ashira.jewishkaraoke@gmail.com"});
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{FEEDBACK_EMAIL});
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
+        intent.setType("message/rfc822");
+        intent.setPackage("com.google.android.gm");
         startActivity(intent);
     }
 
