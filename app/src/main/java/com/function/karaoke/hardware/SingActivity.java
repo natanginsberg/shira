@@ -10,14 +10,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -51,8 +49,12 @@ import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
+import com.function.karaoke.hardware.activities.Model.SignInViewModel;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
+import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.tasks.OpenCameraAsync;
 import com.function.karaoke.hardware.ui.SingActivityUI;
@@ -108,7 +110,7 @@ public class SingActivity extends AppCompatActivity implements
     private KaraokeController mKaraokeKonroller;
     private PopupWindow popup;
     private DatabaseSong song;
-    private boolean isRunning = true;
+    private boolean isRunning = false;
     private boolean restart = false;
     private boolean buttonClicked = false;
     private TextureView mTextureView;
@@ -178,7 +180,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
             });
     private Billing billingSession;
-    private boolean itemBought = false;
+    private boolean itemAquired = false;
     private boolean keepVideo = false;
     private File postParseVideoFile;
     private Recording recording;
@@ -190,6 +192,9 @@ public class SingActivity extends AppCompatActivity implements
     private boolean bluetoothConnected = false;
     private boolean bluetoothConnectionExists = false;
     private boolean earphonesUsed = false;
+    private UserInfo user;
+    private SignInViewModel signInViewModel;
+    private UserService userService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -455,10 +460,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
             }
         });
-
-
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -723,18 +725,46 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void share(View view) {
-//        if (!ending) {
-//            saveSongToJsonFile();
-//        }
+        buttonClicked = true;
         if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
                 !authenticationDriver.getUserEmail().equals(""))
-            if (!itemBought)
-                startBilling(SHARE);
+
+            if (!itemAquired)
+                checkIfUserHasFreeAcquisition(SHARE);
             else
                 share();
+
         else
             launchSignIn(SHARE);
+        buttonClicked = false;
+    }
 
+    private void checkIfUserHasFreeAcquisition(int funcToCall) {
+        userService = new UserService(new DatabaseDriver(), authenticationDriver);
+        userService.getUserFromDatabase(new SignInViewModel.FreeShareListener() {
+            @Override
+            public void hasFreeShare(boolean freeShare) {
+                if (freeShare) {
+                    keepVideo = true;
+                    itemAquired = true;
+                    userService.addOneToUserShares(new UserService.UserUpdateListener() {
+                        @Override
+                        public void onSuccess() {
+                            saveSongToTempJsonFile();
+                            File jsonFile = renameJsonPendingFile();
+                            share(jsonFile);
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            Toast.makeText(getParent(), "We are sorry but you can not continue at this time", Toast.LENGTH_LONG).show();
+                        }
+                    });
+
+                } else
+                    startBilling(funcToCall);
+            }
+        });
     }
 
     private void saveSongToTempJsonFile() {
@@ -816,7 +846,7 @@ public class SingActivity extends AppCompatActivity implements
                         saveSongToTempJsonFile();
                         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 //                          saveSongToJsonFile();
-                            itemBought = true;
+                            itemAquired = true;
                             billingSession.handlePurchase(purchase);
 
                         }
@@ -843,6 +873,16 @@ public class SingActivity extends AppCompatActivity implements
             public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String purchaseToken) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     File jsonFile = renameJsonPendingFile();
+                    userService.addOneToUserShares(new UserService.UserUpdateListener() {
+                        @Override
+                        public void onSuccess() {
+                        }
+
+                        @Override
+                        public void onFailure() {
+
+                        }
+                    });
                     if (funcToCall == SAVE)
                         save(jsonFile);
                     else
@@ -904,17 +944,11 @@ public class SingActivity extends AppCompatActivity implements
 
     public void saveRecordingToTheCloud(View view) {
         if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-            if (!itemBought) startBilling(SAVE);
+            if (!itemAquired)
+                checkIfUserHasFreeAcquisition(SAVE);
         } else
             launchSignIn(SAVE);
     }
-
-//    private void save() {
-//
-//        keepVideo = true;
-////        File postParseVideoFile = wrapUpSong();
-//        saveToCloud(postParseVideoFile);
-//    }
 
     private void save(File jsonFile) {
         try {

@@ -45,7 +45,6 @@ public class ArtistService {
     private void updateDownloads(DocumentReference document, long i) {
         Map<String, Object> data = new HashMap<>();
         data.put(SINGLE_DOWNLOADS, i);
-//        data.put(LAST_USER, recorderId);
         document.update(data).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

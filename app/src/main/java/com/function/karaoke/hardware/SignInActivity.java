@@ -156,7 +156,7 @@ public class SignInActivity extends AppCompatActivity {
                             if (inDatabase) {
                                 user = signInViewModel.getUser();
                             } else {
-                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getUid());
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getUid(), 0);
 
                                 signInViewModel.addNewUserToDatabase(user);
                             }
@@ -165,7 +165,7 @@ public class SignInActivity extends AppCompatActivity {
 
                         @Override
                         public void failedToSearchDatabase() {
-                            user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getUid());
+                            user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getUid(), 0);
 
                             signInViewModel.addNewUserToDatabase(user);
                         }
@@ -204,7 +204,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void setUpGettingNewUserSucceeded() {
-        gettingNewUserSucceeded = success -> {
+        gettingNewUserSucceeded = (Boolean success) -> {
             if (success) {
                 if ((user = signInViewModel.getUser()) != null) {
                     signInViewModel.setLoginState(LoginState.FINISH);

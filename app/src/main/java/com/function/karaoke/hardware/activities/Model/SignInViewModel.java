@@ -1,8 +1,5 @@
 package com.function.karaoke.hardware.activities.Model;
 
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -13,8 +10,6 @@ import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.UserService;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +32,7 @@ public class SignInViewModel extends ViewModel {
 
     private Boolean mAccessingDatabase;
     private UserService userService;
+    private int NUMBER_OF_FREE_SHARES  = 1;
 
     public SignInViewModel() {
         mAccessingDatabase = false;
@@ -96,7 +92,9 @@ public class SignInViewModel extends ViewModel {
         return success;
     }
 
-    public LiveData<Boolean> getUserFromDatabase() {
+
+
+    public MutableLiveData<Boolean> getUserFromDatabase() {
         MutableLiveData<Boolean> success = new MutableLiveData<>();
         final List<UserInfo> documentsList = new LinkedList<>();
         mAccessingDatabase = true;
@@ -120,6 +118,7 @@ public class SignInViewModel extends ViewModel {
 
         return success;
     }
+
 
     public void isUserInDatabase(DatabaseListener databaseListener) {
         mAccessingDatabase = true;
@@ -167,5 +166,9 @@ public class SignInViewModel extends ViewModel {
         void onSuccess(FirebaseUser firebaseUser);
 
         void onFailure();
+    }
+
+    public interface FreeShareListener {
+        void hasFreeShare(boolean freeShare);
     }
 }

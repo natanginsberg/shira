@@ -302,6 +302,14 @@ public class SongsActivity
         askForAudioRecordPermission();
     }
 
+    @Override
+    public void openEmailIntent() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"ashira.jewishkaraoke@gmail.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
+        startActivity(intent);
+    }
+
     private void askForAudioRecordPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 

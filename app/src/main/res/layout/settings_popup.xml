@@ -148,11 +148,12 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/contact_us"
-        android:textColor="@android:color/white"
+        android:textColor="@color/sing_up_hover"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/line1" />
+        app:layout_constraintTop_toBottomOf="@id/line1"
+        android:autoLink="email" />
 
 
     <TextView

@@ -1,18 +1,12 @@
 package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.Typeface;
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOverlay;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -40,7 +34,6 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
-import com.function.karaoke.hardware.utils.Converter;
 import com.function.karaoke.hardware.utils.OnSwipeTouchListener;
 
 import java.util.ArrayList;
@@ -349,8 +342,17 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         myRecordingsToDisplayListener();
         homeButtonListener();
         signInButtonListener();
+        contactUsListener();
+    }
 
+    private void contactUsListener() {
+        popupView.findViewById(R.id.contact_us).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                mListener.openEmailIntent();
+            }
+        });
     }
 
     private void signInButtonListener() {
@@ -440,5 +442,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void alertUserToSignIn();
 
         void signOut();
+
+        void openEmailIntent();
     }
 }

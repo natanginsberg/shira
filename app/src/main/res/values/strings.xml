@@ -85,5 +85,6 @@
     <string name="sign_in_error">Unable to sign in</string>
     <string name="attach_earphones">Attach earphones for a better experience.</string>
     <string name="synthymusic">&amp; Synthymusic</string>
+    <string name="feedback">Feedback</string>
 
 </resources>
