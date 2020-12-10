@@ -62,9 +62,7 @@ public class SongsActivity
         implements SongsListFragment.OnListFragmentInteractionListener {
 
     private static final int AUDIO_CODE = 101;
-    private static final String JSON_FILE_NAME = "savedJson";
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
-    private static final String ARTIST_FILE = "artistUpdated";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int SHARING_ERROR = 100;
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
@@ -121,7 +119,6 @@ public class SongsActivity
                         // the credit card is taking time
                     }
                 } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-                    int k = 0;
                     Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
                     // the user pressed back
                     // Handle an error caused by a user cancelling the purchase flow.
@@ -157,8 +154,8 @@ public class SongsActivity
                 for (File child : listOfAllFiles) {
                     if (child.getName().contains("Pending"))
                         continue;
-                    if (child.getName().contains("artist"))
-                        continue;
+                    if (child.getName().contains("artist")) {
+                    }
                     else {
                         SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
                         if (artistFileExists(child, listOfAllFiles)) {
@@ -279,11 +276,8 @@ public class SongsActivity
         alertBuilder.setCancelable(true);
         alertBuilder.setTitle(R.string.sign_in_title);
         alertBuilder.setMessage(R.string.recording_sign_in_text);
-        alertBuilder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
+        alertBuilder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
 
-            }
         });
         AlertDialog alert = alertBuilder.create();
         alert.show();
@@ -342,22 +336,19 @@ public class SongsActivity
     @Override
     public void onListFragmentInteractionShare(Recording item) {
         Task<ShortDynamicLink> link = ShareLink.createLink(item);
-        link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
-            @Override
-            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                if (task.isSuccessful()) {
-                    // Short link created
-                    Uri shortLink = task.getResult().getShortLink();
-                    Uri flowchartLink = task.getResult().getPreviewLink();
-                    String link = shortLink.toString();
-                    sendDataThroughIntent(link);
+        link.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Short link created
+                Uri shortLink = task.getResult().getShortLink();
+                Uri flowchartLink = task.getResult().getPreviewLink();
+                String link1 = shortLink.toString();
+                sendDataThroughIntent(link1);
 
 
-                } else {
-                    showFailure(SHARING_ERROR);
-                    // Error
-                    // ...
-                }
+            } else {
+                showFailure();
+                // Error
+                // ...
             }
         });
 
@@ -373,10 +364,8 @@ public class SongsActivity
         startActivity(sendIntent);
     }
 
-    private void showFailure(int error) {
-        if (error == SHARING_ERROR) {
-            Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
-        }
+    private void showFailure() {
+        Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -40,7 +40,7 @@ public class KaraokeController implements Recorder.IToneListener {
     private MyCustomObjectListener listener;
 
     private boolean prepared = false;
-    private boolean stopped = false;
+    private boolean playing = false;
     private final LinkedList<LyricsView> tempViews = new LinkedList<>();
 
     // views
@@ -55,13 +55,15 @@ public class KaraokeController implements Recorder.IToneListener {
         public void run() {
             mHandler.postDelayed(mUpdater, 50);
             double position = mPlayer.getCurrentPosition() / 1000.0;
-            if (position >= mPlayer.getDuration() / 1000.0) {
-                listener.onSongEnded(true);
-                finishPlaying();
-                mHandler.removeCallbacks(mUpdater);
-            } else {
+            if (position <= mPlayer.getDuration() / 1000.0) {
+                if ((mPlayer.getDuration() / 1000.0) - position < 0.15) {
+                    listener.onSongEnded();
+//                    finishPlaying();
+                    mHandler.removeCallbacks(mUpdater);
+                }
                 updateUI();
             }
+
         }
     };
     private Context context;
@@ -73,6 +75,14 @@ public class KaraokeController implements Recorder.IToneListener {
     public KaraokeController() {
         mHandler = new Handler();
         mPlayer = new MediaPlayer();
+//        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mediaPlayer) {
+////                listener.onSongEnded(true);
+//                finishPlaying();
+//                mHandler.removeCallbacks(mUpdater);
+//            }
+//        });
 //        mRecorder = new MediaRecorder();
         this.listener = null;
     }
@@ -80,6 +90,7 @@ public class KaraokeController implements Recorder.IToneListener {
     public void finishPlaying() {
         mPlayer.stop();
         mPlayer.release();
+        playing = false;
 //        mRecorder.stop();
 //        mRecorder.release();
     }
@@ -285,7 +296,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void onStop() {
         mPlayer.release();
-        stopped = true;
+        playing = true;
         mHandler.removeCallbacks(mUpdater);
 //        mRecorder.release();
     }
@@ -293,6 +304,7 @@ public class KaraokeController implements Recorder.IToneListener {
     public void onResume() {
         if (prepared) {
             mPlayer.start();
+            playing = true;
             mHandler.post(mUpdater);
         }
     }
@@ -326,14 +338,14 @@ public class KaraokeController implements Recorder.IToneListener {
         return prepared;
     }
 
-    public boolean isStopped() {
-        return !stopped;
+    public boolean isPlaying() {
+        return playing;
     }
 
     public interface MyCustomObjectListener {
         // These methods are the different events and
         // need to pass relevant arguments related to the event triggered
-        void onSongEnded(boolean songIsOver);
+        void onSongEnded();
 
     }
 }

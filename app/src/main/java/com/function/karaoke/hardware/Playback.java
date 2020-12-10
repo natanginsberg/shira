@@ -397,7 +397,13 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 }
             }
             if (playersAreReady()) {
-                for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
+                if (earphonesUsed)
+                {
+                    players.get(1).setPlayWhenReady(true);
+                    players.get(0).setPlayWhenReady(true);
+                } else {
+                    players.get(0).setPlayWhenReady(true);
+                }
             }
             locked = false;
             timeBar.setEnabled(true);

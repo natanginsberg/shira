@@ -369,7 +369,7 @@ public class SingActivity extends AppCompatActivity implements
     public void callback(String result) {
         if (result.equals("yes")) {
             ending = true;
-            if (mKaraokeKonroller.isStopped()) {
+            if (mKaraokeKonroller.isPlaying()) {
                 mKaraokeKonroller.onStop();
 //                customMediaPlayer.onStop();
             }
@@ -434,7 +434,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void stopRecordingAndSong() {
         ending = true;
-        if (mKaraokeKonroller.isStopped()) {
+        if (mKaraokeKonroller.isPlaying()) {
 
             mKaraokeKonroller.onStop();
 //            customMediaPlayer.onStop();
@@ -533,7 +533,18 @@ public class SingActivity extends AppCompatActivity implements
                 cancelTimer();
 //                customMediaPlayer.startSong();
                 mKaraokeKonroller.onResume();
-                mKaraokeKonroller.setCustomObjectListener(songIsOver -> openEndOptions(true));
+                mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
+                    @Override
+                    public void onSongEnded() {
+
+//                        cameraPreview.stopRecording();
+                        lengthOfAudioPlayed = mPlayer.getCurrentPosition();
+                        isRunning = false;
+                        ending = true;
+                        pauseSong(findViewById(R.id.sing_song));
+                        openEndOptions(true);
+                    }
+                });
                 isRunning = true;
                 setProgressBar();
                 isRecording = true;
@@ -580,8 +591,6 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void openEndOptions(boolean songEnded) {
-        if (songEnded)
-            lengthOfAudioPlayed = mPlayer.getDuration();
         activityUI.openEndPopup(this, songEnded);
         popup = activityUI.getPopup();
         popup.setOnDismissListener(() -> {
