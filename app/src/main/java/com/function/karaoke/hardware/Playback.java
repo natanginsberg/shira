@@ -3,6 +3,8 @@ package com.function.karaoke.hardware;
 import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -16,6 +18,7 @@ import androidx.lifecycle.Observer;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -23,15 +26,15 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
-import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
 
 import java.util.ArrayList;
 import java.util.Formatter;
@@ -48,8 +51,8 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private static final String DELAY = "delay";
     private static final String EARPHONES_USED = "empty";
 
-    private List<String> urls = new ArrayList<>();
-    private List<Uri> uris = new ArrayList<>();
+    private final List<String> urls = new ArrayList<>();
+    private final List<Uri> uris = new ArrayList<>();
 
     private PlayerView playerView;
     private List<SimpleExoPlayer> players = new ArrayList<>();
@@ -119,31 +122,28 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private void getDynamicLink() {
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<PendingDynamicLinkData>() {
-                    @Override
-                    public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                .addOnSuccessListener(this, pendingDynamicLinkData -> {
 
-                        // Get deep link from result (may be null if no link is found)
-                        Uri deepLink = null;
-                        if (pendingDynamicLinkData != null) {
-                            deepLink = pendingDynamicLinkData.getLink();
+                    // Get deep link from result (may be null if no link is found)
+                    Uri deepLink;
+                    if (pendingDynamicLinkData != null) {
+                        deepLink = pendingDynamicLinkData.getLink();
 //                            String originalUrl = deepLink.toString();
 
 //                            addUrls(deepLink.toString());
 
-                            String recordingId = deepLink.getQueryParameter("recId");
-                            String recorderId = deepLink.getQueryParameter("uid");
-                            delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
-                            addUrls(recordingId, recorderId);
-                        }
-                        // findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
-                        // Handle the deep link. For example, open the linked
-                        // content, or apply promotional credit to the user's
-                        // account.
-                        // ...
-
-                        // ...
+                        String recordingId = deepLink.getQueryParameter("recId");
+                        String recorderId = deepLink.getQueryParameter("uid");
+                        delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
+                        addUrls(recordingId, recorderId);
                     }
+                    // findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+                    // Handle the deep link. For example, open the linked
+                    // content, or apply promotional credit to the user's
+                    // account.
+                    // ...
+
+                    // ...
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
                     private static final String TAG = "Error";
@@ -177,8 +177,13 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     private void createTwoPlayers() {
         players.add(new SimpleExoPlayer.Builder(this).build());
-        if (earphonesUsed)
-            players.add(new SimpleExoPlayer.Builder(this).build());
+        if (earphonesUsed) {
+            TrackSelector trackSelector = new DefaultTrackSelector(this);
+            DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
+                    .setBufferDurationsMs(32 * 1024, 64 * 1024, 1024, 1024)
+                    .createDefaultLoadControl();
+            players.add(new SimpleExoPlayer.Builder(this).setTrackSelector(trackSelector).setLoadControl(loadControl).build());
+        }
     }
 
     @Override
@@ -233,6 +238,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 player.setVolume(0.8f);
             } else {
                 player.setVolume(0.5f);
+
             }
             player.setPlayWhenReady(false);
             MediaSource mediaSource;
@@ -296,7 +302,10 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     }
 
     private boolean playersAreReady() {
+        int o = 0;
         for (SimpleExoPlayer player : players) {
+            System.out.println("player " + o + " is ready " + (player.getPlaybackState() == Player.STATE_READY));
+            o++;
             if (player.getPlaybackState() != Player.STATE_READY)
                 return false;
         }
@@ -376,46 +385,76 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
 
     @Override
     public void onScrubStop(@NonNull TimeBar timeBar, long position, boolean canceled) {
-        if (!canceled && players != null) {
-
-            for (SimpleExoPlayer player : players) {
-                player.setPlayWhenReady(false);
-            }
-            for (SimpleExoPlayer player : players) {
-                seekToTimeBarPosition(player, position);
-            }
-            long startTime = System.currentTimeMillis();
-            while (!(playersAreReady())) {
-                findViewById(R.id.exo_pr_circle).setVisibility(View.VISIBLE);
-                long endTime = System.currentTimeMillis();
-                if ((endTime - startTime) / (double) 1000 > 0.3) {
-                    releasePlayersAndStartFromThisTime(position);
-                    timeBar.setEnabled(true);
-                    locked = false;
-                    startAgain();
-                    return;
-                }
-            }
-            if (playersAreReady()) {
-                if (earphonesUsed)
-                {
-                    players.get(1).setPlayWhenReady(true);
-                    players.get(0).setPlayWhenReady(true);
-                } else {
-                    players.get(0).setPlayWhenReady(true);
-                }
-            }
+        if (!earphonesUsed) {
+            seekToTimeBarPosition(players.get(0), position);
             locked = false;
             timeBar.setEnabled(true);
+        } else {
+            if (!canceled && players != null) {
 
+                for (SimpleExoPlayer player : players) {
+                    player.setPlayWhenReady(false);
+                    seekToTimeBarPosition(player, position);
+                }
+
+                findViewById(R.id.exo_pr_circle).setVisibility(View.VISIBLE);
+                long startTime = System.currentTimeMillis();
+                while (!(playersAreReady())) {
+                    long endTime = System.currentTimeMillis();
+                    if ((endTime - startTime) / (double) 1000 > 0.2) {
+                        releasePlayersAndStartFromThisTime(position);
+                        onScrubStop(timeBar, position, canceled);
+                        return;
+//                    startAgain(timeBar);
+//                    final Handler handler = new Handler(Looper.getMainLooper());
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            //the players are not played simultaneously without this delay
+//                            findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
+//                            for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
+//                            locked = false;
+//                            timeBar.setEnabled(true);
+//
+//                        }
+//                    }, 1000);
+//                    return;
+                    }
+                }
+                if (playersAreReady()) {
+//                    final Handler handler = new Handler(Looper.getMainLooper());
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+                    //the players are not played simultaneously without this delay
+                    findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
+                    System.out.println("player 1 is ready " + (players.get(0).getPlaybackState() == Player.STATE_READY) +
+                            "  " + players.get(0).getPlaybackState() + " the second player is ready " +
+                            (players.get(1).getPlaybackState() == Player.STATE_READY) + " " + players.get(1).getPlaybackState());
+                    for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
+                    locked = false;
+                    timeBar.setEnabled(true);
+
+//                        }
+//                    }, 1000);
+
+                }
+
+            }
         }
-
     }
 
-    private void startAgain() {
+    private void startAgain(TimeBar timeBar) {
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //the players are not played simultaneously without this delay
+                findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
+                for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
 
-        for (SimpleExoPlayer player : players)
-            player.setPlayWhenReady(true);
+            }
+        }, 900);
     }
 
     private void releasePlayersAndStartFromThisTime(long position) {
@@ -429,7 +468,6 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         players = new ArrayList<>();
         createTwoPlayers();
         initializePlayer();
-
     }
 
     private void seekToTimeBarPosition(Player player, long positionMs) {
