@@ -171,7 +171,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = recording.getDelay();
-                length = recording.getLength();
+                if (recording.getLength() == 0)
+                    length = recording.getLength();
                 buildMediaSourceFromUrls(urls);
                 createPlayer();
             } else {
@@ -241,13 +242,11 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
 
     private void createPlayer() {
-
         renderersFactory = new CustomRendererFactory(this);
         player =
                 new SimpleExoPlayer.Builder(this, renderersFactory)
                         .setTrackSelector(trackSelector)
                         .build();
-        System.out.println(player.getRendererCount() + " this is the count of the renderes ");
         playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
         playerView.setPlayer(player);
         player.setMediaSource(mediaSource);
@@ -321,7 +320,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         if (uris.size() > 1) {
             MediaItem mediaItem1 = new MediaItem.Builder().setUri(uri.get(1)).build();
             MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
-            mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
+            if (length != 0)
+                mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
             MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
 //            mediaSource = new MergingMediaSource(mediaSources);
             mediaSource = new MergingMediaSource(true, mediaSources);
@@ -344,7 +344,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             song = Uri.parse(urls.get(1));
             MediaItem mediaItem1 = new MediaItem.Builder().setUri(song).build();
             MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
-            mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
+            if (length != 0)
+                mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
             mediaSource = new MergingMediaSource(mediaSource1, mediaSource2);
         } else
             mediaSource = mediaSource1;
