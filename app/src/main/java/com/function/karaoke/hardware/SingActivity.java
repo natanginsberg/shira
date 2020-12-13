@@ -89,6 +89,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
     private static final String DELAY = "delay";
+    private static final String LENGTH = "length";
     private static final String RESULT_CODE = "code";
 
     private static final int BACK_CODE = 101;
@@ -409,6 +410,7 @@ public class SingActivity extends AppCompatActivity implements
         if (earphonesUsed)
             intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
         intent.putExtra(DELAY, delay);
+        intent.putExtra(LENGTH, lengthOfAudioPlayed);
         startActivity(intent);
     }
 

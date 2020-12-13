@@ -1,15 +1,14 @@
 package com.function.karaoke.hardware;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,39 +16,55 @@ import androidx.lifecycle.Observer;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.storage.RecordingService;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Renderer;
+import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.RendererConfiguration;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
+import java.util.Queue;
 
 
-public class Playback extends AppCompatActivity implements TimeBar.OnScrubListener, PlaybackStateListener {
+public class Playback extends AppCompatActivity implements PlaybackStateListener {
 
     public static final String RECORDING = "recording";
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
-    private static final int RECORDING_URL = 0;
     private static final String DELAY = "delay";
     private static final String EARPHONES_USED = "empty";
+    private static final String LENGTH = "length";
 
     private final List<String> urls = new ArrayList<>();
     private final List<Uri> uris = new ArrayList<>();
@@ -57,18 +72,71 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     private PlayerView playerView;
     private List<SimpleExoPlayer> players = new ArrayList<>();
 
-    private long playbackPosition;
+    private long playbackPosition = 0;
     private int currentWindow;
-    private TextView positionView;
     private StringBuilder formatBuilder;
     private Formatter formatter;
 
-    private PlaybackStateListener playbackStateListener;
     private boolean dynamicLink = false;
 
     private int delay;
-    private boolean locked = false;
+    private long length;
     private boolean earphonesUsed = false;
+    private MediaSource mediaSource;
+
+    RenderersFactory renderersFactory;
+    private SimpleExoPlayer player;
+
+    //with the following class:
+
+    private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
+        public AudioRendererWithoutClock(Context context,
+                                         MediaCodecSelector mediaCodecSelector) {
+            super(context, mediaCodecSelector);
+        }
+
+        @Override
+        public MediaClock getMediaClock() {
+            return null;
+        }
+    }
+
+    TrackSelector trackSelector = new TrackSelector() {
+        @Override
+        public TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
+                                                TrackGroupArray trackGroups, MediaSource.MediaPeriodId periodId, Timeline timeline) {
+            Queue<Integer> audioRenderers = new ArrayDeque<>();
+            RendererConfiguration[] configs = new RendererConfiguration[rendererCapabilities.length];
+            TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
+            for (int i = 0; i < rendererCapabilities.length; i++) {
+                if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_AUDIO) {
+                    audioRenderers.add(i);
+                    configs[i] = RendererConfiguration.DEFAULT;
+                } else if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_VIDEO) {
+                    audioRenderers.add(i);
+                    configs[i] = RendererConfiguration.DEFAULT;
+                }
+            }
+            for (int i = 0; i < trackGroups.length; i++) {
+                if (MimeTypes.isAudio(trackGroups.get(i).getFormat(0).sampleMimeType)) {
+                    Integer index = audioRenderers.poll();
+                    if (index != null) {
+                        selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
+                    }
+                } else if (MimeTypes.isVideo(trackGroups.get(i).getFormat(0).sampleMimeType)) {
+                    Integer index = audioRenderers.poll();
+                    if (index != null) {
+                        selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
+                    }
+                }
+            }
+            return new TrackSelectorResult(configs, selections, new Object());
+        }
+
+        @Override
+        public void onSelectionActivated(Object info) {
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +155,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                     findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = getIntent().getIntExtra(DELAY, 0);
-                createTwoPlayers();
-                initializePlayer();
+                length = getIntent().getLongExtra(LENGTH, 10000);
+                buildMediaSourceFromUris(uris);
+                createPlayer();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
                 Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
                 urls.add(recording.getRecordingUrl());
@@ -102,15 +171,15 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                     findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = recording.getDelay();
-                createTwoPlayers();
-                initializePlayer();
+                buildMediaSourceFromUrls(urls);
+                createPlayer();
             } else {
                 dynamicLink = true;
                 getDynamicLink();
             }
         }
         setScrubbingFields();
-        addListeners();
+//        addListeners();
 //        playbackStateListener = new PlaybackStateListener();
     }
 
@@ -162,28 +231,43 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
                     urls.add(recording.getAudioFileUrl());
                     earphonesUsed = true;
-//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
                 } else {
                     findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
                     findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
-                createTwoPlayers();
-                initializePlayer();
+                buildMediaSourceFromUrls(urls);
+                createPlayer();
+//                initializePlayer();
             }
         };
         recordingService.getSharedRecording(recordingId, recorderId).observe(this, recordingObserver);
     }
 
 
-    private void createTwoPlayers() {
-        players.add(new SimpleExoPlayer.Builder(this).build());
-        if (earphonesUsed) {
-            TrackSelector trackSelector = new DefaultTrackSelector(this);
-            DefaultLoadControl loadControl = new DefaultLoadControl.Builder()
-                    .setBufferDurationsMs(32 * 1024, 64 * 1024, 1024, 1024)
-                    .createDefaultLoadControl();
-            players.add(new SimpleExoPlayer.Builder(this).setTrackSelector(trackSelector).setLoadControl(loadControl).build());
-        }
+    private void createPlayer() {
+
+        renderersFactory = new CustomRendererFactory(this);
+        player =
+                new SimpleExoPlayer.Builder(this, renderersFactory)
+                        .setTrackSelector(trackSelector)
+                        .build();
+        System.out.println(player.getRendererCount() + " this is the count of the renderes ");
+        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+        playerView.setPlayer(player);
+        player.setMediaSource(mediaSource);
+        findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
+        player.addListener(new Player.EventListener() {
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
+                if (playbackState == ExoPlayer.STATE_ENDED) {
+                    releasePlayer();
+                    finish();
+                }
+            }
+        });
+        player.seekTo(currentWindow, playbackPosition);
+//        player.setPlayWhenReady(true);
     }
 
     @Override
@@ -198,10 +282,9 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if (players == null) {
-            players = new ArrayList<>();
-            createTwoPlayers();
-            initializePlayer();
+        if (player == null) {
+            createPlayer();
+//            initializePlayer();
         }
     }
 
@@ -218,116 +301,65 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
     @Override
     public void onPause() {
         super.onPause();
-        releasePlayers();
+        releasePlayer();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (Util.SDK_INT >= 24) {
-            releasePlayers();
+            releasePlayer();
         }
     }
 
-    private void initializePlayer() {
-        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS);
-        for (int i = 0; i < players.size(); i++) {
-            SimpleExoPlayer player = players.get(i);
-            if (i == RECORDING_URL) {
-                playerView.setPlayer(player);
-                player.setVolume(0.8f);
-            } else {
-                player.setVolume(0.5f);
 
-            }
-            player.setPlayWhenReady(false);
-            MediaSource mediaSource;
-            if (urls.size() > 0) {
-                mediaSource = buildMediaSource(urls.get(i));
-            } else {
-                mediaSource = buildMediaSource(uris.get(i));
-            }
-            ClippingMediaSource clippingMediaSource = null;
-            if (i == RECORDING_URL && delay != 0) {
-                clippingMediaSource = new ClippingMediaSource(mediaSource, delay * 1000, 1000000000);
-            }
-            player.addListener(new Player.EventListener() {
-
-                @Override
-                public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-                    if (playbackState == ExoPlayer.STATE_ENDED) {
-                        releasePlayers();
-                        finish();
-                    }
-                }
-            });
-            player.addListener(this);
-            if (clippingMediaSource != null) {
-                player.prepare(clippingMediaSource);
-            } else {
-                player.prepare(mediaSource, false, false);
-            }
-            player.seekTo(currentWindow, playbackPosition);
-            findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
-
-//            player.sets
-
-        }
-
-    }
-
-    private MediaSource buildMediaSource(Uri uri) {
+    private void buildMediaSourceFromUris(List<Uri> uri) {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
-        return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+        MediaItem mediaItem = new MediaItem.Builder().setUri(uri.get(0)).build();
+        MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
+        if (delay != 0) {
+            mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000, 1000000000);
+
+        }
+        if (uris.size() > 1) {
+            MediaItem mediaItem1 = new MediaItem.Builder().setUri(uri.get(1)).build();
+            MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
+            mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
+            MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
+//            mediaSource = new MergingMediaSource(mediaSources);
+            mediaSource = new MergingMediaSource(true, mediaSources);
+
+        } else
+            mediaSource = mediaSource1;
     }
 
-    private MediaSource buildMediaSource(String url) {
+    private void buildMediaSourceFromUrls(List<String> urls) {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
-        Uri song = Uri.parse(url);
-        return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(song);
-    }
+        Uri song = Uri.parse(urls.get(0));
+        MediaItem mediaItem = new MediaItem.Builder().setUri(uris.get(0)).build();
+        MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
 
-    private void releasePlayers() {
-        if (players != null) {
-            for (SimpleExoPlayer player : players)
-                if (player != null) {
-//                    playWhenReady = player.getPlayWhenReady();
-                    playbackPosition = player.getCurrentPosition();
-                    currentWindow = player.getCurrentWindowIndex();
-                    player.release();
-                    player = null;
-                }
-            players = null;
+        if (delay != 0) {
+            mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000, 1000000000, false, true, true);
+
         }
+        if (uris.size() > 1) {
+            song = Uri.parse(urls.get(1));
+            MediaItem mediaItem1 = new MediaItem.Builder().setUri(song).build();
+            MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
+            mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
+            mediaSource = new MergingMediaSource(mediaSource1, mediaSource2);
+        } else
+            mediaSource = mediaSource1;
     }
 
-    private boolean playersAreReady() {
-        int o = 0;
-        for (SimpleExoPlayer player : players) {
-            System.out.println("player " + o + " is ready " + (player.getPlaybackState() == Player.STATE_READY));
-            o++;
-            if (player.getPlaybackState() != Player.STATE_READY)
-                return false;
+    private void releasePlayer() {
+        if (player != null) {
+            playbackPosition = player.getCurrentPosition();
+            currentWindow = player.getCurrentWindowIndex();
+            player.release();
+            player = null;
         }
-        return true;
-    }
-
-    private void addListeners() {
-        findViewById(R.id.exo_play).setOnClickListener(view -> {
-            if (playersAreReady()) {
-                for (SimpleExoPlayer player : players) {
-                    player.setPlayWhenReady(true);
-                }
-            }
-        });
-        findViewById(R.id.exo_pause).setOnClickListener(view -> {
-            for (SimpleExoPlayer player : players) {
-                player.setPlayWhenReady(false);
-            }
-        });
-
-        ((TimeBar) findViewById(R.id.exo_progress)).addListener(this);
-        addSpinnerListeners();
     }
 
     private void addSpinnerListeners() {
@@ -339,7 +371,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                 if (volume.equals(getResources().getString(R.string.default_value))) {
                     players.get(0).setVolume(0.8f);
                 } else
-                    players.get(0).setVolume(Float.valueOf(volume));
+                    players.get(0).setVolume(Float.parseFloat(volume));
             }
 
             @Override
@@ -356,7 +388,7 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
                     if (volume.equals(getResources().getString(R.string.default_value))) {
                         players.get(1).setVolume(0.7f);
                     } else
-                        players.get(1).setVolume(Float.valueOf(volume));
+                        players.get(1).setVolume(Float.parseFloat(volume));
                 }
             }
 
@@ -367,142 +399,24 @@ public class Playback extends AppCompatActivity implements TimeBar.OnScrubListen
         });
     }
 
-    @Override
-    public void onScrubStart(@NonNull TimeBar timeBar, long position) {
-        timeBar.setEnabled(!locked);
-        locked = true;
-        if (positionView != null) {
-            positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+
+    private class CustomRendererFactory extends DefaultRenderersFactory {
+
+        public CustomRendererFactory(Context context) {
+            super(context);
         }
-    }
 
-    @Override
-    public void onScrubMove(@NonNull TimeBar timeBar, long position) {
-        if (positionView != null) {
-            positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+        // it is called internally. Do not delete!
+        protected void buildAudioRenderers​(Context context,
+                                            int extensionRendererMode,
+                                            MediaCodecSelector mediaCodecSelector,
+                                            boolean enableDecoderFallback, AudioSink audioSink,
+                                            Handler eventHandler, AudioRendererEventListener eventListener,
+                                            ArrayList<Renderer> out) {
+            super.buildAudioRenderers(context, extensionRendererMode, mediaCodecSelector, enableDecoderFallback, audioSink, eventHandler, eventListener, out);
+            if (earphonesUsed)
+                out.add(new AudioRendererWithoutClock(context, mediaCodecSelector));
         }
-    }
-
-    @Override
-    public void onScrubStop(@NonNull TimeBar timeBar, long position, boolean canceled) {
-        if (!earphonesUsed) {
-            seekToTimeBarPosition(players.get(0), position);
-            locked = false;
-            timeBar.setEnabled(true);
-        } else {
-            if (!canceled && players != null) {
-
-                for (SimpleExoPlayer player : players) {
-                    player.setPlayWhenReady(false);
-                    seekToTimeBarPosition(player, position);
-                }
-
-                findViewById(R.id.exo_pr_circle).setVisibility(View.VISIBLE);
-                long startTime = System.currentTimeMillis();
-                while (!(playersAreReady())) {
-                    long endTime = System.currentTimeMillis();
-                    if ((endTime - startTime) / (double) 1000 > 0.2) {
-                        releasePlayersAndStartFromThisTime(position);
-                        onScrubStop(timeBar, position, canceled);
-                        return;
-//                    startAgain(timeBar);
-//                    final Handler handler = new Handler(Looper.getMainLooper());
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            //the players are not played simultaneously without this delay
-//                            findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
-//                            for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
-//                            locked = false;
-//                            timeBar.setEnabled(true);
-//
-//                        }
-//                    }, 1000);
-//                    return;
-                    }
-                }
-                if (playersAreReady()) {
-//                    final Handler handler = new Handler(Looper.getMainLooper());
-//                    handler.postDelayed(new Runnable() {
-//                        @Override
-//                        public void run() {
-                    //the players are not played simultaneously without this delay
-                    findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
-                    System.out.println("player 1 is ready " + (players.get(0).getPlaybackState() == Player.STATE_READY) +
-                            "  " + players.get(0).getPlaybackState() + " the second player is ready " +
-                            (players.get(1).getPlaybackState() == Player.STATE_READY) + " " + players.get(1).getPlaybackState());
-                    for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
-                    locked = false;
-                    timeBar.setEnabled(true);
-
-//                        }
-//                    }, 1000);
-
-                }
-
-            }
-        }
-    }
-
-    private void startAgain(TimeBar timeBar) {
-        final Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //the players are not played simultaneously without this delay
-                findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
-                for (SimpleExoPlayer player : players) player.setPlayWhenReady(true);
-
-            }
-        }, 900);
-    }
-
-    private void releasePlayersAndStartFromThisTime(long position) {
-        for (SimpleExoPlayer player : players)
-            if (player != null) {
-//                    playWhenReady = player.getPlayWhenReady();
-                playbackPosition = position;
-                currentWindow = player.getCurrentWindowIndex();
-                player.release();
-            }
-        players = new ArrayList<>();
-        createTwoPlayers();
-        initializePlayer();
-    }
-
-    private void seekToTimeBarPosition(Player player, long positionMs) {
-        int windowIndex;
-        Timeline.Window window = new Timeline.Window();
-        Timeline timeline = player.getCurrentTimeline();
-        if (!timeline.isEmpty()) {
-            int windowCount = timeline.getWindowCount();
-            windowIndex = 0;
-            while (true) {
-                long windowDurationMs = timeline.getWindow(windowIndex, window).getDurationMs();
-                if (positionMs < windowDurationMs) {
-                    break;
-                } else if (windowIndex == windowCount - 1) {
-                    // Seeking past the end of the last window should seek to the end of the timeline.
-                    positionMs = windowDurationMs;
-                    break;
-                }
-                positionMs -= windowDurationMs;
-                windowIndex++;
-            }
-        } else {
-            windowIndex = player.getCurrentWindowIndex();
-        }
-        boolean dispatched = seekTo(player, windowIndex, positionMs);
-        if (!dispatched) {
-            // The seek wasn't dispatched then the progress bar scrubber will be in the wrong position.
-            // Trigger a progress update to snap it back.
-//            updateProgress();
-        }
-    }
-
-    private boolean seekTo(Player player, int windowIndex, long positionMs) {
-        DefaultControlDispatcher controlDispatcher = new DefaultControlDispatcher();
-        return controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
     }
 
 }

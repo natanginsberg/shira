@@ -3,7 +3,6 @@ package com.function.karaoke.hardware;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -42,7 +41,6 @@ import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
 import com.function.karaoke.hardware.utils.ShareLink;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
@@ -328,7 +326,7 @@ public class SongsActivity
 
     @Override
     public void onListFragmentInteractionPlay(Recording item) {
-        Intent intent = new Intent(this, Playback.class);
+        Intent intent = new Intent(this, PlaybackTemp.class);
         intent.putExtra(SingActivity.RECORDING, item);
         startActivity(intent);
     }
