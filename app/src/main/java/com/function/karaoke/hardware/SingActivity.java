@@ -781,7 +781,7 @@ public class SingActivity extends AppCompatActivity implements
     private void saveSongToTempJsonFile() {
         postParseVideoFile = wrapUpSong();
         recording = new Recording(song, timeStamp,
-                authenticationDriver.getUserUid(), recordingId, delay);
+                authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed);
         if (earphonesUsed)
             recording.earphonesUsed();
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());

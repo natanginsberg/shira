@@ -16,13 +16,14 @@ public class Recording implements Serializable, SongDisplay {
     private String imageResourceFile;
     private String artist;
     private int delay;
+    private long length;
 
     public Recording() {
     }
 
     public Recording(String recordingUrl, String audioFileUrl, String artistName,
                      String imageResourceFIle, String title, String date,
-                     String recorderId, String recordingId, int delay) {
+                     String recorderId, String recordingId, int delay, long length) {
         this.title = title;
         this.recordingUrl = recordingUrl;
         this.artist = artistName;
@@ -32,10 +33,11 @@ public class Recording implements Serializable, SongDisplay {
         this.recorderId = recorderId;
         this.recordingId = recordingId;
         this.delay = delay;
+        this.length = length;
     }
 
     public Recording(DatabaseSong song, String date,
-                     String recorderId, String recordingId, int delay) {
+                     String recorderId, String recordingId, int delay, long length) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
         this.audioFileUrl = song.getSongResourceFile();
@@ -44,6 +46,7 @@ public class Recording implements Serializable, SongDisplay {
         this.recorderId = recorderId;
         this.recordingId = recordingId;
         this.delay = delay;
+        this.length = length;
     }
 
 
@@ -119,6 +122,14 @@ public class Recording implements Serializable, SongDisplay {
         this.delay = delay;
     }
 
+    public void setLength(long length) {
+        this.length = length;
+    }
+
+    public long getLength() {
+        return length;
+    }
+
     public JSONObject putRecordingInJsonObject() throws JSONException {
         JSONObject recording = new JSONObject();
         recording.put("recordingId", recordingId);
@@ -129,6 +140,7 @@ public class Recording implements Serializable, SongDisplay {
         recording.put("audioFileUrl", audioFileUrl);
         recording.put("imageFileUrl", imageResourceFile);
         recording.put("delay", delay);
+        recording.put("length", length);
         return recording;
 
     }

@@ -326,7 +326,7 @@ public class SongsActivity
 
     @Override
     public void onListFragmentInteractionPlay(Recording item) {
-        Intent intent = new Intent(this, PlaybackTemp.class);
+        Intent intent = new Intent(this, Playback.class);
         intent.putExtra(SingActivity.RECORDING, item);
         startActivity(intent);
     }

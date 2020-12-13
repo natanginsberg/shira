@@ -171,6 +171,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = recording.getDelay();
+                length = recording.getLength();
                 buildMediaSourceFromUrls(urls);
                 createPlayer();
             } else {
@@ -204,6 +205,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                         String recordingId = deepLink.getQueryParameter("recId");
                         String recorderId = deepLink.getQueryParameter("uid");
                         delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
+                        length = Long.parseLong(deepLink.getQueryParameter("length"));
                         addUrls(recordingId, recorderId);
                     }
                     // findViewById(R.id.personal_library).setVisibility(View.VISIBLE);

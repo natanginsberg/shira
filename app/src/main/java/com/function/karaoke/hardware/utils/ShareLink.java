@@ -13,7 +13,10 @@ public class ShareLink {
 
         return FirebaseDynamicLinks.getInstance().createDynamicLink()
 //                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
-                .setLink(Uri.parse("https://www.example.com/?recId=" + recording.getRecordingId() + "&uid=" + recording.getRecorderId() + "&delay=" + recording.getDelay()))
+                .setLink(Uri.parse("https://www.example.com/?recId=" + recording.getRecordingId() +
+                        "&uid=" + recording.getRecorderId() +
+                        "&delay=" + recording.getDelay() +
+                        "&length=" + recording.getLength()))
                 .setDomainUriPrefix("https://singjewish.page.link")
                 // Set parameters
                 // ...
