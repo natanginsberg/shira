@@ -205,16 +205,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                         String recordingId = deepLink.getQueryParameter("recId");
                         String recorderId = deepLink.getQueryParameter("uid");
                         delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
-                        length = Long.parseLong(deepLink.getQueryParameter("length"));
+                        if (deepLink.getQueryParameter("length") != null)
+                            length = Long.parseLong(deepLink.getQueryParameter("length"));
                         addUrls(recordingId, recorderId);
                     }
-                    // findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
-                    // Handle the deep link. For example, open the linked
-                    // content, or apply promotional credit to the user's
-                    // account.
-                    // ...
-
-                    // ...
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
                     private static final String TAG = "Error";
@@ -268,8 +262,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 }
             }
         });
+        player.prepare();
         player.seekTo(currentWindow, playbackPosition);
-//        player.setPlayWhenReady(true);
+        player.setPlayWhenReady(true);
     }
 
     @Override

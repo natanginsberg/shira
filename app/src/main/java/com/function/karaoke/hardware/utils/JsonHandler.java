@@ -91,7 +91,7 @@ public class JsonHandler {
         Recording recording = new Recording(song, recordingToAdd.getString("date"),
                 recordingToAdd.getString("recorderId"),
                 recordingToAdd.getString("recordingId"),
-                recordingToAdd.getInt("delay"));
+                recordingToAdd.getInt("delay"), recordingToAdd.getLong("length"));
         return new SaveItems(fileUri, recording);
     }
 
