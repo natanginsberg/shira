@@ -1,7 +1,6 @@
 package com.function.karaoke.hardware.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -192,6 +191,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 mAdapter.notifyDataSetChanged();
                 songsActivityUI.noRecordingsTextDisplay();
             }
+            songsActivityUI.hideGenresAndSearch();
+            popup.dismiss();
 
         };
         this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
@@ -378,6 +379,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
                 ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.all_songs);
                 view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                songsActivityUI.showGenresAndSearch();
             }
         });
     }

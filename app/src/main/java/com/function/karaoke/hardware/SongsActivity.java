@@ -153,8 +153,7 @@ public class SongsActivity
                     if (child.getName().contains("Pending"))
                         continue;
                     if (child.getName().contains("artist")) {
-                    }
-                    else {
+                    } else {
                         SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
                         if (artistFileExists(child, listOfAllFiles)) {
                             CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
@@ -302,6 +301,7 @@ public class SongsActivity
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
         intent.setType("message/rfc822");
         intent.setPackage("com.google.android.gm");
+        //todo check to see if there is a gmail account
         startActivity(intent);
     }
 

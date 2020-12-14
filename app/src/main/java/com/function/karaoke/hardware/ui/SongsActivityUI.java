@@ -211,6 +211,16 @@ public class SongsActivityUI {
 
     }
 
+    public void hideGenresAndSearch() {
+        view.findViewById(R.id.genre_scrolling).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.open_search).setVisibility(View.INVISIBLE);
+    }
+
+    public void showGenresAndSearch() {
+        view.findViewById(R.id.genre_scrolling).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.open_search).setVisibility(View.VISIBLE);
+    }
+
 
     public interface SongsUIListener {
         void getAllSongsFromGenre(String genre);
