@@ -51,9 +51,7 @@ import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
-import java.util.Locale;
 import java.util.Queue;
 
 
@@ -70,12 +68,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private final List<Uri> uris = new ArrayList<>();
 
     private PlayerView playerView;
-    private List<SimpleExoPlayer> players = new ArrayList<>();
 
     private long playbackPosition = 0;
     private int currentWindow;
-    private StringBuilder formatBuilder;
-    private Formatter formatter;
 
     private boolean dynamicLink = false;
 
@@ -86,8 +81,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
     RenderersFactory renderersFactory;
     private SimpleExoPlayer player;
-
-    //with the following class:
+    private List<Renderer> renderers;
 
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
@@ -178,15 +172,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 getDynamicLink();
             }
         }
-        setScrubbingFields();
-//        addListeners();
-//        playbackStateListener = new PlaybackStateListener();
     }
 
-    private void setScrubbingFields() {
-        formatBuilder = new StringBuilder();
-        formatter = new Formatter(formatBuilder, Locale.getDefault());
-    }
 
     private void getDynamicLink() {
         FirebaseDynamicLinks.getInstance()
@@ -261,7 +248,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
-        player.setPlayWhenReady(true);
+        player.setPlayWhenReady(false);
+        addSpinnerListeners();
     }
 
     @Override
@@ -321,7 +309,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             if (length != 0)
                 mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
             MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
-//            mediaSource = new MergingMediaSource(mediaSources);
             mediaSource = new MergingMediaSource(true, mediaSources);
 
         } else
@@ -364,10 +351,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String volume = adapterView.getItemAtPosition(i).toString();
-                if (volume.equals(getResources().getString(R.string.default_value))) {
-                    players.get(0).setVolume(0.8f);
-                } else
-                    players.get(0).setVolume(Float.parseFloat(volume));
+                if (!volume.equals(getResources().getString(R.string.default_value))) {
+                    player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
+                }
             }
 
             @Override
@@ -381,10 +367,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if (earphonesUsed) {
                     String volume = adapterView.getItemAtPosition(i).toString();
-                    if (volume.equals(getResources().getString(R.string.default_value))) {
-                        players.get(1).setVolume(0.7f);
-                    } else
-                        players.get(1).setVolume(Float.parseFloat(volume));
+                    if (!volume.equals(getResources().getString(R.string.default_value))) {
+                        player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
+                    }
                 }
             }
 
@@ -394,7 +379,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             }
         });
     }
-
 
     private class CustomRendererFactory extends DefaultRenderersFactory {
 
@@ -410,8 +394,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                                             Handler eventHandler, AudioRendererEventListener eventListener,
                                             ArrayList<Renderer> out) {
             super.buildAudioRenderers(context, extensionRendererMode, mediaCodecSelector, enableDecoderFallback, audioSink, eventHandler, eventListener, out);
+
             if (earphonesUsed)
                 out.add(new AudioRendererWithoutClock(context, mediaCodecSelector));
+            renderers = out;
         }
     }
 

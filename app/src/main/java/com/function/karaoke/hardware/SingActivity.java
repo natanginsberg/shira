@@ -181,7 +181,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
             });
     private Billing billingSession;
-    private boolean itemAquired = false;
+    private boolean itemAcquired = false;
     private boolean keepVideo = false;
     private File postParseVideoFile;
     private Recording recording;
@@ -396,7 +396,8 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
 //            view.setBackgroundColor(getResources().getColor(R.color.gold, getTheme()));
             buttonClicked = true;
-            File postParseVideoFile = wrapUpSong();
+            if (postParseVideoFile == null)
+                postParseVideoFile = wrapUpSong();
             buttonClicked = false;
             openNewIntent(Uri.fromFile(postParseVideoFile));
         }
@@ -444,6 +445,7 @@ public class SingActivity extends AppCompatActivity implements
         if (isRecording) {
             cameraPreview.stopRecording();
             isRecording = false;
+            cameraPreview.closeCamera();
         }
         activityUI.removeResumeOptionFromPopup();
     }
@@ -624,6 +626,22 @@ public class SingActivity extends AppCompatActivity implements
         if (isRecording) {
             cameraPreview.pauseRecording();
         }
+        startPauseTimerToSaveBattery();
+    }
+
+    private void startPauseTimerToSaveBattery() {
+        cTimer = new CountDownTimer(120000, 110000) {
+            @SuppressLint("SetTextI18n")
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                cancelTimer();
+                openEndOptions(true);
+                postParseVideoFile = wrapUpSong();
+            }
+        };
+        cTimer.start();
     }
 
     public void resumeSong(View view) {
@@ -740,7 +758,7 @@ public class SingActivity extends AppCompatActivity implements
         if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
                 !authenticationDriver.getUserEmail().equals(""))
 
-            if (!itemAquired)
+            if (!itemAcquired)
                 checkIfUserHasFreeAcquisition(SHARE);
             else
                 share();
@@ -757,7 +775,7 @@ public class SingActivity extends AppCompatActivity implements
             public void hasFreeShare(boolean freeShare) {
                 if (freeShare) {
                     keepVideo = true;
-                    itemAquired = true;
+                    itemAcquired = true;
                     userService.addOneToUserShares(new UserService.UserUpdateListener() {
                         @Override
                         public void onSuccess() {
@@ -779,7 +797,8 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void saveSongToTempJsonFile() {
-        postParseVideoFile = wrapUpSong();
+        if (postParseVideoFile == null)
+            postParseVideoFile = wrapUpSong();
         recording = new Recording(song, timeStamp,
                 authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed);
         if (earphonesUsed)
@@ -857,7 +876,7 @@ public class SingActivity extends AppCompatActivity implements
                         saveSongToTempJsonFile();
                         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 //                          saveSongToJsonFile();
-                            itemAquired = true;
+                            itemAcquired = true;
                             billingSession.handlePurchase(purchase);
 
                         }
@@ -955,7 +974,7 @@ public class SingActivity extends AppCompatActivity implements
 
     public void saveRecordingToTheCloud(View view) {
         if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-            if (!itemAquired)
+            if (!itemAcquired)
                 checkIfUserHasFreeAcquisition(SAVE);
         } else
             launchSignIn(SAVE);
