@@ -70,13 +70,13 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private PlayerView playerView;
 
     private long playbackPosition = 0;
-    private int currentWindow;
-
-    private boolean dynamicLink = false;
-
-    private int delay;
     private long length;
+
+    private int currentWindow;
+    private int delay;
+
     private boolean earphonesUsed = false;
+
     private MediaSource mediaSource;
 
     RenderersFactory renderersFactory;
@@ -95,7 +95,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         }
     }
 
-    TrackSelector trackSelector = new TrackSelector() {
+    private final TrackSelector trackSelector = new TrackSelector() {
         @Override
         public TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
                                                 TrackGroupArray trackGroups, MediaSource.MediaPeriodId periodId, Timeline timeline) {
@@ -139,38 +139,45 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         playerView = findViewById(R.id.surface_view);
         if (getIntent().getExtras() != null) {
-            if (getIntent().getExtras().containsKey(PLAYBACK)) {
-                uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
-                if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
-                    uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
-                    earphonesUsed = true;
-                } else {
-                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
-                }
-                delay = getIntent().getIntExtra(DELAY, 0);
-                length = getIntent().getLongExtra(LENGTH, 10000);
-                buildMediaSourceFromUris(uris);
-                createPlayer();
-            } else if (getIntent().getExtras().containsKey(RECORDING)) {
-                Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
-                urls.add(recording.getRecordingUrl());
-                if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
-                    urls.add(recording.getAudioFileUrl());
-                    earphonesUsed = true;
-                } else {
-                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
-                }
-                delay = recording.getDelay();
-                if (recording.getLength() == 0)
-                    length = recording.getLength();
-                buildMediaSourceFromUrls(urls);
-                createPlayer();
+            getUrisFromIntent();
+        } else if (getIntent().getExtras().containsKey(RECORDING)) {
+            getUrlsFromIntent();
+        } else {
+            getDynamicLink();
+        }
+    }
+
+    private void getUrlsFromIntent() {
+        Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
+        urls.add(recording.getRecordingUrl());
+        if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
+            urls.add(recording.getAudioFileUrl());
+            earphonesUsed = true;
+        } else {
+            findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+            findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+        }
+        delay = recording.getDelay();
+        if (recording.getLength() == 0)
+            length = recording.getLength();
+        buildMediaSourceFromUrls(urls);
+        createPlayer();
+    }
+
+    private void getUrisFromIntent() {
+        if (getIntent().getExtras().containsKey(PLAYBACK)) {
+            uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
+            if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
+                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                earphonesUsed = true;
             } else {
-                dynamicLink = true;
-                getDynamicLink();
+                findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+                findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
             }
+            delay = getIntent().getIntExtra(DELAY, 0);
+            length = getIntent().getLongExtra(LENGTH, 10000);
+            buildMediaSourceFromUris(uris);
+            createPlayer();
         }
     }
 
@@ -264,7 +271,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if (player == null) {
+        if (player == null && (urls.size() > 0 || uris.size() > 0)) {
             createPlayer();
 //            initializePlayer();
         }
@@ -318,7 +325,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void buildMediaSourceFromUrls(List<String> urls) {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
         Uri song = Uri.parse(urls.get(0));
-        MediaItem mediaItem = new MediaItem.Builder().setUri(uris.get(0)).build();
+        MediaItem mediaItem = new MediaItem.Builder().setUri(song).build();
         MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
 
         if (delay != 0) {
@@ -326,8 +333,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
         }
         if (uris.size() > 1) {
-            song = Uri.parse(urls.get(1));
-            MediaItem mediaItem1 = new MediaItem.Builder().setUri(song).build();
+            Uri song1 = Uri.parse(urls.get(1));
+            MediaItem mediaItem1 = new MediaItem.Builder().setUri(song1).build();
             MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
             if (length != 0)
                 mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
