@@ -150,7 +150,7 @@ public class SingActivity extends AppCompatActivity implements
 
         @Override
         public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-            Toast.makeText(getBaseContext(), "failed to load album", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getBaseContext(), "failed to loadWords album", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -196,6 +196,7 @@ public class SingActivity extends AppCompatActivity implements
     private UserInfo user;
     private SignInViewModel signInViewModel;
     private UserService userService;
+    private String songPlayed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,23 +205,58 @@ public class SingActivity extends AppCompatActivity implements
         createCameraAndRecorderInstance();
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song);
-
         setContentView(R.layout.activity_sing);
+        setKaraokeController();
+        loadSong();
         blurAlbumInBackground();
 
         mTextureView = findViewById(R.id.surface_camera);
-        setKarokeController();
         recordingId = GenerateRandomId.generateRandomId();
         checkForPermissionAndOpenCamera();
-        loadSong();
+        if (song.hasDifferentTones()) {
+            activityUI.openTonePopup(SingActivity.this);
+        } else {
+            songPlayed = song.getSongResourceFile();
+            mKaraokeKonroller.loadAudio(songPlayed);
+            createEarphoneReceivers();
+
+        }
         activityUI.showPlayButton();
+    }
+
+    private void createEarphoneReceivers() {
         createHeadphoneReceiver();
         createBluetoothReceiver();
         checkIfHeadsetIsPairedAlready();
-//        blurAlbumInBackground();
     }
 
-    private void setKarokeController() {
+
+    private void setAudioAndDismissPopup() {
+        mKaraokeKonroller.loadAudio(songPlayed);
+        activityUI.dismissPopup();
+        createEarphoneReceivers();
+    }
+
+    public void manTone(View view) {
+        songPlayed = song.getSongResourceFile();
+        setAudioAndDismissPopup();
+        createEarphoneReceivers();
+    }
+
+
+    public void womanTone(View view) {
+        songPlayed = song.getWomanToneResourceFile();
+        setAudioAndDismissPopup();
+        createEarphoneReceivers();
+    }
+
+    public void kidTone(View view) {
+        songPlayed = song.getKidToneResourceFile();
+        setAudioAndDismissPopup();
+    }
+
+
+    private void setKaraokeController() {
         mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(this);
         mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
@@ -341,7 +377,7 @@ public class SingActivity extends AppCompatActivity implements
                 NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
                     @Override
                     public void onSuccess() {
-                        if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+                        if (!mKaraokeKonroller.loadWords(song.getLines())) {
                             finish();
                         }
                     }
@@ -353,7 +389,7 @@ public class SingActivity extends AppCompatActivity implements
                 });
             }
         } else {
-            if (!mKaraokeKonroller.load(song.getLines(), song.getSongResourceFile())) {
+            if (!mKaraokeKonroller.loadWords(song.getLines())) {
                 finish();
             }
         }
@@ -409,7 +445,7 @@ public class SingActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
         if (earphonesUsed)
-            intent.putExtra(AUDIO_FILE, song.getSongResourceFile());
+            intent.putExtra(AUDIO_FILE, songPlayed);
         intent.putExtra(DELAY, delay);
         intent.putExtra(LENGTH, lengthOfAudioPlayed);
         startActivity(intent);
@@ -599,7 +635,6 @@ public class SingActivity extends AppCompatActivity implements
         popup = activityUI.getPopup();
         popup.setOnDismissListener(() -> {
             if (ending) finish();
-            activityUI.undimBackground();
         });
     }
 
@@ -674,7 +709,8 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void returnToSong(View view) {
-        popup.dismiss();
+        activityUI.dismissPopup();
+
     }
 
     public void playAgain(View view) {
@@ -799,7 +835,7 @@ public class SingActivity extends AppCompatActivity implements
     private void saveSongToTempJsonFile() {
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
-        recording = new Recording(song, timeStamp,
+        recording = new Recording(song, songPlayed, timeStamp,
                 authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed);
         if (earphonesUsed)
             recording.earphonesUsed();
@@ -938,7 +974,7 @@ public class SingActivity extends AppCompatActivity implements
                 Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
                 break;
             case UPLOAD_ERROR:
-                Toast.makeText(this, "video failed to load", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "video failed to loadWords", Toast.LENGTH_SHORT).show();
                 break;
             case CAMERA_ERROR:
                 Toast.makeText(this, "Camera failed to open", Toast.LENGTH_SHORT).show();

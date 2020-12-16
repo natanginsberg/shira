@@ -86,5 +86,9 @@
     <string name="attach_earphones">Attach earphones for a better experience.</string>
     <string name="synthymusic">&amp; Synthymusic</string>
     <string name="feedback">Feedback</string>
+    <string name="man">Man</string>
+    <string name="kid">Kid</string>
+    <string name="woman">Woman</string>
+    <string name="who_is_singing_the_song">Who is singing the song?</string>
 
 </resources>

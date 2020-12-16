@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
 import android.widget.PopupWindow;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -78,8 +77,13 @@ public class SingActivityUI {
     private void placePopupOnScreen(Context context) {
         popup = new PopupWindow(context);
         popup.setFocusable(true);
-        setPopupAttributes(context, popup, popupView);
-        popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+        setEndOptionsPopupAttributes(context, popup, popupView);
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            }
+        });
     }
 
     private void applyDim(ViewOverlay overlay) {
@@ -95,7 +99,7 @@ public class SingActivityUI {
         overlay.clear();
     }
 
-    private void setPopupAttributes(Context context, PopupWindow popup, View layout) {
+    private void setEndOptionsPopupAttributes(Context context, PopupWindow popup, View layout) {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.781);
         int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.576);
         popup.setContentView(layout);
@@ -108,7 +112,7 @@ public class SingActivityUI {
     }
 
 
-    public void makeLoadingBarVisible(){
+    public void makeLoadingBarVisible() {
         applyDim(popupView.getOverlay());
 //        popupView.findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
 
@@ -136,5 +140,32 @@ public class SingActivityUI {
 
     public void showPlayButton() {
         view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+    }
+
+    public void openTonePopup(Context context) {
+        RelativeLayout viewGroup = view.findViewById(R.id.tone_picker);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        popupView = layoutInflater.inflate(R.layout.tone_picker_popup, viewGroup);
+        placePopupOnScreen(context);
+//        setTonePopupAttributes(context, popup, popupView);
+        setTonePopupSongName();
+        applyDim(view.findViewById(R.id.sing_song).getOverlay());
+    }
+
+    private void setTonePopupSongName() {
+        ((TextView) popupView.findViewById(R.id.song_name)).setText(song.getTitle());
+    }
+
+    private void setTonePopupAttributes(Context context, PopupWindow popup, View layout) {
+        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.781);
+        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.576);
+        popup.setContentView(layout);
+        popup.setWidth(width);
+        popup.setHeight(height);
+    }
+
+    public void dismissPopup() {
+        popup.dismiss();
+        undimBackground();
     }
 }

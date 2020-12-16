@@ -2,11 +2,7 @@ package com.function.karaoke.hardware.activities.Model;
 
 import android.graphics.Bitmap;
 
-import com.function.karaoke.core.model.Song;
-import com.function.karaoke.hardware.activities.Model.SongDisplay;
-
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.URL;
@@ -19,6 +15,8 @@ public class DatabaseSong implements Serializable, SongDisplay {
     private String imageResourceFile;
     private String songResourceFile;
     private String textResourceFile;
+    private String womanToneResourceFile;
+    private String kidToneResourceFile;
     private int timesDownloaded;
     private int timesPlayed;
     private String title;
@@ -44,9 +42,24 @@ public class DatabaseSong implements Serializable, SongDisplay {
         this.songReference = songReference;
     }
 
-    public DatabaseSong(String title, String artist, String imageResourceFile, String songResourceFile){
-        this.title= title;
-        this.artist=artist;
+    public DatabaseSong(String artist, String imageResourceFile, String songResourceFile, String textResourceFile, int timesDownloaded,
+                        int timesPlayed, String title, String genre, String songReference, String womanToneResourceFile, String kidToneResourceFile) {
+        this.artist = artist;
+        this.imageResourceFile = imageResourceFile;
+        this.songResourceFile = songResourceFile;
+        this.textResourceFile = textResourceFile;
+        this.timesDownloaded = timesDownloaded;
+        this.timesPlayed = timesPlayed;
+        this.title = title;
+        this.genre = genre;
+        this.songReference = songReference;
+        this.womanToneResourceFile = womanToneResourceFile;
+        this.kidToneResourceFile = kidToneResourceFile;
+    }
+
+    public DatabaseSong(String title, String artist, String imageResourceFile, String songResourceFile) {
+        this.title = title;
+        this.artist = artist;
         this.imageResourceFile = imageResourceFile;
         this.songResourceFile = songResourceFile;
     }
@@ -107,5 +120,25 @@ public class DatabaseSong implements Serializable, SongDisplay {
 
     public String getSongReference() {
         return songReference;
+    }
+
+    public boolean hasDifferentTones() {
+        return !(womanToneResourceFile == null && kidToneResourceFile == null);
+    }
+
+    public String getWomanToneResourceFile() {
+        return womanToneResourceFile;
+    }
+
+    public void setWomanToneResourceFile(String womanToneResourceFile) {
+        this.womanToneResourceFile = womanToneResourceFile;
+    }
+
+    public String getKidToneResourceFile() {
+        return kidToneResourceFile;
+    }
+
+    public void setKidToneResourceFile(String kidToneResourceFile) {
+        this.kidToneResourceFile = kidToneResourceFile;
     }
 }

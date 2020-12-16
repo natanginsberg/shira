@@ -109,21 +109,17 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
 
-    public boolean load(List<String> lines, String audioUrl) {
+    public boolean loadWords(List<String> lines) {
         try {
             mSong = Parser.parse(lines);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-
-        loadAudio(audioUrl);
         return true;
-
     }
 
-
-    private void loadAudio(String url) {
+    public void loadAudio(String url) {
         try {
             mPlayer.setDataSource(url);
 //            mPlayer.setVolume(0, 0);

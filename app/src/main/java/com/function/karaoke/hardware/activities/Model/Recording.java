@@ -48,11 +48,11 @@ public class Recording implements Serializable, SongDisplay {
         this.delay = delay;
     }
 
-    public Recording(DatabaseSong song, String date,
+    public Recording(DatabaseSong song, String songPlayed, String date,
                      String recorderId, String recordingId, int delay, long length) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
-        this.audioFileUrl = song.getSongResourceFile();
+        this.audioFileUrl = songPlayed;
         this.imageResourceFile = song.getImageResourceFile();
         this.date = date;
         this.recorderId = recorderId;
