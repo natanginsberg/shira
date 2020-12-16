@@ -635,6 +635,7 @@ public class SingActivity extends AppCompatActivity implements
         popup = activityUI.getPopup();
         popup.setOnDismissListener(() -> {
             if (ending) finish();
+            activityUI.undimBackground();
         });
     }
 

@@ -71,12 +71,13 @@ public class SingActivityUI {
             popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
         }
         placePopupOnScreen(context);
+        popup.setFocusable(true);
         applyDim(view.findViewById(R.id.sing_song).getOverlay());
     }
 
     private void placePopupOnScreen(Context context) {
         popup = new PopupWindow(context);
-        popup.setFocusable(true);
+
         setEndOptionsPopupAttributes(context, popup, popupView);
         view.post(new Runnable() {
             @Override
@@ -147,13 +148,7 @@ public class SingActivityUI {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.tone_picker_popup, viewGroup);
         placePopupOnScreen(context);
-//        setTonePopupAttributes(context, popup, popupView);
-        setTonePopupSongName();
-        applyDim(view.findViewById(R.id.sing_song).getOverlay());
-    }
-
-    private void setTonePopupSongName() {
-        ((TextView) popupView.findViewById(R.id.song_name)).setText(song.getTitle());
+        popup.setFocusable(false);
     }
 
     private void setTonePopupAttributes(Context context, PopupWindow popup, View layout) {
