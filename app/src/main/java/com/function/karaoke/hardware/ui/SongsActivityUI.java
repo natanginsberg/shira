@@ -66,6 +66,10 @@ public class SongsActivityUI {
             signInOrOutButton.setText(context.getResources().getText(R.string.sign_in));
     }
 
+    public void setEmailAddressIfSignedIn(String emailAddressIfSignedIn){
+        ((TextView)popupView.findViewById(R.id.email_address)).setText(emailAddressIfSignedIn);
+    }
+
     private void placePopupOnScreen() {
         popup = new PopupWindow(context);
         popup.setFocusable(true);

@@ -127,7 +127,7 @@ public class KaraokeController implements Recorder.IToneListener {
                 prepared = true;
                 mPlayer.seekTo(0);
             });
-            mPlayer.prepare();
+            mPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
         }

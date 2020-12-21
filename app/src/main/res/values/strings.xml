@@ -70,6 +70,7 @@
 
     <string-array name="volumes">
         <item>@string/default_value</item>
+        <item>0.0</item>
         <item>0.1</item>
         <item>0.2</item>
         <item>0.3</item>
@@ -90,5 +91,6 @@
     <string name="kid">Kid</string>
     <string name="woman">Woman</string>
     <string name="who_is_singing_the_song">Who is singing the song?</string>
+    <string name="email_prompt">Listen to me sing\n</string>
 
 </resources>

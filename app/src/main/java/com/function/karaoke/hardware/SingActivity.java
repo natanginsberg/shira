@@ -50,7 +50,6 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.SignInViewModel;
-import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
@@ -193,8 +192,6 @@ public class SingActivity extends AppCompatActivity implements
     private boolean bluetoothConnected = false;
     private boolean bluetoothConnectionExists = false;
     private boolean earphonesUsed = false;
-    private UserInfo user;
-    private SignInViewModel signInViewModel;
     private UserService userService;
     private String songPlayed;
 
@@ -207,19 +204,17 @@ public class SingActivity extends AppCompatActivity implements
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song);
         setContentView(R.layout.activity_sing);
         setKaraokeController();
-        loadSong();
         blurAlbumInBackground();
 
         mTextureView = findViewById(R.id.surface_camera);
-        recordingId = GenerateRandomId.generateRandomId();
         checkForPermissionAndOpenCamera();
+        recordingId = GenerateRandomId.generateRandomId();
         if (song.hasDifferentTones()) {
             activityUI.openTonePopup(SingActivity.this);
         } else {
             songPlayed = song.getSongResourceFile();
             mKaraokeKonroller.loadAudio(songPlayed);
             createEarphoneReceivers();
-
         }
         activityUI.showPlayButton();
     }
@@ -262,6 +257,7 @@ public class SingActivity extends AppCompatActivity implements
         mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
                 R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
         mPlayer = mKaraokeKonroller.getmPlayer();
+        loadSong();
     }
 
     private void createBluetoothReceiver() {
@@ -986,7 +982,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void sendDataThroughIntent(String link) {
-        String data = "Listen to me sing\n" + link;
+        String data = getString(R.string.email_prompt) + link;
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(

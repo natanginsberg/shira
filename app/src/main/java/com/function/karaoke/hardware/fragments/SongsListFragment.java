@@ -312,6 +312,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         songsActivityUI.openSettingsPopup(authenticationDriver.isSignIn()
                         && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""),
                 contentsDisplayed);
+        if (authenticationDriver.isSignIn()
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""))
+            songsActivityUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
         popupView = songsActivityUI.getPopupView();
         popup = songsActivityUI.getPopup();
         addPopupListeners();

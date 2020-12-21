@@ -2,6 +2,7 @@ package com.function.karaoke.hardware;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.audiofx.PresetReverb;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,8 +28,10 @@ import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
+import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
@@ -71,10 +74,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
     private long playbackPosition = 0;
     private long length;
-
     private int currentWindow;
     private int delay;
-
     private boolean earphonesUsed = false;
 
     private MediaSource mediaSource;
@@ -256,7 +257,23 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
         player.setPlayWhenReady(false);
+//        C.generateAudioSessionIdV21(this);
+//        player.setAudioSessionId(2);
         addSpinnerListeners();
+        if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
+            @Override
+            public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
+                addReverb(audioSessionId);
+            }
+        });
+    }
+
+    private void addReverb(int audioSessionId) {
+        System.out.println("this is the sessio id " + player.getAudioSessionId());
+        PresetReverb reverb = new PresetReverb(1, audioSessionId);
+        reverb.setPreset(PresetReverb.PRESET_SMALLROOM);
+        reverb.setEnabled(true);
+        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(new AuxEffectInfo(reverb.getId(), 1f)).send();
     }
 
     @Override

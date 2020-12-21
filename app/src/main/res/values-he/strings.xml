@@ -66,5 +66,6 @@
     <string name="kid">ילד</string>
     <string name="woman">אשה</string>
     <string name="who_is_singing_the_song">מי שר את השיר?</string>
+    <string name="email_prompt">תצפה לביצוע שלי/n</string>
 </resources>
 

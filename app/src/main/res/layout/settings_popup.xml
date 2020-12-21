@@ -7,77 +7,113 @@
     android:layout_height="match_parent"
     android:background="@color/appColor">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/language_guide"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.95" />
-
-    <TextView
-        android:id="@+id/language"
-        android:layout_width="@dimen/no_hardcode_dimension"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:gravity="center"
-        android:text="@string/language_displayed"
-        android:textColor="#ffff"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="@id/heading_guide"
-        app:layout_constraintEnd_toEndOf="@id/language_guide"
-        app:layout_constraintHeight_percent="0.08"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.079" />
+        android:background="@android:color/white"
+        app:layout_constraintHeight_percent="0.13"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/language_changer"
-        android:layout_width="@dimen/no_hardcode_dimension"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginEnd="5dp"
-        android:background="@drawable/ic_globe_outline"
-        app:layout_constraintBottom_toBottomOf="@id/language"
-        app:layout_constraintEnd_toStartOf="@id/language"
-        app:layout_constraintHeight_percent="0.037"
-        app:layout_constraintTop_toTopOf="@id/language"
-        app:layout_constraintDimensionRatio="0.768" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    <View
-        android:layout_width="@dimen/no_hardcode_dimension"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@drawable/circle"
-        app:layout_constraintBottom_toBottomOf="@id/language_changer"
-        app:layout_constraintLeft_toLeftOf="@id/language_changer"
-        app:layout_constraintRight_toRightOf="@id/language_changer"
-        app:layout_constraintTop_toTopOf="@id/language_changer" />
-    <!--        <Button-->
-    <!--            android:id="@+id/close_popup"-->
-    <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
-    <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
-    <!--            app:layout_constraintHeight_percent="0.04"-->
-    <!--            app:layout_constraintWidth_percent="0.075"-->
-    <!--            android:layout_alignParentEnd="true"-->
-    <!--            android:layout_centerVertical="true"-->
-    <!--            android:background="@drawable/ic_baseline_close_24"-->
-    <!--            android:paddingEnd="10dp" />-->
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/language_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.95" />
 
-    <!--        <TextView-->
-    <!--            android:id="@+id/hello_user"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:layout_centerInParent="true" />-->
+        <TextView
+            android:id="@+id/language"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:gravity="center"
+            android:text="@string/language_displayed"
+            android:textColor="@color/appColor"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="@id/header"
+            app:layout_constraintEnd_toEndOf="@id/language_guide"
+            app:layout_constraintHeight_percent="0.61"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.079" />
+
+        <Button
+            android:id="@+id/language_changer"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_globe_outline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="0.768"
+            app:layout_constraintEnd_toStartOf="@id/language"
+            app:layout_constraintHeight_percent="0.28"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:background="@drawable/circle"
+            app:layout_constraintBottom_toBottomOf="@id/language_changer"
+            app:layout_constraintLeft_toLeftOf="@id/language_changer"
+            app:layout_constraintRight_toRightOf="@id/language_changer"
+            app:layout_constraintTop_toTopOf="@id/language_changer" />
+        <!--        <Button-->
+        <!--            android:id="@+id/close_popup"-->
+        <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
+        <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
+        <!--            app:layout_constraintHeight_percent="0.04"-->
+        <!--            app:layout_constraintWidth_percent="0.075"-->
+        <!--            android:layout_alignParentEnd="true"-->
+        <!--            android:layout_centerVertical="true"-->
+        <!--            android:background="@drawable/ic_baseline_close_24"-->
+        <!--            android:paddingEnd="10dp" />-->
+
+        <!--        <TextView-->
+        <!--            android:id="@+id/hello_user"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_centerInParent="true" />-->
+
+        <TextView
+            android:id="@+id/sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text="@string/sign_in"
+            android:textColor="@color/purple_hover"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/email_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="@color/purple_hover"
+            android:textSize="15sp"
+            app:layout_constraintTop_toBottomOf="@id/sign_in_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:typeface="serif"/>
 
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/heading_guide"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.13" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="88dp"
-        android:orientation="vertical"
         android:layout_marginStart="10dp"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/middle_guide"
         tools:layout_editor_absoluteX="-1dp">
 
@@ -101,18 +137,6 @@
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/sign_in_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_weight="1"
-        android:text="@string/sign_in"
-        android:textColor="@android:color/white"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="@id/language"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/language" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/middle_guide"
@@ -146,14 +170,14 @@
         android:id="@+id/contact_us"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:autoLink="email"
         android:gravity="center"
         android:text="@string/contact_us"
         android:textColor="@color/sing_up_hover"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/line1"
-        android:autoLink="email" />
+        app:layout_constraintTop_toBottomOf="@id/line1" />
 
 
     <TextView
