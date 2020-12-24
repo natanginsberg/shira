@@ -18,6 +18,7 @@ public class ShareLink {
                         "&delay=" + recording.getDelay() +
                         "&length=" + recording.getLength()))
                 .setDomainUriPrefix("https://singjewish.page.link")
+
                 // Set parameters
                 // ...
                 .buildShortDynamicLink();

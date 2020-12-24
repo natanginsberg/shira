@@ -76,6 +76,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private AuthenticationDriver authenticationDriver;
     private SongsActivityUI songsActivityUI;
     private String currentLanguage;
+    private int clicked = 0;
 
 
     /**
@@ -347,6 +348,21 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         homeButtonListener();
         signInButtonListener();
         contactUsListener();
+        policyListener();
+    }
+
+    private void policyListener() {
+        popupView.findViewById(R.id.policy).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clicked++;
+                if (clicked == 5) {
+                    mListener.openAdminSide();
+                    clicked = 0;
+                }
+            }
+        });
+
     }
 
     private void contactUsListener() {
@@ -381,7 +397,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
                 ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
                 ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.all_songs);
-                view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                this.view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
                 songsActivityUI.showGenresAndSearch();
             }
         });
@@ -449,5 +465,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void signOut();
 
         void openEmailIntent();
+
+        void openAdminSide();
     }
 }

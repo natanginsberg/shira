@@ -91,7 +91,7 @@ public class SongsActivityUI {
     }
 
     private void setPopupAttributes(PopupWindow popup, View layout) {
-        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.719);
+        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.6);
         popup.setContentView(layout);
         popup.setWidth(width);
         popup.setHeight(view.getHeight());

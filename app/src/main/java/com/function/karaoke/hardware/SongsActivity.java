@@ -198,6 +198,12 @@ public class SongsActivity
         return false;
     }
 
+    @Override
+    public void openAdminSide() {
+        Intent intent = new Intent(this, Admin.class);
+        startActivity(intent);
+    }
+
 
     private void deleteSongsFolder() {
         File dir = new File(this.getFilesDir(), DIRECTORY_NAME);
@@ -300,7 +306,7 @@ public class SongsActivity
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{FEEDBACK_EMAIL});
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
         intent.setType("message/rfc822");
-        intent.setPackage("com.google.android.gm");
+//        intent.setPackage("com.google.android.gm");
         //todo check to see if there is a gmail account
         startActivity(intent);
     }

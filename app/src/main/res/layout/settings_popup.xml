@@ -30,17 +30,16 @@
 
         <TextView
             android:id="@+id/language"
-            android:layout_width="@dimen/no_hardcode_dimension"
-            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/language_displayed"
             android:textColor="@color/appColor"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="@id/header"
             app:layout_constraintEnd_toEndOf="@id/language_guide"
-            app:layout_constraintHeight_percent="0.61"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.079" />
+            />
 
         <Button
             android:id="@+id/language_changer"
@@ -100,11 +99,11 @@
             android:layout_weight="1"
             android:text=""
             android:textColor="@color/purple_hover"
-            android:textSize="15sp"
+            android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@id/sign_in_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:typeface="serif"/>
+            android:typeface="serif" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -188,7 +187,8 @@
         android:text="@string/policy"
         android:textColor="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/policy_guide" />
+        app:layout_constraintTop_toBottomOf="@id/policy_guide"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.function.karaoke.hardware">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.RECORD_VIDEO" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -10,8 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
-
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <uses-feature
         android:name="android.hardware.microphone"
@@ -23,7 +23,6 @@
         android:name="android.hardware.audio.output"
         android:required="true" />
 
-
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_video_camera"
@@ -32,6 +31,7 @@
         android:roundIcon="@mipmap/ic_video_camera"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".Admin"></activity>
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -61,7 +61,6 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ToneActivity"
             android:exported="true" />
@@ -70,10 +69,8 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".SongsActivity"
-            android:windowSoftInputMode="adjustNothing"
-            android:screenOrientation="portrait">
-
-        </activity>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustNothing"></activity>
     </application>
 
 </manifest>

@@ -132,11 +132,12 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             ((TextView) mView.findViewById(R.id.play_button)).setTypeface(tf);
 //            }
 //            mLblArtist.setTypeface(tf);
-            Picasso.get()
-                    .load(song.getImageResourceFile())
-                    .placeholder(R.drawable.plain_rec)
-                    .fit()
-                    .into(mCover);
+            if (!song.getImageResourceFile().equals(""))
+                Picasso.get()
+                        .load(song.getImageResourceFile())
+                        .placeholder(R.drawable.plain_rec)
+                        .fit()
+                        .into(mCover);
         }
     }
 

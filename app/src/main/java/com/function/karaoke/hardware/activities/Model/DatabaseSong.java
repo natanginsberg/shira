@@ -95,6 +95,8 @@ public class DatabaseSong implements Serializable, SongDisplay {
 
     public void setLines() {
         try {
+            if (textResourceFile == null)
+                throw new RuntimeException("np text resource file");
             URL url = new URL(textResourceFile);
             // read text returned by server
             BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -104,6 +106,8 @@ public class DatabaseSong implements Serializable, SongDisplay {
             while ((line = in.readLine()) != null) {
                 lines.add(line);
             }
+            if (lines.size() == 0)
+                throw new OutOfMemoryError("lines size is 0");
             in.close();
         } catch (Exception e) {
             e.printStackTrace();

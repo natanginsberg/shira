@@ -92,5 +92,10 @@
     <string name="woman">Woman</string>
     <string name="who_is_singing_the_song">Who is singing the song?</string>
     <string name="email_prompt">Listen to me sing\n</string>
+    <string name="admin_window">admin window</string>
+    <string name="song_name">song name</string>
+    <string name="genres">genres</string>
+    <string name="artist_name">artist name</string>
+    <string name="submit">submit</string>
 
 </resources>

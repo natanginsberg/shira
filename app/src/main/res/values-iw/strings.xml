@@ -67,4 +67,9 @@
     <string name="woman">אשה</string>
     <string name="who_is_singing_the_song">מי שר את השיר?</string>
     <string name="email_prompt">תצפה לביצוע שלי/n</string>
+    <string name="admin_window">חלון מנהלים</string>
+    <string name="song_name">שם השיר</string>
+    <string name="genres">גנרה</string>
+    <string name="artist_name">שם הזמר</string>
+    <string name="submit">הוסף</string>
 </resources>
