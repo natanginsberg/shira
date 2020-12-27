@@ -16,7 +16,7 @@ public class NetworkTasks extends Fragment {
      */
     public static void parseWords(DatabaseSong dbSong, ParseListener parseListener) {
         ParseWordsTask parseWordsTask = new ParseWordsTask(parseListener);
-        parseWordsTask.execute(dbSong);
+        parseWordsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, dbSong);
     }
 
 

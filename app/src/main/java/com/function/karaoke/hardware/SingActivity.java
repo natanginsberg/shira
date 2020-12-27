@@ -23,6 +23,7 @@ import android.util.DisplayMetrics;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
@@ -197,6 +198,7 @@ public class SingActivity extends AppCompatActivity implements
     private SignInViewModel signInViewModel;
     private UserService userService;
     private String songPlayed;
+    private boolean cancelled;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -417,8 +419,12 @@ public class SingActivity extends AppCompatActivity implements
             }
             if (!keepVideo)
                 deleteVideo();
+            cancelled = true;
+            cancelTimer();
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             finish();
         } else if (result.equals("ok")) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             finish();
         }
     }
@@ -489,19 +495,21 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void blurAlbumInBackground() {
-        final ImageView tv = findViewById(R.id.album_cover);
-        final ViewTreeObserver observer = tv.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (!measured) {
-                    measured = true;
-                    Picasso.get()
-                            .load(song.getImageResourceFile())
-                            .into(target);
+        if (song.getImageResourceFile() != null) {
+            final ImageView tv = findViewById(R.id.album_cover);
+            final ViewTreeObserver observer = tv.getViewTreeObserver();
+            observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    if (!measured) {
+                        measured = true;
+                        Picasso.get()
+                                .load(song.getImageResourceFile())
+                                .into(target);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -535,8 +543,22 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
             buttonClicked = true;
             pauseSong(view);
-            DialogBox back = DialogBox.newInstance(this, BACK_CODE);
-            back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+            showBackDialogBox();
+            buttonClicked = false;
+        }
+    }
+
+    private void showBackDialogBox() {
+        DialogBox back = DialogBox.newInstance(this, BACK_CODE);
+        back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+    }
+
+    public void returnToMainFromPopup(View view) {
+        if (!buttonClicked) {
+            buttonClicked = true;
+            if (!itemAcquired) {
+                showBackDialogBox();
+            }
             buttonClicked = false;
         }
     }
@@ -561,6 +583,7 @@ public class SingActivity extends AppCompatActivity implements
         ending = false;
         timerStarted = true;
         final boolean[] prepared = {false};
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         cTimer = new CountDownTimer(3800, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
@@ -573,24 +596,26 @@ public class SingActivity extends AppCompatActivity implements
 
             public void onFinish() {
                 cancelTimer();
+                if (!cancelled) {
 //                customMediaPlayer.startSong();
-                mKaraokeKonroller.onResume();
-                mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
-                    @Override
-                    public void onSongEnded() {
+                    mKaraokeKonroller.onResume();
+                    mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
+                        @Override
+                        public void onSongEnded() {
 
 //                        cameraPreview.stopRecording();
-                        lengthOfAudioPlayed = mPlayer.getCurrentPosition();
-                        isRunning = false;
-                        ending = true;
-                        pauseSong(findViewById(R.id.sing_song));
-                        openEndOptions(true);
-                    }
-                });
-                isRunning = true;
-                setProgressBar();
-                isRecording = true;
-                activityUI.setScreenForPlayingAfterTimerExpires();
+                            lengthOfAudioPlayed = mPlayer.getCurrentPosition();
+                            isRunning = false;
+                            ending = true;
+                            pauseSong(findViewById(R.id.sing_song));
+                            openEndOptions(true);
+                        }
+                    });
+                    isRunning = true;
+                    setProgressBar();
+                    isRecording = true;
+                    activityUI.setScreenForPlayingAfterTimerExpires();
+                }
             }
         };
         cTimer.start();
@@ -664,7 +689,8 @@ public class SingActivity extends AppCompatActivity implements
         if (isRecording) {
             cameraPreview.pauseRecording();
         }
-        startPauseTimerToSaveBattery();
+        if (postParseVideoFile == null)
+            startPauseTimerToSaveBattery();
     }
 
     private void startPauseTimerToSaveBattery() {
@@ -675,6 +701,7 @@ public class SingActivity extends AppCompatActivity implements
 
             public void onFinish() {
                 cancelTimer();
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 openEndOptions(true);
                 postParseVideoFile = wrapUpSong();
             }
@@ -698,14 +725,16 @@ public class SingActivity extends AppCompatActivity implements
 
             public void onFinish() {
                 cancelTimer();
-                restart = false;
-                isRunning = true;
-                mKaraokeKonroller.onResume();
+                if (!cancelled) {
+                    restart = false;
+                    isRunning = true;
+                    mKaraokeKonroller.onResume();
 //                customMediaPlayer.startSong();
-                cameraPreview.resumeRecording();
-                mPlayer = mKaraokeKonroller.getmPlayer();
-                isRecording = true;
-                activityUI.setScreenForPlayingAfterTimerExpires();
+                    cameraPreview.resumeRecording();
+                    mPlayer = mKaraokeKonroller.getmPlayer();
+                    isRecording = true;
+                    activityUI.setScreenForPlayingAfterTimerExpires();
+                }
             }
         };
         cTimer.start();
@@ -723,6 +752,9 @@ public class SingActivity extends AppCompatActivity implements
             activityUI.makeLoadingBarVisible();
             findViewById(R.id.word_space).setVisibility(View.INVISIBLE);
             cameraPreview.stopRecording();
+            cameraPreview.closeCamera();
+            mKaraokeKonroller.onStop();
+            activityUI.dismissPopup();
             refreshWindow();
         }
     }

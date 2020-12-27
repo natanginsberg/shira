@@ -1,17 +1,13 @@
 package com.function.karaoke.core.utility;
 
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.RenderScript;
 import android.renderscript.ScriptIntrinsicBlur;
 import android.util.DisplayMetrics;
-import android.view.View;
 
 public class BlurBuilder {
     private static final float BLUR_RADIUS = 25f;
@@ -22,7 +18,7 @@ public class BlurBuilder {
 
     public static Bitmap blur(Context ctx, Bitmap image, DisplayMetrics metrics) {
 
-        float bitmapScale = metrics.widthPixels / (float)image.getWidth();
+        float bitmapScale = metrics.widthPixels / (float) image.getWidth();
         int width = Math.round(image.getWidth() * bitmapScale);
         int height = Math.round(image.getHeight() * bitmapScale);
 

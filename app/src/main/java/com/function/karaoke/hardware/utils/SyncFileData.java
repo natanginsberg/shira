@@ -30,21 +30,23 @@ public class SyncFileData {
                 firstEntry.setDelta(3000);
             }
         }
-        String filePath = file.getAbsolutePath();
-        if (isError) {
-            Movie movie = new Movie();
-            for (TrackBox trackBox : trackBoxes) {
-                movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
-            }
-            movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
-            Container out = new DefaultMp4Builder().build(movie);
+        if (file != null) {
+            String filePath = file.getAbsolutePath();
+            if (isError) {
+                Movie movie = new Movie();
+                for (TrackBox trackBox : trackBoxes) {
+                    movie.addTrack(new Mp4TrackImpl(channel.toString() + "[" + trackBox.getTrackHeaderBox().getTrackId() + "]", trackBox));
+                }
+                movie.setMatrix(isoFile.getMovieBox().getMovieHeaderBox().getMatrix());
+                Container out = new DefaultMp4Builder().build(movie);
 
-            //delete file first!
-            FileChannel fc = new RandomAccessFile(filePath, "rw").getChannel();
-            out.writeContainer(fc);
-            fc.close();
-            isFileInSync(file);
-            return file;
+                //delete file first!
+                FileChannel fc = new RandomAccessFile(filePath, "rw").getChannel();
+                out.writeContainer(fc);
+                fc.close();
+                isFileInSync(file);
+                return file;
+            }
         }
         return mFilePath;
     }

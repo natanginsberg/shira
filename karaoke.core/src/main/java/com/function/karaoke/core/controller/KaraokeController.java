@@ -282,7 +282,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
 
     public void onPause() {
-        if (mPlayer.isPlaying()) {
+        if (mPlayer != null && mPlayer.isPlaying()) {
 
             mPlayer.pause();
 //            mRecorder.pause();

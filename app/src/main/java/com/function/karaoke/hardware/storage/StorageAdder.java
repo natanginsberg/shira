@@ -33,32 +33,6 @@ public class StorageAdder extends ViewModel implements Serializable {
         getKeys();
     }
 
-//    public LiveData<String> uploadVideo() {
-//        final MutableLiveData<String> resultsLiveData = new MutableLiveData<>();
-//        if (videoUri != null) {
-//            String destFileName = "images/" + System.currentTimeMillis();
-//            StorageReference ref = this.storageReference.child(destFileName);
-//            ref.putFile(videoUri)
-//                    .addOnSuccessListener((UploadTask.TaskSnapshot taskSnapshot) -> {
-//                        Task<Uri> downloadUri = taskSnapshot.getStorage().getDownloadUrl();
-//                        while (!downloadUri.isSuccessful()) {
-//                        }
-//                        resultsLiveData.setValue(downloadUri.getResult().toString());
-//
-//
-//                    })
-//                    .addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//
-//                        }
-//                    });
-////                            Log.w(TAG, "Error on uploadImage", e));
-//        }
-//        return resultsLiveData;
-//    }
-
-
     public void uploadRecording(Recording recording, UploadListener uploadListener) {
         Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
         recording.setRecordingUrl(downloadUri.toString());

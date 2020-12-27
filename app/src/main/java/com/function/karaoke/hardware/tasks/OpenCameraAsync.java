@@ -16,7 +16,7 @@ public class OpenCameraAsync {
                                         TextureView.SurfaceTextureListener surfaceTextureListener,
                                         OpenCameraListener listener) {
         OpenCamera openCamera = new OpenCamera(listener, textureView, surfaceTextureListener);
-        openCamera.execute(cp);
+        openCamera.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, cp);
         return openCamera;
     }
 

@@ -66,11 +66,10 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         View view;
         view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recording_display_item, parent, false);
-        if (language.equals("English"))
-            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
-        else
-
+        if (language.equals("iw"))
             view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+        else
+            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         layoutParams.height = (parent.getHeight() / 8);
         view.setLayoutParams(layoutParams);
