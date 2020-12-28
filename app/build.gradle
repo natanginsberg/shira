@@ -6,10 +6,10 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "com.function.karaoke.hardware"
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 29
-        versionCode 94
-        versionName "1.1564" +
+        versionCode 95
+        versionName "1.1565" +
                 "" +
                 "" +
                 "" +

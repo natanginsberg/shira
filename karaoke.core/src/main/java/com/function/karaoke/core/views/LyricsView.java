@@ -33,7 +33,7 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.focused_text_color, null));
+        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.focused_text_color));
     }
 
     @SuppressLint("SetTextI18n")
@@ -57,12 +57,16 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
         for (Song.Syllable s : mLine.syllables)
             if (s.to < position)
                 pos += s.text.length();
-            else
-                for (Song.Letter letter : s.letters)
-                    if (letter.from < position)
-                        pos += 1;
-                    else
-                        break;
+            else {
+                if (s.from < position && s.letters.get(0).letter == '*') {
+                    pos += s.text.length();
+                } else
+                    for (Song.Letter letter : s.letters)
+                        if (letter.from < position)
+                            pos += 1;
+                        else
+                            break;
+            }
         if (mCurrentChar == pos)
             return;
 

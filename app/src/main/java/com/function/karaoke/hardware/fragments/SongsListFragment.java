@@ -37,6 +37,7 @@ import com.function.karaoke.hardware.utils.OnSwipeTouchListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A fragment representing a list of Songs.
@@ -120,7 +121,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private String getCurrentLanguage() {
-        return getResources().getConfiguration().getLocales().get(0).getLanguage();
+        return Locale.getDefault().getLanguage();
+//        return getResources().getConfiguration().getLocales().get(0).getLanguage();
     }
 
     private void addGenres() {
@@ -243,16 +245,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //        mAdapter.notifyDataSetChanged();
         RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
         recyclerView.setAdapter(recordAdapter);
-    }
-
-    private List<RecordingDisplay> makeListOfRecordingDisplay() {
-        List<RecordingDisplay> recordingDisplays = new ArrayList<>();
-        for (Recording recording : recordingDB.getRecordings()) {
-            if (recordingDisplays.stream().noneMatch(o -> o.getTitle().equals(recording.getTitle())))
-                recordingDisplays.add(new RecordingDisplay(recording.getImageResourceFile(),
-                        recording.getArtist(), recording.getTitle()));
-        }
-        return recordingDisplays;
     }
 
 
@@ -394,8 +386,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
                 contentsDisplayed = ALL_SONGS_DISPLAYED;
                 displayAllSongs();
-                ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-                ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+                ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
+                ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover));
                 ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.all_songs);
                 this.view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
                 songsActivityUI.showGenresAndSearch();
@@ -415,8 +407,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     } else {
                         displayPersonalSongs();
                     }
-                    ((TextView) view).setTextColor(getResources().getColor(R.color.gold, getContext().getTheme()));
-                    ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover, getContext().getTheme()));
+                    ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
+                    ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover));
                     ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.My_recordings);
                 }
             } else {

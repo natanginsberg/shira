@@ -153,16 +153,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         }
 
         private String manipulateDateToBePretty(String date) {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < date.length(); i++) {
-                if (i < 6) {
-                    if (i % 2 == 0 && i > 0) {
-                        stringBuilder.append('/');
-                    }
-                    stringBuilder.append(date.charAt(i));
-                }
-            }
-            return stringBuilder.toString();
+            return date.substring(6, 8) + "/" + date.substring(4, 6) + "/" + date.substring(2, 4);
         }
     }
 

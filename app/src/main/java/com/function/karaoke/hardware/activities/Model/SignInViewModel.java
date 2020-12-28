@@ -32,7 +32,7 @@ public class SignInViewModel extends ViewModel {
 
     private Boolean mAccessingDatabase;
     private UserService userService;
-    private int NUMBER_OF_FREE_SHARES  = 1;
+    private int NUMBER_OF_FREE_SHARES = 1;
 
     public SignInViewModel() {
         mAccessingDatabase = false;
@@ -93,7 +93,6 @@ public class SignInViewModel extends ViewModel {
     }
 
 
-
     public MutableLiveData<Boolean> getUserFromDatabase() {
         MutableLiveData<Boolean> success = new MutableLiveData<>();
         final List<UserInfo> documentsList = new LinkedList<>();
@@ -149,7 +148,7 @@ public class SignInViewModel extends ViewModel {
         });
     }
 
-    public void createGuestId(OnCompleteListener<AuthResult> listener){
+    public void createGuestId(OnCompleteListener<AuthResult> listener) {
         authenticationDriver.createGuestId(listener);
     }
 

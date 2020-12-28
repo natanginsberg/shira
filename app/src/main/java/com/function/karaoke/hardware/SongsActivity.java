@@ -102,7 +102,8 @@ public class SongsActivity
         checkForSignedInUser();
 
 //        showPromo();
-        language = getResources().getConfiguration().getLocales().get(0).getLanguage();
+        language = Locale.getDefault().getLanguage();
+//        language = getResources().getConfiguration().getLocales().get(0).getLanguage();
         setContentView(R.layout.activity_songs);
         billingSession = new Billing(SongsActivity.this, new PurchasesUpdatedListener() {
             @Override
@@ -258,6 +259,7 @@ public class SongsActivity
     private void launchSignIn() {
         Intent intent = new Intent(this, SignInActivity.class);
         intent.putExtra("callback", true);
+        intent.putExtra("language", Locale.getDefault().getLanguage());
         mGetContent.launch(intent);
     }
 
@@ -359,7 +361,7 @@ public class SongsActivity
     }
 
     private void sendDataThroughIntent(String link) {
-        String data = "Listen to me sing\n" + link;
+        String data = getString(R.string.email_prompt) + link;
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         sendIntent.putExtra(
@@ -369,7 +371,7 @@ public class SongsActivity
     }
 
     private void showFailure() {
-        Toast.makeText(this, "sharing failed", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -380,10 +382,10 @@ public class SongsActivity
 
     @Override
     public void changeLanguage() {
-        if (language.equals("iw")) {
-            setLocale("en");
-        } else {
+        if (language.equals("en")) {
             setLocale("iw");
+        } else {
+            setLocale("en");
         }
     }
 
@@ -394,7 +396,6 @@ public class SongsActivity
 
 
     private void setLocale(String lang) {
-
         myLocale = new Locale(lang);
         Resources res = getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
@@ -425,6 +426,7 @@ public class SongsActivity
     private void openNewIntent() {
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
+        intent.putExtra("language", Locale.getDefault().getLanguage());
         startActivity(intent);
     }
 }

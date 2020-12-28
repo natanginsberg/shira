@@ -97,5 +97,10 @@
     <string name="genres">genres</string>
     <string name="artist_name">artist name</string>
     <string name="submit">submit</string>
+    <string name="sharing_failed">sharing failed</string>
+    <string name="auth_failed">Authenticaton failed, please try again</string>
+    <string name="error_from_the_beginning_of_sign_in">Sorry, there is a problem with our servers</string>
+    <string name="no_pause_body">Attention! /n Pausing song in the middle will not work, and the song will end.</string>
+    <string name="no_pause_title">Pause warning</string>
 
 </resources>

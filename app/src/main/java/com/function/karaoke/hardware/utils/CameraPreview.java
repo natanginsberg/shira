@@ -13,6 +13,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -22,6 +23,7 @@ import android.view.TextureView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -100,7 +102,7 @@ public class CameraPreview {
     private Size mVideoSize;
     private MediaRecorder mMediaRecorder;
 
-    public CameraPreview(TextureView textureView, AppCompatActivity activity, boolean hasCamera, Context context) {
+    public CameraPreview(AppCompatActivity activity, Context context) {
 //        if (hasCamera)
 //            mTextureView = textureView;
         this.activity = activity;
@@ -337,11 +339,13 @@ public class CameraPreview {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
         if (mMediaRecorder != null)
             mMediaRecorder.pause();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         if (mMediaRecorder != null)
             mMediaRecorder.resume();

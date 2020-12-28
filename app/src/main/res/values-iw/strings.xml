@@ -66,10 +66,16 @@
     <string name="kid">ילד</string>
     <string name="woman">אשה</string>
     <string name="who_is_singing_the_song">מי שר את השיר?</string>
-    <string name="email_prompt">תצפה לביצוע שלי/n</string>
+    <string name="email_prompt">כנס/י לקישור הבא כדי לצפות בביצוע שלי ב"אשירה":\n</string>
     <string name="admin_window">חלון מנהלים</string>
     <string name="song_name">שם השיר</string>
     <string name="genres">גנרה</string>
     <string name="artist_name">שם הזמר</string>
     <string name="submit">הוסף</string>
+    <string name="sharing_failed">השיתוף נכשל</string>
+    <string name="auth_failed">הזיהוי נכשל, תנסה יותר מאוחר</string>
+    <string name="error_from_the_beginning_of_sign_in">מצטערים, יש תקלה בשרת</string>
+    <string name="no_pause_body">אזהרה! \n הפסקת השיר במצע תסיים אותו</string>
+    <string name="no_pause_title">הפסקת השיר</string>
+
 </resources>

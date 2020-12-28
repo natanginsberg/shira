@@ -20,16 +20,21 @@ public class SingActivityUI {
 
     private final View view;
     private final DatabaseSong song;
+    private final int sdkInt;
     private View popupView;
     private PopupWindow popup;
 
-    public SingActivityUI(View singActivity, DatabaseSong song) {
+    public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
         this.song = song;
+        this.sdkInt = sdkInt;
+    }
+
+    public void addTitleToScreen() {
+        ((TextView) view.findViewById(R.id.song_name)).setText(song.getTitle());
     }
 
     public void addArtistToScreen() {
-        ((TextView) view.findViewById(R.id.song_name)).setText(song.getTitle());
         ((TextView) view.findViewById(R.id.song_name_2)).setText(song.getTitle());
         ((TextView) view.findViewById(R.id.artist_name)).setText(song.getArtist());
     }
@@ -59,7 +64,8 @@ public class SingActivityUI {
     public void setScreenForPlayingAfterTimerExpires() {
         view.findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
         view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
+        if (sdkInt >= 24)
+            view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
         view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
     }
 
@@ -126,7 +132,8 @@ public class SingActivityUI {
 
     public void songPaused() {
         view.findViewById(R.id.pause).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.play).setVisibility(View.VISIBLE);
+        if (sdkInt >= 24)
+            view.findViewById(R.id.play).setVisibility(View.VISIBLE);
     }
 
     @SuppressLint("SetTextI18n")
@@ -162,5 +169,9 @@ public class SingActivityUI {
     public void dismissPopup() {
         popup.dismiss();
         undimBackground();
+    }
+
+    public void hideLoadingIndicator() {
+        view.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
     }
 }

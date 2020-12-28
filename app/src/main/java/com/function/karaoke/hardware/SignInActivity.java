@@ -1,8 +1,11 @@
 package com.function.karaoke.hardware;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Toast;
 
@@ -25,6 +28,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Locale;
+
 public class SignInActivity extends AppCompatActivity {
 
 
@@ -43,15 +48,34 @@ public class SignInActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getCorrectLanguage();
         extractIntentParams();
         showPromo();
     }
+
+
+    private void getCorrectLanguage() {
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("language")) {
+            String phoneLanguage = Locale.getDefault().getLanguage();
+            setLocale(phoneLanguage);
+        }
+    }
+
+    private void setLocale(String lang) {
+
+        Locale myLocale = new Locale(lang);
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.setLocale(myLocale);
+        res.updateConfiguration(conf, dm);
+    }
+
 
     private void extractIntentParams() {
         if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(CALLBACK)) {
             callback = true;
         }
-
     }
 
 
@@ -76,7 +100,6 @@ public class SignInActivity extends AppCompatActivity {
         extractCodeExtrasIfExist();
         authenticationDriver = new AuthenticationDriver();
         checkForSignedInUser();
-
     }
 
 
@@ -117,7 +140,7 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void extractCodeExtrasIfExist() {
-        if (getIntent().getExtras() != null) {
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey(RESULT_CODE)) {
             code = getIntent().getIntExtra(RESULT_CODE, 0);
         }
     }
@@ -176,6 +199,7 @@ public class SignInActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure() {
+                    Toast.makeText(getBaseContext(), getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
                     finish();
 
                 }
@@ -231,11 +255,6 @@ public class SignInActivity extends AppCompatActivity {
                     openMain();
                 } else {
                     makeToastForError();
-                    // If sign in fails, display a message to the user.
-//                    Log.w(TAG, "signInAnonymously:failure", task.getException());
-//                    Toast.makeText(AnonymousAuthActivity.this, "Authentication failed.",
-//                            Toast.LENGTH_SHORT).show();
-//                    updateUI(null);
                 }
             }
         });
@@ -248,6 +267,6 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void makeToastForError() {
-        Toast.makeText(this, "Sorry, there is a problem with our servers", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, getString(R.string.error_from_the_beginning_of_sign_in), Toast.LENGTH_LONG).show();
     }
 }

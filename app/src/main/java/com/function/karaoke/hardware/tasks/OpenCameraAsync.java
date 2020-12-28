@@ -27,8 +27,8 @@ public class OpenCameraAsync {
     private static class OpenCamera extends AsyncTask<CameraPreview, TextureView, OpenCamera.Result> {
 
         private OpenCameraListener listener;
-        private TextureView mTextureView;
-        private TextureView.SurfaceTextureListener mSurfaceTextureListener;
+        private final TextureView mTextureView;
+        private final TextureView.SurfaceTextureListener mSurfaceTextureListener;
 
         OpenCamera(OpenCameraListener listener, TextureView textureView, TextureView.SurfaceTextureListener surfaceTextureListener) {
             this.mTextureView = textureView;

@@ -44,10 +44,12 @@ public class Parser {
                             nextLine = data.get(nextLineIndex);
                             nextLineIndex++;
                         }
-                        Song.Line nextLineInSong = parseLine(line.split("<"), nextLine, isLastLine);
+                        String[] lineWordsAndTimes = line.split("<");
+                        Song.Line nextLineInSong = parseLine(lineWordsAndTimes, nextLine, isLastLine);
                         song.lines.add(nextLineInSong);
-                        if (lastWordIsUnproportionatelyLong(nextLineInSong.syllables.get(nextLineInSong.syllables.size() - 1)))
-                            song.lines.add(addIntroIndication(nextLineInSong));
+                        if (lastWordIsUnproportionatelyLong(getLineTimeStamp(nextLine), nextLineInSong.to)) {
+                            song.lines.add(addIntroIndication(getLineTimeStamp(nextLine)));
+                        }
                     } else {
                         if (i < data.size() - 1) {
                             song.lines.add(parseHebrewLine(line.split(">"), data.get(i + 1), false));
@@ -63,22 +65,26 @@ public class Parser {
         for (Song.Line line : song.lines)
             if (line.from == 0 && line.syllables.size() > 0)
                 line.from = line.syllables.get(0).from;
-        song.lines.add(0, addIntroIndication(song.lines.get(0)));
+        song.lines.add(0, addIntroIndication(song.lines.get(0).from));
 
         return song;
+    }
+
+    private static boolean lastWordIsUnproportionatelyLong(double parseTimeStamp, double to) {
+        return parseTimeStamp != to;
     }
 
     private static boolean lastWordIsUnproportionatelyLong(Song.Syllable lastWord) {
         return lastWord.to - lastWord.from > 5;
     }
 
-    private static Song.Line addIntroIndication(Song.Line firstLine) {
-        double nextSyllableStartsAt = firstLine.from;
+    private static Song.Line addIntroIndication(double from) {
+        double nextSyllableStartsAt = from;
         Song.Line indicatorLine = new Song.Line();
-        indicatorLine.from = 0;
-        indicatorLine.to = firstLine.from;
+        indicatorLine.from = from - 3;
+        indicatorLine.to = from;
         Song.Syllable syllable;
-        int introSeconds = Math.min(3, (int) firstLine.from);
+        int introSeconds = 3;
         for (int i = 0; i < introSeconds; i++) {
             syllable = new Song.Syllable();
             syllable.text = getIndexIndicators(i + 1) + " ";
@@ -160,15 +166,21 @@ public class Parser {
             }
             if (i < line.length - 1) {
                 endTime = parseTimeStamp(line[i + 1].split(">")[0]);
+
             } else {
                 if (lastLine) {
                     endTime = startTime + 100000;
                 } else {
                     endTime = getLineTimeStamp(nextLine);
                 }
+                if (endTime - startTime > 5) {
+                    syllable.to = endTime - 3.2;
+                    endTime = endTime - 3.2;
+                }
             }
             syllable.from = startTime;
             syllable.to = endTime;
+
             syllable.letters = addLettersToSyllable(syllable);
             currentLine.syllables.add(syllable);
             startTime = endTime;

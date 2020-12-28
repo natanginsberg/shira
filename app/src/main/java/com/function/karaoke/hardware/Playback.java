@@ -139,7 +139,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         setContentView(R.layout.activity_playback);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         playerView = findViewById(R.id.surface_view);
-        if (getIntent().getExtras() != null) {
+        if (getIntent().getExtras().containsKey(PLAYBACK)) {
             getUrisFromIntent();
         } else if (getIntent().getExtras().containsKey(RECORDING)) {
             getUrlsFromIntent();
