@@ -48,7 +48,7 @@ public class Parser {
                         Song.Line nextLineInSong = parseLine(lineWordsAndTimes, nextLine, isLastLine);
                         song.lines.add(nextLineInSong);
                         if (lastWordIsUnproportionatelyLong(getLineTimeStamp(nextLine), nextLineInSong.to)) {
-                            song.lines.add(addIntroIndication(getLineTimeStamp(nextLine)));
+                            song.lines.add(addIntroIndication(getLineTimeStamp(nextLine), false));
                         }
                     } else {
                         if (i < data.size() - 1) {
@@ -65,7 +65,7 @@ public class Parser {
         for (Song.Line line : song.lines)
             if (line.from == 0 && line.syllables.size() > 0)
                 line.from = line.syllables.get(0).from;
-        song.lines.add(0, addIntroIndication(song.lines.get(0).from));
+        song.lines.add(0, addIntroIndication(song.lines.get(0).from, true));
 
         return song;
     }
@@ -78,10 +78,10 @@ public class Parser {
         return lastWord.to - lastWord.from > 5;
     }
 
-    private static Song.Line addIntroIndication(double from) {
+    private static Song.Line addIntroIndication(double from, boolean beginning) {
         double nextSyllableStartsAt = from;
         Song.Line indicatorLine = new Song.Line();
-        indicatorLine.from = from - 3;
+        indicatorLine.from = beginning ? 0 : from - 3;
         indicatorLine.to = from;
         Song.Syllable syllable;
         int introSeconds = 3;
@@ -162,6 +162,13 @@ public class Parser {
                 if (i > 0) {
                     startTime = parseTimeStamp(wordAndTime[0]);
                 }
+                if (wordAndTime[1].equals("$")) {
+                    endTime = getLineTimeStamp(nextLine);
+                    if (endTime - startTime > 5) {
+                        endTime = startTime;
+                    }
+                    break;
+                }
                 syllable.text = wordAndTime[1];
             }
             if (i < line.length - 1) {
@@ -174,8 +181,7 @@ public class Parser {
                     endTime = getLineTimeStamp(nextLine);
                 }
                 if (endTime - startTime > 5) {
-                    syllable.to = endTime - 3.2;
-                    endTime = endTime - 3.2;
+                    endTime = startTime + 2;
                 }
             }
             syllable.from = startTime;

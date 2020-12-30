@@ -145,9 +145,11 @@ public class SingActivity extends AppCompatActivity implements
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-            cameraPreview.setTextureView(mTextureView);
-            cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
-            cameraPreview.connectCamera();
+            if (!cameraClosed) {
+                cameraPreview.setTextureView(mTextureView);
+                cameraPreview.setupCamera(mTextureView.getWidth(), mTextureView.getHeight());
+                cameraPreview.connectCamera();
+            }
         }
 
         @Override
@@ -172,7 +174,7 @@ public class SingActivity extends AppCompatActivity implements
     private boolean cameraOn = false;
     private boolean permissionRequested = false;
     private String timeStamp;
-    private long lengthOfAudioPlayed;
+    private long lengthOfAudioPlayed = 0;
     private SingActivityUI activityUI;
     private int delay;
     private Billing billingSession;
@@ -205,6 +207,9 @@ public class SingActivity extends AppCompatActivity implements
     private boolean cancelled;
     private String language;
     private Handler hdlr;
+    private boolean cameraClosed = false;
+    private boolean startTimerStarted = false;
+    private boolean resumeTimer = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -229,7 +234,7 @@ public class SingActivity extends AppCompatActivity implements
             mKaraokeKonroller.loadAudio(songPlayed);
             createEarphoneReceivers();
         }
-        if (Util.SDK_INT >= 33)
+        if (Util.SDK_INT < 24)
             alertUserThatHeCanNotPause();
 
     }
@@ -410,6 +415,57 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        permissionRequested = false;
+        if (requestCode == CAMERA_CODE) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+                cameraPreview.initiateRecorder();
+            else
+//                    initiateCamera();
+                openCamera();
+        }
+    }
+
+    public void openCamera() {
+        ((SwitchCompat) findViewById(R.id.camera_toggle_button)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean turnCameraOff) {
+                if (!turnCameraOff) {
+                    turnCameraOff();
+                    findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
+                } else {
+                    findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
+                    turnCameraOn();
+                }
+            }
+        });
+        OpenCameraAsync.openCamera(cameraPreview, mTextureView, mSurfaceTextureListener, new OpenCameraAsync.OpenCameraListener() {
+            @Override
+            public void onSuccess() {
+                cameraOn = true;
+            }
+
+            @Override
+            public void onFail() {
+                showFailure(CAMERA_ERROR);
+            }
+        });
+
+    }
+
+    private void turnCameraOn() {
+        openCamera();
+    }
+
+    private void turnCameraOff() {
+        cameraPreview.closeCamera();
+        cameraOn = false;
+    }
+
+
     private void createCameraAndRecorderInstance() {
         cameraPreview = new CameraPreview(SingActivity.this, this);
     }
@@ -423,11 +479,14 @@ public class SingActivity extends AppCompatActivity implements
                     public void onSuccess() {
                         activityUI.hideLoadingIndicator();
                         activityUI.addArtistToScreen();
-                        activityUI.showPlayButton();
+
                         if (!mKaraokeKonroller.loadWords(song.getLines())) {
-                            //todo check if popupi is still open
+                            if (activityUI.isPopupOpened()) {
+                                activityUI.dismissPopup();
+                            }
                             finish();
                         }
+                        activityUI.showPlayButton();
                     }
 
                     @Override
@@ -439,10 +498,14 @@ public class SingActivity extends AppCompatActivity implements
         } else {
             activityUI.hideLoadingIndicator();
             activityUI.addArtistToScreen();
-            activityUI.showPlayButton();
+
             if (!mKaraokeKonroller.loadWords(song.getLines())) {
+                if (activityUI.isPopupOpened()) {
+                    activityUI.dismissPopup();
+                }
                 finish();
             }
+            activityUI.showPlayButton();
         }
         if (null != song) {
 //            addTitleToScreen();
@@ -454,13 +517,25 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void callback(String result) {
-        if (result.equals("yes")) {
-            ending = true;
-            endSong();
-            finish();
-        } else if (result.equals("ok")) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            finish();
+        switch (result) {
+            case "yes":
+                ending = true;
+                endSong();
+                if (activityUI.isPopupOpened()) {
+                    activityUI.dismissPopup();
+                }
+                finish();
+                break;
+            case "ok":
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                if (activityUI.isPopupOpened()) {
+                    activityUI.dismissPopup();
+                }
+                finish();
+                break;
+            case "no":
+                cancelled = false;
+                break;
         }
     }
 
@@ -479,16 +554,6 @@ public class SingActivity extends AppCompatActivity implements
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (Util.SDK_INT >= 33) {
-            pauseSong(findViewById(R.id.sing_song));
-        } else {
-            finishSong();
-        }
-        DialogBox back = DialogBox.newInstance(this, BACK_CODE);
-        back.show(getSupportFragmentManager(), "NoticeDialogFragment");
-    }
 
     public void playback(View view) {
         if (!buttonClicked) {
@@ -513,43 +578,8 @@ public class SingActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
-    private File wrapUpSong() {
-        try {
-            stopRecordingAndSong();
-            File file = cameraPreview.getVideo();
-            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile());
-            setDelay(Uri.fromFile(newlyParsedFile));
-            return newlyParsedFile;
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private void setDelay(Uri uriFromFile) {
-        MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
-        int duration = mp.getDuration();
-        delay = (int) (duration - lengthOfAudioPlayed);
-    }
-
-    private void stopRecordingAndSong() {
-        ending = true;
-        if (mKaraokeKonroller.isPlaying()) {
-
-            mKaraokeKonroller.onStop();
-//            customMediaPlayer.onStop();
-        }
-        if (isRecording) {
-            cameraPreview.stopRecording();
-            isRecording = false;
-            cameraPreview.closeCamera();
-        }
-        activityUI.removeResumeOptionFromPopup();
-    }
-
     private void blurAlbumInBackground() {
-        if (song.getImageResourceFile() != null) {
+        if (song.getImageResourceFile() != null || !song.getImageResourceFile().equals("")) {
             final ImageView tv = findViewById(R.id.album_cover);
             final ViewTreeObserver observer = tv.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -566,19 +596,6 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        permissionRequested = false;
-        if (requestCode == CAMERA_CODE) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-                cameraPreview.initiateRecorder();
-            else
-//                    initiateCamera();
-                openCamera();
-        }
-    }
 
     @Override
     protected void onResume() {
@@ -588,7 +605,7 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         if (!ending && !permissionRequested) {
-            if (Util.SDK_INT >= 33)
+            if (Util.SDK_INT >= 24)
                 pauseSong(this.getCurrentFocus());
             else {
                 finishSong();
@@ -601,7 +618,7 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
             cancelled = true;
             buttonClicked = true;
-            if (Util.SDK_INT >= 33)
+            if (Util.SDK_INT >= 24)
                 pauseSong(view);
             else
                 finishSong();
@@ -609,6 +626,18 @@ public class SingActivity extends AppCompatActivity implements
             buttonClicked = false;
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        if (Util.SDK_INT >= 24) {
+            pauseSong(findViewById(R.id.sing_song));
+        } else {
+            finishSong();
+        }
+        DialogBox back = DialogBox.newInstance(this, BACK_CODE);
+        back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+    }
+
 
     private void showBackDialogBox() {
         DialogBox back = DialogBox.newInstance(this, BACK_CODE);
@@ -634,7 +663,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void playMusic(View view) {
-        if (mKaraokeKonroller.isPrepared() && !timerStarted) {
+        if (mKaraokeKonroller.isPrepared() && !startTimerStarted) {
             restart = false;
             activityUI.setSurfaceForRecording(cameraOn);
             startTimer();
@@ -645,10 +674,10 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.clearLyricsScreen();
         if (Microphone_Plugged_in || bluetoothConnectionExists || bluetoothConnected)
             earphonesUsed = true;
-        ending = false;
-        timerStarted = true;
         final boolean[] prepared = {false};
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        cancelTimer();
+        startTimerStarted = true;
         cTimer = new CountDownTimer(3800, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
@@ -660,6 +689,7 @@ public class SingActivity extends AppCompatActivity implements
             }
 
             public void onFinish() {
+                startTimerStarted = false;
                 cancelTimer();
                 if (cancelled) {
                     cameraPreview.stopRecording();
@@ -675,6 +705,8 @@ public class SingActivity extends AppCompatActivity implements
 
 //                        cameraPreview.stopRecording();
                             lengthOfAudioPlayed = mPlayer.getCurrentPosition();
+                            postParseVideoFile = wrapUpSong();
+//                            mKaraokeKonroller.onPause();
                             isRunning = false;
                             ending = true;
                             finishSong();
@@ -688,6 +720,21 @@ public class SingActivity extends AppCompatActivity implements
             }
         };
         cTimer.start();
+    }
+
+    void cancelTimer() {
+        if (cTimer != null) {
+            cTimer.cancel();
+            cTimer = null;
+        }
+        if (startTimerStarted) {
+            startTimerStarted = false;
+            activityUI.resetScreenForTimer();
+            deleteVideo();
+        } else if (resumeTimer) {
+            resumeTimer = false;
+            activityUI.resetResumeTimer();
+        }
     }
 
     private void setProgressBar() {
@@ -709,10 +756,12 @@ public class SingActivity extends AppCompatActivity implements
                     // Update the progress bar and display the current value in text view
                     hdlr.post(() -> {
                         progressBar.setProgress(i[0]);
-                        int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
-                        int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
-                        @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-                        duration.setText(text);
+                        if (mPlayer != null && mPlayer.isPlaying()) {
+                            int minutes = (mPlayer.getCurrentPosition() / 1000) / 60;
+                            int seconds = (mPlayer.getCurrentPosition() / 1000) % 60;
+                            @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+                            duration.setText(text);
+                        }
                     });
                     try {
                         // Sleep for 1 second to show the progress slowly.
@@ -736,16 +785,11 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     //cancel timer
-    void cancelTimer() {
-        if (cTimer != null)
-            cTimer.cancel();
-        timerStarted = false;
-    }
 
     public void openEndOptions(View view) {
         if (mPlayer != null && mPlayer.getCurrentPosition() / 1000.0 > 2) {
             lengthOfAudioPlayed = mPlayer.getCurrentPosition();
-            if (Util.SDK_INT >= 33) {
+            if (Util.SDK_INT >= 24) {
                 pauseSong(view);
                 openEndOptions(false);
             } else {
@@ -754,13 +798,12 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseSong(View view) {
         if (isRunning)
             activityUI.songPaused();
         isRunning = false;
         mKaraokeKonroller.onPause();
-        if (Util.SDK_INT >= 33) {
+        if (Util.SDK_INT >= 24) {
             if (isRecording) {
                 cameraPreview.pauseRecording();
             }
@@ -772,6 +815,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void startPauseTimerToSaveBattery() {
+        cancelTimer();
         cTimer = new CountDownTimer(120000, 110000) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
@@ -787,22 +831,65 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void finishSong() {
+        cancelTimer();
         if (isRecording) {
-            lengthOfAudioPlayed = mPlayer.getCurrentPosition();
-            openEndOptions(true);
-            postParseVideoFile = wrapUpSong();
+            if (lengthOfAudioPlayed == 0) {
+                lengthOfAudioPlayed = mPlayer.getCurrentPosition();
+                postParseVideoFile = wrapUpSong();
+            }
         }
+        if (lengthOfAudioPlayed != 0) openEndOptions(true);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    public void resumeSong(View view) {
-        startResumeTimer();
+    private void stopRecordingAndSong() {
+        ending = true;
+        if (isRecording) {
+            cameraPreview.stopRecording();
+            isRecording = false;
+            cameraPreview.closeCamera();
+            cameraClosed = true;
+        }
+        if (mKaraokeKonroller.isPlaying()) {
 
+            mKaraokeKonroller.onStop();
+//            customMediaPlayer.onStop();
+        }
+        if (activityUI.isPopupOpened())
+            activityUI.removeResumeOptionFromPopup();
+    }
+
+    private File wrapUpSong() {
+        try {
+            stopRecordingAndSong();
+            File file = cameraPreview.getVideo();
+            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile());
+            setDelay(Uri.fromFile(newlyParsedFile));
+            return newlyParsedFile;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void setDelay(Uri uriFromFile) {
+        MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
+        int duration = mp.getDuration();
+        delay = (int) (duration - lengthOfAudioPlayed);
+    }
+
+
+    public void resumeSong(View view) {
+        if (!resumeTimer)
+            startResumeTimer();
     }
 
 //    public void stopSong
 
     private void startResumeTimer() {
+        cancelTimer();
+        resumeTimer = true;
         cTimer = new CountDownTimer(3800, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
@@ -811,6 +898,7 @@ public class SingActivity extends AppCompatActivity implements
 
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void onFinish() {
+                resumeTimer = false;
                 cancelTimer();
                 if (cancelled) {
                     cancelled = false;
@@ -861,42 +949,6 @@ public class SingActivity extends AppCompatActivity implements
             cameraPreview.getVideo().delete();
     }
 
-
-    public void openCamera() {
-        ((SwitchCompat) findViewById(R.id.camera_toggle_button)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean turnCameraOff) {
-                if (!turnCameraOff) {
-                    turnCameraOff();
-                    findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
-                } else {
-                    findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
-                    turnCameraOn();
-                }
-            }
-        });
-        OpenCameraAsync.openCamera(cameraPreview, mTextureView, mSurfaceTextureListener, new OpenCameraAsync.OpenCameraListener() {
-            @Override
-            public void onSuccess() {
-                cameraOn = true;
-            }
-
-            @Override
-            public void onFail() {
-                showFailure(CAMERA_ERROR);
-            }
-        });
-
-    }
-
-    private void turnCameraOn() {
-        openCamera();
-    }
-
-    private void turnCameraOff() {
-        cameraPreview.closeCamera();
-        cameraOn = false;
-    }
 
     private File getOutputMediaFile() {
         File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);

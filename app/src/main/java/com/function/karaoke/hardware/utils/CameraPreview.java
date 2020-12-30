@@ -52,8 +52,10 @@ public class CameraPreview {
     private CameraDevice.StateCallback mCameraStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
+//            if (!cameraClosed) {
             mCamera = cameraDevice;
             startPreview();
+//            }
         }
 
         @Override
@@ -81,6 +83,8 @@ public class CameraPreview {
         ORIENTATIONS.append(Surface.ROTATION_180, 180);
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
     }
+
+//    private boolean cameraClosed = false;
 
     public File getVideo() {
         return mVideoFile;
@@ -116,6 +120,7 @@ public class CameraPreview {
         if (mCamera != null) {
             mCamera.close();
             stopBackgroundThread();
+//            cameraClosed = true;
             mCamera = null;
         }
     }
@@ -192,6 +197,7 @@ public class CameraPreview {
     }
 
     public void connectCamera() {
+//        cameraClosed = false;
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
         try {
             if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {

@@ -75,7 +75,7 @@
     <string name="sharing_failed">השיתוף נכשל</string>
     <string name="auth_failed">הזיהוי נכשל, תנסה יותר מאוחר</string>
     <string name="error_from_the_beginning_of_sign_in">מצטערים, יש תקלה בשרת</string>
-    <string name="no_pause_body">אזהרה! \n הפסקת השיר במצע תסיים אותו</string>
+    <string name="no_pause_body">אזהרה! הפסקת השיר במצע תסיים אותו</string>
     <string name="no_pause_title">הפסקת השיר</string>
 
 </resources>

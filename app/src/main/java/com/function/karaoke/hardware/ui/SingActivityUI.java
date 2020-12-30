@@ -23,6 +23,7 @@ public class SingActivityUI {
     private final int sdkInt;
     private View popupView;
     private PopupWindow popup;
+    private boolean popupOpened = false;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -69,7 +70,20 @@ public class SingActivityUI {
         view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
     }
 
+    public void resetScreenForTimer() {
+        resetLyricsScreen();
+        showPlayButton();
+        view.findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
+    }
+
+    private void resetLyricsScreen() {
+        view.findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
+    }
+
     public void openEndPopup(Context context, boolean songEnded) {
+        popupOpened = true;
         RelativeLayout viewGroup = view.findViewById(R.id.end_options);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.end_song_options, viewGroup);
@@ -151,6 +165,7 @@ public class SingActivityUI {
     }
 
     public void openTonePopup(Context context) {
+        popupOpened = true;
         RelativeLayout viewGroup = view.findViewById(R.id.tone_picker);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.tone_picker_popup, viewGroup);
@@ -169,9 +184,18 @@ public class SingActivityUI {
     public void dismissPopup() {
         popup.dismiss();
         undimBackground();
+        popupOpened = false;
     }
 
     public void hideLoadingIndicator() {
         view.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+    }
+
+    public void resetResumeTimer() {
+        view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
+    }
+
+    public boolean isPopupOpened() {
+        return popupOpened;
     }
 }

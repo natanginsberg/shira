@@ -53,15 +53,15 @@ public class KaraokeController implements Recorder.IToneListener {
     private final Runnable mUpdater = new Runnable() {
         @Override
         public void run() {
-            mHandler.postDelayed(mUpdater, 50);
+            mHandler.postDelayed(mUpdater, 100);
             double position = mPlayer.getCurrentPosition() / 1000.0;
             if (position <= mPlayer.getDuration() / 1000.0) {
                 if ((mPlayer.getDuration() / 1000.0) - position < 0.15) {
                     listener.onSongEnded();
 //                    finishPlaying();
                     mHandler.removeCallbacks(mUpdater);
-                }
-                updateUI();
+                } else
+                    updateUI();
             }
 
         }
@@ -126,6 +126,7 @@ public class KaraokeController implements Recorder.IToneListener {
             mPlayer.setOnPreparedListener(mediaPlayer -> {
                 prepared = true;
                 mPlayer.seekTo(0);
+                //todo show play_button here
             });
             mPlayer.prepareAsync();
         } catch (IOException e) {
@@ -136,7 +137,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     @SuppressLint("SetTextI18n")
     private void updateUI() {
-        if (mPlayer.isPlaying()) {
+        if (mPlayer != null && mPlayer.isPlaying()) {
             double position = mPlayer.getCurrentPosition() / 1000.0;
 
             if (null != mCurrentLine && mCurrentLine.isIn(position)) {
@@ -292,7 +293,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void onStop() {
         mPlayer.release();
-        playing = true;
+        playing = false;
         mHandler.removeCallbacks(mUpdater);
 //        mRecorder.release();
     }
