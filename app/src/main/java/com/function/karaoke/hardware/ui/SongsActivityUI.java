@@ -48,9 +48,9 @@ public class SongsActivityUI {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
         if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold, context.getTheme()));
+            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold));
         } else
-            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(context.getResources().getColor(R.color.gold, context.getTheme()));
+            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(context.getResources().getColor(R.color.gold));
         setSignInOrOut(isUserSignedIn);
 
         placePopupOnScreen();
@@ -66,13 +66,20 @@ public class SongsActivityUI {
             signInOrOutButton.setText(context.getResources().getText(R.string.sign_in));
     }
 
-    public void setEmailAddressIfSignedIn(String emailAddressIfSignedIn){
-        ((TextView)popupView.findViewById(R.id.email_address)).setText(emailAddressIfSignedIn);
+    public void setEmailAddressIfSignedIn(String emailAddressIfSignedIn) {
+        ((TextView) popupView.findViewById(R.id.email_address)).setText(emailAddressIfSignedIn);
     }
 
     private void placePopupOnScreen() {
         popup = new PopupWindow(context);
         popup.setFocusable(true);
+        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                view.getOverlay().clear();
+
+            }
+        });
         setPopupAttributes(popup, popupView);
         int[] location = new int[2];
         view.findViewById(R.id.settings_button).getLocationOnScreen(location);
@@ -205,14 +212,13 @@ public class SongsActivityUI {
     }
 
     private void setGenreClicked(TextView textView) {
-        textView.setTextColor(context.getResources().getColor(R.color.gold, context.getTheme()));
+        textView.setTextColor(context.getResources().getColor(R.color.gold));
         genreClicked = textView;
     }
 
-    public void noRecordingsTextDisplay() {
+    public void noRecordings() {
         view.findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
-        ((TextView) view.findViewById(R.id.no_recordings_text)).setText(R.string.no_recordings);
-
+        view.findViewById(R.id.list).setVisibility(View.INVISIBLE);
     }
 
     public void hideGenresAndSearch() {
@@ -223,6 +229,14 @@ public class SongsActivityUI {
     public void showGenresAndSearch() {
         view.findViewById(R.id.genre_scrolling).setVisibility(View.VISIBLE);
         view.findViewById(R.id.open_search).setVisibility(View.VISIBLE);
+    }
+
+    public void allSongsShow() {
+        view.findViewById(R.id.list).setVisibility(View.VISIBLE);
+        ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(context.getResources().getColor(R.color.gold));
+        ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.sing_up_hover));
+        ((TextView) view.findViewById(R.id.display_text)).setText(R.string.all_songs);
+        view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
     }
 
 

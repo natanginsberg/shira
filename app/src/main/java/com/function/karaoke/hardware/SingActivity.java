@@ -1052,22 +1052,19 @@ public class SingActivity extends AppCompatActivity implements
             saveToCloud(saveItems);
 
             Task<ShortDynamicLink> link = ShareLink.createLink(recording);
-            link.addOnCompleteListener(new OnCompleteListener<ShortDynamicLink>() {
-                @Override
-                public void onComplete(@NonNull Task<ShortDynamicLink> task) {
-                    if (task.isSuccessful()) {
-                        // Short link created
-                        Uri shortLink = task.getResult().getShortLink();
-                        Uri flowchartLink = task.getResult().getPreviewLink();
-                        String link = shortLink.toString();
-                        sendDataThroughIntent(link);
+            link.addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // Short link created
+                    Uri shortLink = task.getResult().getShortLink();
+                    Uri flowchartLink = task.getResult().getPreviewLink();
+                    String link1 = shortLink.toString();
+                    sendDataThroughIntent(link1);
 
 
-                    } else {
-                        showFailure(SHARING_ERROR);
-                        // Error
-                        // ...
-                    }
+                } else {
+                    showFailure(SHARING_ERROR);
+                    // Error
+                    // ...
                 }
             });
 
@@ -1080,59 +1077,53 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void startBilling(int funcToCall) {
-        billingSession = new Billing(SingActivity.this, new PurchasesUpdatedListener() {
-            @Override
-            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
+        billingSession = new Billing(SingActivity.this, (billingResult, purchases) -> {
 
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
-                        && purchases != null) {
-                    for (Purchase purchase : purchases) {
-                        keepVideo = true;
-                        saveSongToTempJsonFile();
-                        if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
+                    && purchases != null) {
+                for (Purchase purchase : purchases) {
+                    keepVideo = true;
+                    saveSongToTempJsonFile();
+                    if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 //                          saveSongToJsonFile();
-                            itemAcquired = true;
-                            billingSession.handlePurchase(purchase);
+                        itemAcquired = true;
+                        billingSession.handlePurchase(purchase);
 
-                        }
-                        // the credit card is taking time
                     }
-                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-                    deletePendingJsonFile();
-                    keepVideo = false;
-                    Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
-
-                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
-                    deletePendingJsonFile();
-                    keepVideo = false;
-                    Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
-
-                } else {
-                    deletePendingJsonFile();
-                    keepVideo = false;
-                    Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
+                    // the credit card is taking time
                 }
+            } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                deletePendingJsonFile();
+                keepVideo = false;
+                Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
+
+            } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
+                deletePendingJsonFile();
+                keepVideo = false;
+                Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
+
+            } else {
+                deletePendingJsonFile();
+                keepVideo = false;
+                Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
             }
-        }, true, new ConsumeResponseListener() {
-            @Override
-            public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String purchaseToken) {
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    File jsonFile = renameJsonPendingFile();
-                    userService.addOneToUserShares(new UserService.UserUpdateListener() {
-                        @Override
-                        public void onSuccess() {
-                        }
+        }, true, (billingResult, purchaseToken) -> {
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                File jsonFile = renameJsonPendingFile();
+                userService.addOneToUserShares(new UserService.UserUpdateListener() {
+                    @Override
+                    public void onSuccess() {
+                    }
 
-                        @Override
-                        public void onFailure() {
+                    @Override
+                    public void onFailure() {
 
-                        }
-                    });
-                    if (funcToCall == SAVE)
-                        save(jsonFile);
-                    else
-                        share(jsonFile);
-                }
+                    }
+                });
+                if (funcToCall == SAVE)
+                    save(jsonFile);
+                else
+                    share(jsonFile);
             }
         });
 
@@ -1236,13 +1227,6 @@ public class SingActivity extends AppCompatActivity implements
             cloudUpload.saveToCloud(new File(saveItems.getFile()));
         }
     }
-
-    private void deleteVideo(File file) {
-        if (file.delete()) {
-            int k = 0;
-        }
-    }
-
 
 }
 

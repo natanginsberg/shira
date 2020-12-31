@@ -27,7 +27,6 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
-import com.function.karaoke.hardware.activities.Model.RecordingDisplay;
 import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
@@ -78,6 +77,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private SongsActivityUI songsActivityUI;
     private String currentLanguage;
     private int clicked = 0;
+    private boolean differentSongsDisplayed = true;
 
 
     /**
@@ -189,10 +189,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 recordingDB = new RecordingDB(personalRecordings);
                 view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
                 displayPersonalSongs();
+                differentSongsDisplayed = true;
             } else {
-                currentDatabaseSongs.updateSongs(new ArrayList<>());
-                mAdapter.notifyDataSetChanged();
-                songsActivityUI.noRecordingsTextDisplay();
+//                currentDatabaseSongs.updateSongs(new ArrayList<>());
+//                mAdapter.notifyDataSetChanged();
+                differentSongsDisplayed = false;
+                songsActivityUI.noRecordings();
+
             }
             songsActivityUI.hideGenresAndSearch();
             popup.dismiss();
@@ -235,9 +238,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void displayAllSongs() {
-        recyclerView.setAdapter(mAdapter);
-        mAdapter.setData(songsDb.getSongs(), getActivity().getResources().getString(R.string.play));
-        mAdapter.notifyDataSetChanged();
+        if (differentSongsDisplayed) {
+            recyclerView.setAdapter(mAdapter);
+            mAdapter.setData(songsDb.getSongs(), getActivity().getResources().getString(R.string.play));
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     private void displayPersonalSongs() {
@@ -311,18 +316,18 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView = songsActivityUI.getPopupView();
         popup = songsActivityUI.getPopup();
         addPopupListeners();
-        songsActivityUI.getPopup().setOnDismissListener(this::undimBackground);
+//        songsActivityUI.getPopup().setOnDismissListener(this::undimBackground);
         popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
             public void onSwipeTop() {
             }
 
             public void onSwipeRight() {
-                if (currentLanguage.equals("iw"))
+                if (Locale.getDefault().getLanguage().equals("iw"))
                     popup.dismiss();
             }
 
             public void onSwipeLeft() {
-                if (!currentLanguage.equals("iw"))
+                if (!Locale.getDefault().getLanguage().equals("iw"))
                     popup.dismiss();
             }
 
@@ -347,10 +352,14 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.policy).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                clicked++;
-                if (clicked == 5) {
-                    mListener.openAdminSide();
-                    clicked = 0;
+                if (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
+                        authenticationDriver.getUserEmail().equals("natanginsberg@gmail.com") ||
+                        authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com")) {
+                    clicked++;
+                    if (clicked == 5) {
+                        mListener.openAdminSide();
+                        clicked = 0;
+                    }
                 }
             }
         });
@@ -386,18 +395,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
                 contentsDisplayed = ALL_SONGS_DISPLAYED;
                 displayAllSongs();
-                ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
-                ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(getResources().getColor(R.color.sing_up_hover));
-                ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.all_songs);
-                this.view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                songsActivityUI.allSongsShow();
                 songsActivityUI.showGenresAndSearch();
+                popup.dismiss();
             }
         });
     }
 
     private void myRecordingsToDisplayListener() {
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
-            if (authenticationDriver.isSignIn()) {
+            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
                 if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
                     contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
                     AuthenticationDriver authenticationDriver = new AuthenticationDriver();
@@ -413,6 +420,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 }
             } else {
                 mListener.alertUserToSignIn();
+
             }
         });
     }
