@@ -104,7 +104,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private void checkForSignedInUser() {
-        if (authenticationDriver.getUserUid() != null && !authenticationDriver.getUserEmail().equals("")) {
+        if (authenticationDriver.getUserEmail() != null && authenticationDriver.getUserUid() != null && !authenticationDriver.getUserEmail().equals("")) {
             Intent intent = new Intent(this, SongsActivity.class);
             startActivity(intent);
         } else

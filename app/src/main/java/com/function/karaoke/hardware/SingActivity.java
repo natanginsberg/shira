@@ -38,7 +38,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -46,10 +45,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.billingclient.api.BillingClient;
-import com.android.billingclient.api.BillingResult;
-import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
-import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -84,7 +80,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class SingActivity extends AppCompatActivity implements
@@ -185,7 +180,7 @@ public class SingActivity extends AppCompatActivity implements
     private DisplayMetrics metrics;
     private boolean measured = false;
     private BroadcastReceiver mReceiver;
-    private boolean Microphone_Plugged_in = false;
+    private boolean microphonePluggedIn = false;
     private boolean ml;
     private boolean bluetoothConnected = false;
     private boolean bluetoothConnectionExists = false;
@@ -210,6 +205,9 @@ public class SingActivity extends AppCompatActivity implements
     private boolean cameraClosed = false;
     private boolean startTimerStarted = false;
     private boolean resumeTimer = false;
+    private boolean songStarted = false;
+    private BroadcastReceiver bReceiver;
+    private boolean prompted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -314,7 +312,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void createBluetoothReceiver() {
-        mReceiver = new BroadcastReceiver() {
+        bReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -342,11 +340,11 @@ public class SingActivity extends AppCompatActivity implements
         receiverFilter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         receiverFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         receiverFilter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        registerReceiver(mReceiver, receiverFilter);
+        registerReceiver(bReceiver, receiverFilter);
     }
 
     private void hideHeadphonesIfNothingElseConnected() {
-        if (!Microphone_Plugged_in && !bluetoothConnectionExists && !bluetoothConnected)
+        if (!microphonePluggedIn && !bluetoothConnectionExists && !bluetoothConnected)
             findViewById(R.id.headphones).setVisibility(View.INVISIBLE);
     }
 
@@ -363,14 +361,14 @@ public class SingActivity extends AppCompatActivity implements
                 if (Intent.ACTION_HEADSET_PLUG.equals(action)) {
                     iii = intent.getIntExtra("state", -1);
                     if (Integer.valueOf(iii) == 0) {
-                        Microphone_Plugged_in = false;
+                        microphonePluggedIn = false;
                         hideHeadphonesIfNothingElseConnected();
 //                        Toast.makeText(getApplicationContext(), "microphone not plugged in", Toast.LENGTH_LONG).show();
-                        if (!bluetoothConnectionExists && !bluetoothConnected)
+                        if (!bluetoothConnectionExists && !bluetoothConnected && !prompted)
                             promptUserToConnectEarphones();
                     }
                     if (Integer.valueOf(iii) == 1) {
-                        Microphone_Plugged_in = true;
+                        microphonePluggedIn = true;
                         showHeadphones();
 //                        Toast.makeText(getApplicationContext(), "microphone plugged in", Toast.LENGTH_LONG).show();
                     }
@@ -382,6 +380,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void promptUserToConnectEarphones() {
+        prompted = true;
         DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
         attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
     }
@@ -672,8 +671,7 @@ public class SingActivity extends AppCompatActivity implements
 
     void startTimer() {
         activityUI.clearLyricsScreen();
-        if (Microphone_Plugged_in || bluetoothConnectionExists || bluetoothConnected)
-            earphonesUsed = true;
+
         final boolean[] prepared = {false};
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         cancelTimer();
@@ -712,6 +710,9 @@ public class SingActivity extends AppCompatActivity implements
                             finishSong();
                         }
                     });
+                    earphonesUsed = microphonePluggedIn || bluetoothConnectionExists || bluetoothConnected;
+                    //todo unregister
+//                    unregisterReceivers();
                     isRunning = true;
                     setProgressBar();
                     isRecording = true;
@@ -720,6 +721,11 @@ public class SingActivity extends AppCompatActivity implements
             }
         };
         cTimer.start();
+    }
+
+    private void unregisterReceivers() {
+        unregisterReceiver(mReceiver);
+        unregisterReceiver(bReceiver);
     }
 
     void cancelTimer() {
@@ -919,7 +925,6 @@ public class SingActivity extends AppCompatActivity implements
 
     public void returnToSong(View view) {
         activityUI.dismissPopup();
-
     }
 
     public void playAgain(View view) {
