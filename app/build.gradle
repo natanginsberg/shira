@@ -8,8 +8,8 @@ android {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 101
-        versionName "1.158" +
+        versionCode 102
+        versionName "1.1581" +
                 "" +
                 "" +
                 "" +

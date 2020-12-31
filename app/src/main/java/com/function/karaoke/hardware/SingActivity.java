@@ -104,6 +104,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final String SING_ACTIVITY = "sing activity";
     private static final String CALLBACK = "callback";
     private static final int EARPHONES = 121;
+    private static final int WATCH_RECORDING = 131;
     private final int CAMERA_CODE = 2;
     private final Target target = new Target() {
         @Override
@@ -196,6 +197,8 @@ public class SingActivity extends AppCompatActivity implements
                         saveRecordingToTheCloud(this.getCurrentFocus());
                     } else if (result.getResultCode() == SHARE) {
                         share(this.getCurrentFocus());
+                    } else if (result.getResultCode() == WATCH_RECORDING) {
+                        openNewIntent(Uri.fromFile(postParseVideoFile));
                     }
                 }
             });
@@ -558,10 +561,14 @@ public class SingActivity extends AppCompatActivity implements
         if (!buttonClicked) {
 //            view.setBackgroundColor(getResources().getColor(R.color.gold, getTheme()));
             buttonClicked = true;
+
             if (postParseVideoFile == null)
                 postParseVideoFile = wrapUpSong();
             buttonClicked = false;
-            openNewIntent(Uri.fromFile(postParseVideoFile));
+            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
+                    !authenticationDriver.getUserEmail().equals(""))
+                openNewIntent(Uri.fromFile(postParseVideoFile));
+            else launchSignIn(WATCH_RECORDING);
         }
 //        view.setBackgroundColor(getResources().getColor(R.color.appColor, getTheme()));
     }
@@ -704,7 +711,11 @@ public class SingActivity extends AppCompatActivity implements
 //                        cameraPreview.stopRecording();
                             lengthOfAudioPlayed = mPlayer.getCurrentPosition();
                             postParseVideoFile = wrapUpSong();
+                            if (lengthOfAudioPlayed == 0)
+                                throw new IndexOutOfBoundsException("for some reason not working length 0");
 //                            mKaraokeKonroller.onPause();
+                            if (postParseVideoFile==null)
+                                throw new OutOfMemoryError("the file is not created");
                             isRunning = false;
                             ending = true;
                             finishSong();
