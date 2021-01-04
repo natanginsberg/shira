@@ -161,7 +161,8 @@ public class JsonHandler {
         if (jsonFileFolder.listFiles() != null)
             for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
                 if (child.getName().contains(name) && child.getName().contains("artist")) {
-                    child.delete();
+                    if (!child.delete())
+                        throw new OutOfMemoryError("artist file not deleted");
                 }
     }
 

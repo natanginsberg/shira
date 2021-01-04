@@ -24,6 +24,7 @@ public class SingActivityUI {
     private View popupView;
     private PopupWindow popup;
     private boolean popupOpened = false;
+    private TextView loadingAmount;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -87,6 +88,7 @@ public class SingActivityUI {
         RelativeLayout viewGroup = view.findViewById(R.id.end_options);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.end_song_options, viewGroup);
+        loadingAmount = popupView.findViewById(R.id.save_recording);
         if (songEnded) {
             popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
         }
@@ -197,5 +199,15 @@ public class SingActivityUI {
 
     public boolean isPopupOpened() {
         return popupOpened;
+    }
+
+
+    @SuppressLint("SetTextI18n")
+    public void showProgress(double progress) {
+        loadingAmount.setText(progress + "%");
+    }
+
+    public View getPopupView() {
+        return popupView;
     }
 }

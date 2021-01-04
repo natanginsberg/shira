@@ -10,6 +10,8 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -37,7 +39,6 @@ import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.StorageAdder;
-import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
 import com.function.karaoke.hardware.utils.ShareLink;
@@ -167,6 +168,11 @@ public class SongsActivity
                                 public void onFailure() {
 
                                 }
+
+                                @Override
+                                public void onProgress(int progress) {
+                                    ((TextView) findViewById(R.id.loading_percent)).setText(progress + "%");
+                                }
                             });
                             cloudUpload.saveToCloud(new File(saveItems.getFile()));
 
@@ -216,31 +222,45 @@ public class SongsActivity
     }
 
     private void uploadRecording(StorageAdder storageAdder, SaveItems saveItems, File folder) {
-        NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
+//        NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
+//            @Override
+//            public void onSuccess() {
+        storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
             @Override
             public void onSuccess() {
-                storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
-                    @Override
-                    public void onSuccess() {
-                        File recordingFile = (new File(saveItems.getFile()));
-                        recordingFile.delete();
-                        deleteJsonFile(folder, recordingFile.getName());
+                File recordingFile = (new File(saveItems.getFile()));
+                recordingFile.delete();
+                deleteJsonFile(folder, recordingFile.getName());
 //                        deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-                    }
-                });
             }
 
             @Override
-            public void onFail() {
-                int k = 0;
+            public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+            }
+
+            @Override
+            public void progressUpdate(double progress) {
+                findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
+                ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
+                if (progress == 100.0){
+                    findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
+                }
             }
         });
+//            }
+//
+//            @Override
+//            public void onFail() {
+//                int k = 0;
+//            }
+//
+//            @Override
+//            public void onProgress(int percent) {
+//                ((TextView) (findViewById(R.id.loading_percent))).setText(percent + "%");
+//            }
+//        });
 
     }
 

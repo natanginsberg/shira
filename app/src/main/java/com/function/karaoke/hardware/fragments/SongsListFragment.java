@@ -352,9 +352,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.policy).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
+                if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null
+                        && (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
                         authenticationDriver.getUserEmail().equals("natanginsberg@gmail.com") ||
-                        authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com")) {
+                        authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com"))) {
                     clicked++;
                     if (clicked == 5) {
                         mListener.openAdminSide();

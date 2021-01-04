@@ -56,6 +56,7 @@ import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.tasks.OpenCameraAsync;
@@ -281,9 +282,9 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void setAudioAndDismissPopup() {
-        mKaraokeKonroller.loadAudio(songPlayed);
         activityUI.dismissPopup();
         createEarphoneReceivers();
+        mKaraokeKonroller.loadAudio(songPlayed);
     }
 
     public void manTone(View view) {
@@ -479,8 +480,6 @@ public class SingActivity extends AppCompatActivity implements
                 NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
                     @Override
                     public void onSuccess() {
-                        activityUI.hideLoadingIndicator();
-                        activityUI.addArtistToScreen();
 
                         if (!mKaraokeKonroller.loadWords(song.getLines())) {
                             if (activityUI.isPopupOpened()) {
@@ -488,6 +487,8 @@ public class SingActivity extends AppCompatActivity implements
                             }
                             finish();
                         }
+                        activityUI.hideLoadingIndicator();
+                        activityUI.addArtistToScreen();
                         activityUI.showPlayButton();
                     }
 
@@ -498,8 +499,6 @@ public class SingActivity extends AppCompatActivity implements
                 });
             }
         } else {
-            activityUI.hideLoadingIndicator();
-            activityUI.addArtistToScreen();
 
             if (!mKaraokeKonroller.loadWords(song.getLines())) {
                 if (activityUI.isPopupOpened()) {
@@ -507,6 +506,8 @@ public class SingActivity extends AppCompatActivity implements
                 }
                 finish();
             }
+            activityUI.hideLoadingIndicator();
+            activityUI.addArtistToScreen();
             activityUI.showPlayButton();
         }
         if (null != song) {
@@ -585,7 +586,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void blurAlbumInBackground() {
-        if (song.getImageResourceFile() != null || !song.getImageResourceFile().equals("")) {
+        if (song.getImageResourceFile() != null && !song.getImageResourceFile().equals("")) {
             final ImageView tv = findViewById(R.id.album_cover);
             final ViewTreeObserver observer = tv.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -714,7 +715,7 @@ public class SingActivity extends AppCompatActivity implements
                             if (lengthOfAudioPlayed == 0)
                                 throw new IndexOutOfBoundsException("for some reason not working length 0");
 //                            mKaraokeKonroller.onPause();
-                            if (postParseVideoFile==null)
+                            if (postParseVideoFile == null)
                                 throw new OutOfMemoryError("the file is not created");
                             isRunning = false;
                             ending = true;
@@ -1007,6 +1008,7 @@ public class SingActivity extends AppCompatActivity implements
                 if (freeShare) {
                     keepVideo = true;
                     itemAcquired = true;
+                    //todo differ between share and save
                     userService.addOneToUserShares(new UserService.UserUpdateListener() {
                         @Override
                         public void onSuccess() {
@@ -1142,7 +1144,7 @@ public class SingActivity extends AppCompatActivity implements
                     share(jsonFile);
             }
         });
-
+        buttonClicked = false;
     }
 
     private void deletePendingJsonFile() {
@@ -1200,9 +1202,11 @@ public class SingActivity extends AppCompatActivity implements
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
                 if (!itemAcquired)
                     checkIfUserHasFreeAcquisition(SAVE);
-            } else
+            } else {
                 launchSignIn(SAVE);
-            buttonClicked = false;
+                buttonClicked = false;
+            }
+
         }
     }
 
@@ -1239,9 +1243,19 @@ public class SingActivity extends AppCompatActivity implements
                 public void onFailure() {
 
                 }
+
+                @Override
+                public void onProgress(int progress){
+                    activityUI.showProgress(progress);
+                }
             });
             cloudUpload.saveToCloud(new File(saveItems.getFile()));
+
         }
+    }
+
+    private void changeText() {
+        ((TextView) activityUI.getPopupView().findViewById(R.id.save_recording)).setText("hello");
     }
 
 }

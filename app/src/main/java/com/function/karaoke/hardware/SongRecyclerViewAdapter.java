@@ -30,9 +30,9 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private static final Comparator<SongDisplay> mComparator = new Comparator<SongDisplay>() {
         @Override
         public int compare(SongDisplay a, SongDisplay b) {
-            if (!a.getArtist().equalsIgnoreCase(b.getArtist()))
-                return a.getArtist().compareToIgnoreCase(b.getArtist());
-            return a.getTitle().compareToIgnoreCase(b.getTitle());
+            if (!a.getTitle().equalsIgnoreCase(b.getTitle()))
+                return a.getTitle().compareToIgnoreCase(b.getTitle());
+            return a.getArtist().compareToIgnoreCase(b.getArtist());
         }
     };
 

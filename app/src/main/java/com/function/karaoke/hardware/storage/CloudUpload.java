@@ -1,7 +1,6 @@
 package com.function.karaoke.hardware.storage;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.JsonHandler;
 
 import java.io.File;
@@ -34,29 +33,41 @@ public class CloudUpload {
             @Override
             public void onSuccess() {
                 deleteArtistFile(path);
-                NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
+//                NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
+//                    @Override
+//                    public void onSuccess() {
+                storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
                     @Override
                     public void onSuccess() {
-                        storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
-                            @Override
-                            public void onSuccess() {
-                                deleteJsonFile(path.getName());
-                                uploadListener.onSuccess(path);
-                            }
-
-                            @Override
-                            public void onFailure() {
-
-                            }
-                        });
+                        deleteJsonFile(path.getName());
+                        uploadListener.onSuccess(path);
                     }
 
                     @Override
-                    public void onFail() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                    public void onFailure() {
+
                     }
+
+                    @Override
+                    public void progressUpdate(double progress) {
+                        uploadListener.onProgress((int) progress);
+                    }
+
                 });
             }
+
+//                    @Override
+//                    public void onFail() {
+////                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+//                    }
+//
+//                    @Override
+//                    public void onProgress(int percent){
+//                        uploadListener.onProgress(percent);
+//                    }
+//
+//                });
+//            }
 
             @Override
             public void onFailure() {
@@ -81,6 +92,8 @@ public class CloudUpload {
         void onSuccess(File file);
 
         void onFailure();
+
+        void onProgress(int progress);
     }
 
 }

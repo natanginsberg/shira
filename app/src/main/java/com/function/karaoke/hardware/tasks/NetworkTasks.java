@@ -133,12 +133,14 @@ public class NetworkTasks extends Fragment {
         protected UploadToWasabi.Result doInBackground(StorageAdder... drivers) {
             UploadToWasabi.Result result = null;
             if (!isCancelled() && drivers != null) {
-                try {
-                    drivers[0].uploadFile();
-                    result = new UploadToWasabi.Result("Success");
-                } catch (Exception e) {
-                    result = new UploadToWasabi.Result(e);
-                }
+                drivers[0].uploadFile(new StorageAdder.UploadProgressListener() {
+                    @Override
+                    public void progressUpdate(double progress) {
+                        publishProgress((int) (100 * progress));
+                    }
+                });
+                result = new UploadToWasabi.Result("Success");
+
             }
             return result;
         }
@@ -149,6 +151,12 @@ public class NetworkTasks extends Fragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... percent) {
+            listener.onProgress(percent[0]);
+
         }
 
         /**
@@ -195,6 +203,8 @@ public class NetworkTasks extends Fragment {
         void onSuccess();
 
         void onFail();
+
+        void onProgress(int progress);
     }
 
 }

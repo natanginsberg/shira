@@ -269,9 +269,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     }
 
     private void addReverb(int audioSessionId) {
-        System.out.println("this is the sessio id " + player.getAudioSessionId());
         PresetReverb reverb = new PresetReverb(1, audioSessionId);
-        reverb.setPreset(PresetReverb.PRESET_SMALLROOM);
+        reverb.setPreset(PresetReverb.PRESET_LARGEHALL);
         reverb.setEnabled(true);
         player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(new AuxEffectInfo(reverb.getId(), 1f)).send();
     }

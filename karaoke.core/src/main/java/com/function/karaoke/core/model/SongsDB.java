@@ -27,16 +27,16 @@ public class SongsDB {
         mRoot = root;
     }
 
-    public SongsDB(SongsDB songsDB){
+    public SongsDB(SongsDB songsDB) {
         mRoot = songsDB.mRoot;
         mScanTask = songsDB.mScanTask;
     }
 
     public interface IListener {
         void onScanStarted();
+
         void onListUpdated();
     }
-
 
 
 //    public List<Song> addSongs(){
@@ -61,8 +61,8 @@ public class SongsDB {
     private final HashSet<IListener> mListeners = new HashSet<>();
 
     public void subscribe(IListener listener) {
-        if(mListeners.add(listener))
-            if(null != mScanTask)
+        if (mListeners.add(listener))
+            if (null != mScanTask)
                 listener.onScanStarted();
     }
 
@@ -84,23 +84,23 @@ public class SongsDB {
 
     public void scan() {
         notifyScanStarted();
-        if(null == mRoot || !mRoot.exists()) {
+        if (null == mRoot || !mRoot.exists()) {
             notifyUpdated();
             return;
         }
-        if(null == mScanTask) {
+        if (null == mScanTask) {
             mScanTask = new ScanTask(this).execute(mRoot);
         }
     }
 
-    public void setRoot(File rootDir){
+    public void setRoot(File rootDir) {
         AsyncTask scanTask = mScanTask;
-        if(null != scanTask)
+        if (null != scanTask)
             scanTask.cancel(true);
         mScanTask = null;
         mSongs.clear();
         mRoot = rootDir;
-        if(null != scanTask)
+        if (null != scanTask)
             scan();
     }
 
@@ -111,7 +111,7 @@ public class SongsDB {
         notifyUpdated();
     }
 
-    public void updateSongs(List<Song> songs){
+    public void updateSongs(List<Song> songs) {
         songsUpdated(songs);
     }
 
@@ -131,7 +131,7 @@ public class SongsDB {
         @Override
         protected List<Song> doInBackground(File... roots) {
             List<Song> res = new LinkedList<>();
-            for(File rootDir : roots) {
+            for (File rootDir : roots) {
                 if (isCancelled())
                     return Collections.emptyList();
                 File[] listFiles = rootDir.listFiles(mDirFilter);
@@ -174,10 +174,10 @@ public class SongsDB {
         @Override
         protected void onPostExecute(List<Song> songs) {
             super.onPostExecute(songs);
-            if(isCancelled())
+            if (isCancelled())
                 return;
             SongsDB listener = mListener.get();
-            if(null != listener)
+            if (null != listener)
                 listener.songsUpdated(songs);
         }
 
@@ -185,7 +185,7 @@ public class SongsDB {
         protected void onCancelled(List<Song> songs) {
             super.onCancelled(songs);
             SongsDB listener = mListener.get();
-            if(null != listener)
+            if (null != listener)
                 listener.songsUpdated(songs);
         }
     }

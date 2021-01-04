@@ -56,14 +56,13 @@ public class KaraokeController implements Recorder.IToneListener {
             mHandler.postDelayed(mUpdater, 100);
             double position = mPlayer.getCurrentPosition() / 1000.0;
             if (position <= mPlayer.getDuration() / 1000.0) {
-                if ((mPlayer.getDuration() / 1000.0) - position < 0.15) {
+                if ((mPlayer.getDuration() / 1000.0) - position < 0.4) {
                     listener.onSongEnded();
 //                    finishPlaying();
                     mHandler.removeCallbacks(mUpdater);
                 } else
                     updateUI();
             }
-
         }
     };
     private Context context;
@@ -128,7 +127,7 @@ public class KaraokeController implements Recorder.IToneListener {
                 mPlayer.seekTo(0);
                 //todo show play_button here
             });
-            mPlayer.prepareAsync();
+            mPlayer.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
