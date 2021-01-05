@@ -37,7 +37,6 @@ import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
-import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
@@ -157,29 +156,29 @@ public class SongsActivity
                     if (child.getName().contains("artist")) {
                     } else {
                         SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
-                        if (artistFileExists(child, listOfAllFiles)) {
-                            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
-                                @Override
-                                public void onSuccess(File file) {
-                                    deleteVideo(file);
-                                }
-
-                                @Override
-                                public void onFailure() {
-
-                                }
-
-                                @Override
-                                public void onProgress(int progress) {
-                                    ((TextView) findViewById(R.id.loading_percent)).setText(progress + "%");
-                                }
-                            });
-                            cloudUpload.saveToCloud(new File(saveItems.getFile()));
-
-                        } else {
-                            StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
-                            uploadRecording(storageAdder, saveItems, folder);
-                        }
+//                        if (artistFileExists(child, listOfAllFiles)) {
+//                            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
+//                                @Override
+//                                public void onSuccess(File file) {
+//                                    deleteVideo(file);
+//                                }
+//
+//                                @Override
+//                                public void onFailure() {
+//
+//                                }
+//
+//                                @Override
+//                                public void onProgress(int progress) {
+//                                    ((TextView) findViewById(R.id.loading_percent)).setText(progress + "%");
+//                                }
+//                            });
+//                            cloudUpload.saveToCloud(new File(saveItems.getFile()));
+//
+//                        } else {
+                        StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
+                        uploadRecording(storageAdder, saveItems, folder);
+//                        }
 
                     }
                 }
@@ -242,10 +241,12 @@ public class SongsActivity
 
             @Override
             public void progressUpdate(double progress) {
-                findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
-                ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
-                if (progress == 100.0){
-                    findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
+                if (findViewById(R.id.loading_percent) != null) {
+                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
+                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
+                    if (progress == 100.0) {
+                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
+                    }
                 }
             }
         });

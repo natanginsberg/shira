@@ -29,32 +29,32 @@ public class CloudUpload {
     public void saveToCloud(File path) {
 //        JsonCreator.createJsonObject(path, recording, folder);
         storageAdder = new StorageAdder(path);
-        ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
-            @Override
-            public void onSuccess() {
-                deleteArtistFile(path);
+//        ArtistService artistService = new ArtistService(new ArtistService.ArtistServiceListener() {
+//            @Override
+//            public void onSuccess() {
+//                deleteArtistFile(path);
 //                NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
 //                    @Override
 //                    public void onSuccess() {
-                storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
-                    @Override
-                    public void onSuccess() {
-                        deleteJsonFile(path.getName());
-                        uploadListener.onSuccess(path);
-                    }
-
-                    @Override
-                    public void onFailure() {
-
-                    }
-
-                    @Override
-                    public void progressUpdate(double progress) {
-                        uploadListener.onProgress((int) progress);
-                    }
-
-                });
+        storageAdder.uploadRecording(recording, new StorageAdder.UploadListener() {
+            @Override
+            public void onSuccess() {
+                deleteJsonFile(path.getName());
+                uploadListener.onSuccess(path);
             }
+
+            @Override
+            public void onFailure() {
+
+            }
+
+            @Override
+            public void progressUpdate(double progress) {
+                uploadListener.onProgress((int) progress);
+            }
+
+        });
+    }
 
 //                    @Override
 //                    public void onFail() {
@@ -69,13 +69,13 @@ public class CloudUpload {
 //                });
 //            }
 
-            @Override
-            public void onFailure() {
-                int k = 0;
-            }
-        });
-        artistService.addDownloadToArtist(artist);
-    }
+//            @Override
+//            public void onFailure() {
+//                int k = 0;
+//            }
+//        });
+//        artistService.addDownloadToArtist(artist);
+//}
 
     private void deleteArtistFile(File path) {
         JsonHandler.deleteArtistFile(appFolder, path.getName());

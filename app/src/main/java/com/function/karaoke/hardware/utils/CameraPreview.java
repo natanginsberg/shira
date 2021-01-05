@@ -273,7 +273,7 @@ public class CameraPreview {
 
     private void setupMediaRecorder() {
         mMediaRecorder = new MediaRecorder();
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH);
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_720P);
         if (mCamera != null) {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }

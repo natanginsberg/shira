@@ -204,7 +204,8 @@ public class SingActivityUI {
 
     @SuppressLint("SetTextI18n")
     public void showProgress(double progress) {
-        loadingAmount.setText(progress + "%");
+        if (loadingAmount != null)
+            loadingAmount.setText(progress + "%");
     }
 
     public View getPopupView() {
