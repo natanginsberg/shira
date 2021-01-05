@@ -44,13 +44,13 @@ public class StorageAdder extends ViewModel implements Serializable {
         storageReference = FirebaseStorage.getInstance().getReference();
     }
 
-    public void uploadRecording2(Recording recording, UploadListener uploadListener) {
+    public void uploadRecording(Recording recording, UploadListener uploadListener) {
         Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
         recording.setRecordingUrl(downloadUri.toString());
         addRecordingToFirestore(recording, uploadListener);
     }
 
-    public void uploadRecording(Recording recording, UploadListener uploadListener) {
+    public void uploadRecording2(Recording recording, UploadListener uploadListener) {
         String destFileName = "images/" + recording.getDate();
         StorageReference ref = this.storageReference.child(destFileName);
         StorageTask<UploadTask.TaskSnapshot> uploadTask = ref.putFile(Uri.fromFile(file));

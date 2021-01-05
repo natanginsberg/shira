@@ -106,6 +106,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final String CALLBACK = "callback";
     private static final int EARPHONES = 121;
     private static final int WATCH_RECORDING = 131;
+    private static final String CAMERA_ON = "camera on";
     private final int CAMERA_CODE = 2;
     private final Target target = new Target() {
         @Override
@@ -580,6 +581,7 @@ public class SingActivity extends AppCompatActivity implements
         intent.putExtra(PLAYBACK, uriFromFile.toString());
         if (earphonesUsed)
             intent.putExtra(AUDIO_FILE, songPlayed);
+        intent.putExtra(CAMERA_ON, cameraOn);
         intent.putExtra(DELAY, delay);
         intent.putExtra(LENGTH, lengthOfAudioPlayed);
         startActivity(intent);
@@ -1033,7 +1035,7 @@ public class SingActivity extends AppCompatActivity implements
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
         recording = new Recording(song, songPlayed, timeStamp,
-                authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed);
+                authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn);
         if (earphonesUsed)
             recording.earphonesUsed();
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());

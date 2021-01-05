@@ -38,6 +38,7 @@ import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.StorageAdder;
+import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
 import com.function.karaoke.hardware.utils.ShareLink;
@@ -221,47 +222,49 @@ public class SongsActivity
     }
 
     private void uploadRecording(StorageAdder storageAdder, SaveItems saveItems, File folder) {
-//        NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
-//            @Override
-//            public void onSuccess() {
-        storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+        NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
             @Override
             public void onSuccess() {
-                File recordingFile = (new File(saveItems.getFile()));
-                recordingFile.delete();
-                deleteJsonFile(folder, recordingFile.getName());
+                storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                    @Override
+                    public void onSuccess() {
+                        File recordingFile = (new File(saveItems.getFile()));
+                        recordingFile.delete();
+                        deleteJsonFile(folder, recordingFile.getName());
 //                        deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-            }
-
-            @Override
-            public void progressUpdate(double progress) {
-                if (findViewById(R.id.loading_percent) != null) {
-                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
-                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
-                    if (progress == 100.0) {
-                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
                     }
-                }
+
+                    @Override
+                    public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                    }
+
+                    @Override
+                    public void progressUpdate(double progress) {
+                        if (findViewById(R.id.loading_percent) != null) {
+                            findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
+                            ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
+                            if (progress == 100.0) {
+                                findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
+                            }
+                        }
+                    }
+                });
+            }
+
+            //
+            @Override
+            public void onFail() {
+                int k = 0;
+            }
+
+            @Override
+            public void onProgress(int percent) {
+                ((TextView) (findViewById(R.id.loading_percent))).setText(percent + "%");
             }
         });
-//            }
-//
-//            @Override
-//            public void onFail() {
-//                int k = 0;
-//            }
-//
-//            @Override
-//            public void onProgress(int percent) {
-//                ((TextView) (findViewById(R.id.loading_percent))).setText(percent + "%");
-//            }
-//        });
+
 
     }
 

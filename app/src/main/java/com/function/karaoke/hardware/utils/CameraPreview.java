@@ -273,7 +273,7 @@ public class CameraPreview {
 
     private void setupMediaRecorder() {
         mMediaRecorder = new MediaRecorder();
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_720P);
+        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
         if (mCamera != null) {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }
@@ -285,14 +285,14 @@ public class CameraPreview {
         if (mCamera != null) {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
-            mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
+            mMediaRecorder.setVideoEncodingBitRate(3000000);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 //
         mMediaRecorder.setAudioChannels(1);
-        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
-        mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+        mMediaRecorder.setAudioEncodingBitRate(12200);
+        mMediaRecorder.setAudioSamplingRate(8000);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
             mMediaRecorder.prepare();

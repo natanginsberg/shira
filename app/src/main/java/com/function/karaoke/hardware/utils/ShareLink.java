@@ -15,7 +15,7 @@ public class ShareLink {
 //                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
                 .setLink(Uri.parse("https://ashira2020.wixsite.com/website/?recId=" + recording.getRecordingId() +
                         "&uid=" + recording.getRecorderId() +
-                        "&delay=" + recording.getDelay() +
+                        "&delay=" + recording.getDelay() + "&cameraOn=" + recording.isCameraOn() +
                         "&length=" + recording.getLength()))
                 .setDomainUriPrefix("https://singjewish.page.link")
 

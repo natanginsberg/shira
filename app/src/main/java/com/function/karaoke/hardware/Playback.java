@@ -66,6 +66,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private static final String DELAY = "delay";
     private static final String EARPHONES_USED = "empty";
     private static final String LENGTH = "length";
+    private static final String CAMERA_ON = "camera on";
+
 
     private final List<String> urls = new ArrayList<>();
     private final List<Uri> uris = new ArrayList<>();
@@ -83,6 +85,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     RenderersFactory renderersFactory;
     private SimpleExoPlayer player;
     private List<Renderer> renderers;
+    private boolean cameraOn = true;
 
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
@@ -108,8 +111,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     audioRenderers.add(i);
                     configs[i] = RendererConfiguration.DEFAULT;
                 } else if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_VIDEO) {
-                    audioRenderers.add(i);
-                    configs[i] = RendererConfiguration.DEFAULT;
+                    if (cameraOn) {
+                        audioRenderers.add(i);
+                        configs[i] = RendererConfiguration.DEFAULT;
+                    }
                 }
             }
             for (int i = 0; i < trackGroups.length; i++) {
@@ -151,6 +156,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void getUrlsFromIntent() {
         Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
         urls.add(recording.getRecordingUrl());
+        cameraOn = recording.isCameraOn();
         if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
             urls.add(recording.getAudioFileUrl());
             earphonesUsed = true;
@@ -168,6 +174,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void getUrisFromIntent() {
         if (getIntent().getExtras().containsKey(PLAYBACK)) {
             uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
+            cameraOn = getIntent().getExtras().getBoolean(CAMERA_ON);
             if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
                 earphonesUsed = true;
@@ -201,6 +208,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                         delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
                         if (deepLink.getQueryParameter("length") != null)
                             length = Long.parseLong(deepLink.getQueryParameter("length"));
+                        if (deepLink.getQueryParameter("cameraOn") != null)
+                            cameraOn = Boolean.parseBoolean(deepLink.getQueryParameter("cameraOn"));
                         addUrls(recordingId, recorderId);
                     }
                 })

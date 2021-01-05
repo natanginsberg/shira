@@ -56,7 +56,7 @@ public class KaraokeController implements Recorder.IToneListener {
             mHandler.postDelayed(mUpdater, 100);
             double position = mPlayer.getCurrentPosition() / 1000.0;
             if (position <= mPlayer.getDuration() / 1000.0) {
-                if ((mPlayer.getDuration() / 1000.0) - position < 0.4) {
+                if ((mPlayer.getDuration() / 1000.0) - position < 0.7) {
                     listener.onSongEnded();
 //                    finishPlaying();
                     mHandler.removeCallbacks(mUpdater);

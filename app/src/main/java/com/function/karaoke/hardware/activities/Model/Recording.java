@@ -17,13 +17,14 @@ public class Recording implements Serializable, SongDisplay {
     private String artist;
     private int delay;
     private long length = 0;
+    private boolean cameraOn = true;
 
     public Recording() {
     }
 
     public Recording(String recordingUrl, String audioFileUrl, String artistName,
                      String imageResourceFIle, String title, String date,
-                     String recorderId, String recordingId, int delay, long length) {
+                     String recorderId, String recordingId, int delay, long length, boolean cameraOn) {
         this.title = title;
         this.recordingUrl = recordingUrl;
         this.artist = artistName;
@@ -34,10 +35,11 @@ public class Recording implements Serializable, SongDisplay {
         this.recordingId = recordingId;
         this.delay = delay;
         this.length = length;
+        this.cameraOn = cameraOn;
     }
 
     public Recording(DatabaseSong song, String date,
-                     String recorderId, String recordingId, int delay) {
+                     String recorderId, String recordingId, int delay, boolean cameraOn) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
         this.audioFileUrl = song.getSongResourceFile();
@@ -46,10 +48,11 @@ public class Recording implements Serializable, SongDisplay {
         this.recorderId = recorderId;
         this.recordingId = recordingId;
         this.delay = delay;
+        this.cameraOn = cameraOn;
     }
 
     public Recording(DatabaseSong song, String songPlayed, String date,
-                     String recorderId, String recordingId, int delay, long length) {
+                     String recorderId, String recordingId, int delay, long length, boolean cameraOn) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
         this.audioFileUrl = songPlayed;
@@ -59,6 +62,7 @@ public class Recording implements Serializable, SongDisplay {
         this.recordingId = recordingId;
         this.delay = delay;
         this.length = length;
+        this.cameraOn = cameraOn;
     }
 
 
@@ -153,11 +157,20 @@ public class Recording implements Serializable, SongDisplay {
         recording.put("imageFileUrl", imageResourceFile);
         recording.put("delay", delay);
         recording.put("length", length);
+        recording.put("cameraOn", cameraOn);
         return recording;
 
     }
 
     public void earphonesUsed() {
         audioFileUrl = EARPHONES_USED;
+    }
+
+    public boolean isCameraOn() {
+        return cameraOn;
+    }
+
+    public void setCameraOn(boolean cameraOn) {
+        this.cameraOn = cameraOn;
     }
 }
