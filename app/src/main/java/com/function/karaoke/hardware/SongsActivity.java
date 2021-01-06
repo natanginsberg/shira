@@ -225,7 +225,7 @@ public class SongsActivity
         NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
             @Override
             public void onSuccess() {
-                storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                storageAdder.updateRecordingUrl(saveItems.getRecording(), new StorageAdder.UploadListener() {
                     @Override
                     public void onSuccess() {
                         File recordingFile = (new File(saveItems.getFile()));
@@ -360,6 +360,7 @@ public class SongsActivity
     public void onListFragmentInteractionPlay(Recording item) {
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(SingActivity.RECORDING, item);
+        resetMainPage();
         startActivity(intent);
     }
 
@@ -391,7 +392,15 @@ public class SongsActivity
         sendIntent.putExtra(
                 Intent.EXTRA_TEXT, data);
         sendIntent.setType("text/plain");
+        resetMainPage();
         startActivity(sendIntent);
+    }
+
+    private void resetMainPage() {
+        ((TextView) findViewById(R.id.display_text)).setText(R.string.all_songs);
+        findViewById(R.id.genre_scrolling).setVisibility(View.VISIBLE);
+        findViewById(R.id.open_search).setVisibility(View.VISIBLE);
+
     }
 
     private void showFailure() {

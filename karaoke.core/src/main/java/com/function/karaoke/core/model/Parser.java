@@ -162,7 +162,7 @@ public class Parser {
                 if (i > 0) {
                     startTime = parseTimeStamp(wordAndTime[0]);
                 }
-                if (wordAndTime[1].equals("$")) {
+                if (wordAndTime[1].contains("$")) {
                     endTime = getLineTimeStamp(nextLine);
                     if (endTime - startTime > 5) {
                         endTime = startTime;

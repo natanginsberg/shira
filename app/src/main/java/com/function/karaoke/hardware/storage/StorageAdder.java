@@ -2,7 +2,6 @@ package com.function.karaoke.hardware.storage;
 
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -13,12 +12,8 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.StorageTask;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.Serializable;
@@ -45,42 +40,47 @@ public class StorageAdder extends ViewModel implements Serializable {
     }
 
     public void uploadRecording(Recording recording, UploadListener uploadListener) {
-        Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
-        recording.setRecordingUrl(downloadUri.toString());
+        recording.setRecordingUrl((Uri.fromFile(file)).toString());
         addRecordingToFirestore(recording, uploadListener);
     }
 
-    public void uploadRecording2(Recording recording, UploadListener uploadListener) {
-        String destFileName = "images/" + recording.getDate();
-        StorageReference ref = this.storageReference.child(destFileName);
-        StorageTask<UploadTask.TaskSnapshot> uploadTask = ref.putFile(Uri.fromFile(file));
-        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
-//                bytesRead += ;
-                double percent = 100 * (double) snapshot.getBytesTransferred() / (double) snapshot.getTotalByteCount();
-                uploadListener.progressUpdate(percent);
-            }
-        });
-        Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
-            if (!task.isSuccessful()) {
-                throw task.getException();
-            }
-
-            // Continue with the task to get the download URL
-            return ref.getDownloadUrl();
-        }).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Uri downloadUri = task.getResult();
-                recording.setRecordingUrl(downloadUri.toString());
-                addRecordingToFirestore(recording, uploadListener);
-            } else {
-                // Handle failures
-                // ...
-                uploadListener.onFailure();
-            }
-        });
+    public void updateRecordingUrl(Recording recording, UploadListener uploadListener){
+        Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
+        RecordingService recordingService = new RecordingService();
+        recordingService.updateUrlToRecording(recording.getRecordingId(), recording.getRecorderId(), downloadUri.toString(), uploadListener);
     }
+
+//    public void uploadRecording2(Recording recording, UploadListener uploadListener) {
+//        String destFileName = "images/" + recording.getDate();
+//        StorageReference ref = this.storageReference.child(destFileName);
+//        StorageTask<UploadTask.TaskSnapshot> uploadTask = ref.putFile(Uri.fromFile(file));
+//        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+//            @Override
+//            public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+////                bytesRead += ;
+//                double percent = 100 * (double) snapshot.getBytesTransferred() / (double) snapshot.getTotalByteCount();
+//                uploadListener.progressUpdate(percent);
+//            }
+//        });
+//        Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+//            if (!task.isSuccessful()) {
+//                throw task.getException();
+//            }
+//
+//            // Continue with the task to get the download URL
+//            return ref.getDownloadUrl();
+//        }).addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                Uri downloadUri = task.getResult();
+//                recording.setRecordingUrl(downloadUri.toString());
+//                addRecordingToFirestore(recording, uploadListener);
+//            } else {
+//                // Handle failures
+//                // ...
+//                uploadListener.onFailure();
+//            }
+//        });
+//    }
 
 
     private void getKeys() {
@@ -139,8 +139,7 @@ public class StorageAdder extends ViewModel implements Serializable {
 
     private void addRecordingToFirestore(Recording recording, UploadListener uploadListener) {
         RecordingService recordingService = new RecordingService();
-        recordingService.addRecordingToDataBase(recording);
-        uploadListener.onSuccess();
+        recordingService.addRecordingToDataBase(recording, uploadListener);
     }
 
 

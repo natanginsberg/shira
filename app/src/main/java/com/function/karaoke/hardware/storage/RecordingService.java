@@ -1,15 +1,24 @@
 package com.function.karaoke.hardware.storage;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class RecordingService {
     public static final String COLLECTION_USERS_NAME = "recordings";
@@ -17,6 +26,8 @@ public class RecordingService {
     public static final String RECORDER_ID = "recorderId";
     public static final String RECORDING_ID = "recordingId";
     private static final String TAG = RecordingService.class.getSimpleName();
+    private static final String LOADING = "loading";
+    private static final String RECORDING_URL = "recordingUrl";
     private AuthenticationDriver authenticationDriver;
     private CollectionReference recordingsCollectionRef;
 
@@ -68,8 +79,54 @@ public class RecordingService {
         return recording;
     }
 
-    public void addRecordingToDataBase(Recording recording) {
-        recordingsCollectionRef.add(recording);
+    public void addRecordingToDataBase(Recording recording, StorageAdder.UploadListener uploadListener) {
+        recordingsCollectionRef.add(recording).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                uploadListener.onSuccess();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                uploadListener.onFailure();
+            }
+        });
+    }
+
+    public void updateUrlToRecording(String recordingId, String recorderId, String url, StorageAdder.UploadListener uploadListener) {
+        Query getSingleRecording = recordingsCollectionRef.whereEqualTo(UID, recorderId).whereEqualTo(RECORDING_ID, recordingId);
+        getSingleRecording.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    if (task.getResult() != null)
+                        changeLoadingAndUrlForRecording(task.getResult().getDocuments().get(0).getReference(), url, uploadListener);
+                } else {
+                    uploadListener.onFailure();
+                    //todo deal with failure better
+                }
+            }
+        });
+    }
+
+    private void changeLoadingAndUrlForRecording(DocumentReference document, String url, StorageAdder.UploadListener uploadListener) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(LOADING, false);
+        data.put(RECORDING_URL, url);
+        document.update(data).
+                addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        uploadListener.onSuccess();
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        uploadListener.onFailure();
+                    }
+                });
     }
 }
 

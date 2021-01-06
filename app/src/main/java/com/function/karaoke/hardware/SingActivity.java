@@ -44,6 +44,9 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.abedelazizshe.lightcompressorlibrary.CompressionListener;
+import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
+import com.abedelazizshe.lightcompressorlibrary.VideoQuality;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.core.controller.KaraokeController;
@@ -56,7 +59,6 @@ import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
-import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.tasks.OpenCameraAsync;
@@ -213,6 +215,7 @@ public class SingActivity extends AppCompatActivity implements
     private boolean songStarted = false;
     private BroadcastReceiver bReceiver;
     private boolean prompted = false;
+    private File compressedFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -568,12 +571,45 @@ public class SingActivity extends AppCompatActivity implements
                 postParseVideoFile = wrapUpSong();
             buttonClicked = false;
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
-                    !authenticationDriver.getUserEmail().equals(""))
+                    !authenticationDriver.getUserEmail().equals("")) {
+//                compressedFile = getTempMediaFile();
+
+//                compress(postParseVideoFile.getPath(), compressedFile.getPath());
                 openNewIntent(Uri.fromFile(postParseVideoFile));
-            else launchSignIn(WATCH_RECORDING);
+//
+            } else launchSignIn(WATCH_RECORDING);
         }
 //        view.setBackgroundColor(getResources().getColor(R.color.appColor, getTheme()));
     }
+
+//    private void compress(String filePath, String destPath) {
+//        VideoCompressor.start(filePath, destPath, new CompressionListener() {
+//            @Override
+//            public void onStart() {
+//
+//            }
+//
+//            @Override
+//            public void onSuccess() {
+//                openNewIntent(Uri.fromFile(compressedFile));
+//            }
+//
+//            @Override
+//            public void onFailure(String s) {
+//
+//            }
+//
+//            @Override
+//            public void onProgress(float v) {
+//
+//            }
+//
+//            @Override
+//            public void onCancelled() {
+//
+//            }
+//        });
+//    }
 
     private void openNewIntent(Uri uriFromFile) {
 
@@ -973,6 +1009,7 @@ public class SingActivity extends AppCompatActivity implements
         File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
+                //todo check for null pointer when creating postparsefile
                 return null;
             }
         }
@@ -982,6 +1019,22 @@ public class SingActivity extends AppCompatActivity implements
 
         mediaFile = new File(mediaStorageDir.getPath() + File.separator
                 + "VID_" + timeStamp + ".mp4");
+        return mediaFile;
+    }
+
+    private File getTempMediaFile() {
+        File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                return null;
+            }
+        }
+        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        File mediaFile;
+
+        mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                + "VID_COMPRESS" + timeStamp + ".mp4");
         return mediaFile;
     }
 
@@ -1034,8 +1087,9 @@ public class SingActivity extends AppCompatActivity implements
     private void saveSongToTempJsonFile() {
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
+        //todo check that post parse video isn't null
         recording = new Recording(song, songPlayed, timeStamp,
-                authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn);
+                authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn, true);
         if (earphonesUsed)
             recording.earphonesUsed();
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
@@ -1247,7 +1301,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
 
                 @Override
-                public void onProgress(int progress){
+                public void onProgress(int progress) {
                     activityUI.showProgress(progress);
                 }
             });

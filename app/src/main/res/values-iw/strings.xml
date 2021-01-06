@@ -77,5 +77,7 @@
     <string name="error_from_the_beginning_of_sign_in">מצטערים, יש תקלה בשרת</string>
     <string name="no_pause_body">אזהרה! הפסקת השיר במצע תסיים אותו</string>
     <string name="no_pause_title">הפסקת השיר</string>
+    <string name="video_loading">שגיאת וידיאו</string>
+    <string name="video_loading_body">הוידיאו עוד לא עלה לשרתים שלנו. סליחה על האי נוחות</string>
 
 </resources>

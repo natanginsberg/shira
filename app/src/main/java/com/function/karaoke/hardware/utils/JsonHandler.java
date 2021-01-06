@@ -88,10 +88,13 @@ public class JsonHandler {
                 recordingToAdd.getString("artist"),
                 recordingToAdd.getString("imageFileUrl"),
                 recordingToAdd.getString("audioFileUrl"));
-        Recording recording = new Recording(song, recordingToAdd.getString("date"),
+        Recording recording = new Recording(song,
+                recordingToAdd.getString("date"),
                 recordingToAdd.getString("recorderId"),
                 recordingToAdd.getString("recordingId"),
-                recordingToAdd.getInt("delay"), recordingToAdd.getBoolean("cameraOn"));
+                recordingToAdd.getInt("delay"),
+                recordingToAdd.getBoolean("cameraOn"),
+                true);
         if (recordingToAdd.has("length"))
             recording.setLength(recordingToAdd.getLong("length"));
         return new SaveItems(fileUri, recording);

@@ -122,7 +122,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private String getCurrentLanguage() {
         return Locale.getDefault().getLanguage();
-//        return getResources().getConfiguration().getLocales().get(0).getLanguage();
     }
 
     private void addGenres() {
@@ -393,7 +392,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void homeButtonListener() {
         popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
-            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+//            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+            if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
                 contentsDisplayed = ALL_SONGS_DISPLAYED;
                 displayAllSongs();
                 songsActivityUI.allSongsShow();
@@ -406,15 +406,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private void myRecordingsToDisplayListener() {
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-                if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
+//                if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
+                if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
                     contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
                     AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
-                        recordingDB = null;
-                        getAllPersonalSongs();
-                    } else {
-                        displayPersonalSongs();
-                    }
+//                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
+//                        recordingDB = null;
+                    getAllPersonalSongs();
+//                    } else {
+//                        displayPersonalSongs();
+//                    }
                     ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
                     ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover));
                     ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.My_recordings);

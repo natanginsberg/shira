@@ -18,13 +18,14 @@ public class Recording implements Serializable, SongDisplay {
     private int delay;
     private long length = 0;
     private boolean cameraOn = true;
+    private boolean loading = false;
 
     public Recording() {
     }
 
     public Recording(String recordingUrl, String audioFileUrl, String artistName,
                      String imageResourceFIle, String title, String date,
-                     String recorderId, String recordingId, int delay, long length, boolean cameraOn) {
+                     String recorderId, String recordingId, int delay, long length, boolean cameraOn, boolean loading) {
         this.title = title;
         this.recordingUrl = recordingUrl;
         this.artist = artistName;
@@ -36,10 +37,11 @@ public class Recording implements Serializable, SongDisplay {
         this.delay = delay;
         this.length = length;
         this.cameraOn = cameraOn;
+        this.loading = loading;
     }
 
     public Recording(DatabaseSong song, String date,
-                     String recorderId, String recordingId, int delay, boolean cameraOn) {
+                     String recorderId, String recordingId, int delay, boolean cameraOn, boolean loading) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
         this.audioFileUrl = song.getSongResourceFile();
@@ -49,10 +51,11 @@ public class Recording implements Serializable, SongDisplay {
         this.recordingId = recordingId;
         this.delay = delay;
         this.cameraOn = cameraOn;
+        this.loading = loading;
     }
 
     public Recording(DatabaseSong song, String songPlayed, String date,
-                     String recorderId, String recordingId, int delay, long length, boolean cameraOn) {
+                     String recorderId, String recordingId, int delay, long length, boolean cameraOn, boolean loading) {
         this.title = song.getTitle();
         this.artist = song.getArtist();
         this.audioFileUrl = songPlayed;
@@ -63,6 +66,7 @@ public class Recording implements Serializable, SongDisplay {
         this.delay = delay;
         this.length = length;
         this.cameraOn = cameraOn;
+        this.loading = loading;
     }
 
 
@@ -173,4 +177,13 @@ public class Recording implements Serializable, SongDisplay {
     public void setCameraOn(boolean cameraOn) {
         this.cameraOn = cameraOn;
     }
+
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+    }
+
 }

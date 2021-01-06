@@ -102,5 +102,7 @@
     <string name="error_from_the_beginning_of_sign_in">Sorry, there is a problem with our servers</string>
     <string name="no_pause_body">Attention! Pausing song in the middle will not work, and the song will end.</string>
     <string name="no_pause_title">Pause warning</string>
+    <string name="video_loading">Video error</string>
+    <string name="video_loading_body">This video has been uploaded to our servers yet.\nSorry for the inconvinience</string>
 
 </resources>
