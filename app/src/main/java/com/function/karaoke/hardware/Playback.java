@@ -283,6 +283,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 //                addReverb(audioSessionId);
             }
         });
+        if (!cameraOn)
+            findViewById(R.id.logo).setVisibility(View.VISIBLE);
+
     }
 
     private void addReverb(int audioSessionId) {
