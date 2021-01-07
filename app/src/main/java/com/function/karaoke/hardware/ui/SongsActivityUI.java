@@ -158,8 +158,12 @@ public class SongsActivityUI {
                     hz.fullScroll(View.FOCUS_RIGHT);
             }
         });
+    }
 
-
+    public void colorNextGenre(int genre) {
+        TextView newGenre = (TextView) view.findViewById(genre);
+        setTextOfClickedToBlack();
+        setGenreClicked(newGenre);
     }
 
     private TextView setGenreBar(List<String> currentLanguageGenres, int i) {
@@ -167,6 +171,7 @@ public class SongsActivityUI {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         TextView textView = (TextView) inflater.inflate(R.layout.genre_layout, null);
         textView.setTextColor(Color.BLACK);
+        textView.setId(i);
         setTextViewAttributes(textView);
         String genreToDisplay;
         if (currentLanguage.equals("en")) {
@@ -185,14 +190,14 @@ public class SongsActivityUI {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (genreClicked == textView) {
-                    listener.getAllSongsFromGenre("כל השירים");
-                    setTextOfClickedToBlack();
-                    setGenreClicked(allSongsTextView);
-                } else {
+                if (genreClicked != textView) {
                     setTextOfClickedToBlack();
                     setGenreClicked(textView);
-                    listener.getAllSongsFromGenre(genre.split(",")[1]);
+                    listener.getAllSongsFromGenre(i);
+                } else {
+                    listener.getAllSongsFromGenre(0);
+                    setTextOfClickedToBlack();
+                    setGenreClicked(allSongsTextView);
                 }
 
             }
@@ -242,6 +247,6 @@ public class SongsActivityUI {
 
 
     public interface SongsUIListener {
-        void getAllSongsFromGenre(String genre);
+        void getAllSongsFromGenre(int genre);
     }
 }

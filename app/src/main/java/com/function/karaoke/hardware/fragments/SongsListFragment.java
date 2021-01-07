@@ -70,7 +70,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private Genres genres;
     private View view;
     private DatabaseSongsDB allSongsDatabase = new DatabaseSongsDB();
-    private String genreClicked = "כל השירים";
+    private int genreClicked = 0;
     private TextView allSongsTextView;
     private AuthenticationDriver authenticationDriver;
     private SongsActivityUI songsActivityUI;
@@ -132,12 +132,57 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 songsActivityUI.addGenresToScreen(genres);
         };
         this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
+        addTouchForGenrePicking();
+    }
+
+    private void addTouchForGenrePicking() {
+        view.findViewById(R.id.touch_screen).setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
+            public void onSwipeTop() {
+            }
+
+            public void onSwipeRight() {
+                if (!Locale.getDefault().getLanguage().equals("iw")) {
+                    colorNextGenre();
+                } else {
+                    colorPreviousGenre();
+                }
+            }
+
+            public void onSwipeLeft() {
+                if (Locale.getDefault().getLanguage().equals("iw")) {
+                    colorNextGenre();
+                } else {
+                    colorPreviousGenre();
+                }
+            }
+
+            public void onSwipeBottom() {
+            }
+
+        });
+
+    }
+
+
+    private void colorPreviousGenre() {
+        if (genreClicked > 0) {
+            songsActivityUI.colorNextGenre(genreClicked - 1);
+            getAllSongsFromGenre(genreClicked - 1);
+        }
+    }
+
+    private void colorNextGenre() {
+        if (genreClicked < genres.getGenres().size()) {
+            songsActivityUI.colorNextGenre(genreClicked + 1);
+            getAllSongsFromGenre(genreClicked + 1);
+        }
     }
 
     @Override
-    public void getAllSongsFromGenre(String genre) {
-        genreClicked = genre;
+    public void getAllSongsFromGenre(int i) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();
+        genreClicked = i;
+        String genre = genres.getGenres().get(i).split(",")[1];
         if (genre.equals("כל השירים"))
             searchedSongs = allSongsDatabase.getSongs();
         else {
@@ -474,5 +519,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void openEmailIntent();
 
         void openAdminSide();
+
     }
 }
