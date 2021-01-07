@@ -154,12 +154,13 @@ public class SingActivityUI {
 
     @SuppressLint("SetTextI18n")
     public void displayTimeForCountdown(long millisUntilFinished) {
-        if (millisUntilFinished / 1000 >= 1) {
-            ((TextView) view.findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-            view.findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-        } else {
-            ((TextView) view.findViewById(R.id.countdown)).setText(R.string.start);
-        }
+//        if (millisUntilFinished / 1000 >= 1) {
+//            ((TextView) view.findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
+//            view.findViewById(R.id.countdown).setVisibility(View.VISIBLE);
+//        } else {
+//            ((TextView) view.findViewById(R.id.countdown)).setText(R.string.start);
+//        }
+        dealWithTimer(R.id.countdown, millisUntilFinished);
     }
 
     public void showPlayButton() {
@@ -210,5 +211,25 @@ public class SingActivityUI {
 
     public View getPopupView() {
         return popupView;
+    }
+
+    public void displayTimeForRestartCountdown(long millisUntilFinished) {
+        dealWithTimer(R.id.restart_countdown, millisUntilFinished);
+    }
+
+    private void dealWithTimer(int countdown, long millisUntilFinished) {
+        if (millisUntilFinished / 1000 >= 1) {
+            ((TextView) view.findViewById(countdown)).setText(Long.toString(millisUntilFinished / 1000));
+            view.findViewById(countdown).setVisibility(View.VISIBLE);
+        } else {
+            ((TextView) view.findViewById(countdown)).setText(R.string.start);
+        }
+    }
+
+    public void setScreenForPlayingAfterRestartTimerExpires() {
+        view.findViewById(R.id.restart_countdown).setVisibility(View.INVISIBLE);
+        if (sdkInt >= 24)
+            view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
     }
 }

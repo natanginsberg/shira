@@ -70,13 +70,14 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private Genres genres;
     private View view;
     private DatabaseSongsDB allSongsDatabase = new DatabaseSongsDB();
-    private TextView genreClicked;
+    private String genreClicked = "כל השירים";
     private TextView allSongsTextView;
     private AuthenticationDriver authenticationDriver;
     private SongsActivityUI songsActivityUI;
     private String currentLanguage;
     private int clicked = 0;
     private boolean differentSongsDisplayed = true;
+    private int contentDisplayed = ALL_SONGS_DISPLAYED;
 
 
     /**
@@ -135,6 +136,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     @Override
     public void getAllSongsFromGenre(String genre) {
+        genreClicked = genre;
         List<DatabaseSong> searchedSongs = new ArrayList<>();
         if (genre.equals("כל השירים"))
             searchedSongs = allSongsDatabase.getSongs();
@@ -166,10 +168,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     @Override
     public void onResume() {
         super.onResume();
-        DatabaseSongsDB songsDB = mListener.getSongs();
-        songsDB.subscribe(this);
-
-        getAllSongs();
+        if (contentDisplayed == ALL_SONGS_DISPLAYED) {
+            if (allSongsDatabase.getSongs().size() == 0) {
+                DatabaseSongsDB songsDB = mListener.getSongs();
+                songsDB.subscribe(this);
+                getAllSongs();
+            }
+        }
     }
 
     private void getAllSongs() {
@@ -184,6 +189,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void getAllPersonalSongs() {
         final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
+            contentDisplayed = PERSONAL_RECORDING_DISPLAYED;
             if (personalRecordings != null) {
                 recordingDB = new RecordingDB(personalRecordings);
                 view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
@@ -392,6 +398,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void homeButtonListener() {
         popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
+            contentDisplayed = ALL_SONGS_DISPLAYED;
 //            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
             if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
                 displayAllSongs();

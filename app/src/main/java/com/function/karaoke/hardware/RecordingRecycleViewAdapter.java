@@ -146,7 +146,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             mLblArtist.setTypeface(tf);
             ((TextView) mView.findViewById(R.id.play_button)).setTypeface(tf);
             if (song.isLoading())
-                ((TextView) mView.findViewById(R.id.play_button)).setBackgroundColor(Color.GRAY);
+                ((TextView) mView.findViewById(R.id.share_button)).setBackgroundColor(Color.GRAY);
             mDate.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())

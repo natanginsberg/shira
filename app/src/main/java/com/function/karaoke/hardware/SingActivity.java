@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.view.Gravity;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -44,9 +45,6 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.abedelazizshe.lightcompressorlibrary.CompressionListener;
-import com.abedelazizshe.lightcompressorlibrary.VideoCompressor;
-import com.abedelazizshe.lightcompressorlibrary.VideoQuality;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.core.controller.KaraokeController;
@@ -232,6 +230,7 @@ public class SingActivity extends AppCompatActivity implements
 
         mTextureView = findViewById(R.id.surface_camera);
         recordingId = GenerateRandomId.generateRandomId();
+        createEarphoneReceivers();
         checkForPermissionAndOpenCamera();
         if (song.hasDifferentTones()) {
             activityUI.openTonePopup(SingActivity.this);
@@ -287,27 +286,27 @@ public class SingActivity extends AppCompatActivity implements
 
     private void setAudioAndDismissPopup() {
         activityUI.dismissPopup();
-        createEarphoneReceivers();
+//        createEarphoneReceivers();
         mKaraokeKonroller.loadAudio(songPlayed);
     }
 
     public void manTone(View view) {
         songPlayed = song.getSongResourceFile();
         setAudioAndDismissPopup();
-        createEarphoneReceivers();
+//        createEarphoneReceivers();
     }
 
 
     public void womanTone(View view) {
         songPlayed = song.getWomanToneResourceFile();
         setAudioAndDismissPopup();
-        createEarphoneReceivers();
+//        createEarphoneReceivers();
     }
 
     public void kidTone(View view) {
         songPlayed = song.getKidToneResourceFile();
         setAudioAndDismissPopup();
-        createEarphoneReceivers();
+//        createEarphoneReceivers();
     }
 
 
@@ -388,9 +387,14 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void promptUserToConnectEarphones() {
-        prompted = true;
-        DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
-        attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
+//        prompted = true;
+//        DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
+//        attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
+        Toast toast = Toast.makeText(this, getResources().getString(R.string.attach_earphones), Toast.LENGTH_LONG);
+        TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+        if( v != null) v.setGravity(Gravity.CENTER);
+        toast.show();
+
     }
 
     private void checkIfHeadsetIsPairedAlready() {
@@ -949,7 +953,7 @@ public class SingActivity extends AppCompatActivity implements
         cTimer = new CountDownTimer(3800, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
-                activityUI.displayTimeForCountdown(millisUntilFinished);
+                activityUI.displayTimeForRestartCountdown(millisUntilFinished);
             }
 
             @RequiresApi(api = Build.VERSION_CODES.N)
@@ -966,7 +970,7 @@ public class SingActivity extends AppCompatActivity implements
                     cameraPreview.resumeRecording();
                     mPlayer = mKaraokeKonroller.getmPlayer();
                     isRecording = true;
-                    activityUI.setScreenForPlayingAfterTimerExpires();
+                    activityUI.setScreenForPlayingAfterRestartTimerExpires();
                 }
             }
         };

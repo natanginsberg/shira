@@ -278,21 +278,23 @@ public class CameraPreview {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
 //        mMediaRecorder.setProfile(profile);
         if (mCamera != null) {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
-            mMediaRecorder.setVideoEncodingBitRate(3000000);
+            mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 //
         mMediaRecorder.setAudioChannels(1);
-        mMediaRecorder.setAudioEncodingBitRate(12200);
-        mMediaRecorder.setAudioSamplingRate(8000);
+//        mMediaRecorder.setAudioEncodingBitRate(12200);
+        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+        mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+//        mMediaRecorder.setAudioSamplingRate(8000);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
             mMediaRecorder.prepare();

@@ -378,7 +378,6 @@ public class SongsActivity
     public void onListFragmentInteractionPlay(Recording item) {
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(SingActivity.RECORDING, item);
-        resetMainPage();
         startActivity(intent);
     }
 
@@ -410,15 +409,7 @@ public class SongsActivity
         sendIntent.putExtra(
                 Intent.EXTRA_TEXT, data);
         sendIntent.setType("text/plain");
-        resetMainPage();
         startActivity(sendIntent);
-    }
-
-    private void resetMainPage() {
-        ((TextView) findViewById(R.id.display_text)).setText(R.string.all_songs);
-        findViewById(R.id.genre_scrolling).setVisibility(View.VISIBLE);
-        findViewById(R.id.open_search).setVisibility(View.VISIBLE);
-
     }
 
     private void showFailure() {
@@ -460,7 +451,12 @@ public class SongsActivity
 
     @Override
     protected void onPause() {
+        saveCurrentState();
         super.onPause();
+    }
+
+    private void saveCurrentState() {
+
     }
 
 
