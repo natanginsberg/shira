@@ -63,7 +63,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private RecordingService recordingService;
     private RecordingDB recordingDB;
 
-    private int contentsDisplayed = ALL_SONGS_DISPLAYED;
     private DatabaseSongsDB songsDb;
     private View popupView;
     private PopupWindow popup;
@@ -117,6 +116,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         view = songsView;
         songsActivityUI = new SongsActivityUI(view, this, getCurrentLanguage(), getContext());
         addGenres();
+        view.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()));
         return songsView;
     }
 
@@ -307,8 +307,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public void openSettingsPopup(View view) {
         authenticationDriver = new AuthenticationDriver();
         songsActivityUI.openSettingsPopup(authenticationDriver.isSignIn()
-                        && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""),
-                contentsDisplayed);
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")
+        );
         if (authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""))
             songsActivityUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
@@ -394,7 +394,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
 //            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
             if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
-                contentsDisplayed = ALL_SONGS_DISPLAYED;
                 displayAllSongs();
                 songsActivityUI.allSongsShow();
                 songsActivityUI.showGenresAndSearch();
@@ -408,7 +407,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
 //                if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
                 if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
-                    contentsDisplayed = PERSONAL_RECORDING_DISPLAYED;
                     AuthenticationDriver authenticationDriver = new AuthenticationDriver();
 //                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
 //                        recordingDB = null;

@@ -1,6 +1,7 @@
 package com.function.karaoke.hardware;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -222,46 +223,63 @@ public class SongsActivity
     }
 
     private void uploadRecording(StorageAdder storageAdder, SaveItems saveItems, File folder) {
-        NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
+        storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
             @Override
             public void onSuccess() {
-                storageAdder.updateRecordingUrl(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
                     @Override
                     public void onSuccess() {
-                        File recordingFile = (new File(saveItems.getFile()));
-                        recordingFile.delete();
-                        deleteJsonFile(folder, recordingFile.getName());
+                        storageAdder.updateRecordingUrl(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                            @Override
+                            public void onSuccess() {
+                                File recordingFile = (new File(saveItems.getFile()));
+                                recordingFile.delete();
+                                deleteJsonFile(folder, recordingFile.getName());
 //                        deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-                    }
-
-                    @Override
-                    public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-                    }
-
-                    @Override
-                    public void progressUpdate(double progress) {
-                        if (findViewById(R.id.loading_percent) != null) {
-                            findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
-                            ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
-                            if (progress == 100.0) {
-                                findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
                             }
-                        }
+
+                            @Override
+                            public void onFailure() {
+//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                            }
+
+                            @Override
+                            public void progressUpdate(double progress) {
+                                if (findViewById(R.id.loading_percent) != null) {
+                                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
+                                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
+                                    if (progress == 100.0) {
+                                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    //
+                    @Override
+                    public void onFail() {
+                        int k = 0;
+                    }
+
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onProgress(int percent) {
+                        if (findViewById(R.id.loading_percent) != null)
+                            ((TextView) (findViewById(R.id.loading_percent))).setText(percent + "%");
                     }
                 });
             }
 
-            //
             @Override
-            public void onFail() {
-                int k = 0;
+            public void onFailure() {
+
             }
 
             @Override
-            public void onProgress(int percent) {
-                ((TextView) (findViewById(R.id.loading_percent))).setText(percent + "%");
+            public void progressUpdate(double progress) {
+
             }
         });
 

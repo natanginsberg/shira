@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -144,6 +145,8 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             mLblTitle.setTypeface(tf);
             mLblArtist.setTypeface(tf);
             ((TextView) mView.findViewById(R.id.play_button)).setTypeface(tf);
+            if (song.isLoading())
+                ((TextView) mView.findViewById(R.id.play_button)).setBackgroundColor(Color.GRAY);
             mDate.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())

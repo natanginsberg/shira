@@ -32,21 +32,32 @@ public class StorageAdder extends ViewModel implements Serializable {
     private boolean setUp;
     private long bytesRead = 0;
     private final StorageReference storageReference;
+    private RecordingService recordingService;
 
     public StorageAdder(File file) {
         this.file = file;
         getKeys();
         storageReference = FirebaseStorage.getInstance().getReference();
+        recordingService = new RecordingService();
     }
 
     public void uploadRecording(Recording recording, UploadListener uploadListener) {
-        recording.setRecordingUrl((Uri.fromFile(file)).toString());
-        addRecordingToFirestore(recording, uploadListener);
+        recordingService.isRecordingInDatabase(new RecordingService.RecordingInDatabaseListener() {
+            @Override
+            public void isInDatabase(boolean isIn) {
+                if (isIn) {
+                    uploadListener.onSuccess();
+                } else {
+                    recording.setRecordingUrl((Uri.fromFile(file)).toString());
+                    addRecordingToFirestore(recording, uploadListener);
+                }
+            }
+        }, recording.getRecordingId(), recording.getRecorderId());
     }
 
-    public void updateRecordingUrl(Recording recording, UploadListener uploadListener){
+    public void updateRecordingUrl(Recording recording, UploadListener uploadListener) {
         Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
-        RecordingService recordingService = new RecordingService();
+        recordingService = new RecordingService();
         recordingService.updateUrlToRecording(recording.getRecordingId(), recording.getRecorderId(), downloadUri.toString(), uploadListener);
     }
 
@@ -114,7 +125,7 @@ public class StorageAdder extends ViewModel implements Serializable {
             @Override
             public void progressChanged(ProgressEvent progressEvent) {
                 bytesRead += progressEvent.getBytesTransferred();
-                double progress = (double) bytesRead / (double) file.length();
+                double progress = Math.min(1.0, (double) bytesRead / (double) file.length());
                 System.out.println("this is the progress of the upload " + progress);
                 listener.progressUpdate((progress));
 
@@ -138,7 +149,7 @@ public class StorageAdder extends ViewModel implements Serializable {
     }
 
     private void addRecordingToFirestore(Recording recording, UploadListener uploadListener) {
-        RecordingService recordingService = new RecordingService();
+        recordingService = new RecordingService();
         recordingService.addRecordingToDataBase(recording, uploadListener);
     }
 

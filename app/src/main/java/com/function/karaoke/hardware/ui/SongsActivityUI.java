@@ -43,7 +43,7 @@ public class SongsActivityUI {
         this.currentLanguage = currentLanguage;
     }
 
-    public void openSettingsPopup(boolean isUserSignedIn, int contentsDisplayed) {
+    public void openSettingsPopup(boolean isUserSignedIn) {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);

@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.activities.Model.SignInViewModel;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -19,6 +21,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class RecordingService {
     public static final String COLLECTION_USERS_NAME = "recordings";
@@ -79,6 +82,17 @@ public class RecordingService {
         return recording;
     }
 
+    public void isRecordingInDatabase(RecordingInDatabaseListener listener, String recordingId, String recorderId) {
+        Query getRecordingsQuery = recordingsCollectionRef.whereEqualTo(RECORDING_ID, recordingId).whereEqualTo(RECORDER_ID, recorderId);
+        getRecordingsQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                listener.isInDatabase(!task.getResult().isEmpty());
+            } else {
+                listener.isInDatabase(false);
+            }
+        });
+    }
+
     public void addRecordingToDataBase(Recording recording, StorageAdder.UploadListener uploadListener) {
         recordingsCollectionRef.add(recording).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -99,7 +113,7 @@ public class RecordingService {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    if (task.getResult() != null)
+                    if (task.getResult() != null && task.getResult().getDocuments().size() > 0)
                         changeLoadingAndUrlForRecording(task.getResult().getDocuments().get(0).getReference(), url, uploadListener);
                 } else {
                     uploadListener.onFailure();
@@ -127,6 +141,10 @@ public class RecordingService {
                         uploadListener.onFailure();
                     }
                 });
+    }
+
+    public interface RecordingInDatabaseListener{
+        void isInDatabase(boolean isIn);
     }
 }
 
