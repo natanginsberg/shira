@@ -65,7 +65,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
     private static final String DELAY = "delay";
-    private static final String EARPHONES_USED = "empty";
+    private static final String EARPHONES_NOT_USED = "empty";
     private static final String LENGTH = "length";
     private static final String CAMERA_ON = "camera on";
 
@@ -147,7 +147,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             urls.add(recording.getRecordingUrl());
         }
         cameraOn = recording.isCameraOn();
-        if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
+        if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
             urls.add(recording.getAudioFileUrl());
             earphonesUsed = true;
         } else {
@@ -222,7 +222,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     alertUserThatVideoIsNotLoaded();
                 } else {
                     urls.add(recording.getRecordingUrl());
-                    if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
+                    if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
                         urls.add(recording.getAudioFileUrl());
                         earphonesUsed = true;
                     } else {

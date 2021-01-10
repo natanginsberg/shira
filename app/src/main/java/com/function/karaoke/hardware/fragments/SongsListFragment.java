@@ -132,35 +132,43 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 songsActivityUI.addGenresToScreen(genres);
         };
         this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
-        addTouchForGenrePicking();
+
     }
 
     private void addTouchForGenrePicking() {
-        view.findViewById(R.id.touch_screen).setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
-            public void onSwipeTop() {
-            }
-
-            public void onSwipeRight() {
-                if (!Locale.getDefault().getLanguage().equals("iw")) {
-                    colorNextGenre();
-                } else {
-                    colorPreviousGenre();
+        for (int i = 0; i < allSongsDatabase.getSongs().size(); i++) {
+            ((RecyclerView) view.findViewById(R.id.list)).getChildAt(i).setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
+                public void onSwipeTop() {
+//                swipeRecyclerUp();
                 }
-            }
 
-            public void onSwipeLeft() {
-                if (Locale.getDefault().getLanguage().equals("iw")) {
-                    colorNextGenre();
-                } else {
-                    colorPreviousGenre();
+                public void onSwipeRight() {
+                    if (Locale.getDefault().getLanguage().equals("iw")) {
+                        colorNextGenre();
+                    } else {
+                        colorPreviousGenre();
+                    }
                 }
-            }
 
-            public void onSwipeBottom() {
-            }
+                public void onSwipeLeft() {
+                    if (!Locale.getDefault().getLanguage().equals("iw")) {
+                        colorNextGenre();
+                    } else {
+                        colorPreviousGenre();
+                    }
+                }
 
-        });
+                public void onSwipeBottom() {
+//                swipeRecyclerDown();
+                }
 
+            });
+        }
+
+    }
+
+    private void swipeRecyclerDown() {
+        ((RecyclerView) view.findViewById(R.id.list)).smoothScrollBy(0, 0);
     }
 
 
@@ -228,6 +236,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             currentDatabaseSongs.updateSongs(products);
             allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
             allSongsDatabase.updateSongs(currentDatabaseSongs.getSongs());
+//            addTouchForGenrePicking();
         };
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
@@ -444,6 +453,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private void homeButtonListener() {
         popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
             contentDisplayed = ALL_SONGS_DISPLAYED;
+//            songsActivityUI.putTouchBack();
 //            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
             if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
                 displayAllSongs();
@@ -456,6 +466,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void myRecordingsToDisplayListener() {
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
+//            songsActivityUI.removeTouch();
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
 //                if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
                 if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {

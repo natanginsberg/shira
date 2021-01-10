@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 public class Recording implements Serializable, SongDisplay {
-    private static final String EARPHONES_USED = "empty";
+    private static final String EARPHONES_NOT_USED = "empty";
     private String recordingId;
     private String recorderId;
     private String recordingUrl;
@@ -166,8 +166,8 @@ public class Recording implements Serializable, SongDisplay {
 
     }
 
-    public void earphonesUsed() {
-        audioFileUrl = EARPHONES_USED;
+    public void earphonesNotUsed() {
+        audioFileUrl = EARPHONES_NOT_USED;
     }
 
     public boolean isCameraOn() {

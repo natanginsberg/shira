@@ -390,9 +390,9 @@ public class SingActivity extends AppCompatActivity implements
 //        prompted = true;
 //        DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
 //        attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
-        Toast toast = Toast.makeText(this, getResources().getString(R.string.attach_earphones), Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(this, getResources().getString(R.string.attach_earphones), Toast.LENGTH_SHORT);
         TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-        if( v != null) v.setGravity(Gravity.CENTER);
+        if (v != null) v.setGravity(Gravity.CENTER);
         toast.show();
 
     }
@@ -1078,7 +1078,7 @@ public class SingActivity extends AppCompatActivity implements
 
                         @Override
                         public void onFailure() {
-                            Toast.makeText(getParent(), "We are sorry but you can not continue at this time", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getParent(), "We are sorry but you can not continue at this time", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -1094,8 +1094,8 @@ public class SingActivity extends AppCompatActivity implements
         //todo check that post parse video isn't null
         recording = new Recording(song, songPlayed, timeStamp,
                 authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn, true);
-        if (earphonesUsed)
-            recording.earphonesUsed();
+        if (!earphonesUsed)
+            recording.earphonesNotUsed();
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
     }
 
@@ -1247,9 +1247,9 @@ public class SingActivity extends AppCompatActivity implements
         if (requestCode == MESSAGE_RESULT) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                Toast.makeText(getApplicationContext(), "E-Mail sent successfully", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "E-Mail sent successfully", Toast.LENGTH_SHORT).show();
             } else {
-                Toast toast = Toast.makeText(this, "Email failed to send", Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(this, "Email failed to send", Toast.LENGTH_SHORT);
                 toast.show();
             }
         }

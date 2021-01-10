@@ -245,6 +245,14 @@ public class SongsActivityUI {
         view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
     }
 
+//    public void putTouchBack() {
+//        view.findViewById(R.id.touch_screen).setVisibility(View.VISIBLE);
+//    }
+//
+//    public void removeTouch() {
+//        view.findViewById(R.id.touch_screen).setVisibility(View.INVISIBLE);
+//    }
+
 
     public interface SongsUIListener {
         void getAllSongsFromGenre(int genre);

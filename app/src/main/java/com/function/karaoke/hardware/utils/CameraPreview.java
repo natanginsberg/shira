@@ -278,7 +278,7 @@ public class CameraPreview {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
 //        mMediaRecorder.setProfile(profile);
