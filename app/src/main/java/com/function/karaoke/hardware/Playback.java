@@ -367,7 +367,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000, 1000000000, false, true, true);
 
         }
-        if (uris.size() > 1) {
+        if (urls.size() > 1) {
             Uri song1 = Uri.parse(urls.get(1));
             MediaItem mediaItem1 = new MediaItem.Builder().setUri(song1).build();
             MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
