@@ -148,14 +148,18 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         }
         cameraOn = recording.isCameraOn();
         if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
-            urls.add(recording.getAudioFileUrl());
+            if (recording.isLoading()) {
+                uris.add(Uri.parse(recording.getAudioFileUrl()));
+            } else {
+                urls.add(recording.getAudioFileUrl());
+            }
             earphonesUsed = true;
         } else {
             findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
             findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
         }
         delay = recording.getDelay();
-        if (recording.getLength() == 0)
+        if (recording.getLength() != 0)
             length = recording.getLength();
         if (uris.size() > 0)
             buildMediaSourceFromUris(uris);
@@ -373,7 +377,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
             if (length != 0)
                 mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
-            mediaSource = new MergingMediaSource(mediaSource1, mediaSource2);
+            MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
+            mediaSource = new MergingMediaSource(true, mediaSources);
         } else
             mediaSource = mediaSource1;
     }
