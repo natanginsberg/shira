@@ -198,7 +198,7 @@ public class SingActivity extends AppCompatActivity implements
                     if (result.getResultCode() == SAVE) {
                         saveRecordingToTheCloud(this.getCurrentFocus());
                     } else if (result.getResultCode() == SHARE) {
-                        share(this.getCurrentFocus());
+                        saveAndShare(this.getCurrentFocus());
                     } else if (result.getResultCode() == WATCH_RECORDING) {
                         openNewIntent(Uri.fromFile(postParseVideoFile));
                     }
@@ -214,6 +214,7 @@ public class SingActivity extends AppCompatActivity implements
     private BroadcastReceiver bReceiver;
     private boolean prompted = false;
     private File compressedFile;
+    private File jsonFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1042,7 +1043,7 @@ public class SingActivity extends AppCompatActivity implements
         return mediaFile;
     }
 
-    public void share(View view) {
+    public void saveAndShare(View view) {
         if (!buttonClicked) {
             buttonClicked = true;
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
@@ -1051,7 +1052,8 @@ public class SingActivity extends AppCompatActivity implements
                 if (!itemAcquired)
                     checkIfUserHasFreeAcquisition(SHARE);
                 else
-                    share();
+//                    saveAndShare();
+                    activityUI.showShareItems();
 
             else
                 launchSignIn(SHARE);
@@ -1067,12 +1069,12 @@ public class SingActivity extends AppCompatActivity implements
                 if (freeShare) {
                     keepVideo = true;
                     itemAcquired = true;
-                    //todo differ between share and save
+                    //todo differ between saveAndShare and save
                     userService.addOneToUserShares(new UserService.UserUpdateListener() {
                         @Override
                         public void onSuccess() {
                             saveSongToTempJsonFile();
-                            File jsonFile = renameJsonPendingFile();
+                            jsonFile = renameJsonPendingFile();
                             share(jsonFile);
                         }
 
@@ -1099,7 +1101,7 @@ public class SingActivity extends AppCompatActivity implements
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
     }
 
-    private void share() {
+    public void share(View view) {
 
 //        createLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
 
@@ -1122,6 +1124,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
             }
         });
+        activityUI.hideShareItems();
     }
 
     private void share(File jsonFile) {
@@ -1187,7 +1190,7 @@ public class SingActivity extends AppCompatActivity implements
             }
         }, true, (billingResult, purchaseToken) -> {
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                File jsonFile = renameJsonPendingFile();
+                jsonFile = renameJsonPendingFile();
                 userService.addOneToUserShares(new UserService.UserUpdateListener() {
                     @Override
                     public void onSuccess() {
@@ -1198,10 +1201,11 @@ public class SingActivity extends AppCompatActivity implements
 
                     }
                 });
-                if (funcToCall == SAVE)
-                    save(jsonFile);
-                else
-                    share(jsonFile);
+//                if (funcToCall == SAVE)
+                save(jsonFile);
+//                else
+                activityUI.showShareItems();
+//                saveAndShare(jsonFile);
             }
         });
         buttonClicked = false;
@@ -1318,6 +1322,9 @@ public class SingActivity extends AppCompatActivity implements
         ((TextView) activityUI.getPopupView().findViewById(R.id.save_recording)).setText("hello");
     }
 
+    public void closeShareOptions(View view) {
+        activityUI.hideShareItems();
+    }
 }
 
 

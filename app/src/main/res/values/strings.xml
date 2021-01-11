@@ -24,6 +24,7 @@
     <string name="sing_again">Sing Again</string>
     <string name="playback">Playback</string>
     <string name="share">Share</string>
+    <string name="share_save">Save\\Share</string>
     <string name="promo">Jewish Karoke\nApp</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">Log In / Sign Up</string>
@@ -105,5 +106,6 @@
     <string name="video_loading">Video error</string>
     <string name="video_loading_body">This video has been uploaded to our servers yet.\nSorry for the inconvinience</string>
     <string name="you_re_recording_was_saved_do_you_want_to_share_it">You\'re recording was saved, do you want to share it?</string>
+    <string name="no_thank_you">No thank you</string>
 
 </resources>

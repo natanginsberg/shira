@@ -206,6 +206,7 @@ public class SingActivityUI {
     @SuppressLint("SetTextI18n")
     public void showProgress(double progress) {
         if (loadingAmount != null)
+            loadingAmount.setVisibility(View.VISIBLE);
             loadingAmount.setText(progress + "%");
     }
 
@@ -231,5 +232,15 @@ public class SingActivityUI {
         if (sdkInt >= 24)
             view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
         view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
+    }
+
+    public void showShareItems() {
+        popupView.findViewById(R.id.share_options_layout).setVisibility(View.VISIBLE);
+        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
+    }
+
+    public void hideShareItems() {
+        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
+        popupView.findViewById(R.id.share_options_layout).setVisibility(View.GONE);
     }
 }

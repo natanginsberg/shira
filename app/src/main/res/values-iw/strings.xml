@@ -80,5 +80,7 @@
     <string name="video_loading">שגיאת וידיאו</string>
     <string name="video_loading_body">הוידיאו עוד לא עלה לשרתים שלנו. סליחה על האי נוחות</string>
     <string name="you_re_recording_was_saved_do_you_want_to_share_it">הביצוע שלך נשמר, תרצה לשמור אותו?</string>
+    <string name="share_save">שמור\\שתף</string>
+    <string name="no_thank_you">לא תודה</string>
 
 </resources>
