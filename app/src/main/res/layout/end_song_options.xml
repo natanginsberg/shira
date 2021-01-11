@@ -196,6 +196,7 @@
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/loading_amount_window"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_weight="1"
@@ -218,6 +219,7 @@
                     android:layout_centerInParent="true"
                     android:onClick="saveRecordingToTheCloud"
                     android:textColor="@color/sing_up_hover"
+                    android:text="@string/save_recording"
                     android:textSize="17sp" />
             </RelativeLayout>
 

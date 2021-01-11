@@ -206,7 +206,7 @@ public class SingActivityUI {
     @SuppressLint("SetTextI18n")
     public void showProgress(double progress) {
         if (loadingAmount != null)
-            loadingAmount.setVisibility(View.VISIBLE);
+
             loadingAmount.setText(progress + "%");
     }
 
@@ -242,5 +242,6 @@ public class SingActivityUI {
     public void hideShareItems() {
         popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
         popupView.findViewById(R.id.share_options_layout).setVisibility(View.GONE);
+        popupView.findViewById(R.id.loading_amount_window).setVisibility(View.VISIBLE);
     }
 }
