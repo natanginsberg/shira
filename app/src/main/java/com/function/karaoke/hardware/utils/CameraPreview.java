@@ -99,11 +99,11 @@ public class CameraPreview {
     }
 
     private Size mPreviewSize;
+    private Size mVideoSize;
     private File mVideoFolder;
     private File mVideoFile;
     String fileName;
     private int mTotalRotation;
-    private Size mVideoSize;
     private MediaRecorder mMediaRecorder;
 
     public CameraPreview(AppCompatActivity activity, Context context) {

@@ -34,7 +34,7 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
-import com.function.karaoke.hardware.activities.Model.SongDisplay;
+import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
@@ -339,7 +339,7 @@ public class SongsActivity
     }
 
     @Override
-    public void onListFragmentInteractionPlay(SongDisplay item) {
+    public void onListFragmentInteractionPlay(Reocording item) {
         songClicked = (DatabaseSong) item;
         askForAudioRecordPermission();
     }

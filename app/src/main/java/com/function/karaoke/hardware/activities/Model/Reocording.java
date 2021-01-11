@@ -1,6 +1,6 @@
 package com.function.karaoke.hardware.activities.Model;
 
-public interface SongDisplay {
+public interface Reocording {
     String getImageResourceFile();
 
     String getArtist();

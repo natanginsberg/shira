@@ -13,11 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.activities.Model.SongDisplay;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -38,9 +38,11 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
 //        }
 //    };
 
-    private static final Comparator<SongDisplay> mComparator = new Comparator<SongDisplay>() {
+    private static final Comparator<Recording> mComparator = new Comparator<Recording>() {
         @Override
-        public int compare(SongDisplay a, SongDisplay b) {
+        public int compare(Recording a, Recording b) {
+            if (!a.getDate().split("_")[0].equalsIgnoreCase(b.getDate().split("_")[0]))
+                return b.getDate().compareToIgnoreCase(a.getDate());
             if (!a.getTitle().equalsIgnoreCase(b.getTitle()))
                 return a.getTitle().compareToIgnoreCase(b.getTitle());
             return a.getArtist().compareToIgnoreCase(b.getArtist());

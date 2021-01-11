@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.activities.Model.SongDisplay;
+import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
 import com.squareup.picasso.Picasso;
 
@@ -27,16 +27,16 @@ import java.util.List;
  */
 public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder> {
 
-    private static final Comparator<SongDisplay> mComparator = new Comparator<SongDisplay>() {
+    private static final Comparator<Reocording> mComparator = new Comparator<Reocording>() {
         @Override
-        public int compare(SongDisplay a, SongDisplay b) {
+        public int compare(Reocording a, Reocording b) {
             if (!a.getTitle().equalsIgnoreCase(b.getTitle()))
                 return a.getTitle().compareToIgnoreCase(b.getTitle());
             return a.getArtist().compareToIgnoreCase(b.getArtist());
         }
     };
 
-    private List<SongDisplay> mValues;
+    private List<Reocording> mValues;
     private List<Recording> mRecordings;
     private final OnListFragmentInteractionListener mListener;
     private String language;
@@ -47,7 +47,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 //        mListener = listener;
 //        this.language = language;
 //    }
-    public SongRecyclerViewAdapter(List<? extends SongDisplay> items, OnListFragmentInteractionListener listener, String language, String textToDisplay) {
+    public SongRecyclerViewAdapter(List<? extends Reocording> items, OnListFragmentInteractionListener listener, String language, String textToDisplay) {
         setData(items, textToDisplay);
         mListener = listener;
         this.language = language;
@@ -92,7 +92,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         return mValues.size();
     }
 
-    public void setData(List<? extends SongDisplay> songs, String textToDisplay) {
+    public void setData(List<? extends Reocording> songs, String textToDisplay) {
         mValues = new ArrayList<>(songs); // make a copy
         Collections.sort(mValues, mComparator);
         text = textToDisplay;
@@ -105,7 +105,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         private final ImageView mCover;
 
         //        public Song mItem;
-        public SongDisplay mItem;
+        public Reocording mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -121,7 +121,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             return super.toString() + " '" + mLblArtist.getText() + "'";
         }
 
-        public void setItem(SongDisplay song) {
+        public void setItem(Reocording song) {
             mItem = song;
             mLblTitle.setText(song.getTitle());
             mLblArtist.setText(song.getArtist());

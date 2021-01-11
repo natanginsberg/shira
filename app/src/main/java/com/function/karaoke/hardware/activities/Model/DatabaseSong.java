@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseSong implements Serializable, SongDisplay {
+public class DatabaseSong implements Serializable, Reocording {
 
     private String artist;
     private String imageResourceFile;

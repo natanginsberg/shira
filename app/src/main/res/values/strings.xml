@@ -104,5 +104,6 @@
     <string name="no_pause_title">Pause warning</string>
     <string name="video_loading">Video error</string>
     <string name="video_loading_body">This video has been uploaded to our servers yet.\nSorry for the inconvinience</string>
+    <string name="you_re_recording_was_saved_do_you_want_to_share_it">You\'re recording was saved, do you want to share it?</string>
 
 </resources>

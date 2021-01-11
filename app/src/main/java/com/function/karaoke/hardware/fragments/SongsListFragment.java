@@ -27,7 +27,7 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
-import com.function.karaoke.hardware.activities.Model.SongDisplay;
+import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
@@ -511,7 +511,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
      */
     public interface OnListFragmentInteractionListener {
 
-        void onListFragmentInteractionPlay(SongDisplay item);
+        void onListFragmentInteractionPlay(Reocording item);
 
         void onListFragmentInteractionPlay(Recording item);
 

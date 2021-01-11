@@ -1,6 +1,6 @@
 package com.function.karaoke.hardware.activities.Model;
 
-public class RecordingDisplay implements SongDisplay{
+public class RecordingDisplay implements Reocording {
 
     private String imageResourceFile;
     private String artist;

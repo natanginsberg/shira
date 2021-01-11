@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 
-public class Recording implements Serializable, SongDisplay {
+public class Recording implements Serializable, Reocording {
     private static final String EARPHONES_NOT_USED = "empty";
     private String recordingId;
     private String recorderId;
