@@ -22,7 +22,7 @@ import java.util.Objects;
 public class JsonHandler {
 
     private static final String JSON_FILE_NAME = "savedJson";
-    private static final String ARTIST_FILE = "artistUpdated";
+    //    private static final String ARTIST_FILE = "artistUpdated";
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
 
     private static void putJsonInFile(String storageFilePath, JSONObject jsonObject) {
@@ -100,19 +100,19 @@ public class JsonHandler {
         return new SaveItems(fileUri, recording);
     }
 
-    private static void createEmptyFileForArtist(File jsonFolder, String videoPath) throws IOException {
-        File artistFile = new File(jsonFolder, videoPath + "artist.txt");
-        FileWriter writer = new FileWriter(artistFile);
-        writer.write("32");
-        writer.close();
-    }
+//    private static void createEmptyFileForArtist(File jsonFolder, String videoPath) throws IOException {
+//        File artistFile = new File(jsonFolder, videoPath + "artist.txt");
+//        FileWriter writer = new FileWriter(artistFile);
+//        writer.write("32");
+//        writer.close();
+//    }
 
     private static String createTempFiles(File appFolder, String videoPath) {
         File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
         if (!jsonFileFolder.exists())
             jsonFileFolder.mkdirs();
         try {
-            createEmptyFileForArtist(jsonFileFolder, videoPath);
+//            createEmptyFileForArtist(jsonFileFolder, videoPath);
             return createJsonFile(jsonFileFolder, videoPath);
         } catch (IOException e) {
             e.printStackTrace();
@@ -133,9 +133,7 @@ public class JsonHandler {
                 if (child.getName().contains("Pending")) {
                     File secondName = new File(jsonFileFolder, child.getName().replaceAll("Pending", ""));
                     child.renameTo(secondName);
-                    if (!child.getName().contains("artist")) {
-                        fileToReturn = secondName;
-                    }
+                    fileToReturn = secondName;
                 }
         return fileToReturn;
     }
@@ -159,15 +157,15 @@ public class JsonHandler {
                 }
     }
 
-    public static void deleteArtistFile(File appFolder, String name) {
-        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
-        if (jsonFileFolder.listFiles() != null)
-            for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
-                if (child.getName().contains(name) && child.getName().contains("artist")) {
-                    if (!child.delete())
-                        throw new OutOfMemoryError("artist file not deleted");
-                }
-    }
+//    public static void deleteArtistFile(File appFolder, String name) {
+//        File jsonFileFolder = new File(appFolder, JSON_DIRECTORY_NAME);
+//        if (jsonFileFolder.listFiles() != null)
+//            for (File child : Objects.requireNonNull(jsonFileFolder.listFiles()))
+//                if (child.getName().contains(name) && child.getName().contains("artist")) {
+//                    if (!child.delete())
+//                        throw new OutOfMemoryError("artist file not deleted");
+//                }
+//    }
 
 
 }

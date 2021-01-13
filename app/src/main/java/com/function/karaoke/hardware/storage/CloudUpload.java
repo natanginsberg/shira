@@ -93,9 +93,9 @@ public class CloudUpload {
 //        artistService.addDownloadToSong(artist);
 //}
 
-    private void deleteArtistFile(File path) {
-        JsonHandler.deleteArtistFile(appFolder, path.getName());
-    }
+//    private void deleteArtistFile(File path) {
+//        JsonHandler.deleteArtistFile(appFolder, path.getName());
+//    }
 
     private void deleteJsonFile(String name) {
         (new File(jsonFileFolder, name + ".json")).delete();

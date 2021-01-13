@@ -163,8 +163,8 @@ public class SongsActivity
                 for (File child : listOfAllFiles) {
                     if (child.getName().contains("Pending"))
                         continue;
-                    if (child.getName().contains("artist")) {
-                    } else {
+                    if (child.getName().contains("artist")) {}
+                     else {
                         SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
 //                        if (artistFileExists(child, listOfAllFiles)) {
 //                            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
@@ -205,14 +205,14 @@ public class SongsActivity
         file.delete();
     }
 
-    private boolean artistFileExists(File child, List<File> listOfAllFiles) {
-        for (File file : listOfAllFiles) {
-            if (file.getName().contains(child.getName().replace(".json", "")) && file.getName().contains("artist")) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    private boolean artistFileExists(File child, List<File> listOfAllFiles) {
+//        for (File file : listOfAllFiles) {
+//            if (file.getName().contains(child.getName().replace(".json", "")) && file.getName().contains("artist")) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @Override
     public void openAdminSide() {
