@@ -90,7 +90,7 @@ public class CloudUpload {
 //                int k = 0;
 //            }
 //        });
-//        artistService.addDownloadToArtist(artist);
+//        artistService.addDownloadToSong(artist);
 //}
 
     private void deleteArtistFile(File path) {

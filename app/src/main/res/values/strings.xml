@@ -107,5 +107,8 @@
     <string name="video_loading_body">This video has been uploaded to our servers yet.\nSorry for the inconvinience</string>
     <string name="you_re_recording_was_saved_do_you_want_to_share_it">You\'re recording was saved, do you want to share it?</string>
     <string name="no_thank_you">No thank you</string>
+    <string name="yearly_sub">Yearly 180</string>
+    <string name="monthly_sub">Monthly 18</string>
+    <string name="sub_invite">Subscribe for unlimited access</string>
 
 </resources>

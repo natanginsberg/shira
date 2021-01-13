@@ -23,6 +23,7 @@ import java.util.Map;
 public class UserService extends ViewModel {
     private static final int NUMBER_OF_FREE_SHARES = 1;
     private static final String SHARES = "shares";
+    private static final String TYPE = "subscriptionType";
     private DatabaseDriver databaseDriver;
     private AuthenticationDriver authenticationDriver;
     private CollectionReference usersCollectionRef;
@@ -30,7 +31,7 @@ public class UserService extends ViewModel {
     public static final String UID = "id";
     private static final String TAG = UserService.class.getSimpleName();
     private UserInfo user;
-    private DocumentReference document;
+    private DocumentReference userDocument;
 
     public UserService(DatabaseDriver databaseDriver, AuthenticationDriver authenticationDriver) {
         this.databaseDriver = databaseDriver;
@@ -48,11 +49,11 @@ public class UserService extends ViewModel {
                     user = null;
                 } else {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        this.document = task.getResult().getDocuments().get(0).getReference();
+                        this.userDocument = task.getResult().getDocuments().get(0).getReference();
                         documentsList.add(document.toObject(UserInfo.class));
                     }
                     user = documentsList.get(0);
-                    freeShareListener.hasFreeShare(user.getShares() < NUMBER_OF_FREE_SHARES);
+                    freeShareListener.hasFreeAcquisition(user.getShares() < NUMBER_OF_FREE_SHARES);
                 }
             } else {
 
@@ -71,9 +72,24 @@ public class UserService extends ViewModel {
         });
     }
 
-//    public LiveData<UserInfo> getUserById(String userId) {
-//        return databaseDriver.getSingleDocumentByField(COLLECTION_USERS_NAME, UID, userId, UserInfo.class);
-//    }
+    public void addSubscriptionType(UserUpdateListener userUpdateListener, int type) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(TYPE, type );
+        userDocument.update(data).
+                addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        userUpdateListener.onSuccess();
+                    }
+                }).
+
+                addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        userUpdateListener.onFailure();
+                    }
+                });
+    }
 
     public void signOut() {
         authenticationDriver.getAuth().signOut();
@@ -83,7 +99,7 @@ public class UserService extends ViewModel {
     public void addOneToUserShares(UserUpdateListener userUpdateListener) {
         Map<String, Object> data = new HashMap<>();
         data.put(SHARES, user.getShares() + 1);
-        document.update(data).
+        userDocument.update(data).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

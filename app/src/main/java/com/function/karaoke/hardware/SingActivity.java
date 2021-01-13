@@ -45,7 +45,9 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.core.utility.BlurBuilder;
@@ -57,6 +59,7 @@ import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.SongService;
 import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.tasks.OpenCameraAsync;
@@ -107,6 +110,8 @@ public class SingActivity extends AppCompatActivity implements
     private static final int EARPHONES = 121;
     private static final int WATCH_RECORDING = 131;
     private static final String CAMERA_ON = "camera on";
+    private static final int YEARLY_SUB = 1;
+    private static final int MONTHLY_SUB = 0;
     private final int CAMERA_CODE = 2;
     private final Target target = new Target() {
         @Override
@@ -792,6 +797,7 @@ public class SingActivity extends AppCompatActivity implements
             startTimerStarted = false;
             activityUI.resetScreenForTimer();
             deleteVideo();
+            // todo make this better not working
         } else if (resumeTimer) {
             resumeTimer = false;
             activityUI.resetResumeTimer();
@@ -1065,7 +1071,7 @@ public class SingActivity extends AppCompatActivity implements
         userService = new UserService(new DatabaseDriver(), authenticationDriver);
         userService.getUserFromDatabase(new SignInViewModel.FreeShareListener() {
             @Override
-            public void hasFreeShare(boolean freeShare) {
+            public void hasFreeAcquisition(boolean freeShare) {
                 if (freeShare) {
                     keepVideo = true;
                     itemAcquired = true;
@@ -1162,9 +1168,9 @@ public class SingActivity extends AppCompatActivity implements
 
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
                     && purchases != null) {
+                keepVideo = true;
+                saveSongToTempJsonFile();
                 for (Purchase purchase : purchases) {
-                    keepVideo = true;
-                    saveSongToTempJsonFile();
                     if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 //                          saveSongToJsonFile();
                         itemAcquired = true;
@@ -1188,27 +1194,45 @@ public class SingActivity extends AppCompatActivity implements
                 keepVideo = false;
                 Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
             }
-        }, true, (billingResult, purchaseToken) -> {
-            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                jsonFile = renameJsonPendingFile();
-                userService.addOneToUserShares(new UserService.UserUpdateListener() {
+        }, true, new Billing.ReadyListener() {
+            @Override
+            public void ready() {
+                if (billingSession.isSubscribed()) {
+                    saveSongToTempJsonFile();
+                    jsonFile = renameJsonPendingFile();
+                    addOneToSongsDownload();
+                    save(jsonFile);
+                    activityUI.showShareItems();
+                } else
+                    activityUI.showSubscribeOptions();
+
+            }
+        });
+        billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
+            @Override
+            public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
+                userService.addSubscriptionType(new UserService.UserUpdateListener() {
                     @Override
                     public void onSuccess() {
+
                     }
 
                     @Override
                     public void onFailure() {
 
                     }
-                });
-//                if (funcToCall == SAVE)
+                }, billingResult.getResponseCode());
+                jsonFile = renameJsonPendingFile();
+                addOneToSongsDownload();
                 save(jsonFile);
-//                else
                 activityUI.showShareItems();
-//                saveAndShare(jsonFile);
             }
         });
         buttonClicked = false;
+    }
+
+    private void addOneToSongsDownload() {
+        SongService.addDownloadToSong(song.getTitle());
     }
 
     private void deletePendingJsonFile() {
@@ -1318,12 +1342,20 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    private void changeText() {
-        ((TextView) activityUI.getPopupView().findViewById(R.id.save_recording)).setText("hello");
-    }
-
     public void closeShareOptions(View view) {
         activityUI.hideShareItems();
+    }
+
+    public void returnToEndOptions(View view) {
+        activityUI.hideSubscribeOptions();
+    }
+
+    public void openYearlySubOption(View view) {
+        billingSession.startFlow(YEARLY_SUB);
+    }
+
+    public void openMonthlySubOption(View view) {
+        billingSession.startFlow(MONTHLY_SUB);
     }
 }
 

@@ -25,16 +25,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
-import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.Reocording;
+import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
@@ -54,8 +54,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
-//import com.function.karaoke.hardware.ui.login.LoginActivity;
 
 public class SongsActivity
         extends FragmentActivity
@@ -132,19 +130,29 @@ public class SongsActivity
                     int k = 0;
                 }
             }
-        }, false, new ConsumeResponseListener() {
+        }, false, new Billing.ReadyListener() {
             @Override
-            public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String s) {
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    renamePendingFiles();
-                    checkForFilesToUpload();
+            public void ready() {
+                if (billingSession.isSubscribed()) {
+                    File file = renamePendingFiles();
+                    if (file != null)
+
+                        checkForFilesToUpload();
                 }
+            }
+        });
+        billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
+            @Override
+            public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
+                File file = renamePendingFiles();
+                if (file != null)
+                    checkForFilesToUpload();
             }
         });
     }
 
-    private void renamePendingFiles() {
-        JsonHandler.renameJsonPendingFile(this.getFilesDir());
+    private File renamePendingFiles() {
+        return JsonHandler.renameJsonPendingFile(this.getFilesDir());
     }
 
     private void checkForFilesToUpload() {
@@ -308,6 +316,7 @@ public class SongsActivity
     @Override
     protected void onResume() {
         super.onResume();
+        //todo check to see if json folder is empty and delete all songs
     }
 
     private void checkForSignedInUser() {

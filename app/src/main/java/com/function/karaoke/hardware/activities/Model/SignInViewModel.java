@@ -168,6 +168,6 @@ public class SignInViewModel extends ViewModel {
     }
 
     public interface FreeShareListener {
-        void hasFreeShare(boolean freeShare);
+        void hasFreeAcquisition(boolean freeShare);
     }
 }

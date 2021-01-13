@@ -82,5 +82,8 @@
     <string name="you_re_recording_was_saved_do_you_want_to_share_it">הביצוע שלך נשמר, תרצה לשמור אותו?</string>
     <string name="share_save">שמור\\שתף</string>
     <string name="no_thank_you">לא תודה</string>
+    <string name="yearly_sub">מנוי שנתי  180 שח</string>
+    <string name="monthly_sub">מנוי חדשי 18 שח</string>
+    <string name="sub_invite">הירשם בשביל גישה לא מוגבלת</string>
 
 </resources>
