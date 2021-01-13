@@ -220,6 +220,7 @@ public class SingActivity extends AppCompatActivity implements
     private boolean prompted = false;
     private File compressedFile;
     private File jsonFile;
+    private int type = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -625,8 +626,8 @@ public class SingActivity extends AppCompatActivity implements
 
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
-        if (earphonesUsed)
-            intent.putExtra(AUDIO_FILE, songPlayed);
+//        if (earphonesUsed)
+        intent.putExtra(AUDIO_FILE, songPlayed);
         intent.putExtra(CAMERA_ON, cameraOn);
         intent.putExtra(DELAY, delay);
         intent.putExtra(LENGTH, lengthOfAudioPlayed);
@@ -1075,13 +1076,13 @@ public class SingActivity extends AppCompatActivity implements
                 if (freeShare) {
                     keepVideo = true;
                     itemAcquired = true;
-                    //todo differ between saveAndShare and save
                     userService.addOneToUserShares(new UserService.UserUpdateListener() {
                         @Override
                         public void onSuccess() {
                             saveSongToTempJsonFile();
                             jsonFile = renameJsonPendingFile();
-                            share(jsonFile);
+                            save(jsonFile);
+                            activityUI.showShareItems();
                         }
 
                         @Override
@@ -1102,8 +1103,8 @@ public class SingActivity extends AppCompatActivity implements
         //todo check that post parse video isn't null
         recording = new Recording(song, songPlayed, timeStamp,
                 authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn, true);
-        if (!earphonesUsed)
-            recording.earphonesNotUsed();
+//        if (!earphonesUsed)
+//            recording.earphonesNotUsed();
         JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
     }
 
@@ -1198,6 +1199,7 @@ public class SingActivity extends AppCompatActivity implements
             @Override
             public void ready() {
                 if (billingSession.isSubscribed()) {
+                    keepVideo = true;
                     saveSongToTempJsonFile();
                     jsonFile = renameJsonPendingFile();
                     addOneToSongsDownload();
@@ -1221,7 +1223,7 @@ public class SingActivity extends AppCompatActivity implements
                     public void onFailure() {
 
                     }
-                }, billingResult.getResponseCode());
+                }, type);
                 jsonFile = renameJsonPendingFile();
                 addOneToSongsDownload();
                 save(jsonFile);
@@ -1351,11 +1353,21 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void openYearlySubOption(View view) {
-        billingSession.startFlow(YEARLY_SUB);
+        if (!buttonClicked) {
+            buttonClicked = true;
+            type = 1;
+            billingSession.startFlow(YEARLY_SUB);
+            buttonClicked = false;
+        }
     }
 
     public void openMonthlySubOption(View view) {
-        billingSession.startFlow(MONTHLY_SUB);
+        if (!buttonClicked) {
+            buttonClicked = true;
+            type = 0;
+            billingSession.startFlow(MONTHLY_SUB);
+            buttonClicked = false;
+        }
     }
 }
 

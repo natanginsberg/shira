@@ -27,6 +27,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.exoplayer2.util.Util;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -278,7 +280,10 @@ public class CameraPreview {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        if (Util.SDK_INT >= 29)
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_PERFORMANCE);
+        else
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
 //        mMediaRecorder.setProfile(profile);

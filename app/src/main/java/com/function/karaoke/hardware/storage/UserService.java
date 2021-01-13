@@ -21,7 +21,7 @@ import java.util.Map;
  * This class manage sign up and getting the user object.
  */
 public class UserService extends ViewModel {
-    private static final int NUMBER_OF_FREE_SHARES = 1;
+    private static final int NUMBER_OF_FREE_SHARES = 3;
     private static final String SHARES = "shares";
     private static final String TYPE = "subscriptionType";
     private DatabaseDriver databaseDriver;
