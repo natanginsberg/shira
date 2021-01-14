@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.Genres;
-import com.function.karaoke.hardware.utils.Converter;
+import com.function.karaoke.hardware.utils.static_classes.Converter;
 
 import java.util.List;
 

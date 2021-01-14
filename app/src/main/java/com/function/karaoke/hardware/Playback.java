@@ -284,7 +284,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
             @Override
             public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
-//                addReverb(audioSessionId);
+                addReverb(audioSessionId);
             }
         });
         if (!cameraOn)

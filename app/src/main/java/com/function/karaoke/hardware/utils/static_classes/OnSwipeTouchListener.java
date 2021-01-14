@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware.utils;
+package com.function.karaoke.hardware.utils.static_classes;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;

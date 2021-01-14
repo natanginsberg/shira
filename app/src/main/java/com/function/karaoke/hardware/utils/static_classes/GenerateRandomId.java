@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware.utils;
+package com.function.karaoke.hardware.utils.static_classes;
 
 public class GenerateRandomId {
 

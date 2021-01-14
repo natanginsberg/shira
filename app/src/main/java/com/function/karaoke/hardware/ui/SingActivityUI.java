@@ -2,6 +2,7 @@ package com.function.karaoke.hardware.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -12,6 +13,8 @@ import android.view.ViewOverlay;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -185,9 +188,9 @@ public class SingActivityUI {
     }
 
     public void dismissPopup() {
+        popupOpened = false;
         popup.dismiss();
         undimBackground();
-        popupOpened = false;
     }
 
     public void hideLoadingIndicator() {
@@ -204,10 +207,19 @@ public class SingActivityUI {
 
 
     @SuppressLint("SetTextI18n")
-    public void showProgress(double progress) {
+    public void showProgress(double progress, Context baseContext) {
         if (loadingAmount != null)
 
             loadingAmount.setText(progress + "%");
+        if (!popupOpened)
+            sendIntent(progress, baseContext);
+    }
+
+    private void sendIntent(double progress, Context baseContext) {
+        Intent intent = new Intent();
+        intent.setAction("changed");
+        intent.putExtra("content", progress);
+        LocalBroadcastManager.getInstance(baseContext).sendBroadcast(intent);
     }
 
     public View getPopupView() {
@@ -251,8 +263,12 @@ public class SingActivityUI {
         popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
     }
 
-    public void hideSubscribeOptions(){
+    public void hideSubscribeOptions() {
         popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
         popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
+    }
+
+    public void popupClosed() {
+        popupOpened = false;
     }
 }

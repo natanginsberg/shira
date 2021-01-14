@@ -67,10 +67,10 @@ import com.function.karaoke.hardware.ui.SingActivityUI;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.Checks;
-import com.function.karaoke.hardware.utils.GenerateRandomId;
+import com.function.karaoke.hardware.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.hardware.utils.JsonHandler;
-import com.function.karaoke.hardware.utils.ShareLink;
-import com.function.karaoke.hardware.utils.SyncFileData;
+import com.function.karaoke.hardware.utils.static_classes.ShareLink;
+import com.function.karaoke.hardware.utils.static_classes.SyncFileData;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -707,6 +707,9 @@ public class SingActivity extends AppCompatActivity implements
                 showBackDialogBox();
             } else {
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                if (activityUI.isPopupOpened()) {
+                    activityUI.dismissPopup();
+                }
                 finish();
             }
             buttonClicked = false;
@@ -848,6 +851,7 @@ public class SingActivity extends AppCompatActivity implements
         popup = activityUI.getPopup();
         popup.setOnDismissListener(() -> {
             if (ending) finish();
+            activityUI.popupClosed();
             activityUI.undimBackground();
         });
     }
@@ -1007,6 +1011,9 @@ public class SingActivity extends AppCompatActivity implements
     private void refreshWindow() {
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, song);
+        if (activityUI.isPopupOpened()) {
+            activityUI.dismissPopup();
+        }
         finish();
         startActivity(intent);
     }
@@ -1336,7 +1343,7 @@ public class SingActivity extends AppCompatActivity implements
 
                 @Override
                 public void onProgress(int progress) {
-                    activityUI.showProgress(progress);
+                    activityUI.showProgress(progress, getBaseContext());
                 }
             });
             cloudUpload.saveToCloud(new File(saveItems.getFile()));

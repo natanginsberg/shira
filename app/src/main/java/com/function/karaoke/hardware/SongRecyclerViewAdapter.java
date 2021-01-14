@@ -14,6 +14,7 @@ import com.function.karaoke.core.model.Song;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
+import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -83,6 +84,19 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                 if (null != mListener) {
                     mListener.onListFragmentInteractionPlay(holder.mItem);
                 }
+            }
+        });
+        holder.itemView.setOnTouchListener(new OnSwipeTouchListener(holder.itemView.getContext()) {
+            @Override
+            public void onSwipeRight() {
+                super.onSwipeRight();
+                mListener.colorNextGenre();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                super.onSwipeLeft();
+                mListener.colorPreviousGenre();
             }
         });
     }

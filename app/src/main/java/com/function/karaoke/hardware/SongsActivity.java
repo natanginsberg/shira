@@ -4,12 +4,16 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.TextView;
@@ -23,7 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
@@ -42,7 +48,7 @@ import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
-import com.function.karaoke.hardware.utils.ShareLink;
+import com.function.karaoke.hardware.utils.static_classes.ShareLink;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
@@ -87,12 +93,26 @@ public class SongsActivity
             });
     private DatabaseSong songClicked;
     private File artistFile;
+    private TextView loadingText;
+    private CountDownTimer cTimer = null;
 
     private void updateUI() {
 //        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
 //        findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
 //        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
     }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            double content = intent.getDoubleExtra("content", 0.0);
+            loadingText.setText((int) content + "%");
+            if (content >= 100) {
+                startTimerForThreeSecondsToShow();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +125,7 @@ public class SongsActivity
         language = Locale.getDefault().getLanguage();
 //        language = getResources().getConfiguration().getLocales().get(0).getLanguage();
         setContentView(R.layout.activity_songs);
+        loadingText = (TextView) (findViewById(R.id.loading_percent));
         billingSession = new Billing(SongsActivity.this, new PurchasesUpdatedListener() {
             @Override
             public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
@@ -149,6 +170,7 @@ public class SongsActivity
                     checkForFilesToUpload();
             }
         });
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
     }
 
     private File renamePendingFiles() {
@@ -163,8 +185,8 @@ public class SongsActivity
                 for (File child : listOfAllFiles) {
                     if (child.getName().contains("Pending"))
                         continue;
-                    if (child.getName().contains("artist")) {}
-                     else {
+                    if (child.getName().contains("artist")) {
+                    } else {
                         SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
 //                        if (artistFileExists(child, listOfAllFiles)) {
 //                            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
@@ -205,14 +227,6 @@ public class SongsActivity
         file.delete();
     }
 
-//    private boolean artistFileExists(File child, List<File> listOfAllFiles) {
-//        for (File file : listOfAllFiles) {
-//            if (file.getName().contains(child.getName().replace(".json", "")) && file.getName().contains("artist")) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 
     @Override
     public void openAdminSide() {
@@ -275,7 +289,10 @@ public class SongsActivity
                     @Override
                     public void onProgress(int percent) {
                         if (findViewById(R.id.loading_percent) != null)
-                            ((TextView) (findViewById(R.id.loading_percent))).setText(percent + "%");
+                            loadingText.setText(percent + "%");
+                        if (percent >= 100) {
+                            startTimerForThreeSecondsToShow();
+                        }
                     }
                 });
             }
@@ -292,6 +309,23 @@ public class SongsActivity
         });
 
 
+    }
+
+    private void startTimerForThreeSecondsToShow() {
+        if (cTimer == null) {
+            cTimer = new CountDownTimer(2000, 500) {
+                @SuppressLint("SetTextI18n")
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    cTimer.cancel();
+                    loadingText.setText("");
+                    cTimer = null;
+                }
+            };
+            cTimer.start();
+        }
     }
 
     private void deleteJsonFile(File folder, String name) {
@@ -484,5 +518,19 @@ public class SongsActivity
         intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
         intent.putExtra("language", Locale.getDefault().getLanguage());
         startActivity(intent);
+    }
+
+    @Override
+    public void colorNextGenre() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        SongsListFragment fragment = (SongsListFragment) fragments.get(0);
+        fragment.colorNextGenre();
+    }
+
+    @Override
+    public void colorPreviousGenre() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        SongsListFragment fragment = (SongsListFragment) fragments.get(0);
+        fragment.colorPreviousGenre();
     }
 }

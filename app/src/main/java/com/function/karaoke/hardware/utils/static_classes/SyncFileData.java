@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware.utils;
+package com.function.karaoke.hardware.utils.static_classes;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Container;

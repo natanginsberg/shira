@@ -32,7 +32,7 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
-import com.function.karaoke.hardware.utils.OnSwipeTouchListener;
+import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,51 +135,51 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     }
 
-    private void addTouchForGenrePicking() {
-        for (int i = 0; i < allSongsDatabase.getSongs().size(); i++) {
-            ((RecyclerView) view.findViewById(R.id.list)).getChildAt(i).setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
-                public void onSwipeTop() {
-//                swipeRecyclerUp();
-                }
+//    private void addTouchForGenrePicking() {
+////        for (int i = 0; i < allSongsDatabase.getSongs().size(); i++) {
+//            ((RecyclerView) view.findViewById(R.id.list)).getChildAt(i).setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
+//                public void onSwipeTop() {
+////                swipeRecyclerUp();
+//                }
+//
+//                public void onSwipeRight() {
+//                    if (Locale.getDefault().getLanguage().equals("iw")) {
+//                        colorNextGenre();
+//                    } else {
+//                        colorPreviousGenre();
+//                    }
+//                }
+//
+//                public void onSwipeLeft() {
+//                    if (!Locale.getDefault().getLanguage().equals("iw")) {
+//                        colorNextGenre();
+//                    } else {
+//                        colorPreviousGenre();
+//                    }
+//                }
+//
+//                public void onSwipeBottom() {
+////                swipeRecyclerDown();
+//                }
+//
+//            });
+//        }
+//
+//    }
 
-                public void onSwipeRight() {
-                    if (Locale.getDefault().getLanguage().equals("iw")) {
-                        colorNextGenre();
-                    } else {
-                        colorPreviousGenre();
-                    }
-                }
-
-                public void onSwipeLeft() {
-                    if (!Locale.getDefault().getLanguage().equals("iw")) {
-                        colorNextGenre();
-                    } else {
-                        colorPreviousGenre();
-                    }
-                }
-
-                public void onSwipeBottom() {
-//                swipeRecyclerDown();
-                }
-
-            });
-        }
-
-    }
-
-    private void swipeRecyclerDown() {
-        ((RecyclerView) view.findViewById(R.id.list)).smoothScrollBy(0, 0);
-    }
+//    private void swipeRecyclerDown() {
+//        ((RecyclerView) view.findViewById(R.id.list)).smoothScrollBy(0, 0);
+//    }
 
 
-    private void colorPreviousGenre() {
+    public void colorPreviousGenre() {
         if (genreClicked > 0) {
             songsActivityUI.colorNextGenre(genreClicked - 1);
             getAllSongsFromGenre(genreClicked - 1);
         }
     }
 
-    private void colorNextGenre() {
+    public void colorNextGenre() {
         if (genreClicked < genres.getGenres().size()) {
             songsActivityUI.colorNextGenre(genreClicked + 1);
             getAllSongsFromGenre(genreClicked + 1);
@@ -531,5 +531,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void openAdminSide();
 
+        void colorNextGenre();
+
+        void colorPreviousGenre();
     }
 }
