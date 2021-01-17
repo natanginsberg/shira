@@ -1,6 +1,8 @@
 package com.function.karaoke.hardware;
 
 import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,6 +46,7 @@ import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
+import com.function.karaoke.hardware.storage.RecordingDelete;
 import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
@@ -95,6 +98,7 @@ public class SongsActivity
     private File artistFile;
     private TextView loadingText;
     private CountDownTimer cTimer = null;
+    private RecordingDelete recordingDelete;
 
     private void updateUI() {
 //        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
@@ -151,15 +155,12 @@ public class SongsActivity
                     int k = 0;
                 }
             }
-        }, false, new Billing.ReadyListener() {
-            @Override
-            public void ready() {
-                if (billingSession.isSubscribed()) {
-                    File file = renamePendingFiles();
-                    if (file != null)
+        }, false, () -> {
+            if (billingSession.isSubscribed()) {
+                File file = renamePendingFiles();
+                if (file != null)
 
-                        checkForFilesToUpload();
-                }
+                    checkForFilesToUpload();
             }
         });
         billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
@@ -299,7 +300,6 @@ public class SongsActivity
 
             @Override
             public void onFailure() {
-
             }
 
             @Override
@@ -307,8 +307,6 @@ public class SongsActivity
 
             }
         });
-
-
     }
 
     private void startTimerForThreeSecondsToShow() {
@@ -393,9 +391,15 @@ public class SongsActivity
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{FEEDBACK_EMAIL});
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
         intent.setType("message/rfc822");
-//        intent.setPackage("com.google.android.gm");
-        //todo check to see if there is a gmail account
+        if (deviceHasGoogleAccount())
+            intent.setPackage("com.google.android.gm");
         startActivity(intent);
+    }
+
+    private boolean deviceHasGoogleAccount() {
+        AccountManager accMan = AccountManager.get(this);
+        Account[] accArray = accMan.getAccountsByType("com.google");
+        return accArray.length >= 1;
     }
 
     private void askForAudioRecordPermission() {
@@ -429,20 +433,43 @@ public class SongsActivity
         Task<ShortDynamicLink> link = ShareLink.createLink(item);
         link.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Short link created
                 Uri shortLink = task.getResult().getShortLink();
                 Uri flowchartLink = task.getResult().getPreviewLink();
                 String link1 = shortLink.toString();
                 sendDataThroughIntent(link1);
-
-
             } else {
                 showFailure();
-                // Error
-                // ...
             }
         });
 
+    }
+
+    @Override
+    public void onListFragmentInteractionDelete(Recording mItem) {
+        recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
+            @Override
+            public void setup() {
+                deleteRecording();
+            }
+        }, mItem);
+    }
+
+    private void deleteRecording() {
+        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
+            @Override
+            public void onSuccess() {
+                showSuccessToast();
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        });
+    }
+
+    private void showSuccessToast() {
+        Toast.makeText(this, "succes", Toast.LENGTH_SHORT).show();
     }
 
     private void sendDataThroughIntent(String link) {
@@ -533,4 +560,6 @@ public class SongsActivity
         SongsListFragment fragment = (SongsListFragment) fragments.get(0);
         fragment.colorPreviousGenre();
     }
+
+
 }

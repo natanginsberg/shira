@@ -5,8 +5,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.activities.Model.SignInViewModel;
-import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -21,7 +19,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class RecordingService {
     public static final String COLLECTION_USERS_NAME = "recordings";
@@ -33,6 +30,7 @@ public class RecordingService {
     private static final String RECORDING_URL = "recordingUrl";
     private AuthenticationDriver authenticationDriver;
     private CollectionReference recordingsCollectionRef;
+    private DocumentReference recodingDocument;
 
     public RecordingService() {
         DatabaseDriver databaseDriver = new DatabaseDriver();
@@ -143,7 +141,23 @@ public class RecordingService {
                 });
     }
 
-    public interface RecordingInDatabaseListener{
+    public void deleteDocument(String recordingId, String recorderId) {
+        MutableLiveData<Recording> recording = new MutableLiveData<>();
+        Query getRecordingsQuery = recordingsCollectionRef.whereEqualTo(RECORDING_ID, recordingId).whereEqualTo(RECORDER_ID, recorderId);
+        getRecordingsQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().isEmpty()) {
+                    recording.setValue(null);
+                } else {
+                    task.getResult().getDocuments().get(0).getReference().delete();
+                }
+            } else {
+
+            }
+        });
+    }
+
+    public interface RecordingInDatabaseListener {
         void isInDatabase(boolean isIn);
     }
 }

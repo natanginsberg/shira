@@ -3,6 +3,7 @@ package com.function.karaoke.hardware;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.media.audiofx.EnvironmentalReverb;
 import android.media.audiofx.PresetReverb;
 import android.net.Uri;
 import android.os.Bundle;
@@ -121,6 +122,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         public void onSelectionActivated(Object info) {
         }
     };
+    private int sessionId = -1;
+    private AudioRendererWithoutClock earphoneRenderer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -284,19 +287,47 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
             @Override
             public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
-                addReverb(audioSessionId);
+                sessionId = audioSessionId;
+//                addReverb(audioSessionId);
             }
+
         });
         if (!cameraOn)
             findViewById(R.id.logo).setVisibility(View.VISIBLE);
 
     }
 
-    private void addReverb(int audioSessionId) {
-        PresetReverb reverb = new PresetReverb(1, audioSessionId);
-        reverb.setPreset(PresetReverb.PRESET_LARGEHALL);
-        reverb.setEnabled(true);
-        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(new AuxEffectInfo(reverb.getId(), 1f)).send();
+//    private void addReverb(int audioSessionId) {
+//        PresetReverb reverb = new PresetReverb(1, audioSessionId);
+//        reverb.setPreset(PresetReverb.);
+//        reverb.setEnabled(true);
+//        AuxEffectInfo effect = new AuxEffectInfo(reverb.getId(), 1f);
+//        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(effect).send();
+//        player.prepare();
+//    }
+
+    private void addReverb(int audioSesionId) {
+        EnvironmentalReverb eReverb = new EnvironmentalReverb(1, sessionId);
+        eReverb.setDecayHFRatio((short) 1000);
+        eReverb.setDecayTime(10000);
+        eReverb.setDensity((short) 1000);
+        eReverb.setDiffusion((short) 1000);
+        eReverb.setReverbLevel((short) 1000);
+        eReverb.setReverbDelay(100);
+        eReverb.setEnabled(true);
+        eReverb.setReflectionsLevel((short) -8500);
+        eReverb.setRoomLevel((short) -8500);
+
+        AuxEffectInfo effect = new AuxEffectInfo(eReverb.getId(), 1f);
+        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(effect).send();
+        player.prepare();
+
+//        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(new AuxEffectInfo(eReverb.getId(), 1f)).send();
+// try #2
+//        PresetReverb mReverb = new PresetReverb(2,0);
+//        mReverb.setPreset(PresetReverb.PRESET_LARGEROOM);
+//        mReverb.setEnabled(true);
+
     }
 
     @Override
@@ -427,6 +458,12 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
     }
 
+    public void turnReverbOnOrOff(View view) {
+        if (sessionId == -1)
+            sessionId = player.getAudioSessionId();
+        addReverb(sessionId);
+    }
+
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
                                          MediaCodecSelector mediaCodecSelector) {
@@ -455,7 +492,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             super.buildAudioRenderers(context, extensionRendererMode, mediaCodecSelector, enableDecoderFallback, audioSink, eventHandler, eventListener, out);
 
             if (earphonesUsed)
-                out.add(new AudioRendererWithoutClock(context, mediaCodecSelector));
+                earphoneRenderer = new AudioRendererWithoutClock(context, mediaCodecSelector);
+                out.add(earphoneRenderer);
             renderers = out;
         }
     }

@@ -85,5 +85,6 @@
     <string name="yearly_sub">מנוי שנתי  180 שח</string>
     <string name="monthly_sub">מנוי חדשי 18 שח</string>
     <string name="sub_invite">הירשם בשביל גישה לא מוגבלת</string>
+    <string name="reverb_on">רברב</string>
 
 </resources>

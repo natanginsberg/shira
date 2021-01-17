@@ -65,6 +65,13 @@
 
         </LinearLayout>
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reverb_on"
+            android:onClick="turnReverbOnOrOff"
+            android:layout_centerInParent="true"/>
+
         <!--        <TextView-->
         <!--            android:id="@+id/disabled"-->
         <!--            android:layout_width="wrap_content"-->

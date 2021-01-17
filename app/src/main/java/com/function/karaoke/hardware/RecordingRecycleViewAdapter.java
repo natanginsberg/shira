@@ -102,6 +102,14 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
                 }
             }
         });
+        holder.itemView.findViewById(R.id.delete_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (null != mListener) {
+                    mListener.onListFragmentInteractionDelete(holder.mItem);
+                }
+            }
+        });
     }
 
     @Override

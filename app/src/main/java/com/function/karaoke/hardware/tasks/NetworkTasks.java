@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import androidx.fragment.app.Fragment;
 
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.storage.RecordingDelete;
 import com.function.karaoke.hardware.storage.StorageAdder;
 //import com.function.karaoke.hardware.storage.StorageDriver;
 
@@ -199,12 +200,106 @@ public class NetworkTasks extends Fragment {
         }
     }
 
+    /**
+     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
+     * from.
+     */
+    public static DeleteFromWasabi deleteFromWasabi(RecordingDelete recordingDelete, DeleteListener listener) {
+        DeleteFromWasabi deleteFromWasabi = new DeleteFromWasabi(listener);
+        deleteFromWasabi.execute(recordingDelete);
+        return deleteFromWasabi;
+    }
+
     public interface UploadToWasabiListener {
         void onSuccess();
 
         void onFail();
 
         void onProgress(int progress);
+    }
+
+    /**
+     * Implementation of AsyncTask designed to fetch data from the network.
+     */
+    private static class DeleteFromWasabi extends AsyncTask<RecordingDelete, Integer, DeleteFromWasabi.Result> {
+
+        private DeleteListener listener;
+
+        DeleteFromWasabi(DeleteListener listener) {
+            setListener(listener);
+        }
+
+        void setListener(DeleteListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        protected DeleteFromWasabi.Result doInBackground(RecordingDelete... deletes) {
+            DeleteFromWasabi.Result result = null;
+            if (!isCancelled() && deletes != null) {
+                deletes[0].deleteRecording();
+                result = new DeleteFromWasabi.Result("Success");
+
+            }
+            return result;
+        }
+
+        /**
+         * Cancel background network operation if we do not have network connectivity.
+         */
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... percent) {
+        }
+
+        /**
+         * Updates the DownloadCallback with the result.
+         */
+        @Override
+        protected void onPostExecute(DeleteFromWasabi.Result result) {
+            if (result != null && listener != null) {
+                if (result.exception != null) {
+                    listener.onFail();
+                } else if (result.resultValue != null) {
+                    listener.onSuccess();
+                }
+            }
+        }
+
+        /**
+         * Override to add special behavior for cancelled AsyncTask.
+         */
+        @Override
+        protected void onCancelled(DeleteFromWasabi.Result result) {
+        }
+
+        /**
+         * Wrapper class that serves as a union of a result value and an exception. When the download
+         * task has completed, either the result value or exception can be a non-null value.
+         * This allows you to pass exceptions to the UI thread that were thrown during doInBackground().
+         */
+        private class Result {
+            public String resultValue;
+            public Exception exception;
+
+            public Result(String resultValue) {
+                this.resultValue = resultValue;
+            }
+
+            public Result(Exception exception) {
+                this.exception = exception;
+            }
+        }
+    }
+
+    public interface DeleteListener {
+        void onSuccess();
+
+        void onFail();
     }
 
 }

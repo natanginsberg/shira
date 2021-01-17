@@ -110,5 +110,6 @@
     <string name="yearly_sub">Yearly 180</string>
     <string name="monthly_sub">Monthly 18</string>
     <string name="sub_invite">Subscribe for unlimited access</string>
+    <string name="reverb_on">reverb on</string>
 
 </resources>

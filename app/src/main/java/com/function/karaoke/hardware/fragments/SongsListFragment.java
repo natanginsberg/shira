@@ -135,43 +135,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     }
 
-//    private void addTouchForGenrePicking() {
-////        for (int i = 0; i < allSongsDatabase.getSongs().size(); i++) {
-//            ((RecyclerView) view.findViewById(R.id.list)).getChildAt(i).setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
-//                public void onSwipeTop() {
-////                swipeRecyclerUp();
-//                }
-//
-//                public void onSwipeRight() {
-//                    if (Locale.getDefault().getLanguage().equals("iw")) {
-//                        colorNextGenre();
-//                    } else {
-//                        colorPreviousGenre();
-//                    }
-//                }
-//
-//                public void onSwipeLeft() {
-//                    if (!Locale.getDefault().getLanguage().equals("iw")) {
-//                        colorNextGenre();
-//                    } else {
-//                        colorPreviousGenre();
-//                    }
-//                }
-//
-//                public void onSwipeBottom() {
-////                swipeRecyclerDown();
-//                }
-//
-//            });
-//        }
-//
-//    }
-
-//    private void swipeRecyclerDown() {
-//        ((RecyclerView) view.findViewById(R.id.list)).smoothScrollBy(0, 0);
-//    }
-
-
     public void colorPreviousGenre() {
         if (genreClicked > 0) {
             songsActivityUI.colorNextGenre(genreClicked - 1);
@@ -207,12 +170,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void setClickListeners(View songsView) {
 
-        songsView.findViewById(R.id.open_search).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                songsActivityUI.openSearchBar(searchOpened);
-                searchOpened = !searchOpened;
-            }
+        songsView.findViewById(R.id.open_search).setOnClickListener(view -> {
+            songsActivityUI.openSearchBar(searchOpened);
+            searchOpened = !searchOpened;
         });
 
         songsView.findViewById(R.id.settings_button).setOnClickListener(this::openSettingsPopup);
@@ -367,7 +327,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public void openSettingsPopup(View view) {
         authenticationDriver = new AuthenticationDriver();
         songsActivityUI.openSettingsPopup(authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""), contentDisplayed
         );
         if (authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""))
@@ -375,7 +335,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView = songsActivityUI.getPopupView();
         popup = songsActivityUI.getPopup();
         addPopupListeners();
-//        songsActivityUI.getPopup().setOnDismissListener(this::undimBackground);
         popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
             public void onSwipeTop() {
             }
@@ -408,18 +367,15 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void policyListener() {
-        popupView.findViewById(R.id.policy).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null
-                        && (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
-                        authenticationDriver.getUserEmail().equals("natanginsberg@gmail.com") ||
-                        authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com"))) {
-                    clicked++;
-                    if (clicked == 5) {
-                        mListener.openAdminSide();
-                        clicked = 0;
-                    }
+        popupView.findViewById(R.id.policy).setOnClickListener(view -> {
+            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null
+                    && (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
+                    authenticationDriver.getUserEmail().equals("natanginsberg@gmail.com") ||
+                    authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com"))) {
+                clicked++;
+                if (clicked == 5) {
+                    mListener.openAdminSide();
+                    clicked = 0;
                 }
             }
         });
@@ -497,11 +453,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
 
-    public void undimBackground() {
-        ViewOverlay overlay = view.getOverlay();
-        overlay.clear();
-    }
-
 
     /**
      * This interface must be implemented by activities that contain this
@@ -534,5 +485,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void colorNextGenre();
 
         void colorPreviousGenre();
+
+        void onListFragmentInteractionDelete(Recording mItem);
     }
 }
