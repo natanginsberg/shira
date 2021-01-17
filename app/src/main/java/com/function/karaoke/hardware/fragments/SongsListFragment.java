@@ -78,6 +78,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private int clicked = 0;
     private boolean differentSongsDisplayed = true;
     private int contentDisplayed = ALL_SONGS_DISPLAYED;
+    private RecordingRecycleViewAdapter recordAdapter;
 
 
     /**
@@ -267,7 +268,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private void displayPersonalSongs() {
 //        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
 //        mAdapter.notifyDataSetChanged();
-        RecordingRecycleViewAdapter recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
+        recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
         recyclerView.setAdapter(recordAdapter);
     }
 
@@ -452,6 +453,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
     }
 
+    public void removeRecording() {
+        recordAdapter.removeAt();
+    }
 
 
     /**

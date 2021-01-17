@@ -61,7 +61,6 @@ public class RecordingDelete {
         String[] filePath = recording.getRecordingUrl().split("/");
         s3Client.deleteObject(BUCKET_NAME, filePath[filePath.length - 1]);
         recordingService.deleteDocument(recording.getRecordingId(), recording.getRecorderId());
-
     }
 
     public interface SetupListener{

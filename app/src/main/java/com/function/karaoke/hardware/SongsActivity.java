@@ -189,26 +189,7 @@ public class SongsActivity
                     if (child.getName().contains("artist")) {
                     } else {
                         SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(child));
-//                        if (artistFileExists(child, listOfAllFiles)) {
-//                            CloudUpload cloudUpload = new CloudUpload(saveItems.getRecording(), this.getFilesDir(), saveItems.getArtist(), new CloudUpload.UploadListener() {
-//                                @Override
-//                                public void onSuccess(File file) {
-//                                    deleteVideo(file);
-//                                }
 //
-//                                @Override
-//                                public void onFailure() {
-//
-//                                }
-//
-//                                @Override
-//                                public void onProgress(int progress) {
-//                                    ((TextView) findViewById(R.id.loading_percent)).setText(progress + "%");
-//                                }
-//                            });
-//                            cloudUpload.saveToCloud(new File(saveItems.getFile()));
-//
-//                        } else {
                         StorageAdder storageAdder = new StorageAdder(new File(saveItems.getFile()));
                         uploadRecording(storageAdder, saveItems, folder);
 //                        }
@@ -459,6 +440,9 @@ public class SongsActivity
             @Override
             public void onSuccess() {
                 showSuccessToast();
+                List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
+                fragment.removeRecording();
             }
 
             @Override

@@ -51,6 +51,8 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
     private final OnListFragmentInteractionListener mListener;
     private List<Recording> mValues;
     private final String language;
+    private int itemWantedToDelete;
+    private boolean removeInProgress = false;
 
     //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
 //        setData(items);
@@ -106,10 +108,21 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             @Override
             public void onClick(View view) {
                 if (null != mListener) {
-                    mListener.onListFragmentInteractionDelete(holder.mItem);
+                    if (!removeInProgress) {
+                        removeInProgress = true;
+                        mListener.onListFragmentInteractionDelete(holder.mItem);
+                        itemWantedToDelete = position;
+                    }
                 }
             }
         });
+    }
+
+    public void removeAt() {
+        mValues.remove(itemWantedToDelete);
+        notifyItemRemoved(itemWantedToDelete);
+        notifyItemRangeChanged(itemWantedToDelete, mValues.size());
+        removeInProgress = false;
     }
 
     @Override
