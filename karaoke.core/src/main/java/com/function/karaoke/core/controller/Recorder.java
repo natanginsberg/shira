@@ -1,16 +1,21 @@
 package com.function.karaoke.core.controller;
 
+import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.NoiseSuppressor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
 import com.function.karaoke.core.controller.processing.GoertzelToneDetectorJNI;
 import com.function.karaoke.core.controller.processing.IToneDetector;
+
+import java.io.IOException;
 
 /**
  * Created by ink on 2017-06-12.
@@ -149,6 +154,15 @@ public class Recorder {
         public void stopRecording() throws InterruptedException {
             mIsRecording = false;
             join();
+        }
+
+        private void playMusic(Context context){
+            MediaPlayer mp = new MediaPlayer();
+            try {
+                mp.setDataSource(context, Uri.parse("karaoke.core/src/main/res/raw/audio"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

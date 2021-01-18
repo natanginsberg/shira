@@ -1,11 +1,12 @@
 package com.function.karaoke.hardware.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewOverlay;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -79,6 +80,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private boolean differentSongsDisplayed = true;
     private int contentDisplayed = ALL_SONGS_DISPLAYED;
     private RecordingRecycleViewAdapter recordAdapter;
+    private float x1;
+    private float y1;
 
 
     /**
@@ -119,6 +122,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         songsActivityUI = new SongsActivityUI(view, this, getCurrentLanguage(), getContext());
         addGenres();
         view.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()));
+        addRecyclerViewGenreListener();
         return songsView;
     }
 
@@ -134,6 +138,64 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         };
         this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
 
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private void addRecyclerViewGenreListener() {
+//        recyclerView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
+//            @Override
+//            public void onSwipeRight() {
+//                super.onSwipeRight();
+//                mListener.colorNextGenre();
+//            }
+//
+//            @Override
+//            public void onSwipeLeft() {
+//                super.onSwipeLeft();
+//                mListener.colorPreviousGenre();
+//            }
+//        });
+        recyclerView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent e) {
+                recyclerView.onTouchEvent(e);
+                switch (e.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        x1 = e.getX();
+                        y1 = e.getY();
+                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_DRAGGING);
+//                if (mListener != null)
+//                {
+//                    mListener.OnItemClick(v, Position);
+//                }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_SETTLING);
+                        float x2 = e.getX();
+                        float y2 = e.getY();
+                        float diffY = y2 - y1;
+                        float diffX = x2 - x1;
+                        int x = (int)x2;
+                        int y = (int)y2;
+                        if (Math.abs(diffX) > Math.abs(diffY)){
+                            float deltaX = x2 - x1;
+                            if (Math.abs(deltaX) > 5) {
+                                // Left to Right swipe action
+                                if (x2 > x1) {
+                                    colorNextGenre();
+                                }
+
+                                // Right to left swipe action
+                                else {
+                                    colorPreviousGenre();
+                                }
+                            }
+                            break;
+                        }
+                }
+                return true;
+            }
+        });
     }
 
     public void colorPreviousGenre() {

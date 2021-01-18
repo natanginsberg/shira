@@ -361,7 +361,7 @@ public class CameraPreview {
     }
 
     public void start() {
-        PrintWriter writer = null;
+        PrintWriter writer;
         try {
             writer = new PrintWriter(mVideoFile);
             writer.print("");
@@ -369,11 +369,9 @@ public class CameraPreview {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        if (mVideoFile.length() < 1000)
-
+        if (mVideoFile.length() < 1000) {
             mMediaRecorder.start();
-
-        else
+        } else
             throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
 
     }

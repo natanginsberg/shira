@@ -86,19 +86,19 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                 }
             }
         });
-        holder.itemView.setOnTouchListener(new OnSwipeTouchListener(holder.itemView.getContext()) {
-            @Override
-            public void onSwipeRight() {
-                super.onSwipeRight();
-                mListener.colorNextGenre();
-            }
-
-            @Override
-            public void onSwipeLeft() {
-                super.onSwipeLeft();
-                mListener.colorPreviousGenre();
-            }
-        });
+//        holder.itemView.setOnTouchListener(new OnSwipeTouchListener(holder.itemView.getContext()) {
+//            @Override
+//            public void onSwipeRight() {
+//                super.onSwipeRight();
+//                mListener.colorNextGenre();
+//            }
+//
+//            @Override
+//            public void onSwipeLeft() {
+//                super.onSwipeLeft();
+//                mListener.colorPreviousGenre();
+//            }
+//        });
     }
 
     @Override

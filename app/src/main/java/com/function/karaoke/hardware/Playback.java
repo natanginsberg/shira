@@ -297,14 +297,11 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
         player.setPlayWhenReady(false);
-//        C.generateAudioSessionIdV21(this);
-//        player.setAudioSessionId(2);
         addSpinnerListeners();
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
             @Override
             public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
                 sessionId = audioSessionId;
-//                addReverb(audioSessionId);
             }
 
         });
@@ -322,29 +319,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         player.prepare();
     }
 
-//    private void addReverb(int audioSesionId) {
-//        EnvironmentalReverb eReverb = new EnvironmentalReverb(1, sessionId);
-//        eReverb.setDecayHFRatio((short) 1000);
-//        eReverb.setDecayTime(10000);
-//        eReverb.setDensity((short) 1000);
-//        eReverb.setDiffusion((short) 1000);
-//        eReverb.setReverbLevel((short) 1000);
-//        eReverb.setReverbDelay(100);
-//        eReverb.setEnabled(true);
-//        eReverb.setReflectionsLevel((short) -8500);
-//        eReverb.setRoomLevel((short) -8500);
-//
-//        AuxEffectInfo effect = new AuxEffectInfo(eReverb.getId(), 1f);
-//        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(effect).send();
-//        player.prepare();
-//
-////        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(new AuxEffectInfo(eReverb.getId(), 1f)).send();
-//// try #2
-////        PresetReverb mReverb = new PresetReverb(2,0);
-////        mReverb.setPreset(PresetReverb.PRESET_LARGEROOM);
-////        mReverb.setEnabled(true);
-//
-//    }
 
     @Override
     public void onStart() {
