@@ -175,19 +175,23 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                         float y2 = e.getY();
                         float diffY = y2 - y1;
                         float diffX = x2 - x1;
-                        int x = (int)x2;
-                        int y = (int)y2;
-                        if (Math.abs(diffX) > Math.abs(diffY)){
+                        if (Math.abs(diffX) > Math.abs(diffY)) {
                             float deltaX = x2 - x1;
                             if (Math.abs(deltaX) > 5) {
                                 // Left to Right swipe action
                                 if (x2 > x1) {
-                                    colorNextGenre();
+                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
+                                        colorPreviousGenre();
+                                    else
+                                        colorNextGenre();
                                 }
 
                                 // Right to left swipe action
                                 else {
-                                    colorPreviousGenre();
+                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
+                                        colorNextGenre();
+                                    else
+                                        colorPreviousGenre();
                                 }
                             }
                             break;
