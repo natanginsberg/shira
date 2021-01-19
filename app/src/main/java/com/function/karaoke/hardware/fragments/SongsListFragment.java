@@ -26,7 +26,6 @@ import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
-import com.function.karaoke.hardware.activities.Model.FirestoreSong;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
@@ -443,7 +442,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void showSongSuggestionBox() {
-        View suggestionView = songsActivityUI.openSongSuggestions();
+        View suggestionView = songsActivityUI.openSongSuggestionsPopup();
         suggestionView.findViewById(R.id.send_suggestion).setOnClickListener((View.OnClickListener) view -> {
             String songName = (String) ((EditText) suggestionView.findViewById(R.id.song_name)).getText().toString();
             String artistName = (String) ((EditText) suggestionView.findViewById(R.id.artist_name)).getText().toString();
@@ -485,10 +484,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void homeButtonListener() {
         popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
-            contentDisplayed = ALL_SONGS_DISPLAYED;
 //            songsActivityUI.putTouchBack();
-//            if (contentsDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-            if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
+            if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+                contentDisplayed = ALL_SONGS_DISPLAYED;
+//            if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
                 displayAllSongs();
                 songsActivityUI.allSongsShow();
                 songsActivityUI.showGenresAndSearch();
@@ -501,8 +500,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
 //            songsActivityUI.removeTouch();
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-//                if (contentsDisplayed == ALL_SONGS_DISPLAYED) {
-                if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
+                if (contentDisplayed == ALL_SONGS_DISPLAYED) {
+//                if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
                     AuthenticationDriver authenticationDriver = new AuthenticationDriver();
 //                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
 //                        recordingDB = null;

@@ -245,7 +245,7 @@ public class SongsActivityUI {
         view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
     }
 
-    public View openSongSuggestions() {
+    public View openSongSuggestionsPopup() {
         RelativeLayout viewGroup = view.findViewById(R.id.song_suggestion);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View suggestionView = layoutInflater.inflate(R.layout.song_suggestion, viewGroup);
@@ -259,8 +259,8 @@ public class SongsActivityUI {
         PopupWindow suggestPopup = new PopupWindow(context);
         suggestPopup.setContentView(suggestionView);
         suggestPopup.setFocusable(true);
-        suggestPopup.setHeight(Converter.convertDpToPx(200));
-        suggestPopup.setWidth(Converter.convertDpToPx(200));
+        suggestPopup.setHeight(Converter.convertDpToPx(250));
+        suggestPopup.setWidth(Converter.convertDpToPx(250));
         suggestPopup.showAtLocation(suggestionView, Gravity.CENTER, 0, 0);
 
     }

@@ -15,6 +15,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +58,26 @@ public class RecordingService {
             }
         });
         return recordings;
+    }
+
+    public void getNumberOfRecordingsFromUID(NumberListener numberListener) {
+        MutableLiveData<List<Recording>> recordings = new MutableLiveData<>();
+        final List<Recording> documentsList = new LinkedList<>();
+        Query getRecordingsQuery = recordingsCollectionRef.whereEqualTo(UID, authenticationDriver.getUserUid());
+        getRecordingsQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (task.getResult().isEmpty()) {
+                    numberListener.recordings(new ArrayList<>());
+                } else {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        documentsList.add(document.toObject(Recording.class));
+                    }
+                    numberListener.recordings(documentsList);
+                }
+            } else {
+                numberListener.failure();
+            }
+        });
     }
 
     public LiveData<Recording> getSharedRecording(String recordingId, String recorderId) {
@@ -159,6 +180,12 @@ public class RecordingService {
 
     public interface RecordingInDatabaseListener {
         void isInDatabase(boolean isIn);
+    }
+
+    public interface NumberListener{
+        void recordings(List<Recording> recordings);
+
+        void failure();
     }
 }
 

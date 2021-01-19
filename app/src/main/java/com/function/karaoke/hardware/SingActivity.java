@@ -44,6 +44,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
@@ -59,6 +62,8 @@ import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
+import com.function.karaoke.hardware.storage.RecordingDelete;
+import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.storage.SongService;
 import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
@@ -67,8 +72,8 @@ import com.function.karaoke.hardware.ui.SingActivityUI;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.CameraPreview;
 import com.function.karaoke.hardware.utils.Checks;
-import com.function.karaoke.hardware.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.hardware.utils.JsonHandler;
+import com.function.karaoke.hardware.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.hardware.utils.static_classes.ShareLink;
 import com.function.karaoke.hardware.utils.static_classes.SyncFileData;
 import com.google.android.exoplayer2.util.Util;
@@ -84,6 +89,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class SingActivity extends AppCompatActivity implements
@@ -221,6 +227,8 @@ public class SingActivity extends AppCompatActivity implements
     private File compressedFile;
     private File jsonFile;
     private int type = -1;
+    private int ALLOCATED_NUMBER_OF_RECORDINGS = 100;
+    private RecordingDelete recordingDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1064,7 +1072,8 @@ public class SingActivity extends AppCompatActivity implements
                     !authenticationDriver.getUserEmail().equals(""))
 
                 if (!itemAcquired)
-                    checkIfUserHasFreeAcquisition(SHARE);
+                    checkIfUserHasRoomToStore();
+
                 else
 //                    saveAndShare();
                     activityUI.showShareItems();
@@ -1073,6 +1082,53 @@ public class SingActivity extends AppCompatActivity implements
                 launchSignIn(SHARE);
             buttonClicked = false;
         }
+    }
+
+    private void checkIfUserHasRoomToStore() {
+        RecordingService recordingService = new RecordingService();
+        recordingService.getNumberOfRecordingsFromUID(new RecordingService.NumberListener() {
+            @Override
+            public void recordings(List<Recording> recordings) {
+                if (recordings.size() < ALLOCATED_NUMBER_OF_RECORDINGS) {
+                    checkIfUserHasFreeAcquisition(SHARE);
+                } else {
+                    View recordingPopup = activityUI.openRecordingsForDelete(SingActivity.this);
+                    RecyclerView recyclerView = (RecyclerView) recordingPopup.findViewById(R.id.recordings_recycler);
+                    recyclerView.setLayoutManager(new LinearLayoutManager(SingActivity.this));
+                    DeleteRecordingRecycler recordAdapter = new DeleteRecordingRecycler(recordings, new DeleteRecordingListener() {
+                        @Override
+                        public void play(Recording mItem) {
+                            playRecording(mItem);
+                        }
+
+                        @Override
+                        public void delete(Recording mItem) {
+                            deleteRecording(mItem);
+                        }
+                    }, getCurrentLanguage());
+                    recyclerView.setAdapter(recordAdapter);
+                }
+            }
+
+            @Override
+            public void failure() {
+
+            }
+        });
+    }
+
+    private void playRecording(Recording mItem) {
+        Intent intent = new Intent(this, Playback.class);
+        intent.putExtra(SingActivity.RECORDING, mItem);
+        startActivity(intent);
+    }
+
+    private void openRecordingsForDelete() {
+
+    }
+
+    private String getCurrentLanguage() {
+        return Locale.getDefault().getLanguage();
     }
 
     private void checkIfUserHasFreeAcquisition(int funcToCall) {
@@ -1375,6 +1431,45 @@ public class SingActivity extends AppCompatActivity implements
             billingSession.startFlow(MONTHLY_SUB);
             buttonClicked = false;
         }
+    }
+
+
+    public void deleteRecording(Recording mItem) {
+        recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
+            @Override
+            public void setup() {
+                deleteRecording();
+            }
+        }, mItem);
+    }
+
+    private void deleteRecording() {
+        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
+            @Override
+            public void onSuccess() {
+                showSuccessToast();
+                activityUI.dismissRecordings();
+                checkIfUserHasFreeAcquisition(SHARE);
+
+            }
+
+            @Override
+            public void onFail() {
+
+            }
+        });
+
+    }
+
+    private void showSuccessToast() {
+        Toast.makeText(this, "succes", Toast.LENGTH_SHORT).show();
+    }
+
+
+    public interface DeleteRecordingListener {
+        void play(Recording mItem);
+
+        void delete(Recording mItem);
     }
 }
 

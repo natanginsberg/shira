@@ -88,5 +88,6 @@
     <string name="reverb_on">רברב</string>
     <string name="song_suggestion">המלצת שיר</string>
     <string name="add_song_window">איזה שיר להוסיף?</string>
+    <string name="exceed_message">מלאת את כל המקום שלך בזיכרון. עליך למחוק ביצוע קודם</string>
 
 </resources>

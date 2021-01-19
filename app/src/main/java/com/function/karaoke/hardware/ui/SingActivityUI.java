@@ -28,6 +28,7 @@ public class SingActivityUI {
     private PopupWindow popup;
     private boolean popupOpened = false;
     private TextView loadingAmount;
+    private PopupWindow recordingsPopup;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -270,5 +271,25 @@ public class SingActivityUI {
 
     public void popupClosed() {
         popupOpened = false;
+    }
+
+    public View openRecordingsForDelete(Context context) {
+        RelativeLayout viewGroup = view.findViewById(R.id.recordings_to_delete);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View recordingsView = layoutInflater.inflate(R.layout.recording_to_delete, viewGroup);
+
+        placeRecordingsPopupOnScreen(recordingsView, context);
+        return recordingsView;
+    }
+
+    private void placeRecordingsPopupOnScreen(View recordingsView, Context context) {
+        recordingsPopup = new PopupWindow(context);
+        recordingsPopup.setFocusable(true);
+        setEndOptionsPopupAttributes(context, recordingsPopup, recordingsView);
+        recordingsPopup.showAtLocation(recordingsView, Gravity.CENTER, 0, 0);
+    }
+
+    public void dismissRecordings() {
+        recordingsPopup.dismiss();
     }
 }
