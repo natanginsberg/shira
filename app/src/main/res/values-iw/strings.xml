@@ -86,5 +86,7 @@
     <string name="monthly_sub">מנוי חדשי 18 שח</string>
     <string name="sub_invite">הירשם בשביל גישה לא מוגבלת</string>
     <string name="reverb_on">רברב</string>
+    <string name="song_suggestion">המלצת שיר</string>
+    <string name="add_song_window">איזה שיר להוסיף?</string>
 
 </resources>

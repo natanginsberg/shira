@@ -134,6 +134,7 @@ public class NetworkTasks extends Fragment {
         protected UploadToWasabi.Result doInBackground(StorageAdder... drivers) {
             UploadToWasabi.Result result = null;
             if (!isCancelled() && drivers != null) {
+                //todo catch internet failure so not to crash app
                 drivers[0].uploadFile(new StorageAdder.UploadProgressListener() {
                     @Override
                     public void progressUpdate(double progress) {

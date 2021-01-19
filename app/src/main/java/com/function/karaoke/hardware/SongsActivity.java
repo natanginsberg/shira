@@ -63,6 +63,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Properties;
 
 public class SongsActivity
         extends FragmentActivity
@@ -73,6 +74,7 @@ public class SongsActivity
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final int SHARING_ERROR = 100;
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
+    private static final String SONG_SUGGEST_EMAIL = "ashira.songs@gmail.com";
 
     private Billing billingSession;
     public String language;
@@ -95,7 +97,6 @@ public class SongsActivity
                 }
             });
     private DatabaseSong songClicked;
-    private File artistFile;
     private TextView loadingText;
     private CountDownTimer cTimer = null;
     private RecordingDelete recordingDelete;
@@ -125,9 +126,7 @@ public class SongsActivity
         dbSongs = new DatabaseSongsDB();
         checkForSignedInUser();
 
-//        showPromo();
         language = Locale.getDefault().getLanguage();
-//        language = getResources().getConfiguration().getLocales().get(0).getLanguage();
         setContentView(R.layout.activity_songs);
         loadingText = (TextView) (findViewById(R.id.loading_percent));
         billingSession = new Billing(SongsActivity.this, new PurchasesUpdatedListener() {
@@ -172,6 +171,7 @@ public class SongsActivity
             }
         });
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
+        //todo check for the internet connection in order that the app doesnt go on falling because of the error
     }
 
     private File renamePendingFiles() {
@@ -368,10 +368,23 @@ public class SongsActivity
 
     @Override
     public void openEmailIntent() {
-        Intent intent = new Intent(Intent.ACTION_SEND);
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{FEEDBACK_EMAIL});
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
-        intent.setType("message/rfc822");
+        intent.setData(Uri.parse("mailto:"));
+        if (deviceHasGoogleAccount())
+            //todo does ont check accurately
+            intent.setPackage("com.google.android.gm");
+        startActivity(intent);
+    }
+
+    @Override
+    public void sendEmailWithSongSuggestion(String songName, String artistName){
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{SONG_SUGGEST_EMAIL});
+        intent.setData(Uri.parse("mailto:"));
+        String subject = songName + "  " + artistName;
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
         if (deviceHasGoogleAccount())
             intent.setPackage("com.google.android.gm");
         startActivity(intent);
@@ -530,20 +543,4 @@ public class SongsActivity
         intent.putExtra("language", Locale.getDefault().getLanguage());
         startActivity(intent);
     }
-
-    @Override
-    public void colorNextGenre() {
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        SongsListFragment fragment = (SongsListFragment) fragments.get(0);
-        fragment.colorNextGenre();
-    }
-
-    @Override
-    public void colorPreviousGenre() {
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        SongsListFragment fragment = (SongsListFragment) fragments.get(0);
-        fragment.colorPreviousGenre();
-    }
-
-
 }

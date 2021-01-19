@@ -245,14 +245,25 @@ public class SongsActivityUI {
         view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
     }
 
-//    public void putTouchBack() {
-//        view.findViewById(R.id.touch_screen).setVisibility(View.VISIBLE);
-//    }
-//
-//    public void removeTouch() {
-//        view.findViewById(R.id.touch_screen).setVisibility(View.INVISIBLE);
-//    }
+    public View openSongSuggestions() {
+        RelativeLayout viewGroup = view.findViewById(R.id.song_suggestion);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View suggestionView = layoutInflater.inflate(R.layout.song_suggestion, viewGroup);
 
+        placeSuggestionOnScreen(suggestionView);
+        applyDim();
+        return suggestionView;
+    }
+
+    private void placeSuggestionOnScreen(View suggestionView) {
+        PopupWindow suggestPopup = new PopupWindow(context);
+        suggestPopup.setContentView(suggestionView);
+        suggestPopup.setFocusable(true);
+        suggestPopup.setHeight(Converter.convertDpToPx(200));
+        suggestPopup.setWidth(Converter.convertDpToPx(200));
+        suggestPopup.showAtLocation(suggestionView, Gravity.CENTER, 0, 0);
+
+    }
 
     public interface SongsUIListener {
         void getAllSongsFromGenre(int genre);

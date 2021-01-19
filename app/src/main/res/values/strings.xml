@@ -54,7 +54,7 @@
     <string name="my_recordings">My Recordings</string>
     <string name="sign_in">Sign In</string>
     <string name="contact_us">Contact Us</string>
-    <string name="policy">Policy</string>
+    <string name="policy">Privacy policy</string>
     <string name="sign_in_title">Not a User</string>
     <string name="recording_sign_in_text">You must sign in to view recordings</string>
     <string name="no_recordings">Sorry,\n you have no recordings</string>
@@ -111,5 +111,7 @@
     <string name="monthly_sub">Monthly 18</string>
     <string name="sub_invite">Subscribe for unlimited access</string>
     <string name="reverb_on">reverb on</string>
+    <string name="song_suggestion">Song Reccomendation</string>
+    <string name="add_song_window">What song should we add?</string>
 
 </resources>

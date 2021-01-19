@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -25,6 +26,7 @@ import com.function.karaoke.hardware.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
+import com.function.karaoke.hardware.activities.Model.FirestoreSong;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
@@ -181,17 +183,19 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                                 // Left to Right swipe action
                                 if (x2 > x1) {
                                     if (getCurrentLanguage().equalsIgnoreCase("iw"))
-                                        colorPreviousGenre();
-                                    else
                                         colorNextGenre();
+                                    else
+                                        colorPreviousGenre();
+
                                 }
 
                                 // Right to left swipe action
                                 else {
                                     if (getCurrentLanguage().equalsIgnoreCase("iw"))
-                                        colorNextGenre();
-                                    else
                                         colorPreviousGenre();
+                                    else
+                                        colorNextGenre();
+
                                 }
                             }
                             break;
@@ -431,6 +435,21 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         signInButtonListener();
         contactUsListener();
         policyListener();
+        addSongListener();
+    }
+
+    private void addSongListener() {
+        popupView.findViewById(R.id.song_suggestion).setOnClickListener(view -> showSongSuggestionBox());
+    }
+
+    private void showSongSuggestionBox() {
+        View suggestionView = songsActivityUI.openSongSuggestions();
+        suggestionView.findViewById(R.id.send_suggestion).setOnClickListener((View.OnClickListener) view -> {
+            String songName = (String) ((EditText) suggestionView.findViewById(R.id.song_name)).getText().toString();
+            String artistName = (String) ((EditText) suggestionView.findViewById(R.id.artist_name)).getText().toString();
+            mListener.sendEmailWithSongSuggestion(songName, artistName);
+//                mListener.sendSuggestion();
+        });
     }
 
     private void policyListener() {
@@ -450,26 +469,17 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void contactUsListener() {
-        popupView.findViewById(R.id.contact_us).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                mListener.openEmailIntent();
-            }
-        });
+        popupView.findViewById(R.id.contact_us).setOnClickListener(view -> mListener.openEmailIntent());
     }
 
     private void signInButtonListener() {
-        popupView.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (authenticationDriver.getUserUid() != null) {
-                    mListener.signOut();
-                } else {
-                    mListener.openSignUp();
-                }
-                popup.dismiss();
+        popupView.findViewById(R.id.sign_in_button).setOnClickListener(view -> {
+            if (authenticationDriver.getUserUid() != null) {
+                mListener.signOut();
+            } else {
+                mListener.openSignUp();
             }
+            popup.dismiss();
         });
     }
 
@@ -552,10 +562,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void openAdminSide();
 
-        void colorNextGenre();
-
-        void colorPreviousGenre();
-
         void onListFragmentInteractionDelete(Recording mItem);
+
+        void sendEmailWithSongSuggestion(String songName, String artistName);
     }
 }
