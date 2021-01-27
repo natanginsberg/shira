@@ -59,7 +59,11 @@ public class RecordingDB {
     }
 
     public void updateRecordings(List<Recording> recordingsList) {
+        recordings.clear();
+        recordingsPerSong.clear();
         recordings.addAll(recordingsList);
+        createMap();
+        notifyUpdated();
     }
 
     public HashMap<Reocording, List<Recording>> getRecordingsPerSong() {

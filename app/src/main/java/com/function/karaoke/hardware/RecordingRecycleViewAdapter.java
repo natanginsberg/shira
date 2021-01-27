@@ -46,9 +46,8 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             return a.getArtist().compareToIgnoreCase(b.getArtist());
         }
     };
-    private final OnListFragmentInteractionListener mListener;
+    private final RecordingListener mListener;
     private List<Recording> mValues;
-    private final String language;
     private int itemWantedToDelete;
     private boolean removeInProgress = false;
 
@@ -57,10 +56,9 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
 //        mListener = listener;
 //        this.language = language;
 //    }
-    public RecordingRecycleViewAdapter(List<Recording> items, OnListFragmentInteractionListener listener, String language) {
+    public RecordingRecycleViewAdapter(List<Recording> items, RecordingListener listener) {
         setData(items);
         mListener = listener;
-        this.language = language;
     }
 
     @NonNull
@@ -69,10 +67,10 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         View view;
         view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recording_display_item, parent, false);
-        if (language.equals("iw"))
-            view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-        else
-            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+//        if (language.equals("iw"))
+//            view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+//        else
+//            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         layoutParams.height = (parent.getHeight() / 8);
         view.setLayoutParams(layoutParams);
@@ -171,6 +169,15 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         private String getDateAndTime(String date) {
             return date.substring(9, 11) + ":" + date.substring(11, 13) + "  " + date.substring(6, 8) + "/" + date.substring(4, 6) + "/" + date.substring(2, 4);
         }
+    }
+    
+    public interface RecordingListener{
+
+        void onListFragmentInteractionPlay(Recording mItem);
+
+        void onListFragmentInteractionShare(Recording mItem);
+
+        void onListFragmentInteractionDelete(Recording mItem);
     }
 
 }

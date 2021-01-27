@@ -32,7 +32,8 @@
         android:roundIcon="@mipmap/ic_video_camera"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Admin"></activity>
+        <activity android:name=".RecordingsList"></activity>
+        <activity android:name=".Admin" />
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -53,7 +54,7 @@
             android:screenOrientation="portrait">
             <intent-filter
                 android:autoVerify="true"
-                tools:targetApi='m'>
+                tools:targetApi="m">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -73,7 +74,7 @@
         <activity
             android:name=".SongsActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustNothing"></activity>
+            android:windowSoftInputMode="adjustNothing" />
     </application>
 
 </manifest>

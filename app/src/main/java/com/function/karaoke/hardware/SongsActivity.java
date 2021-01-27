@@ -390,6 +390,12 @@ public class SongsActivity
         startActivity(intent);
     }
 
+    @Override
+    public void startRecordingsActivity() {
+        Intent intent = new Intent(this, RecordingsList.class);
+        startActivity(intent);
+    }
+
     private boolean deviceHasGoogleAccount() {
         AccountManager accMan = AccountManager.get(this);
         Account[] accArray = accMan.getAccountsByType("com.google");

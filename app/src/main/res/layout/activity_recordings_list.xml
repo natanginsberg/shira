@@ -2,11 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/song_list_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/main_background"
-    tools:context=".fragments.SongsListFragment">
+    tools:context=".RecordingsList">
 
     <View
         android:layout_width="match_parent"
@@ -68,9 +67,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@id/mic_icon"
-            app:layout_constraintEnd_toStartOf="@id/mic_icon"
-            app:layout_constraintTop_toTopOf="@id/mic_icon" />
+            app:layout_constraintBottom_toBottomOf="@id/back_button"
+            app:layout_constraintEnd_toStartOf="@id/back_button"
+            app:layout_constraintTop_toTopOf="@id/back_button" />
 
         <TextView
             android:id="@+id/internet_speed"
@@ -81,13 +80,14 @@
             app:layout_constraintStart_toEndOf="@id/settings_button"
             app:layout_constraintTop_toTopOf="@id/settings_button" />
 
-        <ImageView
-            android:id="@+id/mic_icon"
+        <Button
+            android:id="@+id/back_button"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:background="@drawable/ic_mic_ashira_white"
+            android:background="@drawable/ic_arrow_back"
+            android:onClick="back"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="0.6"
+            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@id/search_icon_guide"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.05" />
@@ -120,43 +120,27 @@
         android:layoutDirection="locale"
         android:theme="@style/SearchTheme"
         app:iconifiedByDefault="false"
-        app:layout_constraintDimensionRatio="5:1"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintDimensionRatio="4:1"
+        app:layout_constraintEnd_toStartOf="@id/user_picture"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintWidth_percent="0.81"
-         />
+        app:layout_constraintWidth_percent="0.62"
+        app:queryHint="@string/recording_search"
+        app:searchIcon="@drawable/ic_search_icon" />
 
-    <RelativeLayout
-        android:id="@+id/search_icon_and_words"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:elevation="10dp"
-        android:orientation="horizontal"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/user_picture"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginEnd="15dp"
+        android:src="@drawable/circle"
         app:layout_constraintBottom_toBottomOf="@id/search_input"
-        app:layout_constraintLeft_toLeftOf="@id/search_input"
-        app:layout_constraintRight_toRightOf="@id/search_input"
-        app:layout_constraintTop_toTopOf="@id/search_input">
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/search_input"
+        app:layout_constraintTop_toTopOf="@id/search_input"
+        app:layout_constraintWidth_percent="0.13" />
 
-        <ImageView
-            android:id="@+id/search_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:background="@drawable/ic_search_icon"
-            android:paddingEnd="5dp" />
-
-        <TextView
-            android:layout_toEndOf="@id/search_icon"
-            android:id="@+id/search_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingEnd="5dp"
-            android:layout_centerVertical="true"
-            android:text="@string/search"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
-    </RelativeLayout>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/song_list"
@@ -164,6 +148,76 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.08" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/song_info"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        app:layout_constraintHeight_percent="0.18"
+        app:layout_constraintTop_toBottomOf="@id/search_input">
+
+        <RelativeLayout
+            android:layout_width="25dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:background="@drawable/outline_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_trash_icon_white" />
+
+        </RelativeLayout>
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/recording_album_pic"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/recordings_album_holder"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintHeight_percent="0.6"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/mid_text_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/artist_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:fontFamily="@font/varela_round_regular"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/mid_text_guide"
+            app:layout_constraintStart_toEndOf="@id/recording_album_pic" />
+
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:fontFamily="@font/varela_round_regular"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/recording_album_pic"
+            app:layout_constraintTop_toTopOf="@id/mid_text_guide" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -173,12 +227,10 @@
         android:layout_height="@dimen/no_hardcode_dimension"
         android:background="@drawable/main_background"
         android:scrollbars="vertical"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_input">
+        app:layout_constraintTop_toBottomOf="@id/song_info">
 
     </androidx.recyclerview.widget.RecyclerView>
 

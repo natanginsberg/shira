@@ -98,8 +98,10 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 //        else
 //            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        layoutParams.width = ((int) (parent.getWidth() / 2.3));
-        layoutParams.height = ((int) (parent.getHeight() / 2.4));
+        int width = (int) (parent.getWidth() / 2.1);
+        layoutParams.width = (width);
+        layoutParams.height = (int) (1.3 * width);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             view.findViewById(R.id.song_placeholder).setBackground(parent.getContext().getResources().getDrawable(rectangles[viewType * 2 + randomColor], null));
             view.findViewById(R.id.song_placeholder).setBackgroundTintBlendMode(BlendMode.COLOR_DODGE);

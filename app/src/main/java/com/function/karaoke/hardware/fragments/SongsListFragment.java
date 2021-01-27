@@ -123,7 +123,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         }
         recyclerView.setAdapter(mAdapter);
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 //        gAdapter = new GridAdapter(getContext(), currentDatabaseSongs.getSongs(), mListener);
 //        gridView = songsView.findViewById(R.id.list);
         addSearchListener();
@@ -286,27 +285,27 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
 
-    private void getAllPersonalSongs() {
-        final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
-            contentDisplayed = PERSONAL_RECORDING_DISPLAYED;
-            if (personalRecordings != null) {
-                recordingDB = new RecordingDB(personalRecordings);
-                view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
-                displayPersonalSongs();
-                differentSongsDisplayed = true;
-            } else {
-//                currentDatabaseSongs.updateSongs(new ArrayList<>());
-//                mAdapter.notifyDataSetChanged();
-                differentSongsDisplayed = false;
-                songsActivityUI.noRecordings();
-
-            }
-//            songsActivityUI.hideGenresAndSearch();
-            popup.dismiss();
-
-        };
-        this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
-    }
+//    private void getAllPersonalSongs() {
+//        final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
+//            contentDisplayed = PERSONAL_RECORDING_DISPLAYED;
+//            if (personalRecordings != null) {
+//                recordingDB = new RecordingDB(personalRecordings);
+//                view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+//                displayPersonalSongs();
+//                differentSongsDisplayed = true;
+//            } else {
+////                currentDatabaseSongs.updateSongs(new ArrayList<>());
+////                mAdapter.notifyDataSetChanged();
+//                differentSongsDisplayed = false;
+//                songsActivityUI.noRecordings();
+//
+//            }
+////            songsActivityUI.hideGenresAndSearch();
+//            popup.dismiss();
+//
+//        };
+//        this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
+//    }
 
     @Override
     public void onPause() {
@@ -377,6 +376,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             @Override
             public boolean onQueryTextChange(String query) {
                 if (query.length() >= 1) {
+                    view.findViewById(R.id.search_icon_and_words).setVisibility(View.INVISIBLE);
                     if (query.length() > previousQuery.length()) {
                         addCopyOfSongsDBToList(currentDatabaseSongs);
                         getSongsSearchedFor(query.toLowerCase());
@@ -388,6 +388,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //                    gAdapter.notifyDataSetChanged();
                     previousQuery = query;
                 } else {
+                    view.findViewById(R.id.search_icon_and_words).setVisibility(View.VISIBLE);
                     if (previousSongs.size() != 0) {
                         currentDatabaseSongs.updateSongs(previousSongs.get(0).getSongs());
                         mAdapter.notifyDataSetChanged();
@@ -530,7 +531,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     AuthenticationDriver authenticationDriver = new AuthenticationDriver();
 //                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
 //                        recordingDB = null;
-                    getAllPersonalSongs();
+//                    getAllPersonalSongs();
+                    mListener.startRecordingsActivity();
 //                    } else {
 //                        displayPersonalSongs();
 //                    }
@@ -560,8 +562,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     @Override
     public void onListFragmentInteractionPlay(List<Recording> recordings) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recordAdapter = new RecordingRecycleViewAdapter(recordings, mListener, ((SongsActivity) requireActivity()).language);
-        recyclerView.setAdapter(recordAdapter);
+//        recordAdapter = new RecordingRecycleViewAdapter(recordings, mListener);
+//        recyclerView.setAdapter(recordAdapter);
     }
 
     private void showRecordings() {
@@ -601,6 +603,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void sendEmailWithSongSuggestion(String songName, String artistName);
 
+        void startRecordingsActivity();
     }
 
 
