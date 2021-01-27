@@ -170,6 +170,7 @@ public class SignInActivity extends AppCompatActivity {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 //
+            //todo get the profile picture
             signInViewModel.firebaseAuthWithGoogle(account.getIdToken(), new SignInViewModel.FirebaseAuthListener() {
                 @Override
                 public void onSuccess(FirebaseUser firebaseUser) {
@@ -248,17 +249,20 @@ public class SignInActivity extends AppCompatActivity {
 
 
     public void continueAsGuest(View view) {
-        signInViewModel.createGuestId(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
-                    openMain();
-                } else {
-                    makeToastForError();
+        if (authenticationDriver.isSignIn()) {
+            openMain();
+        } else
+            signInViewModel.createGuestId(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        openMain();
+                    } else {
+                        makeToastForError();
+                    }
                 }
-            }
-        });
+            });
 
     }
 

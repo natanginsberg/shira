@@ -25,7 +25,7 @@
     <string name="playback">Playback</string>
     <string name="share">Share</string>
     <string name="share_save">Save\\Share</string>
-    <string name="promo">Jewish Karoke\nApp</string>
+    <string name="promo">Jewish Karoke App</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">Log In / Sign Up</string>
     <string name="search">Search</string>
@@ -114,5 +114,12 @@
     <string name="song_suggestion">Song Reccomendation</string>
     <string name="add_song_window">What song should we add?</string>
     <string name="exceed_message">You have exceeded you\'re storage capacity you must delete a song</string>
+    <string name="popular">Popular</string>
+    <string name="new_tag">New</string>
+    <string name="menu">Menu</string>
+    <string name="payment_history">Payment History</string>
+    <string name="language_change">שפה</string>
+    <string name="from">From</string>
+    <string name="recording_tag_display_constant">" Recordings"</string>
 
 </resources>

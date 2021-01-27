@@ -46,6 +46,7 @@ public class CameraPreview {
 
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private final Context context;
+    //    private AudioRecorder audioRecorder;
     private AppCompatActivity activity;
     private TextureView mTextureView;
     private CameraDevice mCamera;
@@ -113,6 +114,8 @@ public class CameraPreview {
         this.context = context;
         createVideoFolder();
         mMediaRecorder = new MediaRecorder();
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+//            audioRecorder = new AudioRecorder(context);
 
     }
 
@@ -278,8 +281,9 @@ public class CameraPreview {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
 
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
 //        mMediaRecorder.setProfile(profile);
@@ -289,13 +293,15 @@ public class CameraPreview {
             mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
-        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-//
-        mMediaRecorder.setAudioChannels(1);
-//        mMediaRecorder.setAudioEncodingBitRate(12200);
-        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
-        mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
-//        mMediaRecorder.setAudioSamplingRate(8000);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+
+            mMediaRecorder.setAudioChannels(1);
+            mMediaRecorder.setAudioEncodingBitRate(12200);
+            mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+            mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+            mMediaRecorder.setAudioSamplingRate(8000);
+        }
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
             mMediaRecorder.prepare();
@@ -303,6 +309,8 @@ public class CameraPreview {
         } catch (IOException e) {
             e.printStackTrace();
         }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+//            audioRecorder.startRecorder();
     }
 
     private void setMediaRecorder() {
@@ -345,19 +353,30 @@ public class CameraPreview {
             mMediaRecorder.reset();
             mMediaRecorder.release();
             mMediaRecorder = null;
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                audioRecorder.stopRecording();
+//                audioRecorder.deleteFile();
+//            }
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void pauseRecording() {
-        if (mMediaRecorder != null)
+        if (mMediaRecorder != null) {
             mMediaRecorder.pause();
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+//                audioRecorder.pauseRecorder();
+
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
-        if (mMediaRecorder != null)
+        if (mMediaRecorder != null) {
             mMediaRecorder.resume();
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+//                audioRecorder.resumeRecording();
+        }
     }
 
     public void start() {
@@ -371,6 +390,7 @@ public class CameraPreview {
         }
         if (mVideoFile.length() < 1000) {
             mMediaRecorder.start();
+
         } else
             throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
 

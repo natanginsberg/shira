@@ -1,27 +1,25 @@
 package com.function.karaoke.core.controller;
 
-import android.content.Context;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.MediaPlayer;
+import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.NoiseSuppressor;
-import android.net.Uri;
+import android.media.audiofx.PresetReverb;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import com.function.karaoke.core.controller.processing.GoertzelToneDetectorJNI;
-import com.function.karaoke.core.controller.processing.IToneDetector;
-
-import java.io.IOException;
 
 /**
  * Created by ink on 2017-06-12.
  */
 
 public class Recorder {
+
+    private AudioRecord mRecorder;
+    private AudioTrack mPlayer;
 
     public interface IToneListener {
         void toneChanged(int tone, long duration);
@@ -36,10 +34,19 @@ public class Recorder {
     private volatile AudioRecordingThread mThread;
 
     public Recorder(final IToneListener controller) {
-        mHandler = new Handler(Looper.getMainLooper()){
+        mHandler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
                 controller.toneChanged(msg.what, msg.arg1);
+            }
+        };
+    }
+
+    public Recorder() {
+        mHandler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+
             }
         };
     }
@@ -48,7 +55,36 @@ public class Recorder {
         if (null != mThread)
             return true; // running
         try {
-            mThread = new AudioRecordingThread();
+            final int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,
+                    AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT);
+            mRecorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                    SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_STEREO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+            if (NoiseSuppressor.isAvailable()) {
+                NoiseSuppressor ns = NoiseSuppressor.create(mRecorder.getAudioSessionId());
+                ns.setEnabled(true);
+            }
+
+            if (AcousticEchoCanceler.isAvailable()) {
+                AcousticEchoCanceler aec = AcousticEchoCanceler.create(mRecorder.getAudioSessionId());
+                aec.setEnabled(true);
+            }
+
+            mPlayer = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE_IN_HZ,
+                    AudioFormat.CHANNEL_OUT_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT,
+                    bufferSize, AudioTrack.MODE_STREAM);
+            PresetReverb reverb = new PresetReverb(1, mPlayer.getAudioSessionId());
+            reverb.setPreset(PresetReverb.PRESET_LARGEHALL);
+            reverb.setEnabled(true);
+
+            mPlayer.setAuxEffectSendLevel(1.f);
+
+            mRecorder.startRecording();
+            mPlayer.play();
+
+
+            mThread = new AudioRecordingThread(mRecorder, mPlayer, bufferSize);
             mThread.start();
         } catch (Exception e) {
             mThread = null;
@@ -60,6 +96,8 @@ public class Recorder {
 
     public void stop() {
         AudioRecordingThread thread = this.mThread;
+        mRecorder.release();
+        mPlayer.release();
         if (null == thread)
             return;
         try {
@@ -78,12 +116,18 @@ public class Recorder {
         private short[] mAudioBuffer;
 
         private volatile boolean mIsRecording = true;
+        private final AudioRecord mRecorder;
+        private final AudioTrack mPlayer;
+        private final int mBufferSize;
 
-        AudioRecordingThread() throws Exception {
+        AudioRecordingThread(AudioRecord audioRecord, AudioTrack player, int bufferSize) throws Exception {
+            mRecorder = audioRecord;
+            mPlayer = player;
+            mBufferSize = bufferSize;
 
-            int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,
-                    AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT);
+//            int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,
+//                    AudioFormat.CHANNEL_IN_MONO,
+//                    AudioFormat.ENCODING_PCM_16BIT);
             if (bufferSize <= 0)
                 throw new Exception("Unsupported record profile");
             mAudioBuffer = new short[bufferSize];
@@ -91,79 +135,82 @@ public class Recorder {
 
         @Override
         public void run() {
-            AudioRecord record = null;
-            NoiseSuppressor noise = null;
-            AcousticEchoCanceler echo = null;
-            try {
-                do {
-                    // should be in constructor
-                    record = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                            SAMPLE_RATE_IN_HZ,
-                            AudioFormat.CHANNEL_IN_MONO,
-                            AudioFormat.ENCODING_PCM_16BIT,
-                            mAudioBuffer.length);
+//            AudioRecord record = null;
+//            NoiseSuppressor noise = null;
+//            AcousticEchoCanceler echo = null;
+//            try {
+//                do {
+            // should be in constructor
+//                    mre = new AudioRecord(MediaRecorder.AudioSource.MIC,
+//                            SAMPLE_RATE_IN_HZ,
+//                            AudioFormat.CHANNEL_IN_MONO,
+//                            AudioFormat.ENCODING_PCM_16BIT,
+//                            mAudioBuffer.length);
 
-                    if (record.getRecordingState() != AudioRecord.STATE_INITIALIZED)
-                        break;
+//                    if (record.getRecordingState() != AudioRecord.STATE_INITIALIZED)
+//                        break;
+//
+//                    if (NoiseSuppressor.isAvailable()) {
+//                        noise = NoiseSuppressor.create(record.getAudioSessionId());
+//                        if (null != noise && !noise.getEnabled())
+//                            noise.setEnabled(true);
+//                    }
+//
+//                    if (AcousticEchoCanceler.isAvailable()) {
+//                        echo = AcousticEchoCanceler.create(record.getAudioSessionId());
+//                        if (null != echo && !echo.getEnabled())
+//                            echo.setEnabled(true);
+//                    }
 
-                    if (NoiseSuppressor.isAvailable()) {
-                        noise = NoiseSuppressor.create(record.getAudioSessionId());
-                        if (null != noise && !noise.getEnabled())
-                            noise.setEnabled(true);
-                    }
+//                    IToneDetector detector = new GoertzelToneDetectorJNI(SAMPLE_RATE_IN_HZ, SENSITIVITY_NORMAL, 10);
+//                    record.startRecording();
 
-                    if (AcousticEchoCanceler.isAvailable()) {
-                        echo = AcousticEchoCanceler.create(record.getAudioSessionId());
-                        if (null != echo && !echo.getEnabled())
-                            echo.setEnabled(true);
-                    }
+//                    int currentTone = -1;
+//                    while (mIsRecording) {
+//                        int read = record.read(mAudioBuffer, 0, mAudioBuffer.length);
+//                        if (read <= 0) {
+//                            continue;
+//                        }
+//                        int tone = detector.analyze(mAudioBuffer, read);
+//                        if (currentTone != tone) {
+//                            currentTone = tone;
+//                            mHandler.obtainMessage(currentTone, 1000 * read / SAMPLE_RATE_IN_HZ, 0).sendToTarget();
+//                        }
+//                    }
+//
+//                    record.stop();
+//
+//                } while (false);
+            while (mIsRecording) {
+                byte[] buffer = new byte[mBufferSize];
 
-                    IToneDetector detector = new GoertzelToneDetectorJNI(SAMPLE_RATE_IN_HZ, SENSITIVITY_NORMAL, 10);
-                    record.startRecording();
-
-                    int currentTone = -1;
-                    while (mIsRecording) {
-                        int read = record.read(mAudioBuffer, 0, mAudioBuffer.length);
-                        if (read <= 0) {
-                            continue;
-                        }
-                        int tone = detector.analyze(mAudioBuffer, read);
-                        if (currentTone != tone) {
-                            currentTone = tone;
-                            mHandler.obtainMessage(currentTone, 1000 * read / SAMPLE_RATE_IN_HZ, 0).sendToTarget();
-                        }
-                    }
-
-                    record.stop();
-
-                } while (false);
-
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } finally {
-                if (null != record)
-                    record.release();
-                if (null != echo)
-                    echo.release();
-                if (null != noise)
-                    noise.release();
+                int read;
+                while ((read = mRecorder.read(buffer, 0, buffer.length)) > 0) {
+                    mPlayer.write(buffer, 0, buffer.length);
+                }
+                onPlayed();
             }
-            mThread = null;
+
+//            } catch (Exception ex) {
+//                ex.printStackTrace();
+//            } finally {
+//                if (null != record)
+//                    record.release();
+//                if (null != echo)
+//                    echo.release();
+//                if (null != noise)
+//                    noise.release();
+//            }
+//            mThread = null;
         }
 
         public void stopRecording() throws InterruptedException {
             mIsRecording = false;
             join();
         }
+    }
 
-        private void playMusic(Context context){
-            MediaPlayer mp = new MediaPlayer();
-            try {
-                mp.setDataSource(context, Uri.parse("karaoke.core/src/main/res/raw/audio"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void onPlayed() {
     }
 
 }

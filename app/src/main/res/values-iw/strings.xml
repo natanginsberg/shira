@@ -23,7 +23,7 @@
     <string name="sing_again"> נגן מחדש </string>
     <string name="playback">צפה בביצוע</string>
     <string name="share">שתף</string>
-    <string name="promo">אפלקציית השירה \n היהודית</string>
+    <string name="promo">אפלקציית השירה היהודית</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">הירשם/התחבר</string>
     <string name="search">חפש</string>
@@ -89,5 +89,12 @@
     <string name="song_suggestion">המלצת שיר</string>
     <string name="add_song_window">איזה שיר להוסיף?</string>
     <string name="exceed_message">מלאת את כל המקום שלך בזיכרון. עליך למחוק ביצוע קודם</string>
+    <string name="popular">פופולרי</string>
+    <string name="new_tag">חדש</string>
+    <string name="menu">תפריט</string>
+    <string name="payment_history">הסטוריית חשבונות</string>
+    <string name="language_change">Language</string>
+    <string name="from">מבית</string>
+    <string name="recording_tag_display_constant">" ביצועים"</string>
 
 </resources>

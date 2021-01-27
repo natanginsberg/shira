@@ -186,4 +186,31 @@ public class Recording implements Serializable, Reocording {
         this.loading = loading;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Recording)) {
+            return false;
+        }
+
+        // typecast o to Complex so that we can compare data members
+        Recording r = (Recording) o;
+
+        // Compare the data members and return accordingly
+        return r.getTitle().equalsIgnoreCase(title)
+                && r.getArtist().equalsIgnoreCase(artist);
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + ((artist == null) ? 0 : artist.hashCode());
+        result = prime * result
+                + ((imageResourceFile == null) ? 0 : imageResourceFile.hashCode());
+        return result;
+    }
 }

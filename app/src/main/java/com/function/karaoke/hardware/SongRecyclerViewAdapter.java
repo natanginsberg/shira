@@ -1,10 +1,11 @@
 package com.function.karaoke.hardware;
 
-import android.graphics.Typeface;
+import android.annotation.SuppressLint;
+import android.graphics.BlendMode;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,9 @@ import com.function.karaoke.core.model.Song;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
+import com.function.karaoke.hardware.utils.static_classes.Converter;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.CornerFamily;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -41,6 +45,12 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private final OnListFragmentInteractionListener mListener;
     private String language;
     private String text;
+    private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
+            R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
+    private static final int[] transparentRectangles = new int[]{R.drawable.custom_song_rec_1_t,
+            R.drawable.custom_song_rec_2_t, R.drawable.custom_song_rec_3_t, R.drawable.custom_song_rec_4_t};
+    private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
+    private static final double[] heightFactors = new double[]{2.5, 3.5};
 
     //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
 //        setData(items);
@@ -53,38 +63,94 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         this.language = language;
     }
 
+    class ViewHolderBig extends ViewHolder {
+
+
+        public ViewHolderBig(View itemView) {
+            super(itemView);
+
+        }
+    }
+
+    class ViewHolderSmall extends ViewHolder {
+
+
+        public ViewHolderSmall(View itemView) {
+            super(itemView);
+        }
+    }
+
+    @Override
+    public int getItemViewType(final int position) {
+        return Math.random() < 0.5 ? 0 : 1;
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        int randomColor = Math.random() < 0.5 ? 0 : 1;
         View view;
         view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.view_song_list_item, parent, false);
-        if (language.equals("iw"))
-            view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
-        else
-            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+                .inflate(R.layout.song_display_big, parent, false);
+//        if (language.equals("iw"))
+//            view.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+//        else
+//            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        layoutParams.height = (parent.getHeight() / 8);
-        view.setLayoutParams(layoutParams);
+        layoutParams.width = ((int) (parent.getWidth() / 2.3));
+        layoutParams.height = ((int) (parent.getHeight() / 2.4));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            view.findViewById(R.id.song_placeholder).setBackground(parent.getContext().getResources().getDrawable(rectangles[viewType * 2 + randomColor], null));
+            view.findViewById(R.id.song_placeholder).setBackgroundTintBlendMode(BlendMode.COLOR_DODGE);
+        } else {
+            view.findViewById(R.id.song_placeholder).setBackground(parent.getContext().getResources().getDrawable(transparentRectangles[viewType * 2 + randomColor]));
+        }
 
+        view.setLayoutParams(layoutParams);
+//        switch (viewType){
+//            case 0:
+//                return new ViewHolderBig(view);
+//            case 1:
+//                return new ViewHolderSmall(view);
+//        }
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
+//        switch (holder.getItemViewType()){
+//            case 0:
+//                ViewHolderBig bigHolder = (ViewHolderBig) holder;
+                holder.setItem(mValues.get(position));
 
-        holder.setItem(mValues.get(position));
+                // making the click only on the button and not on the whole icon
 
-        // making the click only on the button and not on the whole icon
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (null != mListener) {
+                            mListener.onListFragmentInteractionPlay(holder.mItem);
+                        }
+                    }
+                });
+//                break;
+//            case 1:
+//                ViewHolderSmall smallHolder = (ViewHolderSmall) holder;
+//                smallHolder.setItem(mValues.get(position));
+//
+//                 making the click only on the button and not on the whole icon
+//
+//                smallHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        if (null != mListener) {
+//                            mListener.onListFragmentInteractionPlay(holder.mItem);
+//                        }
+//                    }
+//                });
+//        }
 
-        holder.itemView.findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (null != mListener) {
-                    mListener.onListFragmentInteractionPlay(holder.mItem);
-                }
-            }
-        });
     }
 
     @Override
@@ -102,7 +168,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         private final View mView;
         private final TextView mLblTitle;
         private final TextView mLblArtist;
-        private final ImageView mCover;
+        private final ShapeableImageView mCover;
 
         //        public Song mItem;
         public Reocording mItem;
@@ -113,7 +179,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             mLblTitle = view.findViewById(R.id.lbl_title);
             mLblArtist = view.findViewById(R.id.lbl_artist);
             mCover = view.findViewById(R.id.img_cover);
-            ((TextView) view.findViewById(R.id.play_button)).setText(text);
+//            ((TextView) view.findViewById(R.id.play_button)).setText(text);
         }
 
         @Override
@@ -126,18 +192,18 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             mLblTitle.setText(song.getTitle());
             mLblArtist.setText(song.getArtist());
 //            if (!language.equals("English")) {
-            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
-            mLblTitle.setTypeface(tf);
-            mLblArtist.setTypeface(tf);
-            ((TextView) mView.findViewById(R.id.play_button)).setTypeface(tf);
-//            }
-//            mLblArtist.setTypeface(tf);
-            if (!song.getImageResourceFile().equals(""))
+            if (!song.getImageResourceFile().equals("")) {
                 Picasso.get()
                         .load(song.getImageResourceFile())
                         .placeholder(R.drawable.plain_rec)
                         .fit()
                         .into(mCover);
+            }
+            mCover.setShapeAppearanceModel(mCover.getShapeAppearanceModel()
+                    .toBuilder()
+                    .setTopRightCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
+                    .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
+                    .build());
         }
     }
 

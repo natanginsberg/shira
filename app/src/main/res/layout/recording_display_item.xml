@@ -38,34 +38,28 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/lbl_title"
+                android:id="@+id/custom_song_title"
                 style="@android:style/TextAppearance.Medium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-thin"
+                android:fontFamily="@font/varela_round_regular"
+                android:textColor="@android:color/white"
                 android:textStyle="bold"
                 tools:text="Song Title" />
 
             <TextView
-                android:id="@+id/lbl_artist"
-                style="@android:style/TextAppearance.Small"
+                android:id="@+id/date_recorded"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-light"
-                tools:text="Artist" />
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="0.5"
+                android:fontFamily="@font/varela_round_regular"
+                android:textColor="@android:color/white" />
+
+
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/date_recorded"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="0.5"
-            android:fontFamily="sans-serif-light"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/share_button"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/share_button"
@@ -88,14 +82,14 @@
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_gravity="center"
+            android:layout_margin="5dp"
             android:background="@drawable/ic_baseline_delete_24"
             android:elevation="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/share_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintHeight_percent="0.55"
             app:layout_constraintDimensionRatio="1:1.2"
-            android:layout_margin="5dp"/>
+            app:layout_constraintEnd_toStartOf="@id/share_button"
+            app:layout_constraintHeight_percent="0.55"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/play_button"

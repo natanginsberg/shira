@@ -5,8 +5,7 @@
     android:id="@+id/song_list_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:orientation="vertical"
+    android:background="@drawable/main_background"
     tools:context=".fragments.SongsListFragment">
 
     <View
@@ -19,7 +18,7 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@color/appColor"
+        android:background="@android:color/transparent"
         android:elevation="15dp"
         app:layout_constraintHeight_percent="0.08"
         app:layout_constraintTop_toBottomOf="@id/search_input"
@@ -39,26 +38,39 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.97" />
 
-        <TextView
-            android:id="@+id/display_text"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@string/all_songs"
-            android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/genre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_centerHorizontal="true"
+                android:background="@drawable/ic_arrow_header"
+                android:gravity="bottom" />
+
+
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/loading_percent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@id/open_search"
-            app:layout_constraintEnd_toStartOf="@id/open_search"
-            app:layout_constraintTop_toTopOf="@id/open_search" />
+            app:layout_constraintBottom_toBottomOf="@id/mic_icon"
+            app:layout_constraintEnd_toStartOf="@id/mic_icon"
+            app:layout_constraintTop_toTopOf="@id/mic_icon" />
 
         <TextView
             android:id="@+id/internet_speed"
@@ -69,16 +81,16 @@
             app:layout_constraintStart_toEndOf="@id/settings_button"
             app:layout_constraintTop_toTopOf="@id/settings_button" />
 
-        <Button
-            android:id="@+id/open_search"
+        <ImageView
+            android:id="@+id/mic_icon"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:background="@drawable/ic_search_outline"
+            android:background="@drawable/ic_mic_ashira_white"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="0.8"
+            app:layout_constraintDimensionRatio="0.6"
             app:layout_constraintEnd_toEndOf="@id/search_icon_guide"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.06" />
+            app:layout_constraintWidth_percent="0.05" />
 
 
         <Button
@@ -100,24 +112,52 @@
         android:id="@+id/search_input"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginTop="7dp"
-        android:layout_marginEnd="36dp"
-        android:background="@drawable/ic_search_bar"
+        android:layout_margin="5dp"
+        android:background="@drawable/ic_search_port"
         android:focusable="false"
+        android:gravity="center"
         android:inputType="textPersonName"
         android:layoutDirection="locale"
-        android:visibility="gone"
+        android:theme="@style/SearchTheme"
         app:iconifiedByDefault="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintDimensionRatio="5:1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintVertical_chainStyle="spread"
         app:layout_constraintWidth_percent="0.81"
         app:queryHint="@string/search"
-        app:searchIcon="@drawable/ic_search_outline_app_color" />
+        app:searchIcon="@drawable/ic_search_icon" />
+
+    <!--    <RelativeLayout-->
+    <!--        android:id="@+id/search_icon_and_words"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:elevation="10dp"-->
+    <!--        android:orientation="horizontal"-->
+    <!--        app:layout_constraintBottom_toBottomOf="@id/search_input"-->
+    <!--        app:layout_constraintLeft_toLeftOf="@id/search_input"-->
+    <!--        app:layout_constraintRight_toRightOf="@id/search_input"-->
+    <!--        app:layout_constraintTop_toTopOf="@id/search_input">-->
+
+    <!--        <ImageView-->
+    <!--            android:id="@+id/search_icon"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_centerVertical="true"-->
+    <!--            android:background="@drawable/ic_search_icon"-->
+    <!--            android:paddingEnd="5dp" />-->
+
+    <!--        <TextView-->
+    <!--            android:layout_toEndOf="@id/search_icon"-->
+    <!--            android:id="@+id/search_text"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:paddingEnd="5dp"-->
+    <!--            android:layout_centerVertical="true"-->
+    <!--            android:text="@string/search"-->
+    <!--            android:textColor="@android:color/white"-->
+    <!--            android:textSize="18sp" />-->
+    <!--    </RelativeLayout>-->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/song_list"
@@ -126,56 +166,77 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.08" />
 
-    <HorizontalScrollView
-        android:id="@+id/genre_scrolling"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:scrollbars="none"
-        app:layout_constraintBottom_toTopOf="@id/list"
-        app:layout_constraintHeight_percent="0.05"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_input">
+    <!--    <HorizontalScrollView-->
+    <!--        android:id="@+id/genre_scrolling"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--        android:scrollbars="none"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/list"-->
+    <!--        app:layout_constraintHeight_percent="0.05"-->
+    <!--        app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--        app:layout_constraintRight_toRightOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/search_input">-->
 
-        <LinearLayout
-            android:id="@+id/genres"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal" />
-    </HorizontalScrollView>
+    <!--        <LinearLayout-->
+    <!--            android:id="@+id/genres"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="match_parent"-->
+    <!--            android:orientation="horizontal" />-->
+    <!--    </HorizontalScrollView>-->
 
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:name="com.damn.karaoke.phone.SongFragment"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@android:color/white"
-        android:clipToPadding="false"
+        android:background="@drawable/main_background"
         android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/genre_scrolling"
-        tools:listitem="@layout/view_song_list_item"
-        android:nestedScrollingEnabled="true">
+        app:layout_constraintTop_toBottomOf="@id/search_input">
 
     </androidx.recyclerview.widget.RecyclerView>
 
-<!--    <FrameLayout-->
-<!--        android:id="@+id/touch_screen"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:background="@android:color/transparent"-->
-<!--        android:elevation="30dp"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
+    <!--    <GridView-->
+    <!--        android:layout_width="@dimen/no_hardcode_dimension"-->
+    <!--        android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/genre_scrolling"-->
+    <!--        app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--        app:layout_constraintRight_toRightOf="parent"-->
+    <!--        android:id="@+id/list"-->
+    <!--        android:background="@android:color/transparent"-->
+    <!--        android:scrollbars="vertical"-->
+    <!--        android:numColumns="2"/>-->
 
-<!--    <androidx.constraintlayout.widget.Guideline-->
-<!--        android:id="@+id/touch_guide"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="vertical"-->
-<!--        app:layout_constraintGuide_percent="0.75" />-->
+    <ImageView
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/ic_sun_loading_backgrund"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/list"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintLeft_toLeftOf="@id/list"
+        app:layout_constraintRight_toRightOf="@id/list"
+        app:layout_constraintTop_toTopOf="@id/list"/>
+
+    <!--    <FrameLayout-->
+    <!--        android:id="@+id/touch_screen"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="0dp"-->
+    <!--        android:background="@android:color/transparent"-->
+    <!--        android:elevation="30dp"-->
+    <!--        app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--    <androidx.constraintlayout.widget.Guideline-->
+    <!--        android:id="@+id/touch_guide"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:orientation="vertical"-->
+    <!--        app:layout_constraintGuide_percent="0.75" />-->
 
     <ProgressBar
         android:id="@+id/loading_songs_progress_bar"
@@ -185,7 +246,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/genre_scrolling" />
+        app:layout_constraintTop_toBottomOf="@id/search_input" />
 
     <TextView
         android:id="@+id/no_recordings_text"
@@ -198,7 +259,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/genre_scrolling" />
+        app:layout_constraintTop_toBottomOf="@id/search_input" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,75 +3,105 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/promo"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/main_background">
 
-<!--    <ImageView-->
-<!--        android:layout_width="120dp"-->
-<!--        android:layout_height="120dp"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintBottom_toTopOf="@id/slogan"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        android:background="@mipmap/ic_video_camera_round"/>-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ashira"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        app:layout_constraintHeight_percent="0.72"
+        app:layout_constraintTop_toTopOf="@id/logo_guide">
 
+        <View
+            android:id="@+id/logo"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:background="@drawable/ic_logo_with_mic"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.9" />
 
-    <TextView
+        <!--    <todo ge font for name-->
+
+        <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="@string/app_name"
+        android:textColor="@color/gold"
+        android:textSize="50sp"
         app:layout_constraintBottom_toTopOf="@id/slogan"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:fontFamily="sans-serif-condensed-medium"
-        android:textSize="50sp"
-        android:text="@string/app_name"
-        android:textColor="@color/gold"/>
+        app:layout_constraintTop_toBottomOf="@id/logo" />
+
+        <TextView
+            android:id="@+id/slogan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/promo"
+            android:textAlignment="center"
+            android:textColor="@color/appColor"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    <TextView
-        android:id="@+id/slogan"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/logo_guide"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/promo"
-        android:textAlignment="center"
-        android:textSize="45sp"
-        app:layout_constraintBottom_toTopOf="@id/toker"
-        app:layout_constraintHorizontal_chainStyle="spread"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.02" />
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/from"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toTopOf="@id/and_sign"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/name"
-        app:layout_constraintVertical_chainStyle="spread"
-        android:textColor="@color/appColor"/>
+        app:layout_constraintTop_toBottomOf="@id/ashira" />
 
-    <TextView
-        android:id="@+id/toker"
+    <ImageView
+        android:id="@+id/and_sign"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/small_circle"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/slogan"
-        app:layout_constraintVertical_chainStyle="spread"
-        android:text="@string/from_toker_fm"
-        android:gravity="center"
-        android:textSize="15sp"
-        android:textColor="@color/appColor"/>
+        app:layout_constraintTop_toBottomOf="@id/ashira" />
 
-    <TextView
-        android:id="@+id/adi"
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintHorizontal_chainStyle="spread"
+        android:background="@drawable/ic_toker"
+        app:layout_constraintBottom_toBottomOf="@id/and_sign"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/and_sign"
+        app:layout_constraintTop_toTopOf="@id/and_sign"
+        />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ic_adi"
+        app:layout_constraintBottom_toBottomOf="@id/and_sign"
+        app:layout_constraintLeft_toRightOf="@id/and_sign"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toker"
-        app:layout_constraintVertical_chainStyle="spread"
-        android:text="@string/synthymusic"
-        android:gravity="center"
-        android:textSize="15sp"
-        android:textColor="@color/appColor"/>
+        app:layout_constraintTop_toTopOf="@id/and_sign" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

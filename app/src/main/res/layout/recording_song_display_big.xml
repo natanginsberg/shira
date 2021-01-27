@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginBottom="10dp"
+    android:background="@android:color/transparent"
+    app:layout_anchorGravity="center">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/recordings_in_guide"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/number_of_recordings"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/custom_tag_2"
+        android:elevation="10dp"
+        android:fontFamily="@font/varela_round_regular"
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="@id/song_placeholder"
+        app:layout_constraintStart_toStartOf="@id/recordings_in_guide"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/song_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="3dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/img_cover"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_margin="2dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="@id/song_placeholder"
+            app:layout_constraintStart_toStartOf="@id/song_placeholder"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.97"
+            app:srcCompat="@drawable/image_holder" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:gravity="center_vertical|start"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@id/song_placeholder"
+            app:layout_constraintTop_toBottomOf="@id/img_cover">
+
+            <TextView
+                android:id="@+id/lbl_artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:fontFamily="@font/varela_round_regular"
+                android:textColor="@color/singer_color"
+                tools:text="Artist" />
+
+            <TextView
+                android:id="@+id/lbl_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:fontFamily="@font/varela_round_regular"
+                android:textColor="@color/song_color"
+                tools:text="Song Title" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

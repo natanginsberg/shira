@@ -3,6 +3,9 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:fitsSystemWindows">true</item>
+        <item name="android:fontFamily">@font/varela_round_regular</item>
+        <item name="fontFamily">@font/varela_round_regular</item>
+        <item name="android:editTextColor">@android:color/white</item>
         <!-- Customize your theme here. -->
     </style>
 

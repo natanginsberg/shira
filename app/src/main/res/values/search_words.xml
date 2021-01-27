@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SearchTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:editTextColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
+        <item name="android:fontFamily">@font/varela_round_regular</item>
+        <item name="fontFamily">@font/varela_round_regular</item>
+        <!-- Customize your theme here. -->
+    </style>
+</resources>

@@ -227,7 +227,7 @@ public class SingActivity extends AppCompatActivity implements
     private File compressedFile;
     private File jsonFile;
     private int type = -1;
-    private int ALLOCATED_NUMBER_OF_RECORDINGS = 100;
+    private int ALLOCATED_NUMBER_OF_RECORDINGS = 30;
     private RecordingDelete recordingDelete;
 
     @Override

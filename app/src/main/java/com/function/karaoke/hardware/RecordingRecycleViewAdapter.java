@@ -1,7 +1,6 @@
 package com.function.karaoke.hardware;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentI
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -138,7 +136,6 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
         private final TextView mLblTitle;
-        private final TextView mLblArtist;
         private final ImageView mCover;
         private final TextView mDate;
 
@@ -147,30 +144,23 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mLblTitle = view.findViewById(R.id.lbl_title);
-            mLblArtist = view.findViewById(R.id.lbl_artist);
+            mLblTitle = view.findViewById(R.id.custom_song_title);
             mCover = view.findViewById(R.id.img_cover);
             mDate = view.findViewById(R.id.date_recorded);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mLblArtist.getText() + "'";
+            return super.toString() + " '";
         }
 
         public void setItem(Recording song) {
             mItem = song;
             mLblTitle.setText(song.getTitle());
-            mLblArtist.setText(song.getArtist());
-            String date = manipulateDateToBePretty(song.getDate());
+            String date = getDateAndTime(song.getDate());
             mDate.setText(date);
-            Typeface tf = Typeface.createFromAsset(mView.getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
-            mLblTitle.setTypeface(tf);
-            mLblArtist.setTypeface(tf);
-            ((TextView) mView.findViewById(R.id.play_button)).setTypeface(tf);
             if (song.isLoading())
                 ((TextView) mView.findViewById(R.id.share_button)).setBackgroundColor(Color.GRAY);
-            mDate.setTypeface(tf);
             Picasso.get()
                     .load(song.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)
@@ -178,8 +168,8 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
                     .into(mCover);
         }
 
-        private String manipulateDateToBePretty(String date) {
-            return date.substring(6, 8) + "/" + date.substring(4, 6) + "/" + date.substring(2, 4);
+        private String getDateAndTime(String date) {
+            return date.substring(9, 11) + ":" + date.substring(11, 13) + "  " + date.substring(6, 8) + "/" + date.substring(4, 6) + "/" + date.substring(2, 4);
         }
     }
 

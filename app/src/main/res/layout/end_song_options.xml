@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="3dp"
-        android:background="@color/appColor">
+        android:background="@drawable/menu_background">
 
         <Button
             android:id="@+id/back_button"

@@ -10,6 +10,13 @@
     <color name="default_text_color">#ffff</color>
     <color name="gold">#ecc30b</color>
     <color name="transparent_white">#99d8d8d8</color>
+    
+    <color name="top_menu_color">#2924F1</color>
+    <color name="bottom_menu_color">#126B79</color>
+    <color name="main_background_outer">#000000</color>
+    <color name="main_background_inner">#221A4D</color>
+    <color name="singer_color">#D271D6</color>
+    <color name="song_color">#ffffff</color>
 
 <!--    <color name="appColor">#55c1ff</color>-->
 </resources>
