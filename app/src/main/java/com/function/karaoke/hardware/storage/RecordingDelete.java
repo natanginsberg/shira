@@ -7,6 +7,8 @@ import com.function.karaoke.hardware.activities.Model.Recording;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.List;
+
 import software.amazon.awssdk.regions.Region;
 
 public class RecordingDelete {
@@ -16,17 +18,17 @@ public class RecordingDelete {
     private final StorageReference storageReference;
     private final RecordingService recordingService;
     private final SetupListener setupListener;
-    private final Recording recording;
+    private final List<Recording> recordings;
 
     private AmazonS3Client s3Client;
     private boolean setUp;
 
-    public RecordingDelete(SetupListener setupListener, Recording recording) {
+    public RecordingDelete(SetupListener setupListener, List<Recording> recordings) {
         getKeys();
         storageReference = FirebaseStorage.getInstance().getReference();
         recordingService = new RecordingService();
         this.setupListener = setupListener;
-        this.recording = recording;
+        this.recordings = recordings;
     }
 
     private void getKeys() {
@@ -58,12 +60,14 @@ public class RecordingDelete {
                 start = end;
             }
         }
-        String[] filePath = recording.getRecordingUrl().split("/");
-        s3Client.deleteObject(BUCKET_NAME, filePath[filePath.length - 1]);
-        recordingService.deleteDocument(recording.getRecordingId(), recording.getRecorderId());
+        for (Recording recording : recordings) {
+            String[] filePath = recording.getRecordingUrl().split("/");
+            s3Client.deleteObject(BUCKET_NAME, filePath[filePath.length - 1]);
+            recordingService.deleteDocument(recording.getRecordingId(), recording.getRecorderId());
+        }
     }
 
-    public interface SetupListener{
+    public interface SetupListener {
         void setup();
     }
 }

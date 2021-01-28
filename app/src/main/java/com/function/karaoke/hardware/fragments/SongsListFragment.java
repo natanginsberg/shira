@@ -49,7 +49,7 @@ import java.util.Locale;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller, SongsActivityUI.SongsUIListener, RecordingCategoryAdapter.RecordingSongListener {
+public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller, SongsActivityUI.SongsUIListener {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final int ALL_SONGS_DISPLAYED = 1;
@@ -352,14 +352,14 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         }
     }
 
-    private void displayPersonalSongs() {
-        recordingCategoryAdapter = new RecordingCategoryAdapter(recordingDB.getRecordingsPerSong(), this, getString(R.string.recording_tag_display_constant));
-        recyclerView.setAdapter(recordingCategoryAdapter);
-//        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
-//        mAdapter.notifyDataSetChanged();
-//        recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
-//        recyclerView.setAdapter(recordAdapter);
-    }
+//    private void displayPersonalSongs() {
+//        recordingCategoryAdapter = new RecordingCategoryAdapter(recordingDB.getRecordingsPerSong(), this, getString(R.string.recording_tag_display_constant));
+//        recyclerView.setAdapter(recordingCategoryAdapter);
+////        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
+////        mAdapter.notifyDataSetChanged();
+////        recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
+////        recyclerView.setAdapter(recordAdapter);
+//    }
 
 
     private void addSearchListener() {
@@ -555,16 +555,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
     }
 
-    public void removeRecording() {
-        recordAdapter.removeAt();
-    }
-
-    @Override
-    public void onListFragmentInteractionPlay(List<Recording> recordings) {
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-//        recordAdapter = new RecordingRecycleViewAdapter(recordings, mListener);
-//        recyclerView.setAdapter(recordAdapter);
-    }
+//    public void removeRecording() {
+//        recordAdapter.removeAt();
+//    }
+//
+//    @Override
+//    public void onListFragmentInteractionPlay(List<Recording> recordings) {
+//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+////        recordAdapter = new RecordingRecycleViewAdapter(recordings, mListener);
+////        recyclerView.setAdapter(recordAdapter);
+//    }
 
     private void showRecordings() {
 

@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Song} and makes a call to the
  * specified {@link OnListFragmentInteractionListener}.
+ * this recycler displays the songs recorded if the user were to have too many
  */
 public class DeleteRecordingRecycler extends RecyclerView.Adapter<DeleteRecordingRecycler.ViewHolder> {
 

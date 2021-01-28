@@ -44,7 +44,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -88,6 +87,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -1435,12 +1435,14 @@ public class SingActivity extends AppCompatActivity implements
 
 
     public void deleteRecording(Recording mItem) {
+        List<Recording> deleting = new ArrayList<>();
+        deleting.add(mItem);
         recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
             @Override
             public void setup() {
                 deleteRecording();
             }
-        }, mItem);
+        }, deleting);
     }
 
     private void deleteRecording() {

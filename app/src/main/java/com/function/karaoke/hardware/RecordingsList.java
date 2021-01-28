@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,9 +8,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.activities.Model.enums.RecordingsScreenState;
-import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.RecordingDelete;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
@@ -32,12 +32,12 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RecordingsList extends AppCompatActivity implements
         RecordingCategoryAdapter.RecordingSongListener, RecordingRecycleViewAdapter.RecordingListener {
 
     private static final int NUM_COLUMNS = 2;
-    private RecordingDB recordingDB;
     private RecordingService recordingService;
     private RecordingCategoryAdapter recordingCategoryAdapter;
     private RecyclerView recyclerView;
@@ -47,6 +47,46 @@ public class RecordingsList extends AppCompatActivity implements
     private String previousQuery = "";
     private ArrayList<RecordingDB> previousRecordings = new ArrayList<>();
     private RecordingDB currentDatabaseRecordings;
+    private boolean deleteOpen = false;
+    private List<Recording> currentRecordings = new ArrayList<Recording>() {
+        @Override
+        public boolean contains(@Nullable Object o) {
+            return indexOf(o) >= 0;
+        }
+
+        @Override
+        public int indexOf(@Nullable Object o) {
+            if (o != null) {
+                if (o instanceof Recording) {
+                    Recording rec = (Recording) o;
+                    for (int i = 0; i < currentRecordings.size(); i++)
+                        if (rec.getDate().equals(currentRecordings.get(i).getDate()))
+                            return i;
+                }
+            }
+            return -1;
+        }
+    };
+    private List<Recording> deleteRecordingList = new ArrayList<Recording>() {
+        @Override
+        public boolean contains(@Nullable Object o) {
+            return indexOf(o) >= 0;
+        }
+
+        @Override
+        public int indexOf(@Nullable Object o) {
+            if (o != null) {
+                if (o instanceof Recording) {
+                    Recording rec = (Recording) o;
+                    for (int i = 0; i < deleteRecordingList.size(); i++)
+                        if (rec.getDate().equals(deleteRecordingList.get(i).getDate()))
+                            return i;
+                }
+            }
+            return -1;
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +98,6 @@ public class RecordingsList extends AppCompatActivity implements
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
         recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
         setRecordingsObserver();
-        findViewById(R.id.song_info).setVisibility(View.GONE);
         addSearchListener();
     }
 
@@ -92,7 +131,6 @@ public class RecordingsList extends AppCompatActivity implements
                     if (previousRecordings.size() != 0) {
                         currentDatabaseRecordings.updateRecordings(previousRecordings.get(0).getRecordings());
                         recordingCategoryAdapter.notifyDataSetChanged();
-//                        gAdapter.notifyDataSetChanged();
                         previousRecordings = new ArrayList<>();
                         previousQuery = "";
                     }
@@ -120,7 +158,6 @@ public class RecordingsList extends AppCompatActivity implements
     private void setRecordingsObserver() {
         final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
             if (personalRecordings != null) {
-                recordingDB = new RecordingDB(personalRecordings);
                 currentDatabaseRecordings = new RecordingDB(personalRecordings);
                 findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
                 findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
@@ -133,6 +170,7 @@ public class RecordingsList extends AppCompatActivity implements
     }
 
     private void displayRecordingSongs() {
+        findViewById(R.id.song_info).setVisibility(View.GONE);
         recordingCategoryAdapter = new RecordingCategoryAdapter(currentDatabaseRecordings.getRecordingsPerSong(), this, getString(R.string.recording_tag_display_constant));
         recyclerView.setAdapter(recordingCategoryAdapter);
     }
@@ -153,6 +191,7 @@ public class RecordingsList extends AppCompatActivity implements
         if (recordingState == RecordingsScreenState.RECORDING_SONGS_DISPLAYED)
             finish();
         else {
+            currentDatabaseRecordings.updateRecordings(currentRecordings);
             recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
             recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
             displayRecordingSongs();
@@ -163,10 +202,19 @@ public class RecordingsList extends AppCompatActivity implements
     public void onListFragmentInteractionPlay(List<Recording> recordings) {
         recordingState = RecordingsScreenState.SINGLE_SONG_RECORDINGS;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        currentRecordings = recordings;
         recordAdapter = new RecordingRecycleViewAdapter(recordings, this);
         recyclerView.setAdapter(recordAdapter);
         setSongInfo(recordings.get(0).getArtist(), recordings.get(0).getTitle(), recordings.get(0).getImageResourceFile());
+        resetFields();
 
+    }
+
+    private void resetFields() {
+        if (deleteRecordingList != null)
+            deleteRecordingList.clear();
+        changeMainIconBackToGray();
+        deleteOpen = false;
     }
 
     private void setSongInfo(String artist, String title, String albumResource) {
@@ -210,29 +258,53 @@ public class RecordingsList extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void onListFragmentInteractionDelete(Recording mItem) {
-        recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
-            @Override
-            public void setup() {
-                deleteRecording();
-            }
-        }, mItem);
+    @SuppressLint("UseCompatLoadingForDrawables")
+    public void changeIconToWhite(View itemView) {
+        itemView.findViewById(R.id.delete_button).setBackground(getDrawable(R.drawable.outline_circle));
+        itemView.findViewById(R.id.trash).setBackground(getDrawable(R.drawable.ic_trash_icon_white));
     }
 
-    private void deleteRecording() {
+    @Override
+    public void showAllGarbagesInChildren() {
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            if (recyclerView.findViewHolderForAdapterPosition(i) != null) {
+                recyclerView.findViewHolderForAdapterPosition(i).itemView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
+                recordAdapter.notifyItemChanged(i);
+            }
+        }
+        recordAdapter.changeDeleteOpen(true);
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    @Override
+    public void changeIconToGreen(View itemView) {
+        itemView.findViewById(R.id.delete_button).setBackground(getDrawable(R.drawable.full_circle));
+        itemView.findViewById(R.id.trash).setBackground(getDrawable(R.drawable.ic_trash_icon_grenn));
+    }
+
+    @Override
+    public void deletePressed(Recording mItem, View itemView) {
+        if (deleteRecordingList.contains(mItem)) {
+            deleteRecordingList.remove(mItem);
+            changeIconToWhite(itemView);
+        } else {
+            deleteRecordingList.add(mItem);
+            changeIconToGreen(itemView);
+        }
+        recordAdapter.updateDeleteList(deleteRecordingList);
+        changeMainIconToColor();
+    }
+
+    private void deleteRecordings() {
         NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
             @Override
             public void onSuccess() {
                 showSuccessToast();
-                List<Fragment> fragments = getSupportFragmentManager().getFragments();
-                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
-                fragment.removeRecording();
+                recordAdapter.removeDeletions();
             }
 
             @Override
             public void onFail() {
-
             }
         });
     }
@@ -253,5 +325,60 @@ public class RecordingsList extends AppCompatActivity implements
 
     private void showFailure() {
         Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
+    }
+
+    public void deleteOption(View view) {
+        if (deleteOpen) {
+            deleteAllClickedRecordings();
+            changeMainIconBackToGray();
+            closeAllOpenGarbages();
+
+        } else {
+            showAllGarbagesInChildren();
+            changeMainIconToColor();
+        }
+        deleteOpen = !deleteOpen;
+
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void changeMainIconToColor() {
+        findViewById(R.id.main_delete_button).setBackground(getDrawable(R.drawable.full_circle_blue));
+        findViewById(R.id.main_trash).setBackground(getDrawable(R.drawable.ic_trash_icon_white));
+    }
+
+    private void closeAllOpenGarbages() {
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            if (recyclerView.findViewHolderForAdapterPosition(i) != null) {
+                Objects.requireNonNull(recyclerView.findViewHolderForAdapterPosition(i)).itemView.findViewById(R.id.delete_button).setVisibility(View.GONE);
+                recordAdapter.notifyItemChanged(i);
+            }
+        }
+        recordAdapter.changeDeleteOpen(false);
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void changeMainIconBackToGray() {
+        findViewById(R.id.main_delete_button).setBackground(getDrawable(R.drawable.outline_circle_grey));
+        findViewById(R.id.main_trash).setBackground(getDrawable(R.drawable.ic_trash_icon_grey));
+    }
+
+    private void deleteAllClickedRecordings() {
+        if (deleteRecordingList.size() > 0) {
+            recordAdapter.setRemoveInProgress();
+            recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
+                @Override
+                public void setup() {
+                    deleteRecordings();
+                }
+            }, deleteRecordingList);
+            deleteRecordingsFromList();
+        }
+    }
+
+    private void deleteRecordingsFromList() {
+        currentRecordings.removeAll(deleteRecordingList);
+        currentDatabaseRecordings.removeDeletedRecordings(deleteRecordingList);
+        deleteRecordingList.clear();
     }
 }

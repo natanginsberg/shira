@@ -430,64 +430,64 @@ public class SongsActivity
 
     @Override
     public void onListFragmentInteractionShare(Recording item) {
-        Task<ShortDynamicLink> link = ShareLink.createLink(item);
-        link.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Uri shortLink = task.getResult().getShortLink();
-                Uri flowchartLink = task.getResult().getPreviewLink();
-                String link1 = shortLink.toString();
-                sendDataThroughIntent(link1);
-            } else {
-                showFailure();
-            }
-        });
+//        Task<ShortDynamicLink> link = ShareLink.createLink(item);
+//        link.addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                Uri shortLink = task.getResult().getShortLink();
+//                Uri flowchartLink = task.getResult().getPreviewLink();
+//                String link1 = shortLink.toString();
+//                sendDataThroughIntent(link1);
+//            } else {
+//                showFailure();
+//            }
+//        });
 
     }
 
     @Override
     public void onListFragmentInteractionDelete(Recording mItem) {
-        recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
-            @Override
-            public void setup() {
-                deleteRecording();
-            }
-        }, mItem);
+//        recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
+//            @Override
+//            public void setup() {
+//                deleteRecording();
+//            }
+//        }, mItem);
     }
 
-    private void deleteRecording() {
-        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
-            @Override
-            public void onSuccess() {
-                showSuccessToast();
-                List<Fragment> fragments = getSupportFragmentManager().getFragments();
-                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
-                fragment.removeRecording();
-            }
+//    private void deleteRecording() {
+//        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
+//            @Override
+//            public void onSuccess() {
+//                showSuccessToast();
+//                List<Fragment> fragments = getSupportFragmentManager().getFragments();
+//                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
+//                fragment.removeRecording();
+//            }
+//
+//            @Override
+//            public void onFail() {
+//
+//            }
+//        });
+//    }
 
-            @Override
-            public void onFail() {
-
-            }
-        });
-    }
-
-    private void showSuccessToast() {
-        Toast.makeText(this, "succes", Toast.LENGTH_SHORT).show();
-    }
-
-    private void sendDataThroughIntent(String link) {
-        String data = getString(R.string.email_prompt) + link;
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(
-                Intent.EXTRA_TEXT, data);
-        sendIntent.setType("text/plain");
-        startActivity(sendIntent);
-    }
-
-    private void showFailure() {
-        Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
-    }
+//    private void showSuccessToast() {
+//        Toast.makeText(this, "succes", Toast.LENGTH_SHORT).show();
+//    }
+//
+//    private void sendDataThroughIntent(String link) {
+//        String data = getString(R.string.email_prompt) + link;
+//        Intent sendIntent = new Intent();
+//        sendIntent.setAction(Intent.ACTION_SEND);
+//        sendIntent.putExtra(
+//                Intent.EXTRA_TEXT, data);
+//        sendIntent.setType("text/plain");
+//        startActivity(sendIntent);
+//    }
+//
+//    private void showFailure() {
+//        Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
+//    }
 
     @Override
     public DatabaseSongsDB getSongs() {

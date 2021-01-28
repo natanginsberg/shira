@@ -144,14 +144,14 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:background="@drawable/ic_search_icon"
-            android:paddingEnd="5dp" />
+            android:layout_marginEnd="5dp" />
 
         <TextView
             android:layout_toEndOf="@id/search_icon"
             android:id="@+id/search_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingEnd="5dp"
+            android:layout_marginStart="5dp"
             android:layout_centerVertical="true"
             android:text="@string/search"
             android:textColor="@android:color/white"
@@ -165,13 +165,23 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.08" />
 
+    <ImageView
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/ic_sun_loading_backgrund"
+        app:layout_constraintBottom_toBottomOf="@id/list"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintLeft_toLeftOf="@id/list"
+        app:layout_constraintRight_toRightOf="@id/list"
+        app:layout_constraintTop_toTopOf="@id/list" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list"
         android:name="com.damn.karaoke.phone.SongFragment"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@drawable/main_background"
         android:scrollbars="vertical"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
@@ -183,17 +193,7 @@
     </androidx.recyclerview.widget.RecyclerView>
 
 
-    <ImageView
-        android:layout_width="@dimen/no_hardcode_dimension"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@drawable/ic_sun_loading_backgrund"
-        android:elevation="10dp"
-        app:layout_constraintBottom_toBottomOf="@id/list"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintHeight_percent="0.5"
-        app:layout_constraintLeft_toLeftOf="@id/list"
-        app:layout_constraintRight_toRightOf="@id/list"
-        app:layout_constraintTop_toTopOf="@id/list" />
+
 
     <ProgressBar
         android:id="@+id/loading_songs_progress_bar"

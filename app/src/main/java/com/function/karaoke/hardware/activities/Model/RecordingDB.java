@@ -66,6 +66,20 @@ public class RecordingDB {
         notifyUpdated();
     }
 
+    public void updateSingleRecordingAfterDeleting(List<Recording> recordings) {
+        recordingsPerSong.put(recordings.get(0), recordings);
+    }
+
+    public void removeDeletedRecordings(List<Recording> deletedRecordings) {
+        List<Recording> newList = new ArrayList<>();
+        for (Recording deletedRecording : deletedRecordings)
+            for (Recording recording : recordings) {
+                if (!(recording.equals(deletedRecording) && recording.getDate().equalsIgnoreCase(deletedRecording.getDate())))
+                    newList.add(recording);
+            }
+        recordings = newList;
+    }
+
     public HashMap<Reocording, List<Recording>> getRecordingsPerSong() {
         return recordingsPerSong;
     }
