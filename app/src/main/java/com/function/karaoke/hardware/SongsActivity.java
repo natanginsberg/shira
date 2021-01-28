@@ -29,7 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -46,14 +45,13 @@ import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
+import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingDelete;
 import com.function.karaoke.hardware.storage.StorageAdder;
+import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
-import com.function.karaoke.hardware.utils.static_classes.ShareLink;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -63,7 +61,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Properties;
 
 public class SongsActivity
         extends FragmentActivity
@@ -82,15 +79,15 @@ public class SongsActivity
     //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
     private AuthenticationDriver authenticationDriver;
-    private UserInfo userInfo;
+    private UserInfo user;
     private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent intent = result.getData();
-                        userInfo = (UserInfo) intent.getSerializableExtra("User");
-                        if (userInfo != null) {
+                        user = (UserInfo) intent.getSerializableExtra("User");
+                        if (user != null) {
                             updateUI();
                         }
                     }
@@ -334,8 +331,17 @@ public class SongsActivity
 
     private void checkForSignedInUser() {
         authenticationDriver = new AuthenticationDriver();
+        UserService userService = new UserService(new DatabaseDriver(), authenticationDriver);
         if (authenticationDriver.getUserUid() == null) {
             updateUI();
+        } else if (authenticationDriver.isSignIn()
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
+            userService.getUser(new UserService.GetUserListener() {
+                @Override
+                public void user(UserInfo userInfo) {
+                    user = userInfo;
+                }
+            });
         }
     }
 
@@ -373,13 +379,12 @@ public class SongsActivity
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.feedback));
         intent.setData(Uri.parse("mailto:"));
         if (deviceHasGoogleAccount())
-            //todo does ont check accurately
             intent.setPackage("com.google.android.gm");
         startActivity(intent);
     }
 
     @Override
-    public void sendEmailWithSongSuggestion(String songName, String artistName){
+    public void sendEmailWithSongSuggestion(String songName, String artistName) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{SONG_SUGGEST_EMAIL});
         intent.setData(Uri.parse("mailto:"));
@@ -393,7 +398,14 @@ public class SongsActivity
     @Override
     public void startRecordingsActivity() {
         Intent intent = new Intent(this, RecordingsList.class);
+        intent.putExtra("language", Locale.getDefault().getLanguage());
+        intent.putExtra("user", user);
         startActivity(intent);
+    }
+
+    @Override
+    public UserInfo getUser() {
+        return user;
     }
 
     private boolean deviceHasGoogleAccount() {
@@ -547,6 +559,9 @@ public class SongsActivity
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
         intent.putExtra("language", Locale.getDefault().getLanguage());
+        if (user != null) {
+            intent.putExtra("user", user);
+        }
         startActivity(intent);
     }
 }

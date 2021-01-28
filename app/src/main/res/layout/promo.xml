@@ -85,8 +85,10 @@
         app:layout_constraintTop_toBottomOf="@id/ashira" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        app:layout_constraintHeight_percent="0.04"
+        app:layout_constraintDimensionRatio="3:1"
         android:background="@drawable/ic_toker"
         app:layout_constraintBottom_toBottomOf="@id/and_sign"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -95,9 +97,11 @@
         />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/ic_adi"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        app:layout_constraintHeight_percent="0.06"
+        app:layout_constraintDimensionRatio="3:1"
+        android:background="@drawable/ic_adi_1_"
         app:layout_constraintBottom_toBottomOf="@id/and_sign"
         app:layout_constraintLeft_toRightOf="@id/and_sign"
         app:layout_constraintRight_toRightOf="parent"

@@ -2,25 +2,25 @@ package com.function.karaoke.hardware.ui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
-import android.widget.HorizontalScrollView;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.activities.Model.Genres;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.CornerFamily;
+import com.squareup.picasso.Picasso;
 
-import java.util.List;
+import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
 public class SongsActivityUI {
 
@@ -35,6 +35,7 @@ public class SongsActivityUI {
     private final Context context;
     private TextView allSongsTextView;
     private TextView genreClicked;
+    private ImageView profilePic;
 
     public SongsActivityUI(View songsActivity, SongsUIListener listener, String currentLanguage, Context context) {
         this.view = songsActivity;
@@ -47,6 +48,7 @@ public class SongsActivityUI {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
+        profilePic = popupView.findViewById(R.id.user_picture);
         if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
 //        if (((TextView) view.findViewById(R.id.display_text)).getText() == context.getResources().getString(R.string.my_recordings)) {
             ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold));
@@ -84,7 +86,7 @@ public class SongsActivityUI {
         setPopupAttributes(popup, popupView);
 //        int[] location = new int[2];
 //        view.findViewById(R.id.settings_button).getLocationOnScreen(location);
-        popup.showAtLocation(popupView, Gravity.TOP|Gravity.CENTER, 0, 0);
+        popup.showAtLocation(popupView, Gravity.TOP | Gravity.CENTER, 0, 0);
 //                Math.abs(view.getWidth() - location[0]) < Math.abs(location[0]) ? view.getWidth() : 0, 0);
     }
 
@@ -273,7 +275,18 @@ public class SongsActivityUI {
         } else {
             genreToDisplay = genre.split(",")[1];
         }
-        ((TextView)view.findViewById(R.id.genre)).setText(genreToDisplay);
+        ((TextView) view.findViewById(R.id.genre)).setText(genreToDisplay);
+    }
+
+    public void addPicToScreen(UserInfo userInfo) {
+        Picasso.get()
+                .load(userInfo.getPicUrl())
+                .placeholder(R.drawable.circle)
+                .fit()
+                .transform(new CropCircleTransformation())
+                .into(profilePic);
+
+
     }
 
     public interface SongsUIListener {

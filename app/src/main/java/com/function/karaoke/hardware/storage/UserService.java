@@ -63,6 +63,29 @@ public class UserService extends ViewModel {
 //        return success;
     }
 
+    public void getUser(GetUserListener getUserListener) {
+        if (user == null) {
+            final List<UserInfo> documentsList = new LinkedList<>();
+            Query getUserQuery = databaseDriver.getCollectionReferenceByName(UserService.COLLECTION_USERS_NAME).whereEqualTo(UserService.UID, authenticationDriver.getUserUid());
+            getUserQuery.get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    if (task.getResult().isEmpty()) {
+                        user = null;
+                    } else {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            this.userDocument = task.getResult().getDocuments().get(0).getReference();
+                            documentsList.add(document.toObject(UserInfo.class));
+                        }
+                        getUserListener.user(documentsList.get(0));
+                    }
+                } else {
+
+                }
+            });
+        } else
+            getUserListener.user(user);
+    }
+
     public void addUserToDatabase(UserInfo user) {
         usersCollectionRef.add(user).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -74,7 +97,7 @@ public class UserService extends ViewModel {
 
     public void addSubscriptionType(UserUpdateListener userUpdateListener, int type) {
         Map<String, Object> data = new HashMap<>();
-        data.put(TYPE, type );
+        data.put(TYPE, type);
         userDocument.update(data).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -119,5 +142,9 @@ public class UserService extends ViewModel {
         void onSuccess();
 
         void onFailure();
+    }
+
+    public interface GetUserListener{
+        void user(UserInfo userInfo);
     }
 }

@@ -15,6 +15,7 @@ public class UserInfo implements Serializable {
     int subscriptionType = 1;
     String id;
     int shares;
+    String picUrl;
 
     public UserInfo(){}
 
@@ -22,7 +23,7 @@ public class UserInfo implements Serializable {
         this.id = id;
     }
 
-    public UserInfo(String userEmail, String userName, String id, int shares) {
+    public UserInfo(String userEmail, String userName, String picUrl, String id, int shares) {
         this.userEmail = userEmail;
         this.userName = userName;
         this.id = id;
@@ -42,8 +43,16 @@ public class UserInfo implements Serializable {
         return userName;
     }
 
+    public String getPicUrl() {
+        return picUrl;
+    }
+
     public void setSubscriptionType(int subscriptionType) {
         this.subscriptionType = subscriptionType;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
     }
 
     public void setId(String id) {

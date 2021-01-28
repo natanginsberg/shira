@@ -293,7 +293,7 @@ public class CameraPreview {
             mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
             mMediaRecorder.setAudioChannels(1);
@@ -301,7 +301,7 @@ public class CameraPreview {
             mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
             mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
             mMediaRecorder.setAudioSamplingRate(8000);
-        }
+//        }
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
             mMediaRecorder.prepare();

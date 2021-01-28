@@ -33,9 +33,11 @@ import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.activities.Model.Reocording;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
+import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
 import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 
@@ -91,6 +93,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private GridAdapter gAdapter;
     private boolean noTextInQuery = true;
     private RecordingCategoryAdapter recordingCategoryAdapter;
+    private UserService userService;
 
 
     /**
@@ -426,8 +429,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""), contentDisplayed
         );
         if (authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""))
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
             songsActivityUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
+            songsActivityUI.addPicToScreen(mListener.getUser());
+        }
         popupView = songsActivityUI.getPopupView();
         popup = songsActivityUI.getPopup();
         addPopupListeners();
@@ -604,6 +609,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void sendEmailWithSongSuggestion(String songName, String artistName);
 
         void startRecordingsActivity();
+
+        UserInfo getUser();
     }
 
 
