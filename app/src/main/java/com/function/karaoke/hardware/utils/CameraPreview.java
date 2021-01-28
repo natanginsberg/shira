@@ -281,7 +281,7 @@ public class CameraPreview {
             mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
 
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
