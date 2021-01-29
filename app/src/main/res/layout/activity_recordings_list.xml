@@ -5,7 +5,6 @@
     android:id="@+id/recordings_activty"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/main_background"
     tools:context=".RecordingsList">
 
     <View
@@ -18,132 +17,141 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@android:color/transparent"
+        android:background="@drawable/main_background"
         android:elevation="15dp"
-        app:layout_constraintHeight_percent="0.08"
-        app:layout_constraintTop_toBottomOf="@id/search_input"
+        app:layout_constraintHeight_percent="0.15"
         app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/settings_guide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.03" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/search_icon_guide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.97" />
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/top_of_header"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            app:layout_constraintHeight_percent="0.6"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/my_recordings_text"
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/settings_guide"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:fontFamily="@font/varela_round_regular"
-                android:text="@string/My_recordings"
-                android:textColor="@android:color/white" />
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.03" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/search_icon_guide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.97" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/my_recordings_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/varela_round_regular"
+                    android:text="@string/My_recordings"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/ic_arrow_header"
+                    android:gravity="bottom" />
+
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/loading_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="@id/back_button"
+                app:layout_constraintEnd_toStartOf="@id/back_button"
+                app:layout_constraintTop_toTopOf="@id/back_button" />
+
+            <TextView
+                android:id="@+id/internet_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                app:layout_constraintBottom_toBottomOf="@id/settings_button"
+                app:layout_constraintStart_toEndOf="@id/settings_button"
+                app:layout_constraintTop_toTopOf="@id/settings_button" />
 
             <Button
-                android:layout_width="15dp"
-                android:layout_height="15dp"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/ic_arrow_header"
-                android:gravity="bottom" />
+                android:id="@+id/back_button"
+                android:layout_width="@dimen/no_hardcode_dimension"
+                android:layout_height="@dimen/no_hardcode_dimension"
+                android:background="@drawable/ic_arrow_back"
+                android:onClick="back"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="@id/search_icon_guide"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.05" />
 
 
-        </RelativeLayout>
+            <Button
+                android:id="@+id/settings_button"
+                android:layout_width="@dimen/no_hardcode_dimension"
+                android:layout_height="@dimen/no_hardcode_dimension"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/ic_baseline_menu_24"
+                android:onClick="openSettingsPopup"
+                android:textColor="@color/sing_up_hover"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="0.7"
+                app:layout_constraintStart_toStartOf="@id/settings_guide"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.06" />
 
-        <TextView
-            android:id="@+id/loading_percent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@id/back_button"
-            app:layout_constraintEnd_toStartOf="@id/back_button"
-            app:layout_constraintTop_toTopOf="@id/back_button" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:id="@+id/internet_speed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@id/settings_button"
-            app:layout_constraintStart_toEndOf="@id/settings_button"
-            app:layout_constraintTop_toTopOf="@id/settings_button" />
-
-        <Button
-            android:id="@+id/back_button"
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/search_input"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:background="@drawable/ic_arrow_back"
-            android:onClick="back"
+            android:layout_margin="5dp"
+            android:background="@drawable/ic_search_port"
+            android:focusable="false"
+            android:gravity="center"
+            android:inputType="textPersonName"
+            android:layoutDirection="locale"
+            android:theme="@style/SearchTheme"
+            app:iconifiedByDefault="false"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="5:1"
+            app:layout_constraintEnd_toStartOf="@id/user_picture"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_of_header"
+            app:layout_constraintWidth_percent="0.68"
+            app:queryHint="@string/recording_search"
+            app:searchIcon="@drawable/ic_search_icon" />
+
+        <ImageView
+            android:id="@+id/user_picture"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/circle"
+            app:layout_constraintBottom_toBottomOf="@id/search_input"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="@id/search_icon_guide"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.05" />
-
-
-        <Button
-            android:id="@+id/settings_button"
-            android:layout_width="@dimen/no_hardcode_dimension"
-            android:layout_height="@dimen/no_hardcode_dimension"
-            android:onClick="openSettingsPopup"
-            android:layout_alignParentStart="true"
-            android:background="@drawable/ic_baseline_menu_24"
-            android:textColor="@color/sing_up_hover"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="0.7"
-            app:layout_constraintStart_toStartOf="@id/settings_guide"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.06" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/search_input"
+            app:layout_constraintTop_toTopOf="@id/search_input"
+            app:layout_constraintWidth_percent="0.11" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.appcompat.widget.SearchView
-        android:id="@+id/search_input"
-        android:layout_width="@dimen/no_hardcode_dimension"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_margin="5dp"
-        android:background="@drawable/ic_search_port"
-        android:focusable="false"
-        android:gravity="center"
-        android:inputType="textPersonName"
-        android:layoutDirection="locale"
-        android:theme="@style/SearchTheme"
-        app:iconifiedByDefault="false"
-        app:layout_constraintDimensionRatio="4:1"
-        app:layout_constraintEnd_toStartOf="@id/user_picture"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header"
-        app:layout_constraintWidth_percent="0.62"
-        app:queryHint="@string/recording_search"
-        app:searchIcon="@drawable/ic_search_icon" />
-
-    <ImageView
-        android:id="@+id/user_picture"
-        android:layout_width="@dimen/no_hardcode_dimension"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginEnd="15dp"
-        android:src="@drawable/circle"
-        app:layout_constraintBottom_toBottomOf="@id/search_input"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/search_input"
-        app:layout_constraintTop_toTopOf="@id/search_input"
-        app:layout_constraintWidth_percent="0.13" />
 
 
     <androidx.constraintlayout.widget.Guideline
@@ -156,11 +164,11 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/song_info"
 
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:visibility="gone"
         app:layout_constraintHeight_percent="0.18"
-        app:layout_constraintTop_toBottomOf="@id/search_input">
+        app:layout_constraintTop_toBottomOf="@id/header">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/main_delete_button"
@@ -233,55 +241,69 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <ImageView
-        android:layout_width="@dimen/no_hardcode_dimension"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@drawable/ic_sun_loading_backgrund"
-        app:layout_constraintBottom_toBottomOf="@id/list"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintHeight_percent="0.5"
-        app:layout_constraintLeft_toLeftOf="@id/list"
-        app:layout_constraintRight_toRightOf="@id/list"
-        app:layout_constraintTop_toTopOf="@id/list" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list"
-        android:name="com.damn.karaoke.phone.SongFragment"
-        android:layout_width="@dimen/no_hardcode_dimension"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:scrollbars="vertical"
+        android:background="@drawable/main_background"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/song_info">
 
-    </androidx.recyclerview.widget.RecyclerView>
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/song_list_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.04" />
+
+        <ImageView
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:background="@drawable/ic_sun_loading_backgrund"
+            app:layout_constraintBottom_toBottomOf="@id/list"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintHeight_percent="0.5"
+            app:layout_constraintLeft_toLeftOf="@id/list"
+            app:layout_constraintRight_toRightOf="@id/list"
+            app:layout_constraintTop_toTopOf="@id/list" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:name="com.damn.karaoke.phone.SongFragment"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/song_list_guide">
+
+        </androidx.recyclerview.widget.RecyclerView>
 
 
+        <ProgressBar
+            android:id="@+id/loading_songs_progress_bar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@mipmap/ic_video_camera_round"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/song_list_guide" />
 
+        <TextView
+            android:id="@+id/no_recordings_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/no_recordings"
+            android:textSize="25sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/song_list_guide" />
 
-    <ProgressBar
-        android:id="@+id/loading_songs_progress_bar"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:background="@mipmap/ic_video_camera_round"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_input" />
-
-    <TextView
-        android:id="@+id/no_recordings_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/no_recordings"
-        android:textSize="25sp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_input" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

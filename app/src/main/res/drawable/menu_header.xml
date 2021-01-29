@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/listview_background_shape"
+    android:shape="rectangle">
+    <gradient
+        android:endColor="@color/main_background_outer"
+        android:gradientRadius="449.8805dp"
+        android:startColor="@color/main_background_inner"
+        android:type="radial" />
+    <corners
+        android:topLeftRadius="20dp"
+        android:topRightRadius="20dp" />
+</shape>

@@ -51,7 +51,7 @@ public class SingActivityUI {
 
     public void setSurfaceForRecording(boolean cameraOn) {
         view.findViewById(R.id.play_button).setVisibility(View.GONE);
-        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+//        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
         if (!cameraOn)
             view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
 
@@ -59,7 +59,15 @@ public class SingActivityUI {
     }
 
     public void turnOffCameraOptions() {
-        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+        changeChech(false);
+        turnOffClickListeners();
+//        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
+    }
+
+    private void turnOffClickListeners() {
+        popupView.findViewById(R.id.check).setOnClickListener(null);
+        popupView.findViewById(R.id.no_check).setOnClickListener(null);
+        popupView.findViewById(R.id.check_holder).setOnClickListener(null);
     }
 
     public void clearLyricsScreen() {
@@ -78,7 +86,7 @@ public class SingActivityUI {
     public void resetScreenForTimer() {
         resetLyricsScreen();
         showPlayButton();
-        view.findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
+//        view.findViewById(R.id.camera_toggle_button).setVisibility(View.VISIBLE);
     }
 
     private void resetLyricsScreen() {
@@ -171,13 +179,20 @@ public class SingActivityUI {
         view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
     }
 
-    public void openTonePopup(Context context) {
+    public void openTonePopup(DatabaseSong song, Context context) {
         popupOpened = true;
         RelativeLayout viewGroup = view.findViewById(R.id.tone_picker);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.tone_picker_popup, viewGroup);
         placePopupOnScreen(context);
         popup.setFocusable(false);
+        setArtistAndSongNames(song);
+    }
+
+    private void setArtistAndSongNames(DatabaseSong song) {
+        ((TextView) popupView.findViewById(R.id.artist_name)).setText(song.getArtist());
+        ((TextView) popupView.findViewById(R.id.song_name)).setText(song.getTitle());
+
     }
 
     private void setTonePopupAttributes(Context context, PopupWindow popup, View layout) {
@@ -291,5 +306,16 @@ public class SingActivityUI {
 
     public void dismissRecordings() {
         recordingsPopup.dismiss();
+    }
+
+    public void changeChech(boolean cameraOn) {
+        if (cameraOn) {
+            popupView.findViewById(R.id.check).setVisibility(View.VISIBLE);
+            popupView.findViewById(R.id.no_check).setVisibility(View.INVISIBLE);
+        } else{
+            popupView.findViewById(R.id.no_check).setVisibility(View.VISIBLE);
+            popupView.findViewById(R.id.check).setVisibility(View.INVISIBLE);
+
+        }
     }
 }

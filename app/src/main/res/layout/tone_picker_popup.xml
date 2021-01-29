@@ -5,97 +5,206 @@
     android:id="@+id/tone_picker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SingActivity"
-    android:background="@android:color/white">
-
-    <TextView
-        android:id="@+id/question"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/who_is_singing_the_song"
-        android:textColor="@color/appColor"
-        app:layout_constraintBottom_toTopOf="@id/choices"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    android:background="@android:color/transparent"
+    tools:context=".SingActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/menu_header"
+        app:layout_constraintBottom_toTopOf="@id/choices"
+        app:layout_constraintHeight_percent="0.25"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/middle_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/artist_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/varela_round_regular"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@id/middle_guide"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <TextView
+            android:id="@+id/song_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/varela_round_regular"
+            android:textColor="@android:color/white"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="@id/middle_guide" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <LinearLayout
         android:id="@+id/choices"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@color/appColor"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.8">
+        android:background="@drawable/menu_background"
+        android:orientation="vertical"
+        android:weightSum="4"
+        app:layout_constraintBottom_toTopOf="@id/footer"
+        app:layout_constraintHeight_percent="0.55">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/top_guide"
-            android:layout_width="match_parent"
+        <!--        <androidx.constraintlayout.widget.Guideline-->
+        <!--            android:id="@+id/top_guide"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="horizontal"-->
+        <!--            app:layout_constraintGuide_percent="0.33" />-->
+
+        <!--        <androidx.constraintlayout.widget.Guideline-->
+        <!--            android:id="@+id/bottom_guide"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:orientation="horizontal"-->
+        <!--            app:layout_constraintGuide_percent="0.66" />-->
+
+        <TextView
+            android:id="@+id/question"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.33" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/bottom_guide"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.66" />
-
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/black"
-            app:layout_constraintBottom_toBottomOf="@id/top_guide"
-            app:layout_constraintTop_toTopOf="@id/top_guide" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/black"
-            app:layout_constraintBottom_toBottomOf="@id/bottom_guide"
-            app:layout_constraintTop_toTopOf="@id/bottom_guide" />
-
-        <Button
-            android:id="@+id/man"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/no_hardcode_dimension"
-            android:background="@drawable/purple_click"
-            android:onClick="manTone"
-            android:text="@string/man"
-            android:textColor="@color/sing_up_hover"
-            app:layout_constraintBottom_toTopOf="@id/top_guide"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:fontFamily="@font/varela_round_regular"
+            android:layout_gravity="center"
+            android:layout_weight="0.4"
+            android:gravity="center"
+            android:text="@string/who_is_singing_the_song"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
 
         <Button
             android:id="@+id/kid"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_height="0dp"
+            android:fontFamily="@font/varela_round_regular"
+            android:layout_weight="1.2"
             android:background="@drawable/purple_click"
             android:onClick="kidTone"
             android:text="@string/kid"
             android:textColor="@color/sing_up_hover"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/bottom_guide" />
+            android:textSize="18sp" />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:background="@android:color/white" />
 
         <Button
             android:id="@+id/woman"
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1.2"
+            android:fontFamily="@font/varela_round_regular"
             android:background="@drawable/purple_click"
             android:onClick="womanTone"
             android:text="@string/woman"
             android:textColor="@color/sing_up_hover"
-            app:layout_constraintBottom_toTopOf="@id/bottom_guide"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="@id/top_guide" />
+            android:textSize="18sp" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:background="@android:color/white" />
+
+        <Button
+            android:id="@+id/man"
+            android:layout_width="match_parent"
+            android:fontFamily="@font/varela_round_regular"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1.2"
+            android:background="@drawable/purple_click"
+            android:onClick="manTone"
+            android:text="@string/man"
+            android:textColor="@color/sing_up_hover"
+            android:textSize="18sp" />
+
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/menu_footer"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="@string/with_video"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:fontFamily="@font/varela_round_regular"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1.6:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.31"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/check_holder"
+            android:background="@drawable/ic_check_icon_blank"
+            android:onClick="changeCameraFeature">
+
+            <ImageButton
+                android:id="@+id/check"
+                android:layout_width="@dimen/no_hardcode_dimension"
+                android:layout_height="@dimen/no_hardcode_dimension"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:background="@drawable/ic_check_icon_small"
+                app:layout_constraintHeight_percent=".9"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="4dp"
+                android:onClick="changeCameraFeature"/>
+
+            <ImageButton
+                android:id="@+id/no_check"
+                android:layout_width="@dimen/no_hardcode_dimension"
+                android:layout_height="@dimen/no_hardcode_dimension"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                android:background="@drawable/ic_no_check_small"
+                app:layout_constraintHeight_percent=".9"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="4dp"
+                android:visibility="gone"
+                android:onClick="changeCameraFeature"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

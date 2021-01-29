@@ -29,7 +29,6 @@ import android.view.TextureView;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -41,7 +40,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -248,7 +246,7 @@ public class SingActivity extends AppCompatActivity implements
         createEarphoneReceivers();
         checkForPermissionAndOpenCamera();
         if (song.hasDifferentTones()) {
-            activityUI.openTonePopup(SingActivity.this);
+            activityUI.openTonePopup(song, SingActivity.this);
         } else {
             songPlayed = song.getSongResourceFile();
             mKaraokeKonroller.loadAudio(songPlayed);
@@ -456,18 +454,26 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void openCamera() {
-        ((SwitchCompat) findViewById(R.id.camera_toggle_button)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean turnCameraOff) {
-                if (!turnCameraOff) {
-                    turnCameraOff();
-                    findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
-                } else {
-                    findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
-                    turnCameraOn();
-                }
-            }
-        });
+//        ((SwitchCompat) findViewById(R.id.camera_toggle_button)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean turnCameraOff) {
+//                if (!turnCameraOff) {
+//                    turnCameraOff();
+//                    findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
+//                } else {
+//                    findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
+//                    turnCameraOn();
+//                }
+//            }
+//        });
+
+//        if (!cameraOn) {
+//            turnCameraOff();
+//            findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
+//        } else {
+//            findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
+////            turnCameraOn();
+////        }
         OpenCameraAsync.openCamera(cameraPreview, mTextureView, mSurfaceTextureListener, new OpenCameraAsync.OpenCameraListener() {
             @Override
             public void onSuccess() {
@@ -479,12 +485,10 @@ public class SingActivity extends AppCompatActivity implements
                 showFailure(CAMERA_ERROR);
             }
         });
+//        }
 
     }
 
-    private void turnCameraOn() {
-        openCamera();
-    }
 
     private void turnCameraOff() {
         cameraPreview.closeCamera();
@@ -1197,34 +1201,34 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.hideShareItems();
     }
 
-    private void share(File jsonFile) {
-        try {
-            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
-            saveToCloud(saveItems);
-
-            Task<ShortDynamicLink> link = ShareLink.createLink(recording);
-            link.addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    // Short link created
-                    Uri shortLink = task.getResult().getShortLink();
-                    Uri flowchartLink = task.getResult().getPreviewLink();
-                    String link1 = shortLink.toString();
-                    sendDataThroughIntent(link1);
-
-
-                } else {
-                    showFailure(SHARING_ERROR);
-                    // Error
-                    // ...
-                }
-            });
-
-//            createLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
-//                    Integer.toString(saveItems.getRecording().getDelay()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    private void share(File jsonFile) {
+//        try {
+//            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
+//            saveToCloud(saveItems);
+//
+//            Task<ShortDynamicLink> link = ShareLink.createLink(recording);
+//            link.addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    // Short link created
+//                    Uri shortLink = task.getResult().getShortLink();
+//                    Uri flowchartLink = task.getResult().getPreviewLink();
+//                    String link1 = shortLink.toString();
+//                    sendDataThroughIntent(link1);
+//
+//
+//                } else {
+//                    showFailure(SHARING_ERROR);
+//                    // Error
+//                    // ...
+//                }
+//            });
+//
+////            createLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
+////                    Integer.toString(saveItems.getRecording().getDelay()));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     private void startBilling(int funcToCall) {
@@ -1464,7 +1468,19 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void showSuccessToast() {
-        Toast.makeText(this, "succes", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
+    }
+
+    public void changeCameraFeature(View view) {
+        cameraOn = !cameraOn;
+        if (!cameraOn) {
+            turnCameraOff();
+            findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
+        } else {
+            findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
+            openCamera();
+        }
+        activityUI.changeChech(cameraOn);
     }
 
 
