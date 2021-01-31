@@ -135,8 +135,8 @@ public class SingActivityUI {
     }
 
     private void setEndOptionsPopupAttributes(Context context, PopupWindow popup, View layout) {
-        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.781);
-        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.576);
+        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.79);
+        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558);
         popup.setContentView(layout);
         popup.setWidth(width);
         popup.setHeight(height);

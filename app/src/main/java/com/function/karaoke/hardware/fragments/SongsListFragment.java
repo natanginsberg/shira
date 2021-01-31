@@ -18,7 +18,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.hardware.GridAdapter;
@@ -38,6 +37,8 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.storage.UserService;
+import com.function.karaoke.hardware.ui.GenresUI;
+import com.function.karaoke.hardware.ui.SettingUI;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
 import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 
@@ -51,7 +52,8 @@ import java.util.Locale;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener, ActivityResultCaller, SongsActivityUI.SongsUIListener {
+public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener,
+        ActivityResultCaller, GenresUI.GenreUIListener {
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final int ALL_SONGS_DISPLAYED = 1;
@@ -94,6 +96,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private boolean noTextInQuery = true;
     private RecordingCategoryAdapter recordingCategoryAdapter;
     private UserService userService;
+    private String currentGenre;
+    private final GenreListener genreListener = new GenreListener();
 
 
     /**
@@ -117,17 +121,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         songsView = inflater.inflate(R.layout.fragment_song_list, container, false);
-
+        authenticationDriver = new AuthenticationDriver();
         Context context = songsView.getContext();
         recyclerView = songsView.findViewById(R.id.list);
-        if (mColumnCount <= 1) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        } else {
-            recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-        }
+        recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
         recyclerView.setAdapter(mAdapter);
-//        gAdapter = new GridAdapter(getContext(), currentDatabaseSongs.getSongs(), mListener);
-//        gridView = songsView.findViewById(R.id.list);
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
         this.recordingService = new RecordingService();
@@ -136,8 +134,14 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         songsActivityUI = new SongsActivityUI(view, this, getCurrentLanguage(), getContext());
         addGenres();
         view.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()));
-        addRecyclerViewGenreListener();
+        addGenreListeners();
         return songsView;
+    }
+
+    private void addGenreListeners() {
+        view.findViewById(R.id.genre_button).setOnClickListener(genreListener);
+        view.findViewById(R.id.genre_holder).setOnClickListener(genreListener);
+        view.findViewById(R.id.genre).setOnClickListener(genreListener);
     }
 
     private String getCurrentLanguage() {
@@ -146,109 +150,129 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void addGenres() {
         final Observer<Genres> searchObserver = products -> {
-            genres = products;
+            addToGenres(products);
             if (genres != null)
 //                songsActivityUI.addGenresToScreen(genres);
-                songsActivityUI.addGenreToScreen(genres.getGenres().get(0));
+                if (currentGenre == null) {
+                    currentGenre = genres.getGenres().get(0);
+                    songsActivityUI.addGenreToScreen(genres.getGenres().get(0));
+                }
         };
         this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
 
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private void addRecyclerViewGenreListener() {
-//        recyclerView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
-//            @Override
-//            public void onSwipeRight() {
-//                super.onSwipeRight();
-//                mListener.colorNextGenre();
-//            }
+    private void addToGenres(Genres products) {
+        if (genres == null) {
+            genres = products;
+        } else {
+            genres.add(products);
+        }
+    }
 //
+//    @SuppressLint("ClickableViewAccessibility")
+//    private void addRecyclerViewGenreListener() {
+////        recyclerView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
+////            @Override
+////            public void onSwipeRight() {
+////                super.onSwipeRight();
+////                mListener.colorNextGenre();
+////            }
+////
+////            @Override
+////            public void onSwipeLeft() {
+////                super.onSwipeLeft();
+////                mListener.colorPreviousGenre();
+////            }
+////        });
+//        recyclerView.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
-//            public void onSwipeLeft() {
-//                super.onSwipeLeft();
-//                mListener.colorPreviousGenre();
+//            public boolean onTouch(View view, MotionEvent e) {
+//                recyclerView.onTouchEvent(e);
+//                switch (e.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        x1 = e.getX();
+//                        y1 = e.getY();
+//                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_DRAGGING);
+////                if (mListener != null)
+////                {
+////                    mListener.OnItemClick(v, Position);
+////                }
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_SETTLING);
+//                        float x2 = e.getX();
+//                        float y2 = e.getY();
+//                        float diffY = y2 - y1;
+//                        float diffX = x2 - x1;
+//                        if (Math.abs(diffX) > Math.abs(diffY)) {
+//                            float deltaX = x2 - x1;
+//                            if (Math.abs(deltaX) > 5) {
+//                                // Left to Right swipe action
+//                                if (x2 > x1) {
+//                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
+//                                        colorNextGenre();
+//                                    else
+//                                        colorPreviousGenre();
+//
+//                                }
+//
+//                                // Right to left swipe action
+//                                else {
+//                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
+//                                        colorPreviousGenre();
+//                                    else
+//                                        colorNextGenre();
+//
+//                                }
+//                            }
+//                            break;
+//                        }
+//                }
+//                return true;
 //            }
 //        });
-        recyclerView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent e) {
-                recyclerView.onTouchEvent(e);
-                switch (e.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        x1 = e.getX();
-                        y1 = e.getY();
-                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_DRAGGING);
-//                if (mListener != null)
-//                {
-//                    mListener.OnItemClick(v, Position);
-//                }
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_SETTLING);
-                        float x2 = e.getX();
-                        float y2 = e.getY();
-                        float diffY = y2 - y1;
-                        float diffX = x2 - x1;
-                        if (Math.abs(diffX) > Math.abs(diffY)) {
-                            float deltaX = x2 - x1;
-                            if (Math.abs(deltaX) > 5) {
-                                // Left to Right swipe action
-                                if (x2 > x1) {
-                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
-                                        colorNextGenre();
-                                    else
-                                        colorPreviousGenre();
-
-                                }
-
-                                // Right to left swipe action
-                                else {
-                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
-                                        colorPreviousGenre();
-                                    else
-                                        colorNextGenre();
-
-                                }
-                            }
-                            break;
-                        }
-                }
-                return true;
-            }
-        });
-    }
-
-    public void colorPreviousGenre() {
-        if (genreClicked > 0) {
-//            songsActivityUI.colorNextGenre(genreClicked - 1);
-            songsActivityUI.addGenreToScreen(genres.getGenres().get(genreClicked - 1));
-            getAllSongsFromGenre(genreClicked - 1);
-        }
-    }
-
-    public void colorNextGenre() {
-        if (genreClicked < genres.getGenres().size()) {
-//            songsActivityUI.colorNextGenre(genreClicked + 1);
-            songsActivityUI.addGenreToScreen(genres.getGenres().get(genreClicked + 1));
-            getAllSongsFromGenre(genreClicked + 1);
-        }
-    }
+//    }
+//
+//    public void colorPreviousGenre() {
+//        if (genreClicked > 0) {
+////            songsActivityUI.colorNextGenre(genreClicked - 1);
+//            songsActivityUI.addGenreToScreen(genres.getGenres().get(genreClicked - 1));
+//            getAllSongsFromGenre(genreClicked - 1);
+//        }
+//    }
+//
+//    public void colorNextGenre() {
+//        if (genreClicked < genres.getGenres().size()) {
+////            songsActivityUI.colorNextGenre(genreClicked + 1);
+//            songsActivityUI.addGenreToScreen(genres.getGenres().get(genreClicked + 1));
+//            getAllSongsFromGenre(genreClicked + 1);
+//        }
+//    }
 
     @Override
     public void getAllSongsFromGenre(int i) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();
         genreClicked = i;
-        String genre = genres.getGenres().get(i).split(",")[1];
-        if (genre.equals("כל השירים"))
+        currentGenre = genres.getGenres().get(i);
+        String hebrewGenre = currentGenre.split(",")[1];
+        if (hebrewGenre.equals("כל השירים"))
             searchedSongs = allSongsDatabase.getSongs();
         else {
             for (DatabaseSong song : allSongsDatabase.getSongs()) {
-                if (song.getGenre().toLowerCase().equals(genre)) {
+                if (song.getGenre().contains(",")) {
+                    String[] split = song.getGenre().split(",");
+                    for (String g : split) {
+                        if (g.equalsIgnoreCase(hebrewGenre))
+                            searchedSongs.add(song);
+                    }
+
+                } else if (song.getGenre().toLowerCase().equals(hebrewGenre)) {
                     searchedSongs.add(song);
                 }
             }
         }
+        songsActivityUI.addGenreToScreen(currentGenre);
         currentDatabaseSongs.updateSongs(searchedSongs);
 //        mAdapter.notifyDataSetChanged();
 //        gAdapter.notifyDataSetChanged();
@@ -287,28 +311,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         };
         this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
     }
-
-//    private void getAllPersonalSongs() {
-//        final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
-//            contentDisplayed = PERSONAL_RECORDING_DISPLAYED;
-//            if (personalRecordings != null) {
-//                recordingDB = new RecordingDB(personalRecordings);
-//                view.findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
-//                displayPersonalSongs();
-//                differentSongsDisplayed = true;
-//            } else {
-////                currentDatabaseSongs.updateSongs(new ArrayList<>());
-////                mAdapter.notifyDataSetChanged();
-//                differentSongsDisplayed = false;
-//                songsActivityUI.noRecordings();
-//
-//            }
-////            songsActivityUI.hideGenresAndSearch();
-//            popup.dismiss();
-//
-//        };
-//        this.recordingService.getRecordingFromUID().observe(getViewLifecycleOwner(), personalRecordingObserver);
-//    }
 
     @Override
     public void onPause() {
@@ -354,15 +356,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //            gAdapter.notifyDataSetChanged();
         }
     }
-
-//    private void displayPersonalSongs() {
-//        recordingCategoryAdapter = new RecordingCategoryAdapter(recordingDB.getRecordingsPerSong(), this, getString(R.string.recording_tag_display_constant));
-//        recyclerView.setAdapter(recordingCategoryAdapter);
-////        mAdapter.setData(makeListOfRecordingDisplay(), getActivity().getResources().getString(R.string.open));
-////        mAdapter.notifyDataSetChanged();
-////        recordAdapter = new RecordingRecycleViewAdapter(recordingDB.getRecordings(), mListener, ((SongsActivity) requireActivity()).language);
-////        recyclerView.setAdapter(recordAdapter);
-//    }
 
 
     private void addSearchListener() {
@@ -424,17 +417,18 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     public void openSettingsPopup(View view) {
-        authenticationDriver = new AuthenticationDriver();
-        songsActivityUI.openSettingsPopup(authenticationDriver.isSignIn()
+
+        SettingUI settingUI = new SettingUI(this.view, getContext());
+        settingUI.openSettingsPopup(authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""), contentDisplayed
         );
         if (authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-            songsActivityUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
-            songsActivityUI.addPicToScreen(mListener.getUser());
+            settingUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
+            settingUI.addPicToScreen(mListener.getUser());
         }
-        popupView = songsActivityUI.getPopupView();
-        popup = songsActivityUI.getPopup();
+        popupView = settingUI.getPopupView();
+        popup = settingUI.getPopup();
         addPopupListeners();
         popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
             public void onSwipeTop() {
@@ -472,7 +466,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //        popupView.findViewById(R.id.song_suggestion).setOnClickListener(view -> showSongSuggestionBox());
     }
 
-    private void showSongSuggestionBox() {
+    public void showSongSuggestionBox() {
         View suggestionView = songsActivityUI.openSongSuggestionsPopup();
         suggestionView.findViewById(R.id.send_suggestion).setOnClickListener((View.OnClickListener) view -> {
             String songName = (String) ((EditText) suggestionView.findViewById(R.id.song_name)).getText().toString();
@@ -530,26 +524,22 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private void myRecordingsToDisplayListener() {
         popupView.findViewById(R.id.my_recordings).setOnClickListener(view -> {
 //            songsActivityUI.removeTouch();
-            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-                if (contentDisplayed == ALL_SONGS_DISPLAYED) {
-//                if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
-                    AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-//                    if (recordingDB == null || (!recordingDB.getRecorderId().equals(authenticationDriver.getUserUid()))) {
-//                        recordingDB = null;
-//                    getAllPersonalSongs();
-                    mListener.startRecordingsActivity();
-//                    } else {
-//                        displayPersonalSongs();
-//                    }
-                    ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
-//                    ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(getResources().getColor(R.color.sing_up_hover));
-//                    ((TextView) this.view.findViewById(R.id.display_text)).setText(R.string.My_recordings);
-                }
-            } else {
-                mListener.alertUserToSignIn();
-
-            }
+            openMyRecordings();
         });
+    }
+
+    public void openMyRecordings() {
+        if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
+            if (contentDisplayed == ALL_SONGS_DISPLAYED) {
+                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+                popup.dismiss();
+                mListener.startRecordingsActivity(genres);
+//                ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
+            }
+        } else {
+            mListener.alertUserToSignIn();
+
+        }
     }
 
     private void dismissButtonListener() {
@@ -573,6 +563,13 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void showRecordings() {
 
+    }
+
+    private class GenreListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            songsActivityUI.addGenresToScreen(genres, currentGenre);
+        }
     }
 
 
@@ -608,7 +605,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void sendEmailWithSongSuggestion(String songName, String artistName);
 
-        void startRecordingsActivity();
+        void startRecordingsActivity(Genres genres);
 
         UserInfo getUser();
     }

@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -39,6 +40,7 @@ import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
+import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
@@ -86,9 +88,15 @@ public class SongsActivity
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent intent = result.getData();
-                        user = (UserInfo) intent.getSerializableExtra("User");
-                        if (user != null) {
-                            updateUI();
+                        if (intent.getExtras() != null) {
+                            if (intent.getExtras().containsKey("User"))
+                                user = (UserInfo) intent.getSerializableExtra("User");
+                            else if (intent.getExtras().containsKey("genre")) {
+                                List<Fragment> fragments = getSupportFragmentManager().getFragments();
+                                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
+                                fragment.getAllSongsFromGenre(intent.getExtras().getInt("genre"));
+                            }
+
                         }
                     }
                 }
@@ -396,11 +404,12 @@ public class SongsActivity
     }
 
     @Override
-    public void startRecordingsActivity() {
-        Intent intent = new Intent(this, RecordingsList.class);
+    public void startRecordingsActivity(Genres genres) {
+        Intent intent = new Intent(this, RecordingsActivity.class);
         intent.putExtra("language", Locale.getDefault().getLanguage());
         intent.putExtra("user", user);
-        startActivity(intent);
+        intent.putExtra("genres", genres);
+        mGetContent.launch(intent);
     }
 
     @Override
@@ -465,41 +474,6 @@ public class SongsActivity
 //            }
 //        }, mItem);
     }
-
-//    private void deleteRecording() {
-//        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
-//            @Override
-//            public void onSuccess() {
-//                showSuccessToast();
-//                List<Fragment> fragments = getSupportFragmentManager().getFragments();
-//                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
-//                fragment.removeRecording();
-//            }
-//
-//            @Override
-//            public void onFail() {
-//
-//            }
-//        });
-//    }
-
-//    private void showSuccessToast() {
-//        Toast.makeText(this, "succes", Toast.LENGTH_SHORT).show();
-//    }
-//
-//    private void sendDataThroughIntent(String link) {
-//        String data = getString(R.string.email_prompt) + link;
-//        Intent sendIntent = new Intent();
-//        sendIntent.setAction(Intent.ACTION_SEND);
-//        sendIntent.putExtra(
-//                Intent.EXTRA_TEXT, data);
-//        sendIntent.setType("text/plain");
-//        startActivity(sendIntent);
-//    }
-//
-//    private void showFailure() {
-//        Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
-//    }
 
     @Override
     public DatabaseSongsDB getSongs() {

@@ -59,10 +59,7 @@ public class RecordingDB {
     }
 
     public void updateRecordings(List<Recording> recordingsList) {
-        recordings.clear();
-        recordingsPerSong.clear();
-        recordings.addAll(recordingsList);
-        createMap();
+        recordingsPerSong.put(recordingsList.get(0), recordingsList);
         notifyUpdated();
     }
 

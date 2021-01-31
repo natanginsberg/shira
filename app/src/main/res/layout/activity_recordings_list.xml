@@ -5,7 +5,7 @@
     android:id="@+id/recordings_activty"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordingsList">
+    tools:context=".RecordingsActivity">
 
     <View
         android:layout_width="match_parent"
@@ -14,11 +14,45 @@
         app:layout_constraintTop_toBottomOf="@id/header" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/genre_holder"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:elevation="10dp"
+        app:layout_constraintDimensionRatio="2.4"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.3">
+
+        <TextView
+            android:id="@+id/genre"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:background="@drawable/ic_genre_display"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            app:layout_constraintDimensionRatio="2.7"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/genre_button"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/ic_arrow_header"
+            android:gravity="bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@id/genre"
+            app:layout_constraintRight_toRightOf="@id/genre" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:background="@drawable/main_background"
-        android:elevation="15dp"
         app:layout_constraintHeight_percent="0.15"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -26,7 +60,7 @@
             android:id="@+id/top_of_header"
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
-            app:layout_constraintHeight_percent="0.6"
+            app:layout_constraintHeight_percent="0.56"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.Guideline
@@ -43,32 +77,6 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.97" />
 
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/my_recordings_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:fontFamily="@font/varela_round_regular"
-                    android:text="@string/My_recordings"
-                    android:textColor="@android:color/white" />
-
-                <Button
-                    android:layout_width="15dp"
-                    android:layout_height="15dp"
-                    android:layout_centerHorizontal="true"
-                    android:background="@drawable/ic_arrow_header"
-                    android:gravity="bottom" />
-
-
-            </RelativeLayout>
 
             <TextView
                 android:id="@+id/loading_percent"
@@ -163,9 +171,9 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/song_info"
-
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/main_background"
         android:visibility="gone"
         app:layout_constraintHeight_percent="0.18"
         app:layout_constraintTop_toBottomOf="@id/header">

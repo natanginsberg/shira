@@ -4,10 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewOverlay;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -21,6 +26,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.function.karaoke.core.utility.BlurBuilder;
+import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
@@ -29,6 +36,7 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.RecordingDelete;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
+import com.function.karaoke.hardware.ui.GenresUI;
 import com.function.karaoke.hardware.ui.SettingUI;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
@@ -46,10 +54,12 @@ import java.util.Objects;
 
 import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
-public class RecordingsList extends AppCompatActivity implements
-        RecordingCategoryAdapter.RecordingSongListener, RecordingRecycleViewAdapter.RecordingListener {
+public class RecordingsActivity extends AppCompatActivity implements
+        RecordingCategoryAdapter.RecordingSongListener, RecordingRecycleViewAdapter.RecordingListener, GenresUI.GenreUIListener {
 
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
+    private static final int MY_RECORDINGS = 101;
+
     private static final int NUM_COLUMNS = 2;
 
     private RecordingService recordingService;
@@ -81,7 +91,7 @@ public class RecordingsList extends AppCompatActivity implements
             return -1;
         }
     };
-    private List<Recording> deleteRecordingList = new ArrayList<Recording>() {
+    private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
             return indexOf(o) >= 0;
@@ -106,6 +116,10 @@ public class RecordingsList extends AppCompatActivity implements
     private Locale myLocale;
     private String language;
     private UserInfo user;
+    private Genres genres;
+    private final GenreListener genreListener = new GenreListener();
+    private GenresUI genresUI;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,28 +127,44 @@ public class RecordingsList extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         getUser();
         getCorrectLanguage();
+        getGenres();
         setContentView(R.layout.activity_recordings_list);
+        genresUI = new GenresUI(findViewById(android.R.id.content).getRootView(), this, Locale.getDefault().getLanguage(), this);
         recordingService = new RecordingService();
         recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
         recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
         setRecordingsObserver();
         addSearchListener();
+        addGenres();
+        addGenreListeners();
 //        addProfilePic("");
     }
 
-    private void addProfilePic(String url) {
+    private void addGenreListeners() {
+        findViewById(R.id.genre_button).setOnClickListener(genreListener);
+        findViewById(R.id.genre_holder).setOnClickListener(genreListener);
+        findViewById(R.id.genre).setOnClickListener(genreListener);
+    }
+
+    private void addGenres() {
+        genresUI.addGenreToScreen(getResources().getString(R.string.my_recordings));
+    }
+
+    private void getGenres() {
+        if (getIntent().getExtras().containsKey("genres")) {
+            genres = (Genres) getIntent().getSerializableExtra("genres");
+        }
+    }
+
+    private void addProfilePic() {
         ImageView profilePic = findViewById(R.id.user_picture);
         Picasso.get()
-                .load(url)
+                .load(user.getPicUrl())
                 .placeholder(R.drawable.circle)
                 .fit()
                 .transform(new CropCircleTransformation())
                 .into(profilePic);
-
-//        profilePic.setShapeAppearanceModel(profilePic.getShapeAppearanceModel()
-//                .toBuilder()
-//                .build());
     }
 
     private void getUser() {
@@ -215,7 +245,7 @@ public class RecordingsList extends AppCompatActivity implements
                 findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
                 findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
                 displayRecordingSongs();
-                addProfilePic(currentDatabaseRecordings.getRecordings().get(0).getImageResourceFile());
+                addProfilePic();
             } else
                 findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
         };
@@ -316,6 +346,7 @@ public class RecordingsList extends AppCompatActivity implements
     public void changeIconToWhite(View itemView) {
         itemView.findViewById(R.id.delete_button).setBackground(getDrawable(R.drawable.outline_circle));
         itemView.findViewById(R.id.trash).setBackground(getDrawable(R.drawable.ic_trash_icon_white));
+        itemView.setBackground(getDrawable(R.drawable.unclicked_recording_background));
     }
 
     @Override
@@ -334,6 +365,7 @@ public class RecordingsList extends AppCompatActivity implements
     public void changeIconToGreen(View itemView) {
         itemView.findViewById(R.id.delete_button).setBackground(getDrawable(R.drawable.full_circle));
         itemView.findViewById(R.id.trash).setBackground(getDrawable(R.drawable.ic_trash_icon_grenn));
+        itemView.setBackground(getDrawable(R.drawable.clicked_recording_background));
     }
 
     @Override
@@ -463,7 +495,24 @@ public class RecordingsList extends AppCompatActivity implements
             }
 
         });
+        applyDim();
 
+    }
+
+    private void applyDim() {
+        View view = findViewById(R.id.recordings_activty);
+        ViewOverlay overlay = view.getOverlay();
+        Drawable colorDim = new ColorDrawable(Color.WHITE);
+        colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        colorDim.setAlpha((int) (255 * (float) 0.7));
+//
+        Drawable dim = new BitmapDrawable(getResources(), BlurBuilder.blur(view));
+        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        dim.setAlpha((int) (255 * (float) 0.7));
+//        ViewOverlay headerOverlay = headerView.getOverlay();
+//        headerOverlay.add(dim);
+        overlay.add(colorDim);
+        overlay.add(dim);
     }
 
     private void addPopupListeners() {
@@ -527,8 +576,8 @@ public class RecordingsList extends AppCompatActivity implements
     }
 
     private void startRecordingsActivity() {
-        Intent intent = new Intent(this, RecordingsList.class);
-        startActivity(intent);
+        recyclerView.scrollTo(0, 0);
+        popup.dismiss();
     }
 
     private void dismissButtonListener() {
@@ -562,5 +611,32 @@ public class RecordingsList extends AppCompatActivity implements
     private void launchSignIn() {
         Intent intent = new Intent(this, SignInActivity.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void getAllSongsFromGenre(int i) {
+        Intent intent = new Intent(this, SongsActivity.class);
+        intent.putExtra("genre", i);
+//            onActivityResult(0, RESULT_OK, intent);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public void showSongSuggestionBox() {
+
+    }
+
+    @Override
+    public void openMyRecordings() {
+        //this is the recordings no need to do anything
+    }
+
+    private class GenreListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            if (genres != null)
+                genresUI.addGenresToScreen(genres, getResources().getString(R.string.my_recordings), MY_RECORDINGS);
+        }
     }
 }

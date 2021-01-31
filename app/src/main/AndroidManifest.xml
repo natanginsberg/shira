@@ -32,7 +32,8 @@
         android:roundIcon="@mipmap/ic_video_camera"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".RecordingsList"></activity>
+        <activity android:name=".RecordingsActivity"
+            android:screenOrientation="portrait"></activity>
         <activity android:name=".Admin" />
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld

@@ -2,17 +2,24 @@ package com.function.karaoke.hardware.ui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.squareup.picasso.Picasso;
+
+import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
 public class SettingUI {
 
@@ -21,23 +28,24 @@ public class SettingUI {
     private final Context context;
     private View popupView;
     private PopupWindow popup;
+    private ImageView profilePic;
 
-    public SettingUI(View view, Context c){
-        this.view=view;
-        this.context=c;
+    public SettingUI(View view, Context c) {
+        this.view = view;
+        this.context = c;
     }
 
     public void openSettingsPopup(boolean isUserSignedIn, int contentDisplayed) {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
-        if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-//        if (((TextView) view.findViewById(R.id.display_text)).getText() == context.getResources().getString(R.string.my_recordings)) {
-            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold));
-        } else
+//        if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
+////        if (((TextView) view.findViewById(R.id.display_text)).getText() == context.getResources().getString(R.string.my_recordings)) {
+//            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold));
+//        } else
 //            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(context.getResources().getColor(R.color.gold));
-            setSignInOrOut(isUserSignedIn);
-
+        setSignInOrOut(isUserSignedIn);
+        profilePic = popupView.findViewById(R.id.user_picture);
         placePopupOnScreen();
         applyDim();
 
@@ -68,17 +76,22 @@ public class SettingUI {
         setPopupAttributes(popup, popupView);
 //        int[] location = new int[2];
 //        view.findViewById(R.id.settings_button).getLocationOnScreen(location);
-        popup.showAtLocation(popupView, Gravity.TOP|Gravity.CENTER, 0, 0);
+        popup.showAtLocation(popupView, Gravity.TOP | Gravity.CENTER, 0, 0);
 //                Math.abs(view.getWidth() - location[0]) < Math.abs(location[0]) ? view.getWidth() : 0, 0);
     }
 
     private void applyDim() {
-        Drawable dim = new ColorDrawable(Color.BLACK);
-        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
-        dim.setAlpha((int) (255 * (float) 0.5));
         ViewOverlay overlay = view.getOverlay();
+        Drawable colorDim = new ColorDrawable(Color.WHITE);
+        colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        colorDim.setAlpha((int) (255 * (float) 0.7));
+//
+        Drawable dim = new BitmapDrawable(context.getResources(), BlurBuilder.blur(view));
+        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        dim.setAlpha((int) (255 * (float) 0.7));
 //        ViewOverlay headerOverlay = headerView.getOverlay();
 //        headerOverlay.add(dim);
+        overlay.add(colorDim);
         overlay.add(dim);
     }
 
@@ -87,6 +100,17 @@ public class SettingUI {
         popup.setContentView(layout);
         popup.setWidth(width);
         popup.setHeight((int) (view.getHeight() * 0.8));
+    }
+
+    public void addPicToScreen(UserInfo userInfo) {
+        Picasso.get()
+                .load(userInfo.getPicUrl())
+                .placeholder(R.drawable.circle)
+                .fit()
+                .transform(new CropCircleTransformation())
+                .into(profilePic);
+
+
     }
 
     public PopupWindow getPopup() {
