@@ -101,5 +101,9 @@
     <string name="continue_text">המשך</string>
     <string name="stop">עצור</string>
     <string name="delete">מחק</string>
+    <string name="close">סגור</string>
+    <string name="you_stopped_mid_recording">עצרת באמצע הביצוע</string>
+    <string name="you_finished_the_recording">השלמת את השיר!</string>
+    <string name="share_your_recordings_with_family_and_friends">שתף ביצועים עם משפחה וחברים</string>
 
 </resources>

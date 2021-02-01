@@ -1430,7 +1430,7 @@ public class SingActivity extends AppCompatActivity implements
             findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
             openCamera();
         }
-        activityUI.changeChech(cameraOn);
+        activityUI.changeCheck(cameraOn);
     }
 
 

@@ -2,231 +2,171 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/end_options"
+    android:id="@+id/end_options_mid_song"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/full_rec"
+    android:background="@drawable/end_songs_background"
     tools:context=".SingActivity">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/end_options_layout"
+
+    <TextView
+        android:layout_margin="5dp"
+        android:id="@+id/stop_words"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="3dp"
-        android:background="@drawable/menu_background">
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/menu_header"
+        android:fontFamily="@font/varela_round_regular"
+        android:gravity="center"
+        android:text="@string/you_stopped_mid_recording"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        app:layout_constraintHeight_percent="0.2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <Button
-            android:id="@+id/back_button"
-            android:layout_width="@dimen/no_hardcode_dimension"
-            android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_margin="10dp"
-            android:background="@drawable/ic_baseline_close_24"
-            android:onClick="returnToSong"
-            app:layout_constraintDimensionRatio="0.7"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.07" />
+    <!--        <TextView-->
+    <!--            android:id="@+id/share_question"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:fontFamily="@font/varela_round_regular"-->
+    <!--            android:gravity="center"-->
+    <!--            android:paddingLeft="10dp"-->
+    <!--            android:paddingRight="10dp"-->
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/congrats_guide"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.103" />
+    <!--            android:text="@string/share_question"-->
+    <!--            android:textColor="@android:color/white"-->
+    <!--            android:textSize="17sp"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/congrats" />-->
+
+    <RelativeLayout
+        android:id="@+id/share"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/share_background"
+        android:onClick="saveAndShare"
+        app:layout_constraintDimensionRatio="4.67"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/stop_words"
+        app:layout_constraintWidth_percent="0.76">
 
         <TextView
-            android:id="@+id/congrats"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/good_job"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/congrats_guide" />
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/varela_round_regular"
+            android:onClick="saveAndShare"
+            android:text="@string/share_save"
+            android:textColor="@color/sing_up_hover"
+            android:textSize="24sp" />
+
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/all_options"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/share"
+        app:layout_constraintWidth_percent="0.625">
 
         <TextView
-            android:id="@+id/share_question"
+            android:id="@+id/playback"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:text="@string/share_question"
-            android:textColor="@android:color/white"
-            android:textSize="17sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/congrats" />
+            android:onClick="playback"
+            android:text="@string/playback"
+            android:textColor="@color/sing_up_hover"
+            android:textSize="17sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/white" />
+
+
+        <TextView
+            android:id="@+id/try_again"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="playAgain"
+            android:text="@string/sing_again"
+            android:textColor="@color/sing_up_hover"
+            android:textSize="17sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/white" />
+
+        <TextView
+            android:id="@+id/exit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:onClick="returnToMainFromPopup"
+            android:text="@string/home"
+            android:textColor="@color/sing_up_hover"
+            android:textSize="17sp" />
+
 
         <RelativeLayout
-            android:id="@+id/share"
-            android:layout_width="@dimen/no_hardcode_dimension"
+            android:id="@+id/loading_amount_window"
+            android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_marginTop="10dp"
             android:layout_weight="1"
-            android:background="@drawable/share_background"
-            android:onClick="saveAndShare"
-            app:layout_constraintDimensionRatio="4.67"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/share_question"
-            app:layout_constraintWidth_percent="0.76">
+            android:onClick="saveRecordingToTheCloud"
+            android:visibility="gone">
+
+            <ImageButton
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/ic_download_outline"
+                android:onClick="saveRecordingToTheCloud" />
 
             <TextView
-
+                android:id="@+id/save_recording"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
                 android:layout_centerInParent="true"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:onClick="saveAndShare"
-                android:text="@string/share_save"
-                android:textColor="@color/purple_hover"
-                android:textSize="24sp" />
-
-
+                android:onClick="saveRecordingToTheCloud"
+                android:text="@string/save_recording"
+                android:textColor="@color/sing_up_hover"
+                android:textSize="17sp" />
         </RelativeLayout>
 
-        <LinearLayout
-            android:layout_width="@dimen/no_hardcode_dimension"
-            android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/share"
-            app:layout_constraintWidth_percent="0.625">
 
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/no_hardcode_dimension"
-                android:layout_weight="1"
-                android:onClick="playback">
-
-                <TextView
-                    android:id="@+id/playback"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:onClick="playback"
-                    android:text="@string/playback"
-                    android:textColor="@color/sing_up_hover"
-                    android:textSize="17sp" />
-
-                <ImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_alignLeft="@id/circle"
-                    android:layout_alignRight="@id/circle"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/ic_caret_forward_outline"
-                    android:layoutDirection="ltr"
-                    android:onClick="playback" />
-
-                <ImageButton
-                    android:id="@+id/circle"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/ic_ellipse_outline"
-                    android:onClick="playback" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/no_hardcode_dimension"
-                android:layout_weight="1"
-                android:onClick="playAgain">
-
-                <TextView
-                    android:id="@+id/try_again"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:onClick="playAgain"
-                    android:text="@string/sing_again"
-                    android:textColor="@color/sing_up_hover"
-                    android:textSize="17sp" />
-
-                <ImageButton
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/replay"
-                    android:onClick="playAgain"
-                    android:rotation="200"
-                    android:scaleY="-1" />
-
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/no_hardcode_dimension"
-                android:layout_weight="1"
-                android:onClick="returnToMainFromPopup">
-
-                <TextView
-                    android:id="@+id/exit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:onClick="returnToMainFromPopup"
-                    android:text="@string/home"
-                    android:textColor="@color/sing_up_hover"
-                    android:textSize="17sp" />
-
-                <ImageButton
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/home_button"
-                    android:onClick="returnToMainFromPopup" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/loading_amount_window"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/no_hardcode_dimension"
-                android:layout_weight="1"
-                android:onClick="saveRecordingToTheCloud"
-                android:visibility="gone">
-
-                <ImageButton
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="@drawable/ic_download_outline"
-                    android:onClick="saveRecordingToTheCloud" />
-
-                <TextView
-                    android:id="@+id/save_recording"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerInParent="true"
-                    android:onClick="saveRecordingToTheCloud"
-                    android:textColor="@color/sing_up_hover"
-                    android:text="@string/save_recording"
-                    android:textSize="17sp" />
-            </RelativeLayout>
-
-
-        </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -426,7 +366,6 @@
 
         </RelativeLayout>
 
+
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

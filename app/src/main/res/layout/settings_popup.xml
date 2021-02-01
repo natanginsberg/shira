@@ -243,7 +243,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/white" />
 
             <TextView
                 android:id="@+id/language_changer"
@@ -259,7 +259,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/white" />
 
             <TextView
                 android:id="@+id/policy"
@@ -275,7 +275,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/white" />
 
             <TextView
                 android:id="@+id/contact_us"
@@ -291,7 +291,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/white" />
 
             <TextView
                 android:id="@+id/sign_in_button"
@@ -307,7 +307,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
+                android:background="@android:color/white" />
 
 
         </LinearLayout>
@@ -351,7 +351,7 @@
             android:id="@+id/close_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Close"
+            android:text="@string/close"
             android:textColor="@android:color/white"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"

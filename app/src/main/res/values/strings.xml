@@ -126,5 +126,9 @@
     <string name="continue_text">Continue</string>
     <string name="stop">Stop</string>
     <string name="delete">Delete</string>
+    <string name="close">Close</string>
+    <string name="you_stopped_mid_recording">You stopped mid-recording</string>
+    <string name="you_finished_the_recording">You finished the recording!</string>
+    <string name="share_your_recordings_with_family_and_friends">Share your recordings with family and friends</string>
 
 </resources>

@@ -4,15 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Outline;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewOutlineProvider;
 import android.view.ViewOverlay;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -38,6 +35,7 @@ public class SingActivityUI {
     private boolean popupOpened = false;
     private TextView loadingAmount;
     private PopupWindow recordingsPopup;
+    private boolean songEnded;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -64,7 +62,7 @@ public class SingActivityUI {
     }
 
     public void turnOffCameraOptions() {
-        changeChech(false);
+        changeCheck(false);
         turnOffClickListeners();
 //        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
     }
@@ -104,13 +102,16 @@ public class SingActivityUI {
 
     public void openEndPopup(Context context, boolean songEnded) {
         popupOpened = true;
-        RelativeLayout viewGroup = view.findViewById(R.id.end_options);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        popupView = layoutInflater.inflate(R.layout.end_song_options, viewGroup);
-        loadingAmount = popupView.findViewById(R.id.save_recording);
         if (songEnded) {
-            popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
+            RelativeLayout viewGroup = view.findViewById(R.id.end_options_end_song);
+            popupView = layoutInflater.inflate(R.layout.end_song_options_end_song, viewGroup);
+        } else {
+            RelativeLayout viewGroup = view.findViewById(R.id.end_options_mid_song);
+            popupView = layoutInflater.inflate(R.layout.end_song_options_mid_song, viewGroup);
         }
+        loadingAmount = popupView.findViewById(R.id.save_recording);
+        this.songEnded = songEnded;
         placePopupOnScreen(context);
         popup.setFocusable(true);
         applyDim(view.findViewById(R.id.sing_song).getOverlay(), context);
@@ -148,7 +149,12 @@ public class SingActivityUI {
     @SuppressLint("UseCompatLoadingForDrawables")
     private void setEndOptionsPopupAttributes(Context context, PopupWindow popup, View layout) {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.79);
-        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558);
+        int height;
+        if (songEnded)
+            height = Math.min((int) (width * 2), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.658));
+        else
+            height = Math.min((int) (width * 1.4), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558));
+//        height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558);
         popup.setContentView(layout);
         popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
         popup.setWidth(width);
@@ -196,8 +202,9 @@ public class SingActivityUI {
     }
 
     public void showPlayButton() {//todo show regular play button
-//        view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
     }
+
 
     @SuppressLint("UseCompatLoadingForDrawables")
     public void openTonePopup(DatabaseSong song, Context context) {
@@ -285,23 +292,23 @@ public class SingActivityUI {
 
     public void showShareItems() {
         popupView.findViewById(R.id.share_options_layout).setVisibility(View.VISIBLE);
-        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
+//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
         popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
     }
 
     public void hideShareItems() {
-        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
+//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
         popupView.findViewById(R.id.share_options_layout).setVisibility(View.GONE);
         popupView.findViewById(R.id.loading_amount_window).setVisibility(View.VISIBLE);
     }
 
     public void showSubscribeOptions() {
         popupView.findViewById(R.id.subscript_layout).setVisibility(View.VISIBLE);
-        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
+//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
     }
 
     public void hideSubscribeOptions() {
-        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
+//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
         popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
     }
 
@@ -329,7 +336,7 @@ public class SingActivityUI {
         recordingsPopup.dismiss();
     }
 
-    public void changeChech(boolean cameraOn) {
+    public void changeCheck(boolean cameraOn) {
         if (cameraOn) {
             popupView.findViewById(R.id.check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.no_check).setVisibility(View.INVISIBLE);

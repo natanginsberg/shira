@@ -3,11 +3,7 @@
     android:id="@+id/listview_background_shape"
     android:shape="rectangle">
 
-    <padding
-        android:bottom="2dp"
-        android:left="2dp"
-        android:right="2dp"
-        android:top="2dp" />
-    <corners android:radius="15dp" />
-    <solid android:color="@color/sing_up_hover" />
+
+    <corners android:radius="30dp" />
+    <solid android:color="#FF94F0" />
 </shape>
