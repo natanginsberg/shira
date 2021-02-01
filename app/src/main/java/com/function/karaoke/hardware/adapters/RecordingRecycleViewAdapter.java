@@ -1,5 +1,8 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.adapters;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +11,11 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
+import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
 
@@ -46,6 +51,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         }
     };
     private final RecordingListener mListener;
+    private final Context context;
     private List<Recording> mValues = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
@@ -93,9 +99,10 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
 //        mListener = listener;
 //        this.language = language;
 //    }
-    public RecordingRecycleViewAdapter(List<Recording> items, RecordingListener listener) {
+    public RecordingRecycleViewAdapter(List<Recording> items, RecordingListener listener, Context context) {
         setData(items);
         mListener = listener;
+        this.context = context;
     }
 
     @NonNull
@@ -116,8 +123,10 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         holder.setItem(mValues.get(position));
         if (deleteOpen)
             holder.mView.findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
-        else
+        else {
             holder.mView.findViewById(R.id.delete_button).setVisibility(View.GONE);
+            changeIconToWhite(holder.mView);
+        }
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -131,11 +140,11 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
 
         // making the click only on the button and not on the whole icon
 
-        holder.itemView.findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (null != mListener) {
-                    mListener.onListFragmentInteractionPlay(holder.mItem);
+                    mListener.onListFragmentInteractionRecordingClick(holder.mItem, holder.mView);
                 }
             }
         });
@@ -159,6 +168,13 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
                 }
             }
         });
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    public void changeIconToWhite(View itemView) {
+        itemView.findViewById(R.id.delete_button).setBackground(AppCompatResources.getDrawable(context, R.drawable.outline_circle));
+        itemView.findViewById(R.id.trash).setBackground(AppCompatResources.getDrawable(context, R.drawable.ic_trash_icon_white));
+        itemView.setBackground(AppCompatResources.getDrawable(context, R.drawable.unclicked_recording_background));
     }
 
     public void removeAt(int i) {
@@ -248,7 +264,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
 
     public interface RecordingListener {
 
-        void onListFragmentInteractionPlay(Recording mItem);
+        void onListFragmentInteractionRecordingClick(Recording mItem, View mView);
 
         void onListFragmentInteractionShare(Recording mItem);
 

@@ -1,6 +1,5 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.adapters;
 
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
+import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.SingActivity;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
 import com.squareup.picasso.Picasso;

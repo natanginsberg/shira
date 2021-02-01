@@ -98,5 +98,8 @@
     <string name="recording_tag_display_constant">" ביצועים"</string>
     <string name="recording_search">חיפוש בביצועים שלי</string>
     <string name="with_video">עם וידיאו</string>
+    <string name="continue_text">המשך</string>
+    <string name="stop">עצור</string>
+    <string name="delete">מחק</string>
 
 </resources>

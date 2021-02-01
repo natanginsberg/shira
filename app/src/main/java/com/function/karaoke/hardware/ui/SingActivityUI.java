@@ -4,11 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Outline;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.view.ViewOverlay;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -16,8 +20,13 @@ import android.widget.TextView;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.utils.static_classes.Converter;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.CornerFamily;
+import com.squareup.picasso.Picasso;
 
 public class SingActivityUI {
 
@@ -38,15 +47,11 @@ public class SingActivityUI {
 
     public void addTitleToScreen() {
         ((TextView) view.findViewById(R.id.song_name)).setText(song.getTitle());
-    }
-
-    public void addArtistToScreen() {
-        ((TextView) view.findViewById(R.id.song_name_2)).setText(song.getTitle());
         ((TextView) view.findViewById(R.id.artist_name)).setText(song.getArtist());
     }
 
     public void setBackgroundColor() {
-        view.findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
+        view.findViewById(R.id.camera_holder).setBackgroundColor(Color.BLACK);
     }
 
     public void setSurfaceForRecording(boolean cameraOn) {
@@ -70,17 +75,19 @@ public class SingActivityUI {
         popupView.findViewById(R.id.check_holder).setOnClickListener(null);
     }
 
-    public void clearLyricsScreen() {
-        view.findViewById(R.id.song_name_2).setVisibility(View.INVISIBLE);
-        view.findViewById(R.id.artist_name).setVisibility(View.INVISIBLE);
-    }
-
     public void setScreenForPlayingAfterTimerExpires() {
-        view.findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
+//        view.findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
         view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
         if (sdkInt >= 24)
             view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
+        else
+            moveStopButtonToMiddle();
+        hidePlayAndStop();
+    }
+
+    private void moveStopButtonToMiddle() {
+        TextView stop = (TextView) (view.findViewById(R.id.stop));
+        stop.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
     }
 
     public void resetScreenForTimer() {
@@ -90,8 +97,8 @@ public class SingActivityUI {
     }
 
     private void resetLyricsScreen() {
-        view.findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
+//        view.findViewById(R.id.song_name_2).setVisibility(View.VISIBLE);
+//        view.findViewById(R.id.artist_name).setVisibility(View.VISIBLE);
         view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
     }
 
@@ -106,7 +113,7 @@ public class SingActivityUI {
         }
         placePopupOnScreen(context);
         popup.setFocusable(true);
-        applyDim(view.findViewById(R.id.sing_song).getOverlay());
+        applyDim(view.findViewById(R.id.sing_song).getOverlay(), context);
     }
 
     private void placePopupOnScreen(Context context) {
@@ -121,11 +128,15 @@ public class SingActivityUI {
         });
     }
 
-    private void applyDim(ViewOverlay overlay) {
-        Drawable dim = new ColorDrawable(Color.BLACK);
-        dim.setBounds(0, 0, view.findViewById(R.id.sing_song).getWidth(), view.findViewById(R.id.sing_song).getHeight());
-        dim.setAlpha((int) (255 * (float) 0.8));
-//        ViewOverlay overlay = view.findViewById(R.id.sing_song).getOverlay();
+    private void applyDim(ViewOverlay overlay, Context context) {
+        Drawable colorDim = new ColorDrawable(Color.WHITE);
+        colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        colorDim.setAlpha((int) (255 * (float) 0.7));
+//
+        Drawable dim = new BitmapDrawable(context.getResources(), BlurBuilder.blur(view));
+        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        dim.setAlpha((int) (255 * (float) 0.7));
+        overlay.add(colorDim);
         overlay.add(dim);
     }
 
@@ -134,23 +145,18 @@ public class SingActivityUI {
         overlay.clear();
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void setEndOptionsPopupAttributes(Context context, PopupWindow popup, View layout) {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.79);
         int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558);
         popup.setContentView(layout);
+        popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
         popup.setWidth(width);
         popup.setHeight(height);
     }
 
     public PopupWindow getPopup() {
         return popup;
-    }
-
-
-    public void makeLoadingBarVisible() {
-        applyDim(popupView.getOverlay());
-//        popupView.findViewById(R.id.play_again_progress).setVisibility(View.VISIBLE);
-
     }
 
 
@@ -161,7 +167,21 @@ public class SingActivityUI {
     public void songPaused() {
         view.findViewById(R.id.pause).setVisibility(View.INVISIBLE);
         if (sdkInt >= 24)
-            view.findViewById(R.id.play).setVisibility(View.VISIBLE);
+            showPlayAndStop();
+    }
+
+    private void showPlayAndStop() {
+        view.findViewById(R.id.play).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.stop).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.continue_text).setVisibility(View.VISIBLE);
+        view.findViewById(R.id.stop_text).setVisibility(View.VISIBLE);
+    }
+
+    private void hidePlayAndStop() {
+        view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.stop).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.continue_text).setVisibility(View.INVISIBLE);
+        view.findViewById(R.id.stop_text).setVisibility(View.INVISIBLE);
     }
 
     @SuppressLint("SetTextI18n")
@@ -175,10 +195,11 @@ public class SingActivityUI {
         dealWithTimer(R.id.countdown, millisUntilFinished);
     }
 
-    public void showPlayButton() {
-        view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
+    public void showPlayButton() {//todo show regular play button
+//        view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     public void openTonePopup(DatabaseSong song, Context context) {
         popupOpened = true;
         RelativeLayout viewGroup = view.findViewById(R.id.tone_picker);
@@ -259,7 +280,7 @@ public class SingActivityUI {
         view.findViewById(R.id.restart_countdown).setVisibility(View.INVISIBLE);
         if (sdkInt >= 24)
             view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
-        view.findViewById(R.id.play).setVisibility(View.INVISIBLE);
+        hidePlayAndStop();
     }
 
     public void showShareItems() {
@@ -312,10 +333,37 @@ public class SingActivityUI {
         if (cameraOn) {
             popupView.findViewById(R.id.check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.no_check).setVisibility(View.INVISIBLE);
-        } else{
+        } else {
             popupView.findViewById(R.id.no_check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.check).setVisibility(View.INVISIBLE);
 
         }
+    }
+
+    public void changeLayout() {
+        view.findViewById(R.id.initial_album_cover).setVisibility(View.INVISIBLE);
+    }
+
+    public void setSongInfo() {
+        view.findViewById(R.id.song_info).setVisibility(View.VISIBLE);
+        ShapeableImageView mCover = view.findViewById(R.id.recording_album_pic);
+        if (!song.getImageResourceFile().equals("")) {
+            Picasso.get()
+                    .load(song.getImageResourceFile())
+                    .placeholder(R.drawable.plain_rec)
+                    .fit()
+                    .into(mCover);
+        }
+        mCover.setShapeAppearanceModel(mCover.getShapeAppearanceModel()
+                .toBuilder()
+                .setAllCorners(CornerFamily.ROUNDED, Converter.convertDpToPx(10))
+                .build());
+    }
+
+    public void setTotalLength(int duration) {
+        int minutes = duration / 60;
+        int seconds = duration % 60;
+        @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
+        ((TextView) view.findViewById(R.id.all_time)).setText(text);
     }
 }

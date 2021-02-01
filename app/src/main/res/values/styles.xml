@@ -6,7 +6,13 @@
         <item name="android:fontFamily">@font/varela_round_regular</item>
         <item name="fontFamily">@font/varela_round_regular</item>
         <item name="android:editTextColor">@android:color/white</item>
+        <item name="listPopupWindowStyle">@style/myListPopupWindow</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="myListPopupWindow" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:background">@drawable/tone_menu_background</item>
+        <item name="android:colorBackground">@android:color/transparent</item>
     </style>
 
 </resources>

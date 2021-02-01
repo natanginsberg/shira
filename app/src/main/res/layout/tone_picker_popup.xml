@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/tone_picker"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SingActivity"
-    android:background="@android:color/transparent">
+    android:background="@drawable/unclicked_recording_background"
+    android:orientation="vertical"
+    android:weightSum="10"
+    tools:context=".SingActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@drawable/menu_header"
-        app:layout_constraintBottom_toTopOf="@id/choices"
-        app:layout_constraintHeight_percent="0.25"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_weight="2.5"
+        android:background="@drawable/menu_header">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/middle_guide"
@@ -57,11 +57,10 @@
         android:id="@+id/choices"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_weight="5.5"
         android:background="@drawable/menu_background"
         android:orientation="vertical"
-        android:weightSum="4"
-        app:layout_constraintBottom_toTopOf="@id/footer"
-        app:layout_constraintHeight_percent="0.55">
+        android:weightSum="4">
 
         <!--        <androidx.constraintlayout.widget.Guideline-->
         <!--            android:id="@+id/top_guide"-->
@@ -81,9 +80,9 @@
             android:id="@+id/question"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/varela_round_regular"
             android:layout_gravity="center"
             android:layout_weight="0.4"
+            android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:text="@string/who_is_singing_the_song"
             android:textColor="@android:color/white"
@@ -93,13 +92,13 @@
             android:id="@+id/kid"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:fontFamily="@font/varela_round_regular"
             android:layout_weight="1.2"
             android:background="@drawable/purple_click"
+            android:fontFamily="@font/varela_round_regular"
             android:onClick="kidTone"
             android:text="@string/kid"
             android:textColor="@color/sing_up_hover"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
 
         <View
@@ -114,8 +113,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_weight="1.2"
-            android:fontFamily="@font/varela_round_regular"
             android:background="@drawable/purple_click"
+            android:fontFamily="@font/varela_round_regular"
             android:onClick="womanTone"
             android:text="@string/woman"
             android:textColor="@color/sing_up_hover"
@@ -131,10 +130,10 @@
         <Button
             android:id="@+id/man"
             android:layout_width="match_parent"
-            android:fontFamily="@font/varela_round_regular"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_weight="1.2"
             android:background="@drawable/purple_click"
+            android:fontFamily="@font/varela_round_regular"
             android:onClick="manTone"
             android:text="@string/man"
             android:textColor="@color/sing_up_hover"
@@ -147,64 +146,62 @@
         android:id="@+id/footer"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@drawable/menu_footer"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.2">
+        android:layout_weight="2"
+        android:background="@drawable/menu_footer">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
+            android:fontFamily="@font/varela_round_regular"
             android:text="@string/with_video"
             android:textColor="@android:color/white"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:fontFamily="@font/varela_round_regular"
-            />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/check_holder"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/ic_check_icon_blank"
+            android:onClick="changeCameraFeature"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1.6:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.31"
-            android:layout_marginEnd="20dp"
-            android:id="@+id/check_holder"
-            android:background="@drawable/ic_check_icon_blank"
-            android:onClick="changeCameraFeature">
+            app:layout_constraintWidth_percent="0.22">
 
             <ImageButton
                 android:id="@+id/check"
                 android:layout_width="@dimen/no_hardcode_dimension"
                 android:layout_height="@dimen/no_hardcode_dimension"
+                android:layout_marginEnd="4dp"
+                android:background="@drawable/ic_check_icon_small"
+                android:onClick="changeCameraFeature"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="1:1"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:background="@drawable/ic_check_icon_small"
                 app:layout_constraintHeight_percent=".9"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="4dp"
-                android:onClick="changeCameraFeature"/>
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/no_check"
                 android:layout_width="@dimen/no_hardcode_dimension"
                 android:layout_height="@dimen/no_hardcode_dimension"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintStart_toStartOf="parent"
-                android:background="@drawable/ic_no_check_small"
-                app:layout_constraintHeight_percent=".9"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginStart="4dp"
+                android:background="@drawable/ic_no_check_small"
+                android:onClick="changeCameraFeature"
                 android:visibility="gone"
-                android:onClick="changeCameraFeature"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintHeight_percent=".9"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

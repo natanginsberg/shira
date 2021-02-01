@@ -114,11 +114,11 @@
                 android:layout_width="@dimen/no_hardcode_dimension"
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_alignParentStart="true"
-                android:background="@drawable/ic_baseline_menu_24"
+                android:background="@drawable/ic_hamburger_icon"
                 android:onClick="openSettingsPopup"
                 android:textColor="@color/sing_up_hover"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="0.7"
+                app:layout_constraintDimensionRatio="1.06"
                 app:layout_constraintStart_toStartOf="@id/settings_guide"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintWidth_percent="0.06" />
@@ -179,30 +179,49 @@
         app:layout_constraintTop_toBottomOf="@id/header">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/main_delete_button"
-            android:layout_width="25dp"
+            android:id="@+id/outer_trash"
+            android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_marginEnd="15dp"
+            android:layout_margin="15dp"
             android:background="@drawable/outline_circle_grey"
-            android:onClick="deleteOption"
+            android:onClick="trashClicked"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.4"
+            app:layout_constraintHeight_percent="0.3"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/main_trash"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/inner_trash"
+                android:layout_width="@dimen/no_hardcode_dimension"
+                android:layout_height="@dimen/no_hardcode_dimension"
                 android:background="@drawable/ic_trash_icon_grey"
-                android:onClick="deleteOption"
+                android:onClick="trashClicked"
                 app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintHeight_percent="0.4"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:background="@android:color/transparent"
+            android:fontFamily="@font/varela_round_regular"
+            android:onClick="deleteClicked"
+            android:text="@string/delete"
+            android:textColor="@color/sing_up_hover"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/outer_trash"
+            app:layout_constraintEnd_toStartOf="@id/outer_trash"
+            app:layout_constraintTop_toTopOf="@id/outer_trash" />
+
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/recording_album_pic"

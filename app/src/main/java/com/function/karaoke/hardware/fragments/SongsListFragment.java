@@ -1,10 +1,8 @@
 package com.function.karaoke.hardware.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -22,9 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.hardware.GridAdapter;
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.RecordingCategoryAdapter;
-import com.function.karaoke.hardware.RecordingRecycleViewAdapter;
-import com.function.karaoke.hardware.SongRecyclerViewAdapter;
+import com.function.karaoke.hardware.adapters.RecordingCategoryAdapter;
+import com.function.karaoke.hardware.adapters.RecordingRecycleViewAdapter;
+import com.function.karaoke.hardware.adapters.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
@@ -420,7 +418,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         SettingUI settingUI = new SettingUI(this.view, getContext());
         settingUI.openSettingsPopup(authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""), contentDisplayed
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")
         );
         if (authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
@@ -555,7 +553,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //    }
 //
 //    @Override
-//    public void onListFragmentInteractionPlay(List<Recording> recordings) {
+//    public void onListFragmentInteractionRecordingClick(List<Recording> recordings) {
 //        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 ////        recordAdapter = new RecordingRecycleViewAdapter(recordings, mListener);
 ////        recyclerView.setAdapter(recordAdapter);

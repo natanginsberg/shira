@@ -413,6 +413,11 @@ public class SongsActivity
     }
 
     @Override
+    public void onBackPressed(){
+        System.exit(0);
+    }
+
+    @Override
     public UserInfo getUser() {
         return user;
     }

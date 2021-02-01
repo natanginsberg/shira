@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -23,19 +24,19 @@ import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
 public class SettingUI {
 
-    private static final int PERSONAL_RECORDING_DISPLAYED = 100;
     private final View view;
     private final Context context;
     private View popupView;
     private PopupWindow popup;
     private ImageView profilePic;
+    private final ClosePopListener closePopListener = new ClosePopListener();
 
     public SettingUI(View view, Context c) {
         this.view = view;
         this.context = c;
     }
 
-    public void openSettingsPopup(boolean isUserSignedIn, int contentDisplayed) {
+    public void openSettingsPopup(boolean isUserSignedIn) {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
@@ -48,6 +49,16 @@ public class SettingUI {
         profilePic = popupView.findViewById(R.id.user_picture);
         placePopupOnScreen();
         applyDim();
+        addCloseListeners();
+
+    }
+
+    private void addCloseListeners() {
+        popupView.findViewById(R.id.close_button_holder).setOnClickListener(closePopListener);
+        popupView.findViewById(R.id.settings_button).setOnClickListener(closePopListener);
+        popupView.findViewById(R.id.close_text).setOnClickListener(closePopListener);
+        popupView.findViewById(R.id.close_x).setOnClickListener(closePopListener);
+        popupView.findViewById(R.id.menu_words).setOnClickListener(closePopListener);
 
     }
 
@@ -66,18 +77,9 @@ public class SettingUI {
     private void placePopupOnScreen() {
         popup = new PopupWindow(context);
         popup.setFocusable(true);
-        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                view.getOverlay().clear();
-
-            }
-        });
+        popup.setOnDismissListener(() -> view.getOverlay().clear());
         setPopupAttributes(popup, popupView);
-//        int[] location = new int[2];
-//        view.findViewById(R.id.settings_button).getLocationOnScreen(location);
         popup.showAtLocation(popupView, Gravity.TOP | Gravity.CENTER, 0, 0);
-//                Math.abs(view.getWidth() - location[0]) < Math.abs(location[0]) ? view.getWidth() : 0, 0);
     }
 
     private void applyDim() {
@@ -95,10 +97,12 @@ public class SettingUI {
         overlay.add(dim);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void setPopupAttributes(PopupWindow popup, View layout) {
         int width = (int) (view.getWidth());
         popup.setContentView(layout);
         popup.setWidth(width);
+        popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
         popup.setHeight((int) (view.getHeight() * 0.8));
     }
 
@@ -119,6 +123,14 @@ public class SettingUI {
 
     public View getPopupView() {
         return popupView;
+    }
+
+    private class ClosePopListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            popup.dismiss();
+        }
     }
 
 }

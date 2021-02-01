@@ -33,7 +33,7 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
     @SuppressLint("SetTextI18n")
     public LyricsView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.focused_text_color));
+        mSpan = new ForegroundColorSpan(getResources().getColor(R.color.word_highlight));
     }
 
     @SuppressLint("SetTextI18n")

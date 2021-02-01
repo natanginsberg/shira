@@ -19,6 +19,7 @@ import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.core.model.Song;
 import com.function.karaoke.core.model.Tone;
 import com.function.karaoke.core.views.LyricsView;
+import com.function.phone.core.R;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -260,6 +261,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
         LyricsView lyricsView = new LyricsView(context, null);
         lyricsView.setId(View.generateViewId());
+        lyricsView.setTextColor(context.getResources().getColor(R.color.unhighlight_words));
         setAttributes(lyricsView);
         wordSpace.addView(lyricsView);
         set.connect(lyricsView.getId(), ConstraintSet.TOP, wordSpace.getId(), ConstraintSet.BOTTOM, 0);

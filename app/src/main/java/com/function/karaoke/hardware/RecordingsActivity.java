@@ -21,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +33,8 @@ import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.activities.Model.enums.RecordingsScreenState;
+import com.function.karaoke.hardware.adapters.RecordingCategoryAdapter;
+import com.function.karaoke.hardware.adapters.RecordingRecycleViewAdapter;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.RecordingDelete;
 import com.function.karaoke.hardware.storage.RecordingService;
@@ -128,7 +131,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         getUser();
         getCorrectLanguage();
         getGenres();
-        setContentView(R.layout.activity_recordings_list);
+        setContentView(R.layout.activity_recordings);
         genresUI = new GenresUI(findViewById(android.R.id.content).getRootView(), this, Locale.getDefault().getLanguage(), this);
         recordingService = new RecordingService();
         recyclerView = findViewById(R.id.list);
@@ -287,7 +290,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         recordingState = RecordingsScreenState.SINGLE_SONG_RECORDINGS;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         currentRecordings = recordings;
-        recordAdapter = new RecordingRecycleViewAdapter(recordings, this);
+        recordAdapter = new RecordingRecycleViewAdapter(recordings, this, this);
         recyclerView.setAdapter(recordAdapter);
         setSongInfo(recordings.get(0).getArtist(), recordings.get(0).getTitle(), recordings.get(0).getImageResourceFile());
         resetFields();
@@ -320,10 +323,14 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onListFragmentInteractionPlay(Recording item) {
-        Intent intent = new Intent(this, Playback.class);
-        intent.putExtra(SingActivity.RECORDING, item);
-        startActivity(intent);
+    public void onListFragmentInteractionRecordingClick(Recording mItem, View mView) {
+        if (deleteOpen)
+            deletePressed(mItem, mView);
+        else {
+            Intent intent = new Intent(this, Playback.class);
+            intent.putExtra(SingActivity.RECORDING, mItem);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -413,30 +420,42 @@ public class RecordingsActivity extends AppCompatActivity implements
         Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
     }
 
-    public void deleteOption(View view) {
+    public void trashClicked(View view) {
         if (deleteOpen) {
-            deleteAllClickedRecordings();
             changeMainIconBackToGray();
             closeAllOpenGarbages();
+            hideDeleteButton();
+            deleteRecordingList.clear();
 
         } else {
             showAllGarbagesInChildren();
             changeMainIconToColor();
+            showDeleteButton();
         }
         deleteOpen = !deleteOpen;
 
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void changeMainIconToColor() {
-        findViewById(R.id.main_delete_button).setBackground(getDrawable(R.drawable.full_circle_blue));
-        findViewById(R.id.main_trash).setBackground(getDrawable(R.drawable.ic_trash_icon_white));
+    private void showDeleteButton() {
+        findViewById(R.id.delete_button).setVisibility(View.VISIBLE);
     }
 
+    private void hideDeleteButton() {
+        findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void changeMainIconToColor() {
+        findViewById(R.id.outer_trash).setBackground(getDrawable(R.drawable.full_circle_blue));
+        findViewById(R.id.inner_trash).setBackground(getDrawable(R.drawable.ic_trash_icon_white));
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void closeAllOpenGarbages() {
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             if (recyclerView.findViewHolderForAdapterPosition(i) != null) {
-                Objects.requireNonNull(recyclerView.findViewHolderForAdapterPosition(i)).itemView.findViewById(R.id.delete_button).setVisibility(View.GONE);
+                ConstraintLayout view = (ConstraintLayout) Objects.requireNonNull(recyclerView.findViewHolderForAdapterPosition(i)).itemView;
+                view.findViewById(R.id.delete_button).setVisibility(View.GONE);
                 recordAdapter.notifyItemChanged(i);
             }
         }
@@ -445,8 +464,8 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void changeMainIconBackToGray() {
-        findViewById(R.id.main_delete_button).setBackground(getDrawable(R.drawable.outline_circle_grey));
-        findViewById(R.id.main_trash).setBackground(getDrawable(R.drawable.ic_trash_icon_grey));
+        findViewById(R.id.outer_trash).setBackground(getDrawable(R.drawable.outline_circle_grey));
+        findViewById(R.id.inner_trash).setBackground(getDrawable(R.drawable.ic_trash_icon_grey));
     }
 
     private void deleteAllClickedRecordings() {
@@ -472,7 +491,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         SettingUI settingUI = new SettingUI(findViewById(R.id.recordings_activty), this);
         authenticationDriver = new AuthenticationDriver();
         settingUI.openSettingsPopup(authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""), 100
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")
         );
         if (authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""))
@@ -630,6 +649,11 @@ public class RecordingsActivity extends AppCompatActivity implements
     @Override
     public void openMyRecordings() {
         //this is the recordings no need to do anything
+    }
+
+    public void deleteClicked(View view) {
+        deleteAllClickedRecordings();
+        trashClicked(view);
     }
 
     private class GenreListener implements View.OnClickListener {

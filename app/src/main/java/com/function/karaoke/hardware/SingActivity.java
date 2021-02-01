@@ -50,12 +50,12 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.core.controller.KaraokeController;
-import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.SignInViewModel;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.function.karaoke.hardware.adapters.DeleteRecordingRecycler;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
@@ -121,8 +121,15 @@ public class SingActivity extends AppCompatActivity implements
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
             // Bitmap is loaded, use image here
-            Bitmap bm = BlurBuilder.blur(getBaseContext(), bitmap);
-            findViewById(R.id.album_cover).setBackground((new BitmapDrawable(getResources(), bm)));
+            float bitmapScale = 0.4f;
+            int width = Math.round(bitmap.getWidth() * bitmapScale);
+            int height = Math.round(bitmap.getHeight() * bitmapScale);
+
+            Bitmap inputBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
+            Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
+
+//            Bitmap bm = BlurBuilder.blur(getBaseContext(), bitmap);
+            findViewById(R.id.initial_album_cover).setBackground((new BitmapDrawable(getResources(), outputBitmap)));
         }
 
         @Override
@@ -239,6 +246,7 @@ public class SingActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_sing);
         setKaraokeController();
         loadSong();
+        activityUI.setSongInfo();
         blurAlbumInBackground();
 
         mTextureView = findViewById(R.id.surface_camera);
@@ -298,6 +306,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void setAudioAndDismissPopup() {
+        activityUI.changeLayout();
         activityUI.dismissPopup();
 //        createEarphoneReceivers();
         mKaraokeKonroller.loadAudio(songPlayed);
@@ -326,7 +335,7 @@ public class SingActivity extends AppCompatActivity implements
     private void setKaraokeController() {
         mKaraokeKonroller = new KaraokeController();
         mKaraokeKonroller.init(this);
-        mKaraokeKonroller.addViews(findViewById(R.id.root), R.id.lyrics, R.id.words_to_read,
+        mKaraokeKonroller.addViews(findViewById(R.id.word_space), R.id.lyrics, R.id.words_to_read,
                 R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
         mPlayer = mKaraokeKonroller.getmPlayer();
     }
@@ -364,12 +373,12 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void hideHeadphonesIfNothingElseConnected() {
-        if (!microphonePluggedIn && !bluetoothConnectionExists && !bluetoothConnected)
-            findViewById(R.id.headphones).setVisibility(View.INVISIBLE);
+//        if (!microphonePluggedIn && !bluetoothConnectionExists && !bluetoothConnected)
+//            findViewById(R.id.headphones).setVisibility(View.INVISIBLE);
     }
 
     private void showHeadphones() {
-        findViewById(R.id.headphones).setVisibility(View.VISIBLE);
+//        findViewById(R.id.headphones).setVisibility(View.VISIBLE);
     }
 
     private void createHeadphoneReceiver() {
@@ -454,26 +463,6 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void openCamera() {
-//        ((SwitchCompat) findViewById(R.id.camera_toggle_button)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton compoundButton, boolean turnCameraOff) {
-//                if (!turnCameraOff) {
-//                    turnCameraOff();
-//                    findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
-//                } else {
-//                    findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
-//                    turnCameraOn();
-//                }
-//            }
-//        });
-
-//        if (!cameraOn) {
-//            turnCameraOff();
-//            findViewById(R.id.surface_camera).setVisibility(View.INVISIBLE);
-//        } else {
-//            findViewById(R.id.surface_camera).setVisibility(View.VISIBLE);
-////            turnCameraOn();
-////        }
         OpenCameraAsync.openCamera(cameraPreview, mTextureView, mSurfaceTextureListener, new OpenCameraAsync.OpenCameraListener() {
             @Override
             public void onSuccess() {
@@ -515,7 +504,6 @@ public class SingActivity extends AppCompatActivity implements
                             finish();
                         }
                         activityUI.hideLoadingIndicator();
-                        activityUI.addArtistToScreen();
                         activityUI.showPlayButton();
                     }
 
@@ -534,7 +522,6 @@ public class SingActivity extends AppCompatActivity implements
                 finish();
             }
             activityUI.hideLoadingIndicator();
-            activityUI.addArtistToScreen();
             activityUI.showPlayButton();
         }
         if (null != song) {
@@ -648,7 +635,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void blurAlbumInBackground() {
         if (song.getImageResourceFile() != null && !song.getImageResourceFile().equals("")) {
-            final ImageView tv = findViewById(R.id.album_cover);
+            final ImageView tv = findViewById(R.id.initial_album_cover);
             final ViewTreeObserver observer = tv.getViewTreeObserver();
             observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -742,8 +729,6 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     void startTimer() {
-        activityUI.clearLyricsScreen();
-
         final boolean[] prepared = {false};
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         cancelTimer();
@@ -755,6 +740,7 @@ public class SingActivity extends AppCompatActivity implements
                 if (millisUntilFinished / 1000 >= 1 && !prepared[0]) {
                     prepared[0] = true;
                     cameraPreview.prepareMediaRecorder();
+                    activityUI.setTotalLength(mPlayer.getDuration() / 1000);
                 }
             }
 
@@ -776,11 +762,6 @@ public class SingActivity extends AppCompatActivity implements
 //                        cameraPreview.stopRecording();
                             lengthOfAudioPlayed = mPlayer.getCurrentPosition();
                             postParseVideoFile = wrapUpSong();
-                            if (lengthOfAudioPlayed == 0)
-                                throw new IndexOutOfBoundsException("for some reason not working length 0");
-//                            mKaraokeKonroller.onPause();
-                            if (postParseVideoFile == null)
-                                throw new OutOfMemoryError("the file is not created");
                             isRunning = false;
                             ending = true;
                             finishSong();
@@ -1010,7 +991,6 @@ public class SingActivity extends AppCompatActivity implements
             ending = true;
             if (!keepVideo)
                 deleteVideo();
-            activityUI.makeLoadingBarVisible();
             findViewById(R.id.word_space).setVisibility(View.INVISIBLE);
             cameraPreview.stopRecording();
             cameraPreview.closeCamera();
@@ -1200,36 +1180,6 @@ public class SingActivity extends AppCompatActivity implements
         });
         activityUI.hideShareItems();
     }
-
-//    private void share(File jsonFile) {
-//        try {
-//            SaveItems saveItems = JsonHandler.getDatabaseFromInputStream(getFileInputStream(jsonFile));
-//            saveToCloud(saveItems);
-//
-//            Task<ShortDynamicLink> link = ShareLink.createLink(recording);
-//            link.addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    // Short link created
-//                    Uri shortLink = task.getResult().getShortLink();
-//                    Uri flowchartLink = task.getResult().getPreviewLink();
-//                    String link1 = shortLink.toString();
-//                    sendDataThroughIntent(link1);
-//
-//
-//                } else {
-//                    showFailure(SHARING_ERROR);
-//                    // Error
-//                    // ...
-//                }
-//            });
-//
-////            createLink(saveItems.getRecording().getRecordingId(), saveItems.getRecording().getRecorderId(),
-////                    Integer.toString(saveItems.getRecording().getDelay()));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
 
     private void startBilling(int funcToCall) {
         billingSession = new Billing(SingActivity.this, (billingResult, purchases) -> {

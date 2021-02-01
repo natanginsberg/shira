@@ -5,8 +5,7 @@
     android:id="@+id/sing_song"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/appColor"
-    android:keepScreenOn="true"
+    android:background="@drawable/main_background"
     tools:context="com.function.karaoke.hardware.SingActivity">
 
 
@@ -14,307 +13,347 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="5dp"
         android:orientation="horizontal"
-        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintHeight_percent="0.05"
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/back_button"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="21dp"
+            android:layout_height="15dp"
             android:layout_centerVertical="true"
-            android:layout_margin="5dp"
-            android:background="@drawable/ic_baseline_close_24"
+            android:layout_margin="10dp"
+            android:background="@drawable/ic_arrow_back"
             android:onClick="returnToMain" />
+
+    </RelativeLayout>
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/song_info"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@drawable/main_background"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintTop_toBottomOf="@id/header">
+
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/recording_album_pic"
+            android:layout_width="@dimen/no_hardcode_dimension"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/recordings_album_holder"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintHeight_percent="0.9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/mid_text_guide"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.5" />
+
+        <TextView
+            android:id="@+id/artist_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:fontFamily="@font/varela_round_regular"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@id/mid_text_guide"
+            app:layout_constraintStart_toEndOf="@id/recording_album_pic" />
 
         <TextView
             android:id="@+id/song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_marginStart="15dp"
+            android:fontFamily="@font/varela_round_regular"
             android:textColor="@android:color/white"
-            android:textSize="15sp" />
-
-        <ImageView
-            android:id="@+id/headphones"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_centerInParent="true"
-            android:layout_marginEnd="5dp"
-            android:layout_toStartOf="@id/open_end_options"
-            android:background="@drawable/ic_baseline_headset_24"
-            android:visibility="invisible" />
-
-        <Button
-            android:id="@+id/open_end_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="7dp"
-            android:background="@drawable/skinny_rec"
-            android:elevation="10dp"
-            android:onClick="openEndOptions"
-            android:text="@string/done"
-            android:textColor="@android:color/white"
-            android:visibility="invisible" />
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/recording_album_pic"
+            app:layout_constraintTop_toTopOf="@id/mid_text_guide" />
 
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <RelativeLayout
-        android:id="@+id/progress_bar_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/header">
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layoutDirection="ltr"
-            android:progressDrawable="@drawable/horizontal_progress_bar" />
-
-        <TextView
-            android:id="@+id/duration"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:textColor="@android:color/white" />
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/root"
+    <ImageView
+        android:id="@+id/initial_album_cover"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintTop_toBottomOf="@id/header" />
+
+
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/word_space" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/word_space"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintHeight_percent="0.2">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/lyrics_guide1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.33" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/lyrics_guide2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.66" />
+
+
+        <!--                <TextView-->
+        <!--                    android:id="@+id/words_read"-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_weight="1"-->
+        <!--                    android:gravity="center"-->
+        <!--                    android:textSize="24sp"-->
+        <!--                    tools:ignore="NestedWeights" />-->
+
+
+        <com.function.karaoke.core.views.LyricsView
+            android:id="@+id/lyrics"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:fontFamily="@font/varela_round_regular"
+            android:gravity="center"
+            android:textColor="#99FFFFFF"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/lyrics_guide1"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.function.karaoke.core.views.LyricsView
+            android:id="@+id/words_to_read"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:fontFamily="@font/varela_round_regular"
+            android:gravity="center"
+            android:textColor="#99FFFFFF"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@id/lyrics_guide2"
+            app:layout_constraintTop_toTopOf="@+id/lyrics_guide1" />
+
+        <com.function.karaoke.core.views.LyricsView
+            android:id="@+id/words_to_read_2"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:fontFamily="@font/varela_round_regular"
+            android:gravity="center"
+            android:textColor="#99FFFFFF"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/lyrics_guide2" />
+
+        <com.function.karaoke.core.views.LyricsView
+            android:id="@+id/words_to_read_3"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:gravity="center"
+            android:textColor="#99FFFFFF"
+            android:textSize="20sp"
+            app:layout_constraintTop_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:elevation="10dp"
+            android:fontFamily="monospace"
+            android:padding="1dp"
+            android:textColor="@color/default_text_color"
+            android:textSize="25sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--            <LinearLayout-->
+    <!--                android:id="@+id/song_and_artist_names"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_centerInParent="true"-->
+    <!--                android:orientation="vertical">-->
+
+    <!--                <TextView-->
+    <!--                    android:id="@+id/song_name_2"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="0dp"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_weight="1"-->
+    <!--                    android:textColor="@color/default_text_color"-->
+    <!--                    android:textSize="18sp"-->
+    <!--                    android:textStyle="bold" />-->
+
+    <!--                <TextView-->
+    <!--                    android:id="@+id/artist_name"-->
+    <!--                    android:layout_width="wrap_content"-->
+    <!--                    android:layout_height="0dp"-->
+    <!--                    android:layout_gravity="center"-->
+    <!--                    android:layout_weight="1"-->
+    <!--                    android:textColor="@color/default_text_color"-->
+    <!--                    android:textSize="15sp" />-->
+
+    <!--            </LinearLayout>-->
+
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/number_font"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/all_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:fontFamily="@font/number_font"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/progress_bar"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progressDrawable="@drawable/horizontal_progress_bar"
+        app:layout_constraintBottom_toTopOf="@id/camera_holder" />
+
+    <RelativeLayout
+        android:id="@+id/camera_holder"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@android:color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent="0.61">
+
+        <TextureView
+            android:id="@+id/surface_camera"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </RelativeLayout>
+
+
+    <Button
+        android:id="@+id/pause"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:background="@drawable/ic_pause_icon"
+        android:onClick="pauseSong"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="33:52"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/play"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_margin="45dp"
+        android:background="@drawable/ic_play_icon_shadow"
+        android:onClick="resumeSong"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="42:52"
+        app:layout_constraintHeight_percent="0.11"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <TextView
+        android:id="@+id/continue_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/varela_round_regular"
+        android:text="@string/continue_text"
+        android:textColor="@android:color/white"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/play"
+        app:layout_constraintRight_toRightOf="@id/play"
+        app:layout_constraintTop_toBottomOf="@id/play" />
+
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="45dp"
+        android:background="@drawable/ic_stop_icon"
+        android:onClick="openEndOptions"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@id/play"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintHeight_percent="0.11"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@id/play" />
+
+    <TextView
+        android:id="@+id/stop_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/varela_round_regular"
+        android:text="@string/stop"
+        android:textColor="@android:color/white"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/stop"
+        app:layout_constraintRight_toRightOf="@id/stop"
+        app:layout_constraintTop_toBottomOf="@id/stop" />
+
+
+    <include
+        android:id="@+id/logo"
+        layout="@layout/logo_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:elevation="10dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/progress_bar_layout">
+        app:layout_constraintTop_toBottomOf="@id/progress_bar" />
 
-        <RelativeLayout
-            android:id="@+id/words"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.42">
-
-            <ImageView
-                android:id="@+id/album_cover"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true" />
-
-            <ProgressBar
-                android:id="@+id/loading_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"/>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/word_space"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/no_hardcode_dimension"
-                    android:background="@color/transparent_white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintHeight_percent="0.5"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/lyrics_guide1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        app:layout_constraintGuide_percent="0.33" />
-
-                    <androidx.constraintlayout.widget.Guideline
-                        android:id="@+id/lyrics_guide2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        app:layout_constraintGuide_percent="0.66" />
-
-
-                    <!--                <TextView-->
-                    <!--                    android:id="@+id/words_read"-->
-                    <!--                    android:layout_width="match_parent"-->
-                    <!--                    android:layout_height="match_parent"-->
-                    <!--                    android:layout_weight="1"-->
-                    <!--                    android:gravity="center"-->
-                    <!--                    android:textSize="24sp"-->
-                    <!--                    tools:ignore="NestedWeights" />-->
-
-
-                    <com.function.karaoke.core.views.LyricsView
-                        android:id="@+id/lyrics"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/no_hardcode_dimension"
-                        android:gravity="center"
-                        android:textSize="24sp"
-                        app:layout_constraintBottom_toTopOf="@+id/lyrics_guide1"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <com.function.karaoke.core.views.LyricsView
-                        android:id="@+id/words_to_read"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/no_hardcode_dimension"
-                        android:gravity="center"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toTopOf="@id/lyrics_guide2"
-                        app:layout_constraintTop_toTopOf="@+id/lyrics_guide1" />
-
-                    <com.function.karaoke.core.views.LyricsView
-                        android:id="@+id/words_to_read_2"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/no_hardcode_dimension"
-                        android:gravity="center"
-                        android:textSize="20sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/lyrics_guide2" />
-
-                    <com.function.karaoke.core.views.LyricsView
-                        android:id="@+id/words_to_read_3"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/no_hardcode_dimension"
-                        android:gravity="center"
-                        android:textSize="20sp"
-                        app:layout_constraintTop_toBottomOf="parent" />
-
-                    <TextView
-                        android:id="@+id/countdown"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:elevation="10dp"
-                        android:fontFamily="monospace"
-                        android:padding="1dp"
-                        android:textColor="@color/default_text_color"
-                        android:textSize="25sp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <LinearLayout
-                android:id="@+id/song_and_artist_names"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/song_name_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:textColor="@color/default_text_color"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/artist_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dp"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:textColor="@color/default_text_color"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/camera"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@android:color/black">
-
-            <TextureView
-                android:id="@+id/surface_camera"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true" />
-
-
-            <Button
-                android:id="@+id/pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="15dp"
-                android:background="@drawable/pause_button"
-                android:onClick="pauseSong"
-                android:visibility="invisible" />
-
-            <Button
-                android:id="@+id/play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="15dp"
-                android:background="@drawable/play_arrow"
-                android:onClick="resumeSong"
-                android:visibility="invisible" />
-
-            <include
-                android:id="@+id/logo"
-                layout="@layout/logo_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:elevation="10dp"
-                android:visibility="invisible" />
-
-
-        </RelativeLayout>
-    </LinearLayout>
-
-
-<!--    <androidx.appcompat.widget.SwitchCompat-->
-<!--        android:id="@+id/camera_toggle_button"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="@dimen/no_hardcode_dimension"-->
-<!--        android:layout_marginTop="15dp"-->
-<!--        android:checked="true"-->
-<!--        android:thumb="@drawable/ic_video_camera_foreground"-->
-<!--        app:layout_constraintHeight_percent="0.04"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/play_button" />-->
-
-    <Button
-        android:id="@+id/play_button"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_centerInParent="true"
-        android:background="@color/appColor"
-        android:onClick="playMusic"
-        android:text="@string/play"
-        android:textColor="@color/default_text_color"
-        android:visibility="invisible"
-        app:layout_constraintHeight_percent="0.08"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="@id/playButtonGuide" />
 
     <TextView
         android:id="@+id/restart_countdown"
@@ -326,17 +365,24 @@
         android:padding="1dp"
         android:textColor="@color/default_text_color"
         android:textSize="25sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="invisible"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/playButtonGuide"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.56" />
+
+    <Button
+        android:id="@+id/play_button"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_margin="25dp"
+        android:background="@drawable/ic_play_icon_shadow"
+        android:onClick="playMusic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="42:52"
+        app:layout_constraintHeight_percent="0.11"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.function.karaoke.hardware;
+package com.function.karaoke.hardware.adapters;
 
 import android.annotation.SuppressLint;
 import android.graphics.BlendMode;
@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
+import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
@@ -147,7 +148,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 //                    @Override
 //                    public void onClick(View view) {
 //                        if (null != mListener) {
-//                            mListener.onListFragmentInteractionPlay(holder.mItem);
+//                            mListener.onListFragmentInteractionRecordingClick(holder.mItem);
 //                        }
 //                    }
 //                });

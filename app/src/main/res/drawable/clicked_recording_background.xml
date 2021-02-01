@@ -1,8 +1,9 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape>
-            <gradient
-                android:centerColor="@color/main_background_outer" android:endColor="#192676" android:gradientRadius="449.8805dp" android:startColor="#192676" android:type="linear" />
+            <gradient android:centerColor="#192676" android:endColor="@color/main_background_outer" android:gradientRadius="449.8805dp"
+
+                android:startColor="@color/main_background_outer" android:type="linear" />
         </shape>
     </item>
 </selector>
