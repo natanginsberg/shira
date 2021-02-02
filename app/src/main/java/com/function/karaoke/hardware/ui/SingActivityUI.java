@@ -153,7 +153,7 @@ public class SingActivityUI {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.77);
         int height;
         if (songEnded) {
-            height = Math.min((int) (width * 1.5), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.6));
+            height = (int)(width * 1.5);
             ImageView imageView = layout.findViewById(R.id.check);
             imageView.getLayoutParams().height = ((int) (width * .25));
             imageView.getLayoutParams().width = ((int) (width * .25));
