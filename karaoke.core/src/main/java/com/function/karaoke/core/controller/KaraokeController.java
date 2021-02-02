@@ -126,9 +126,9 @@ public class KaraokeController implements Recorder.IToneListener {
             mPlayer.setOnPreparedListener(mediaPlayer -> {
                 prepared = true;
                 mPlayer.seekTo(0);
-                //todo show play_button here
+                listener.songPrepared();
             });
-            mPlayer.prepare();
+            mPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -345,5 +345,6 @@ public class KaraokeController implements Recorder.IToneListener {
         // need to pass relevant arguments related to the event triggered
         void onSongEnded();
 
+        void songPrepared();
     }
 }

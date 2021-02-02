@@ -18,6 +18,7 @@ import com.function.karaoke.hardware.utils.static_classes.Converter;
 
 public class GenresUI {
 
+    private static final int GENRE = -1;
     private static final int MY_RECORDINGS = 101;
     private static final int SONG_SUGGESTION = 102;
     private final View view;
@@ -54,21 +55,24 @@ public class GenresUI {
     }
 
     public void addViewsToLinearLayout(View gView, Genres genres, String currentGenre, int displayed) {
-//        view.findViewById(R.id.all_genres).setVisibility(View.VISIBLE);
         LinearLayout linearLayout = gView.findViewById(R.id.genre_list);
         linearLayout.removeAllViews();
-        linearLayout.addView(createGenreTextView(currentGenre, -1));
         for (int i = 0; i < genres.getSize(); i++) {
             String genre = genres.getGenres().get(i);
-            if (!genre.equalsIgnoreCase(currentGenre)) {
-                TextView genreTextView = createGenreTextView(genre, i);
+            TextView genreTextView = createGenreTextView(genre, i);
+            if (displayed == GENRE && currentGenre.contains(genreTextView.getText().toString()))
+                linearLayout.addView(genreTextView, 0);
+            else
                 linearLayout.addView(genreTextView);
-            }
 
         }
-        if (!(displayed == MY_RECORDINGS))
+        if (displayed == MY_RECORDINGS)
+            linearLayout.addView(addMyRecordingsOption(), 0);
+        else
             linearLayout.addView(addMyRecordingsOption());
-        if (!(displayed == SONG_SUGGESTION))
+        if (displayed == SONG_SUGGESTION)
+            linearLayout.addView(addSongSuggestionOption(), 0);
+        else
             linearLayout.addView(addSongSuggestionOption());
 
     }
@@ -158,7 +162,12 @@ public class GenresUI {
             }
         else
             genreToDisplay = genre;
-        ((TextView) view.findViewById(R.id.genre)).setText(genreToDisplay);
+        TextView display = (TextView) view.findViewById(R.id.genre);
+        display.setText(genreToDisplay);
+        if (genreToDisplay.equalsIgnoreCase(context.getResources().getString(R.string.song_suggestion)))
+            display.setTextColor(context.getResources().getColor(R.color.pick_a_song_color));
+        else
+            display.setTextColor(context.getResources().getColor(R.color.default_text_color));
     }
 
 

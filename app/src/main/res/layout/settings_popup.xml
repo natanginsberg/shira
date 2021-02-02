@@ -41,7 +41,10 @@
                 android:id="@+id/loading_percent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/internet_speed"
@@ -58,8 +61,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/varela_round_regular"
                 android:text="@string/menu"
-                android:textSize="15sp"
                 android:textColor="@android:color/white"
+                android:textSize="15sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@id/search_icon_guide"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -80,95 +83,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!--        <androidx.constraintlayout.widget.ConstraintLayout-->
-        <!--            android:id="@+id/header1"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
-        <!--            android:background="@android:color/transparent"-->
-        <!--            app:layout_constraintHeight_percent="0.13"-->
-        <!--            app:layout_constraintTop_toTopOf="parent">-->
-
-        <!--            <View-->
-        <!--                android:layout_width="match_parent"-->
-        <!--                android:layout_height="1dp"-->
-        <!--                android:background="@android:color/black"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent" />-->
-
-        <!--&lt;!&ndash;            <androidx.constraintlayout.widget.Guideline&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:id="@+id/language_guide"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:orientation="vertical"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintGuide_percent="0.95" />&ndash;&gt;-->
-
-        <!--&lt;!&ndash;            <TextView&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:id="@+id/language"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:gravity="center"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:text="@string/language_displayed"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:textColor="@android:color/white"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:textSize="15sp"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintBottom_toBottomOf="@id/header"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintEnd_toEndOf="@id/language_guide"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;-->
-
-
-        <!--&lt;!&ndash;            <View&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_width="@dimen/no_hardcode_dimension"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_height="@dimen/no_hardcode_dimension"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:background="@drawable/circle"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintBottom_toBottomOf="@id/language_changer"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintLeft_toLeftOf="@id/language_changer"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintRight_toRightOf="@id/language_changer"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintTop_toTopOf="@id/language_changer" />&ndash;&gt;-->
-        <!--            &lt;!&ndash;        <Button&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:id="@+id/close_popup"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_width="@dimen/no_hardcode_dimension"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_height="@dimen/no_hardcode_dimension"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            app:layout_constraintHeight_percent="0.04"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            app:layout_constraintWidth_percent="0.075"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_alignParentEnd="true"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_centerVertical="true"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:background="@drawable/ic_baseline_close_24"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:paddingEnd="10dp" />&ndash;&gt;-->
-
-        <!--            &lt;!&ndash;        <TextView&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:id="@+id/hello_user"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--            &lt;!&ndash;            android:layout_centerInParent="true" />&ndash;&gt;-->
-
-        <!--&lt;!&ndash;            <TextView&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_width="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_height="wrap_content"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_marginStart="10dp"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:layout_weight="1"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:id="@+id/sign_in_button"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:text="@string/sign_in"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:textColor="@color/sing_up_hover"&ndash;&gt;-->
-        <!--&lt;!&ndash;                android:textSize="15sp"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintBottom_toBottomOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintStart_toStartOf="parent"&ndash;&gt;-->
-        <!--&lt;!&ndash;                app:layout_constraintTop_toTopOf="parent" />&ndash;&gt;-->
-
-        <!--            <TextView-->
-        <!--                android:id="@+id/email_address"-->
-        <!--                android:layout_width="wrap_content"-->
-        <!--                android:layout_height="wrap_content"-->
-        <!--                android:layout_marginStart="10dp"-->
-        <!--                android:layout_weight="1"-->
-        <!--                android:text=""-->
-        <!--                android:textColor="@color/purple_hover"-->
-        <!--                android:textSize="12sp"-->
-        <!--                android:typeface="serif"-->
-        <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--                app:layout_constraintStart_toStartOf="parent"-->
-        <!--                app:layout_constraintTop_toBottomOf="@id/sign_in_button" />-->
-
-
-        <!--        </androidx.constraintlayout.widget.ConstraintLayout>-->
-
 
         <TextView
             android:id="@+id/email_address"
@@ -183,14 +97,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/header" />
 
+        <TextView
+            android:onClick="openSignIn"
+            android:id="@+id/sign_in_invite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/varela_round_regular"
+            android:text="@string/sign_in_with_google"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toTopOf="@id/list_of_items"
+            app:layout_constraintStart_toEndOf="@id/user_picture"
+            app:layout_constraintTop_toBottomOf="@id/header"
+            app:layout_goneMarginStart="10dp" />
+
         <ImageView
             android:id="@+id/user_picture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/circle"
             app:layout_constraintBottom_toBottomOf="@id/email_address"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/email_address"
+            app:layout_constraintEnd_toStartOf="@id/email_address"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/email_address" />
 
         <LinearLayout
@@ -294,15 +223,16 @@
                 android:background="@android:color/white" />
 
             <TextView
-                android:id="@+id/sign_in_button"
+                android:id="@+id/sign_out_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:paddingBottom="10dp"
-                android:text="@string/sign_in"
+                android:text="@string/sign_out"
                 android:textColor="@android:color/white"
-                android:textSize="15sp" />
+                android:textSize="15sp"
+                android:visibility="invisible" />
 
             <View
                 android:layout_width="match_parent"
@@ -339,25 +269,25 @@
             android:id="@+id/close_x"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_marginRight="5dp"
             android:background="@drawable/ic_x_window_circle"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintHeight_percent="0.8"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginRight="5dp"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/close_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:text="@string/close"
             android:textColor="@android:color/white"
-            app:layout_constraintTop_toTopOf="parent"
+            android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:layout_margin="10dp"
-            android:textSize="15sp"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

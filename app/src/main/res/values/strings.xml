@@ -94,9 +94,9 @@
     <string name="who_is_singing_the_song">Who is singing the song?</string>
     <string name="email_prompt">Listen to me sing\n</string>
     <string name="admin_window">admin window</string>
-    <string name="song_name">song name</string>
+    <string name="song_name">Song Title</string>
     <string name="genres">genres</string>
-    <string name="artist_name">artist name</string>
+    <string name="artist_name">Artist/Composer</string>
     <string name="submit">submit</string>
     <string name="sharing_failed">sharing failed</string>
     <string name="auth_failed">Authenticaton failed, please try again</string>
@@ -111,8 +111,8 @@
     <string name="monthly_sub">Monthly 18</string>
     <string name="sub_invite">Subscribe for unlimited access</string>
     <string name="reverb_on">reverb on</string>
-    <string name="song_suggestion">Song Recommendation</string>
-    <string name="add_song_window">What song should we add?</string>
+    <string name="song_suggestion">Suggestion</string>
+    <string name="add_song_window">What song would you like us to add?</string>
     <string name="exceed_message">You have exceeded you\'re storage capacity you must delete a song</string>
     <string name="popular">Popular</string>
     <string name="new_tag">New</string>
@@ -130,5 +130,8 @@
     <string name="you_stopped_mid_recording">You stopped mid-recording</string>
     <string name="you_finished_the_recording">You finished the recording!</string>
     <string name="share_your_recordings_with_family_and_friends">Share your recordings with family and friends</string>
+    <string name="comments">Comments</string>
+    <string name="song_is_in_system">The song you requested is in the our system already.</string>
+    <string name="sign_in_with_google"><u>Sign in with Google</u></string>
 
 </resources>

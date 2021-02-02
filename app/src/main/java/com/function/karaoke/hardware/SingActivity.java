@@ -2,6 +2,7 @@ package com.function.karaoke.hardware;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,6 +11,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -91,7 +93,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class SingActivity extends AppCompatActivity implements
-        DialogBox.CallbackListener {
+        DialogBox.CallbackListener, KaraokeController.MyCustomObjectListener {
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
@@ -232,13 +234,13 @@ public class SingActivity extends AppCompatActivity implements
     private File compressedFile;
     private File jsonFile;
     private int type = -1;
-    private int ALLOCATED_NUMBER_OF_RECORDINGS = 30;
+    private int ALLOCATED_NUMBER_OF_RECORDINGS = 200;
     private RecordingDelete recordingDelete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        loadLocale();
         super.onCreate(savedInstanceState);
-        getCorrectLanguage();
         authenticationDriver = new AuthenticationDriver();
         createCameraAndRecorderInstance();
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
@@ -265,6 +267,19 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
+    public void loadLocale() {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        if (prefs != null) {
+            String language = prefs.getString(langPref, "");
+            if (language != null && !language.equalsIgnoreCase("")) {
+                this.language = language;
+                setLocale(language);
+            }
+        }
+    }
+
     public void alertUserThatHeCanNotPause() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setCancelable(true);
@@ -274,15 +289,6 @@ public class SingActivity extends AppCompatActivity implements
         });
         AlertDialog alert = alertBuilder.create();
         alert.show();
-    }
-
-    private void getCorrectLanguage() {
-        if (getIntent().getExtras().containsKey("language")) {
-            String phoneLanguage = Locale.getDefault().getLanguage();
-            setLocale(phoneLanguage);
-        }
-//        String language = getResources().getConfiguration().getLocales().get(0).getLanguage();
-//        setLocale("en");
     }
 
     private void setLocale(String lang) {
@@ -338,6 +344,7 @@ public class SingActivity extends AppCompatActivity implements
         mKaraokeKonroller.addViews(findViewById(R.id.word_space), R.id.lyrics, R.id.words_to_read,
                 R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
         mPlayer = mKaraokeKonroller.getmPlayer();
+        mKaraokeKonroller.setCustomObjectListener(SingActivity.this);
     }
 
     private void createBluetoothReceiver() {
@@ -503,8 +510,7 @@ public class SingActivity extends AppCompatActivity implements
                             }
                             finish();
                         }
-                        activityUI.hideLoadingIndicator();
-                        activityUI.showPlayButton();
+
                     }
 
                     @Override
@@ -755,18 +761,7 @@ public class SingActivity extends AppCompatActivity implements
                 } else {
 //                customMediaPlayer.startSong();
                     mKaraokeKonroller.onResume();
-                    mKaraokeKonroller.setCustomObjectListener(new KaraokeController.MyCustomObjectListener() {
-                        @Override
-                        public void onSongEnded() {
 
-//                        cameraPreview.stopRecording();
-                            lengthOfAudioPlayed = mPlayer.getCurrentPosition();
-                            postParseVideoFile = wrapUpSong();
-                            isRunning = false;
-                            ending = true;
-                            finishSong();
-                        }
-                    });
                     earphonesUsed = microphonePluggedIn || bluetoothConnectionExists || bluetoothConnected;
                     //todo unregister
 //                    unregisterReceivers();
@@ -920,8 +915,6 @@ public class SingActivity extends AppCompatActivity implements
             mKaraokeKonroller.onStop();
 //            customMediaPlayer.onStop();
         }
-        if (activityUI.isPopupOpened())
-            activityUI.removeResumeOptionFromPopup();
     }
 
     private File wrapUpSong() {
@@ -1431,6 +1424,23 @@ public class SingActivity extends AppCompatActivity implements
             openCamera();
         }
         activityUI.changeCheck(cameraOn);
+    }
+
+    @Override
+    public void onSongEnded() {
+
+//                        cameraPreview.stopRecording();
+        lengthOfAudioPlayed = mPlayer.getCurrentPosition();
+        postParseVideoFile = wrapUpSong();
+        isRunning = false;
+        ending = true;
+        finishSong();
+    }
+
+    @Override
+    public void songPrepared() {
+        activityUI.showPlayButton();
+        activityUI.hideLoadingIndicator();
     }
 
 

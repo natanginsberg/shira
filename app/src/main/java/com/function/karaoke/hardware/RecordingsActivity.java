@@ -1,7 +1,9 @@
 package com.function.karaoke.hardware;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -64,7 +66,26 @@ public class RecordingsActivity extends AppCompatActivity implements
     private static final int MY_RECORDINGS = 101;
 
     private static final int NUM_COLUMNS = 2;
+    private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
+        @Override
+        public boolean contains(@Nullable Object o) {
+            return indexOf(o) >= 0;
+        }
 
+        @Override
+        public int indexOf(@Nullable Object o) {
+            if (o != null) {
+                if (o instanceof Recording) {
+                    Recording rec = (Recording) o;
+                    for (int i = 0; i < deleteRecordingList.size(); i++)
+                        if (rec.getDate().equals(deleteRecordingList.get(i).getDate()))
+                            return i;
+                }
+            }
+            return -1;
+        }
+    };
+    private final GenreListener genreListener = new GenreListener();
     private RecordingService recordingService;
     private RecordingCategoryAdapter recordingCategoryAdapter;
     private RecyclerView recyclerView;
@@ -94,25 +115,6 @@ public class RecordingsActivity extends AppCompatActivity implements
             return -1;
         }
     };
-    private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
-        @Override
-        public boolean contains(@Nullable Object o) {
-            return indexOf(o) >= 0;
-        }
-
-        @Override
-        public int indexOf(@Nullable Object o) {
-            if (o != null) {
-                if (o instanceof Recording) {
-                    Recording rec = (Recording) o;
-                    for (int i = 0; i < deleteRecordingList.size(); i++)
-                        if (rec.getDate().equals(deleteRecordingList.get(i).getDate()))
-                            return i;
-                }
-            }
-            return -1;
-        }
-    };
     private View popupView;
     private PopupWindow popup;
     private AuthenticationDriver authenticationDriver;
@@ -120,19 +122,17 @@ public class RecordingsActivity extends AppCompatActivity implements
     private String language;
     private UserInfo user;
     private Genres genres;
-    private final GenreListener genreListener = new GenreListener();
     private GenresUI genresUI;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //todo pass and get user
+        loadLocale();
         super.onCreate(savedInstanceState);
         getUser();
-        getCorrectLanguage();
         getGenres();
         setContentView(R.layout.activity_recordings);
-        genresUI = new GenresUI(findViewById(android.R.id.content).getRootView(), this, Locale.getDefault().getLanguage(), this);
+        genresUI = new GenresUI(findViewById(android.R.id.content).getRootView(), this, language, this);
         recordingService = new RecordingService();
         recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
@@ -141,7 +141,19 @@ public class RecordingsActivity extends AppCompatActivity implements
         addSearchListener();
         addGenres();
         addGenreListeners();
-//        addProfilePic("");
+    }
+
+    public void loadLocale() {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        if (prefs != null) {
+            String language = prefs.getString(langPref, "");
+            if (language != null && !language.equalsIgnoreCase("")) {
+                this.language = language;
+                setLocale(language);
+            }
+        }
     }
 
     private void addGenreListeners() {
@@ -162,24 +174,18 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     private void addProfilePic() {
         ImageView profilePic = findViewById(R.id.user_picture);
-        Picasso.get()
-                .load(user.getPicUrl())
-                .placeholder(R.drawable.circle)
-                .fit()
-                .transform(new CropCircleTransformation())
-                .into(profilePic);
+        if (user.getPicUrl() != null && !user.getPicUrl().equalsIgnoreCase(""))
+            Picasso.get()
+                    .load(user.getPicUrl())
+                    .placeholder(R.drawable.circle)
+                    .fit()
+                    .transform(new CropCircleTransformation())
+                    .into(profilePic);
     }
 
     private void getUser() {
         if (getIntent().getExtras().containsKey("user")) {
             user = (UserInfo) getIntent().getSerializableExtra("user");
-        }
-    }
-
-    private void getCorrectLanguage() {
-        if (getIntent().getExtras().containsKey("language")) {
-            String phoneLanguage = Locale.getDefault().getLanguage();
-            setLocale(phoneLanguage);
         }
     }
 
@@ -490,12 +496,9 @@ public class RecordingsActivity extends AppCompatActivity implements
     public void openSettingsPopup(View view) {
         SettingUI settingUI = new SettingUI(findViewById(R.id.recordings_activty), this);
         authenticationDriver = new AuthenticationDriver();
-        settingUI.openSettingsPopup(authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")
-        );
-        if (authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals(""))
-            settingUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
+        boolean userIsSignedIn = authenticationDriver.isSignIn()
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
+        settingUI.openSettingsPopup(userIsSignedIn, user);
         popupView = settingUI.getPopupView();
         popup = settingUI.getPopup();
         addPopupListeners();
@@ -536,17 +539,10 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     private void addPopupListeners() {
         languageChangeListener();
-        dismissButtonListener();
         myRecordingsToDisplayListener();
-        homeButtonListener();
         signInButtonListener();
         contactUsListener();
         policyListener();
-        addSongListener();
-    }
-
-    private void addSongListener() {
-//        popupView.findViewById(R.id.song_suggestion).setOnClickListener(view -> showSongSuggestionBox());
     }
 
     private void policyListener() {
@@ -567,25 +563,15 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     private void signInButtonListener() {
-        popupView.findViewById(R.id.sign_in_button).setOnClickListener(view -> {
+        popupView.findViewById(R.id.sign_out_button).setOnClickListener(view -> {
             authenticationDriver.signOut();
-            launchSignIn();
             popup.dismiss();
+            finish();
         });
     }
 
-    private void homeButtonListener() {
-//        popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
-////            songsActivityUI.putTouchBack();
-//            if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-//                contentDisplayed = ALL_SONGS_DISPLAYED;
-////            if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
-//                displayAllSongs();
-//                songsActivityUI.allSongsShow();
-//                songsActivityUI.showGenresAndSearch();
-//                popup.dismiss();
-//            }
-//        });
+    private void endActivity() {
+
     }
 
     private void myRecordingsToDisplayListener() {
@@ -608,7 +594,6 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     public void changeLanguage() {
-        language = Locale.getDefault().getLanguage();
         if (language.equals("en")) {
             setLocale("iw");
         } else {
@@ -624,12 +609,17 @@ public class RecordingsActivity extends AppCompatActivity implements
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();
         conf.setLocale(myLocale);
+        saveLocale(lang);
         res.updateConfiguration(conf, dm);
     }
 
-    private void launchSignIn() {
-        Intent intent = new Intent(this, SignInActivity.class);
-        startActivity(intent);
+    public void saveLocale(String lang) {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(langPref, lang);
+        editor.commit();
     }
 
     @Override
@@ -643,7 +633,11 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     @Override
     public void showSongSuggestionBox() {
-
+        Intent intent = new Intent(this, SongsActivity.class);
+        intent.putExtra("suggestion", true);
+//            onActivityResult(0, RESULT_OK, intent);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     @Override

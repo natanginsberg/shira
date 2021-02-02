@@ -44,7 +44,6 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private List<Reocording> mValues;
     private List<Recording> mRecordings;
     private final OnListFragmentInteractionListener mListener;
-    private String language;
     private String text;
     private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
             R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
@@ -53,15 +52,9 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
     private static final double[] heightFactors = new double[]{2.5, 3.5};
 
-    //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
-//        setData(items);
-//        mListener = listener;
-//        this.language = language;
-//    }
-    public SongRecyclerViewAdapter(List<? extends Reocording> items, OnListFragmentInteractionListener listener, String language, String textToDisplay) {
+    public SongRecyclerViewAdapter(List<? extends Reocording> items, OnListFragmentInteractionListener listener, String textToDisplay) {
         setData(items, textToDisplay);
         mListener = listener;
-        this.language = language;
     }
 
     class ViewHolderBig extends ViewHolder {

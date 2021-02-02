@@ -129,7 +129,7 @@ public class SignInActivity extends AppCompatActivity {
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
 
-        findViewById(R.id.sign_in_button).setOnClickListener(view -> signIn());
+        findViewById(R.id.sign_out_button).setOnClickListener(view -> signIn());
 
         setUpGettingNewUserSucceeded();
         signInViewModel.getUserFromDatabase().observe(this, gettingNewUserSucceeded);
@@ -169,8 +169,7 @@ public class SignInActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-//
-            //todo get the profile picture
+
             signInViewModel.firebaseAuthWithGoogle(account.getIdToken(), new SignInViewModel.FirebaseAuthListener() {
                 @Override
                 public void onSuccess(FirebaseUser firebaseUser) {
@@ -234,7 +233,7 @@ public class SignInActivity extends AppCompatActivity {
             if (success) {
                 if ((user = signInViewModel.getUser()) != null) {
                     signInViewModel.setLoginState(LoginState.FINISH);
-                    findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.sign_out_button).setVisibility(View.INVISIBLE);
 //                    returnToMain();
                 } else {
                     signInViewModel.createNewUser();
@@ -274,4 +273,5 @@ public class SignInActivity extends AppCompatActivity {
     private void makeToastForError() {
         Toast.makeText(this, getString(R.string.error_from_the_beginning_of_sign_in), Toast.LENGTH_LONG).show();
     }
+
 }

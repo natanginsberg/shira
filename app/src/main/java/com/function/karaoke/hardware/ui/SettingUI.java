@@ -36,22 +36,62 @@ public class SettingUI {
         this.context = c;
     }
 
-    public void openSettingsPopup(boolean isUserSignedIn) {
+    public void openSettingsPopup(boolean isUserSignedIn, UserInfo user) {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
+        profilePic = popupView.findViewById(R.id.user_picture);
+        if (isUserSignedIn)
+            showSignedInTheme(user);
+        else
+            showNotSignedInTheme();
 //        if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
 ////        if (((TextView) view.findViewById(R.id.display_text)).getText() == context.getResources().getString(R.string.my_recordings)) {
 //            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold));
 //        } else
 //            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(context.getResources().getColor(R.color.gold));
-        setSignInOrOut(isUserSignedIn);
-        profilePic = popupView.findViewById(R.id.user_picture);
+
+
         placePopupOnScreen();
         applyDim();
         addCloseListeners();
 
     }
+
+    private void showNotSignedInTheme() {
+        setGmailPic();
+        showSignInText();
+        setOnClickListeners();
+    }
+
+    private void setOnClickListeners() {
+        popupView.findViewById(R.id.user_picture).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        popupView.findViewById(R.id.sign_in_invite).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+    }
+
+    private void showSignInText() {
+        popupView.findViewById(R.id.sign_in_invite).setVisibility(View.VISIBLE);
+        popupView.findViewById(R.id.email_address).setVisibility(View.INVISIBLE);
+    }
+
+    private void showSignedInTheme(UserInfo user) {
+        setProfilePic(user != null ? user.getPicUrl() : " ");
+        setSignOutButton();
+        setEmailAddressIfSignedIn(user != null ? user.getUserEmail() : "");
+        popupView.findViewById(R.id.user_picture).setOnClickListener(null);
+    }
+
 
     private void addCloseListeners() {
         popupView.findViewById(R.id.close_button_holder).setOnClickListener(closePopListener);
@@ -62,15 +102,12 @@ public class SettingUI {
 
     }
 
-    private void setSignInOrOut(boolean isSignedIn) {
-        TextView signInOrOutButton = ((TextView) popupView.findViewById(R.id.sign_in_button));
-        if (isSignedIn)
-            signInOrOutButton.setText(context.getResources().getText(R.string.sign_out));
-        else
-            signInOrOutButton.setText(context.getResources().getText(R.string.sign_in));
+    private void setSignOutButton() {
+        ((TextView) popupView.findViewById(R.id.sign_out_button)).setVisibility(View.VISIBLE);
     }
 
     public void setEmailAddressIfSignedIn(String emailAddressIfSignedIn) {
+        popupView.findViewById(R.id.sign_in_invite).setVisibility(View.GONE);
         ((TextView) popupView.findViewById(R.id.email_address)).setText(emailAddressIfSignedIn);
     }
 
@@ -106,15 +143,25 @@ public class SettingUI {
         popup.setHeight((int) (view.getHeight() * 0.8));
     }
 
-    public void addPicToScreen(UserInfo userInfo) {
+    @SuppressLint("UseCompatLoadingForDrawables")
+    public void setProfilePic(String picUrl) {
         Picasso.get()
-                .load(userInfo.getPicUrl())
-                .placeholder(R.drawable.circle)
+                .load(picUrl)
+                .placeholder(context.getResources().getDrawable(R.mipmap.ic_gmail_open))
                 .fit()
                 .transform(new CropCircleTransformation())
                 .into(profilePic);
 
+    }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void setGmailPic() {
+        Picasso.get()
+                .load(String.valueOf(context.getResources().getDrawable(R.mipmap.ic_gmail_open)))
+                .placeholder(context.getResources().getDrawable(R.mipmap.ic_gmail_open))
+                .fit()
+                .transform(new CropCircleTransformation())
+                .into(profilePic);
     }
 
     public PopupWindow getPopup() {
@@ -132,5 +179,7 @@ public class SettingUI {
             popup.dismiss();
         }
     }
+
+
 
 }

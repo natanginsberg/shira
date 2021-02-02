@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -26,24 +27,23 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
-import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
-import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
+import com.function.karaoke.hardware.activities.Model.SignInViewModel;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.fragments.SongsListFragment;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
@@ -54,6 +54,11 @@ import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.JsonHandler;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -71,14 +76,12 @@ public class SongsActivity
     private static final int AUDIO_CODE = 101;
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
-    private static final int SHARING_ERROR = 100;
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
     private static final String SONG_SUGGEST_EMAIL = "ashira.songs@gmail.com";
 
     private Billing billingSession;
     public String language;
     Locale myLocale;
-    //    private SongsDB mSongs;
     private DatabaseSongsDB dbSongs;
     private AuthenticationDriver authenticationDriver;
     private UserInfo user;
@@ -92,15 +95,27 @@ public class SongsActivity
                             if (intent.getExtras().containsKey("User"))
                                 user = (UserInfo) intent.getSerializableExtra("User");
                             else if (intent.getExtras().containsKey("genre")) {
-                                List<Fragment> fragments = getSupportFragmentManager().getFragments();
-                                SongsListFragment fragment = (SongsListFragment) fragments.get(0);
+                                SongsListFragment fragment = getFragment();
                                 fragment.getAllSongsFromGenre(intent.getExtras().getInt("genre"));
+                            } else if (intent.getExtras().containsKey("suggestion")) {
+                                SongsListFragment fragment = getFragment();
+                                fragment.showSongSuggestionBox();
+                            } else {
+                                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
+                                handleSignInResult(task);
                             }
 
                         }
                     }
                 }
             });
+    private SignInViewModel signInViewModel;
+
+    private SongsListFragment getFragment() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        return (SongsListFragment) fragments.get(0);
+    }
+
     private DatabaseSong songClicked;
     private TextView loadingText;
     private CountDownTimer cTimer = null;
@@ -126,38 +141,34 @@ public class SongsActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        loadLocale();
         super.onCreate(savedInstanceState);
         checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
         checkForSignedInUser();
-
-        language = Locale.getDefault().getLanguage();
         setContentView(R.layout.activity_songs);
         loadingText = (TextView) (findViewById(R.id.loading_percent));
-        billingSession = new Billing(SongsActivity.this, new PurchasesUpdatedListener() {
-            @Override
-            public void onPurchasesUpdated(@NonNull BillingResult billingResult, @Nullable List<Purchase> purchases) {
+        billingSession = new Billing(SongsActivity.this, (billingResult, purchases) -> {
 
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
-                        && purchases != null) {
-                    for (Purchase purchase : purchases) {
-                        if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-                            billingSession.handlePurchase(purchase);
-                        }
-                        // the credit card is taking time
+            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
+                    && purchases != null) {
+                for (Purchase purchase : purchases) {
+                    if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+                        billingSession.handlePurchase(purchase);
                     }
-                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-                    Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
-                    // the user pressed back
-                    // Handle an error caused by a user cancelling the purchase flow.
-                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
-                    Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
-                    // if the credit card was cancelled
-                    // Handle any other error codes.
-                } else {
-                    Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
-                    int k = 0;
+                    // the credit card is taking time
                 }
+            } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
+                // the user pressed back
+                // Handle an error caused by a user cancelling the purchase flow.
+            } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
+                Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
+                // if the credit card was cancelled
+                // Handle any other error codes.
+            } else {
+                Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
+                int k = 0;
             }
         }, false, () -> {
             if (billingSession.isSubscribed()) {
@@ -392,12 +403,13 @@ public class SongsActivity
     }
 
     @Override
-    public void sendEmailWithSongSuggestion(String songName, String artistName) {
+    public void sendEmailWithSongSuggestion(String songName, String artistName, String comments) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.putExtra(Intent.EXTRA_EMAIL, new String[]{SONG_SUGGEST_EMAIL});
         intent.setData(Uri.parse("mailto:"));
         String subject = songName + "  " + artistName;
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, comments);
         if (deviceHasGoogleAccount())
             intent.setPackage("com.google.android.gm");
         startActivity(intent);
@@ -406,20 +418,26 @@ public class SongsActivity
     @Override
     public void startRecordingsActivity(Genres genres) {
         Intent intent = new Intent(this, RecordingsActivity.class);
-        intent.putExtra("language", Locale.getDefault().getLanguage());
         intent.putExtra("user", user);
         intent.putExtra("genres", genres);
         mGetContent.launch(intent);
     }
 
     @Override
-    public void onBackPressed(){
-        System.exit(0);
+    public void onBackPressed() {
+        if (!getFragment().backPressed())
+            finish();
     }
 
     @Override
     public UserInfo getUser() {
         return user;
+    }
+
+    @Override
+    public void signIn() {
+        SignIn signIn = new SignIn(this, this, this, mGetContent);
+        signIn.openSignIn();
     }
 
     private boolean deviceHasGoogleAccount() {
@@ -448,39 +466,6 @@ public class SongsActivity
     }
 
     @Override
-    public void onListFragmentInteractionPlay(Recording item) {
-        Intent intent = new Intent(this, Playback.class);
-        intent.putExtra(SingActivity.RECORDING, item);
-        startActivity(intent);
-    }
-
-    @Override
-    public void onListFragmentInteractionShare(Recording item) {
-//        Task<ShortDynamicLink> link = ShareLink.createLink(item);
-//        link.addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                Uri shortLink = task.getResult().getShortLink();
-//                Uri flowchartLink = task.getResult().getPreviewLink();
-//                String link1 = shortLink.toString();
-//                sendDataThroughIntent(link1);
-//            } else {
-//                showFailure();
-//            }
-//        });
-
-    }
-
-    @Override
-    public void onListFragmentInteractionDelete(Recording mItem) {
-//        recordingDelete = new RecordingDelete(new RecordingDelete.SetupListener() {
-//            @Override
-//            public void setup() {
-//                deleteRecording();
-//            }
-//        }, mItem);
-    }
-
-    @Override
     public DatabaseSongsDB getSongs() {
         return dbSongs;
     }
@@ -490,9 +475,13 @@ public class SongsActivity
     public void changeLanguage() {
         if (language.equals("en")) {
             setLocale("iw");
+            language = "iw";
         } else {
             setLocale("en");
+            language = "en";
         }
+        Intent refresh = new Intent(this, SongsActivity.class);
+        startActivity(refresh);
     }
 
     @Override
@@ -507,9 +496,31 @@ public class SongsActivity
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();
         conf.setLocale(myLocale);
+        saveLocale(lang);
         res.updateConfiguration(conf, dm);
-        Intent refresh = new Intent(this, SongsActivity.class);
-        startActivity(refresh);
+
+    }
+
+    public void saveLocale(String lang) {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(langPref, lang);
+        editor.commit();
+    }
+
+    public void loadLocale() {
+        String langPref = "Language";
+        SharedPreferences prefs = getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        if (prefs != null) {
+            String language = prefs.getString(langPref, "");
+            if (language != null && !language.equalsIgnoreCase("")) {
+                this.language = language;
+                setLocale(language);
+            }
+        }
     }
 
 
@@ -537,10 +548,59 @@ public class SongsActivity
     private void openNewIntent() {
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
-        intent.putExtra("language", Locale.getDefault().getLanguage());
-        if (user != null) {
+        if (authenticationDriver.isSignIn() && user != null) {
             intent.putExtra("user", user);
         }
         startActivity(intent);
     }
+
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
+        try {
+            signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+
+            signInViewModel.firebaseAuthWithGoogle(account.getIdToken(), new SignInViewModel.FirebaseAuthListener() {
+                @Override
+                public void onSuccess(FirebaseUser firebaseUser) {
+                    signInViewModel.isUserInDatabase(new SignInViewModel.DatabaseListener() {
+
+                        @Override
+                        public void isInDatabase(boolean inDatabase) {
+                            if (inDatabase) {
+                                user = signInViewModel.getUser();
+                            } else {
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0);
+
+                                signInViewModel.addNewUserToDatabase(user);
+                            }
+                        }
+
+                        @Override
+                        public void failedToSearchDatabase() {
+                            user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0);
+
+                            signInViewModel.addNewUserToDatabase(user);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure() {
+                    showFaileure();
+                }
+            });
+//
+//            signInViewModel.addNewUserToDatabase();
+
+
+        } catch (Exception e) {
+//                Toast.makeText(this, context.getResources().getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showFaileure() {
+        Toast.makeText(this, getResources().getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
+    }
+
+
 }

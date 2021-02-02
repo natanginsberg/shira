@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -103,6 +104,7 @@ public class SingActivityUI {
     public void openEndPopup(Context context, boolean songEnded) {
         popupOpened = true;
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        songEnded = true;
         if (songEnded) {
             RelativeLayout viewGroup = view.findViewById(R.id.end_options_end_song);
             popupView = layoutInflater.inflate(R.layout.end_song_options_end_song, viewGroup);
@@ -148,12 +150,15 @@ public class SingActivityUI {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void setEndOptionsPopupAttributes(Context context, PopupWindow popup, View layout) {
-        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.79);
+        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.77);
         int height;
-        if (songEnded)
-            height = Math.min((int) (width * 2), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.658));
-        else
-            height = Math.min((int) (width * 1.4), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558));
+        if (songEnded) {
+            height = Math.min((int) (width * 1.5), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.6));
+            ImageView imageView = layout.findViewById(R.id.check);
+            imageView.getLayoutParams().height = ((int) (width * .25));
+            imageView.getLayoutParams().width = ((int) (width * .25));
+        } else
+            height = Math.min((int) (width * 1.3), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558));
 //        height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558);
         popup.setContentView(layout);
         popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
@@ -165,10 +170,6 @@ public class SingActivityUI {
         return popup;
     }
 
-
-    public void removeResumeOptionFromPopup() {
-        popupView.findViewById(R.id.back_button).setVisibility(View.INVISIBLE);
-    }
 
     public void songPaused() {
         view.findViewById(R.id.pause).setVisibility(View.INVISIBLE);

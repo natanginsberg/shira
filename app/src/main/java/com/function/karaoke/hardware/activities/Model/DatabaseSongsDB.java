@@ -23,6 +23,14 @@ public class DatabaseSongsDB {
         mScanTask = songsDB.mScanTask;
     }
 
+    public boolean containsSong(String songName, String artistName) {
+        for (DatabaseSong song : mSongs) {
+            if (song.getTitle().equalsIgnoreCase(songName) && artistName.equalsIgnoreCase(song.getArtist()))
+                return true;
+        }
+        return false;
+    }
+
     public interface IListener {
         void onListUpdated();
     }

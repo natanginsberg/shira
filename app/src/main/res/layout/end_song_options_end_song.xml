@@ -11,10 +11,10 @@
     <RelativeLayout
         android:id="@+id/end_song_acknowledge"
         android:layout_width="match_parent"
-        android:layout_margin="5dp"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_margin="5dp"
         android:background="@drawable/menu_header"
-        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintHeight_percent="0.34"
 
         app:layout_constraintTop_toTopOf="parent">
 
@@ -25,6 +25,7 @@
             android:layout_above="@id/middle"
             android:layout_centerHorizontal="true"
             android:layout_margin="10dp"
+            android:adjustViewBounds="true"
             android:background="@drawable/ic_check_icon_popup" />
 
         <View
@@ -40,9 +41,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/middle"
             android:layout_centerHorizontal="true"
+            android:layout_margin="20dp"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:layout_margin="20dp"
             android:text="@string/you_finished_the_recording"
             android:textColor="@android:color/white"
             android:textSize="20sp" />

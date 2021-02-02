@@ -1,14 +1,16 @@
 package com.function.karaoke.hardware.fragments;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.GridView;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.annotation.NonNull;
@@ -18,23 +20,17 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.function.karaoke.hardware.GridAdapter;
 import com.function.karaoke.hardware.R;
-import com.function.karaoke.hardware.adapters.RecordingCategoryAdapter;
-import com.function.karaoke.hardware.adapters.RecordingRecycleViewAdapter;
-import com.function.karaoke.hardware.adapters.SongRecyclerViewAdapter;
-import com.function.karaoke.hardware.SongsActivity;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
-import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
+import com.function.karaoke.hardware.adapters.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
-import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.ui.GenresUI;
 import com.function.karaoke.hardware.ui.SettingUI;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
@@ -42,7 +38,6 @@ import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A fragment representing a list of Songs.
@@ -55,9 +50,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private static final String ARG_COLUMN_COUNT = "column-count";
     private static final int ALL_SONGS_DISPLAYED = 1;
+    private static final int SONG_SUGGESTION = 102;
+
     private static final int PERSONAL_RECORDING_DISPLAYED = 2;
-
-
+    private static final int GENRE = -1;
+    private final GenreListener genreListener = new GenreListener();
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private SongRecyclerViewAdapter mAdapter;
@@ -69,33 +66,21 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private DatabaseDriver databaseDriver;
     private RecordingService recordingService;
     private RecordingDB recordingDB;
-
     private DatabaseSongsDB songsDb;
     private View popupView;
     private PopupWindow popup;
-    private boolean searchOpened = false;
     private Genres genres;
     private View view;
     private DatabaseSongsDB allSongsDatabase = new DatabaseSongsDB();
     private int genreClicked = 0;
-    private TextView allSongsTextView;
     private AuthenticationDriver authenticationDriver;
     private SongsActivityUI songsActivityUI;
-    private String currentLanguage;
     private int clicked = 0;
-    private boolean differentSongsDisplayed = true;
-    private int contentDisplayed = ALL_SONGS_DISPLAYED;
-    private RecordingRecycleViewAdapter recordAdapter;
-    private float x1;
-    private float y1;
-
-    private GridView gridView;
-    private GridAdapter gAdapter;
-    private boolean noTextInQuery = true;
-    private RecordingCategoryAdapter recordingCategoryAdapter;
-    private UserService userService;
+    private final boolean differentSongsDisplayed = true;
+    private final int contentDisplayed = ALL_SONGS_DISPLAYED;
+    private OpenSignUp openSignUpListener = new OpenSignUp();
     private String currentGenre;
-    private final GenreListener genreListener = new GenreListener();
+    private CountDownTimer cTimer;
 
 
     /**
@@ -107,6 +92,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+//        loadLocale();
         super.onCreate(savedInstanceState);
         mColumnCount = 2;
 //        if (getArguments() != null) {
@@ -118,6 +104,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         songsView = inflater.inflate(R.layout.fragment_song_list, container, false);
         authenticationDriver = new AuthenticationDriver();
         Context context = songsView.getContext();
@@ -129,12 +116,24 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         this.recordingService = new RecordingService();
         setClickListeners(songsView);
         view = songsView;
-        songsActivityUI = new SongsActivityUI(view, this, getCurrentLanguage(), getContext());
+        songsActivityUI = new SongsActivityUI(view, this, loadLocale(), getContext());
         addGenres();
         view.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()));
         addGenreListeners();
         return songsView;
     }
+
+    public String loadLocale() {
+        String langPref = "Language";
+        SharedPreferences prefs = getContext().getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        if (prefs != null) {
+            String language = prefs.getString(langPref, "");
+            return language;
+        }
+        return null;
+    }
+
 
     private void addGenreListeners() {
         view.findViewById(R.id.genre_button).setOnClickListener(genreListener);
@@ -142,22 +141,22 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         view.findViewById(R.id.genre).setOnClickListener(genreListener);
     }
 
-    private String getCurrentLanguage() {
-        return Locale.getDefault().getLanguage();
-    }
-
     private void addGenres() {
         final Observer<Genres> searchObserver = products -> {
             addToGenres(products);
             if (genres != null)
 //                songsActivityUI.addGenresToScreen(genres);
-                if (currentGenre == null) {
-                    currentGenre = genres.getGenres().get(0);
-                    songsActivityUI.addGenreToScreen(genres.getGenres().get(0));
-                }
+                setupInitialGenreState();
         };
         this.databaseDriver.getAllGenresInCollection().observe(getViewLifecycleOwner(), searchObserver);
 
+    }
+
+    private void setupInitialGenreState() {
+        if (currentGenre == null) {
+            currentGenre = genres.getGenres().get(0);
+            songsActivityUI.addGenreToScreen(genres.getGenres().get(0));
+        }
     }
 
     private void addToGenres(Genres products) {
@@ -167,89 +166,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             genres.add(products);
         }
     }
-//
-//    @SuppressLint("ClickableViewAccessibility")
-//    private void addRecyclerViewGenreListener() {
-////        recyclerView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
-////            @Override
-////            public void onSwipeRight() {
-////                super.onSwipeRight();
-////                mListener.colorNextGenre();
-////            }
-////
-////            @Override
-////            public void onSwipeLeft() {
-////                super.onSwipeLeft();
-////                mListener.colorPreviousGenre();
-////            }
-////        });
-//        recyclerView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View view, MotionEvent e) {
-//                recyclerView.onTouchEvent(e);
-//                switch (e.getAction()) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        x1 = e.getX();
-//                        y1 = e.getY();
-//                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_DRAGGING);
-////                if (mListener != null)
-////                {
-////                    mListener.OnItemClick(v, Position);
-////                }
-//                        break;
-//                    case MotionEvent.ACTION_UP:
-//                        recyclerView.onScrollStateChanged(RecyclerView.SCROLL_STATE_SETTLING);
-//                        float x2 = e.getX();
-//                        float y2 = e.getY();
-//                        float diffY = y2 - y1;
-//                        float diffX = x2 - x1;
-//                        if (Math.abs(diffX) > Math.abs(diffY)) {
-//                            float deltaX = x2 - x1;
-//                            if (Math.abs(deltaX) > 5) {
-//                                // Left to Right swipe action
-//                                if (x2 > x1) {
-//                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
-//                                        colorNextGenre();
-//                                    else
-//                                        colorPreviousGenre();
-//
-//                                }
-//
-//                                // Right to left swipe action
-//                                else {
-//                                    if (getCurrentLanguage().equalsIgnoreCase("iw"))
-//                                        colorPreviousGenre();
-//                                    else
-//                                        colorNextGenre();
-//
-//                                }
-//                            }
-//                            break;
-//                        }
-//                }
-//                return true;
-//            }
-//        });
-//    }
-//
-//    public void colorPreviousGenre() {
-//        if (genreClicked > 0) {
-////            songsActivityUI.colorNextGenre(genreClicked - 1);
-//            songsActivityUI.addGenreToScreen(genres.getGenres().get(genreClicked - 1));
-//            getAllSongsFromGenre(genreClicked - 1);
-//        }
-//    }
-//
-//    public void colorNextGenre() {
-//        if (genreClicked < genres.getGenres().size()) {
-////            songsActivityUI.colorNextGenre(genreClicked + 1);
-//            songsActivityUI.addGenreToScreen(genres.getGenres().get(genreClicked + 1));
-//            getAllSongsFromGenre(genreClicked + 1);
-//        }
-//    }
 
     @Override
     public void getAllSongsFromGenre(int i) {
+        songsActivityUI.closePopup();
         List<DatabaseSong> searchedSongs = new ArrayList<>();
         genreClicked = i;
         currentGenre = genres.getGenres().get(i);
@@ -278,12 +198,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
 
     private void setClickListeners(View songsView) {
-
-//        songsView.findViewById(R.id.open_search).setOnClickListener(view -> {
-//            songsActivityUI.openSearchBar(searchOpened);
-//            searchOpened = !searchOpened;
-//        });
-
         songsView.findViewById(R.id.settings_button).setOnClickListener(this::openSettingsPopup);
     }
 
@@ -313,7 +227,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     @Override
     public void onPause() {
         super.onPause();
-//        mListener.getSongs().unsubscribe(this);
     }
 
     @Override
@@ -326,8 +239,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     + " must implement OnListFragmentInteractionListener");
         }
         currentDatabaseSongs = mListener.getSongs();
-        mAdapter = new SongRecyclerViewAdapter(currentDatabaseSongs.getSongs(), mListener,
-                ((SongsActivity) requireActivity()).language, getActivity().getResources().getString(R.string.play));
+        mAdapter = new SongRecyclerViewAdapter(currentDatabaseSongs.getSongs(), mListener, getActivity().getResources().getString(R.string.play));
 //        gAdapter = new GridAdapter(getContext(), currentDatabaseSongs.getSongs(), mListener);
     }
 
@@ -349,9 +261,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             recyclerView.setAdapter(mAdapter);
             mAdapter.setData(songsDb.getSongs(), getActivity().getResources().getString(R.string.play));
             mAdapter.notifyDataSetChanged();
-//            gridView.setAdapter(gAdapter);
-//            gAdapter.add(songsDb.getSongs());
-//            gAdapter.notifyDataSetChanged();
         }
     }
 
@@ -417,29 +326,25 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public void openSettingsPopup(View view) {
 
         SettingUI settingUI = new SettingUI(this.view, getContext());
-        settingUI.openSettingsPopup(authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")
+        boolean userIsSignedIn = authenticationDriver.isSignIn()
+                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
+        settingUI.openSettingsPopup(userIsSignedIn, mListener.getUser()
         );
-        if (authenticationDriver.isSignIn()
-                && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
-            settingUI.setEmailAddressIfSignedIn(authenticationDriver.getUserEmail());
-            settingUI.addPicToScreen(mListener.getUser());
-        }
         popupView = settingUI.getPopupView();
         popup = settingUI.getPopup();
         addPopupListeners();
+        if (!userIsSignedIn)
+            setOpenGmailClickers();
         popupView.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()) {
             public void onSwipeTop() {
+                popup.dismiss();
+
             }
 
             public void onSwipeRight() {
-                if (Locale.getDefault().getLanguage().equals("iw"))
-                    popup.dismiss();
             }
 
             public void onSwipeLeft() {
-                if (!Locale.getDefault().getLanguage().equals("iw"))
-                    popup.dismiss();
             }
 
             public void onSwipeBottom() {
@@ -449,29 +354,64 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     }
 
+    private void setOpenGmailClickers() {
+        popupView.findViewById(R.id.sign_in_invite).setOnClickListener(openSignUpListener);
+        popupView.findViewById(R.id.user_picture).setOnClickListener(openSignUpListener);
+    }
+
     private void addPopupListeners() {
         languageChangeListener();
-        dismissButtonListener();
         myRecordingsToDisplayListener();
-        homeButtonListener();
         signInButtonListener();
         contactUsListener();
         policyListener();
-        addSongListener();
-    }
-
-    private void addSongListener() {
-//        popupView.findViewById(R.id.song_suggestion).setOnClickListener(view -> showSongSuggestionBox());
     }
 
     public void showSongSuggestionBox() {
+        songsActivityUI.addGenreToScreen(getActivity().getResources().getString(R.string.song_suggestion));
         View suggestionView = songsActivityUI.openSongSuggestionsPopup();
+        String previouseGenre = currentGenre;
+        currentGenre = getActivity().getResources().getString(R.string.song_suggestion);
         suggestionView.findViewById(R.id.send_suggestion).setOnClickListener((View.OnClickListener) view -> {
             String songName = (String) ((EditText) suggestionView.findViewById(R.id.song_name)).getText().toString();
             String artistName = (String) ((EditText) suggestionView.findViewById(R.id.artist_name)).getText().toString();
-            mListener.sendEmailWithSongSuggestion(songName, artistName);
-//                mListener.sendSuggestion();
+            String comments = (String) ((EditText) suggestionView.findViewById(R.id.comments)).getText().toString();
+            if (!allSongsDatabase.containsSong(songName, artistName)) {
+                if (!songName.equalsIgnoreCase("") && artistName.equalsIgnoreCase(""))
+                    mListener.sendEmailWithSongSuggestion(songName, artistName, comments);
+            } else {
+                songsActivityUI.showSongInSystem();
+                startTimerToCloseWindow();
+            }
+
         });
+        songsActivityUI.getSuggestPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                currentGenre = previouseGenre;
+                songsActivityUI.addGenreToScreen(currentGenre);
+            }
+        });
+    }
+
+    private void startTimerToCloseWindow() {
+        cTimer = new CountDownTimer(2000, 500) {
+            @SuppressLint("SetTextI18n")
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                songsActivityUI.makeTextInvisible();
+                cancelTimer();
+            }
+        };
+        cTimer.start();
+
+    }
+
+    private void cancelTimer() {
+        cTimer.cancel();
+        cTimer = null;
     }
 
     private void policyListener() {
@@ -495,7 +435,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void signInButtonListener() {
-        popupView.findViewById(R.id.sign_in_button).setOnClickListener(view -> {
+        popupView.findViewById(R.id.sign_out_button).setOnClickListener(view -> {
             if (authenticationDriver.getUserUid() != null) {
                 mListener.signOut();
             } else {
@@ -503,20 +443,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             }
             popup.dismiss();
         });
-    }
-
-    private void homeButtonListener() {
-//        popupView.findViewById(R.id.home_button).setOnClickListener(view -> {
-////            songsActivityUI.putTouchBack();
-//            if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-//                contentDisplayed = ALL_SONGS_DISPLAYED;
-////            if (!(((TextView) view).getCurrentTextColor() == getResources().getColor(R.color.gold))) {
-//                displayAllSongs();
-//                songsActivityUI.allSongsShow();
-//                songsActivityUI.showGenresAndSearch();
-//                popup.dismiss();
-//            }
-//        });
     }
 
     private void myRecordingsToDisplayListener() {
@@ -530,7 +456,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
             if (contentDisplayed == ALL_SONGS_DISPLAYED) {
                 AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-                popup.dismiss();
+                if (popup != null)
+                    popup.dismiss();
+                restoreScreenToSongsState();
                 mListener.startRecordingsActivity(genres);
 //                ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
             }
@@ -540,36 +468,22 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         }
     }
 
-    private void dismissButtonListener() {
-//        popupView.findViewById(R.id.close_popup).setOnClickListener(view -> popup.dismiss());
-    }
-
     private void languageChangeListener() {
         popupView.findViewById(R.id.language_changer).setOnClickListener(view -> mListener.changeLanguage());
     }
 
-//    public void removeRecording() {
-//        recordAdapter.removeAt();
-//    }
-//
-//    @Override
-//    public void onListFragmentInteractionRecordingClick(List<Recording> recordings) {
-//        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-////        recordAdapter = new RecordingRecycleViewAdapter(recordings, mListener);
-////        recyclerView.setAdapter(recordAdapter);
-//    }
-
-    private void showRecordings() {
-
+    public boolean backPressed() {
+        return restoreScreenToSongsState();
     }
 
-    private class GenreListener implements View.OnClickListener {
-        @Override
-        public void onClick(View view) {
-            songsActivityUI.addGenresToScreen(genres, currentGenre);
+    private boolean restoreScreenToSongsState() {
+        if (songsActivityUI.closePopup()) {
+            setupInitialGenreState();
+            getAllSongsFromGenre(0);
+            return true;
         }
+        return false;
     }
-
 
     /**
      * This interface must be implemented by activities that contain this
@@ -580,10 +494,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     public interface OnListFragmentInteractionListener {
 
         void onListFragmentInteractionPlay(Reocording item);
-
-        void onListFragmentInteractionPlay(Recording item);
-
-        void onListFragmentInteractionShare(Recording item);
 
         DatabaseSongsDB getSongs();
 
@@ -599,13 +509,29 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void openAdminSide();
 
-        void onListFragmentInteractionDelete(Recording mItem);
-
-        void sendEmailWithSongSuggestion(String songName, String artistName);
+        void sendEmailWithSongSuggestion(String songName, String artistName, String comments);
 
         void startRecordingsActivity(Genres genres);
 
         UserInfo getUser();
+
+        void signIn();
+    }
+
+    private class GenreListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            songsActivityUI.addGenresToScreen(genres, currentGenre, genres.getGenres().contains(currentGenre) ? GENRE : SONG_SUGGESTION);
+        }
+    }
+
+    public class OpenSignUp implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            mListener.signIn();
+            if (popup != null)
+                popup.dismiss();
+        }
     }
 
 

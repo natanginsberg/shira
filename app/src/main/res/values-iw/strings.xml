@@ -70,8 +70,8 @@
     <string name="admin_window">חלון מנהלים</string>
     <string name="song_name">שם השיר</string>
     <string name="genres">גנרה</string>
-    <string name="artist_name">שם הזמר</string>
-    <string name="submit">הוסף</string>
+    <string name="artist_name">זמר\מלחין</string>
+    <string name="submit">שלח</string>
     <string name="sharing_failed">השיתוף נכשל</string>
     <string name="auth_failed">הזיהוי נכשל, תנסה יותר מאוחר</string>
     <string name="error_from_the_beginning_of_sign_in">מצטערים, יש תקלה בשרת</string>
@@ -87,7 +87,7 @@
     <string name="sub_invite">הירשם בשביל גישה לא מוגבלת</string>
     <string name="reverb_on">רברב</string>
     <string name="song_suggestion">המלצת שיר</string>
-    <string name="add_song_window">איזה שיר להוסיף?</string>
+    <string name="add_song_window">איזה שיר היית רוצה שנוסיף?</string>
     <string name="exceed_message">מלאת את כל המקום שלך בזיכרון. עליך למחוק ביצוע קודם</string>
     <string name="popular">פופולרי</string>
     <string name="new_tag">חדש</string>
@@ -105,5 +105,8 @@
     <string name="you_stopped_mid_recording">עצרת באמצע הביצוע</string>
     <string name="you_finished_the_recording">השלמת את השיר!</string>
     <string name="share_your_recordings_with_family_and_friends">שתף ביצועים עם משפחה וחברים</string>
+    <string name="comments">הערות</string>
+    <string name="song_is_in_system">השיר שביקשת כבר נמצא לנו במערכת.</string>
+    <string name="sign_in_with_google"><u>הירשם באצמעות Google</u></string>
 
 </resources>
