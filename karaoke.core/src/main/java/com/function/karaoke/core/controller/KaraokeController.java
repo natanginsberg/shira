@@ -54,16 +54,10 @@ public class KaraokeController implements Recorder.IToneListener {
     private final Runnable mUpdater = new Runnable() {
         @Override
         public void run() {
-//            if (timerStarted == 0) {
-//                while (timerStarted == 0 && mPlayer.getCurrentPosition() <= 0) {
-//                    mHandler.postDelayed(mUpdater, 5);
-//                }
-//
-//            }
 
             mHandler.postDelayed(mUpdater, 100);
             double position = mPlayer.getCurrentPosition() / 1000.0;
-            if (position > 0 && position <= mPlayer.getDuration() / 1000.0) {
+            if (position <= mPlayer.getDuration() / 1000.0) {
 //                if (timerStarted == 0)
 //                    timerStarted = new Date().getTime();
                 if ((mPlayer.getDuration() / 1000.0) - position < 0.7) {

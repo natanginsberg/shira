@@ -794,7 +794,7 @@ public class SingActivity extends AppCompatActivity implements
     //cancel timer
 
     public void openEndOptions(View view) {
-        if (mPlayer != null && mPlayer.getCurrentPosition() / 1000.0 > 2) {
+        if (mPlayer != null) {
             lengthOfAudioPlayed = mPlayer.getCurrentPosition();
 //            if (Util.SDK_INT >= 24) {
 //                pauseSong(view);

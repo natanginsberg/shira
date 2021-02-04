@@ -29,7 +29,7 @@ import com.squareup.picasso.Picasso;
 
 public class SingActivityUI {
 
-    private static final int NUMBER_OF_FREE_SHARES = 3;
+    private static final int NUMBER_OF_FREE_SHARES = 130;
     private final View view;
     private final DatabaseSong song;
     private final int sdkInt;

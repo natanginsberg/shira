@@ -5,12 +5,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.media.audiofx.PresetReverb;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -53,6 +56,14 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +79,12 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private static final String EARPHONES_NOT_USED = "empty";
     private static final String LENGTH = "length";
     private static final String CAMERA_ON = "camera on";
+    private static final String DIRECTORY_NAME = "playback";
 
 
     private final List<String> urls = new ArrayList<>();
     private final List<Uri> uris = new ArrayList<>();
+    private String audioPath;
     RenderersFactory renderersFactory;
     private PlayerView playerView;
     private long playbackPosition = 0;
@@ -124,6 +137,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private int sessionId = -1;
     private AudioRendererWithoutClock earphoneRenderer;
     private String password;
+    private File mVideoFolder;
+    private String fileName;
+    private File mVideoFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +149,12 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         playerView = findViewById(R.id.surface_view);
         if (getIntent().getExtras() != null)
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
+                createVideoFolder();
+                try {
+                    createVideoFileName();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 getUrisFromIntent();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
                 getUrlsFromIntent();
@@ -176,7 +198,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
             cameraOn = getIntent().getExtras().getBoolean(CAMERA_ON);
             if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
-                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+//                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+
+                audioPath = (String) getIntent().getStringExtra(AUDIO_FILE);
                 earphonesUsed = true;
             } else {
                 findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
@@ -184,8 +208,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             }
             delay = getIntent().getIntExtra(DELAY, 0);
             length = getIntent().getLongExtra(LENGTH, 10000);
-            buildMediaSourceFromUris(uris);
-            createPlayer();
+//            buildMediaSourceFromUris(uris);
+//            createPlayer();
+            new DownloadFileAsync().execute(audioPath);
         }
     }
 
@@ -341,10 +366,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     public void onResume() {
         super.onResume();
         hideSystemUi();
-        if (player == null && (urls.size() > 0 || uris.size() > 0)) {
-            createPlayer();
+//        if (player == null && (urls.size() > 0 || uris.size() > 0)) {
+//            createPlayer();
 //            initializePlayer();
-        }
+//        }
     }
 
     @SuppressLint("InlinedApi")
@@ -368,7 +393,15 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         super.onStop();
         if (Util.SDK_INT >= 24) {
             releasePlayer();
+            mVideoFile.delete();
         }
+    }
+
+    private void startBuild() {
+        findViewById(R.id.loading_progress).setVisibility(View.INVISIBLE);
+        uris.add(Uri.fromFile(mVideoFile));
+        buildMediaSourceFromUris(uris);
+        createPlayer();
     }
 
     private void buildMediaSourceFromUris(List<Uri> uri) {
@@ -377,7 +410,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         if (delay != 0) {
             mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000, 1000000000, false, true, true);
-
         }
         if (uris.size() > 1) {
             MediaItem mediaItem1 = new MediaItem.Builder().setUri(uri.get(1)).build();
@@ -386,7 +418,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
             MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
             mediaSource = new MergingMediaSource(true, mediaSources);
-
         } else
             mediaSource = mediaSource1;
     }
@@ -496,5 +527,77 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             renderers = out;
         }
     }
+
+    private void createVideoFolder() {
+//        File movieFile = activity.getCacheDir();
+//        File movieFile = context.getFilesDir();
+        mVideoFolder = new File(getFilesDir(), DIRECTORY_NAME);
+        if (!mVideoFolder.exists()) {
+            mVideoFolder.mkdirs();
+        }
+    }
+
+    private void createVideoFileName() throws IOException {
+        String prepend = "exoplayer";
+        File videoFile = new File(mVideoFolder, prepend + ".mp4");
+        fileName = videoFile.getAbsolutePath();
+        mVideoFile = videoFile;
+    }
+
+    class DownloadFileAsync extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            showDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+        @Override
+        protected String doInBackground(String... aurl) {
+            int count;
+            try {
+                URL url = new URL(aurl[0]);
+                URLConnection conexion = url.openConnection();
+                conexion.connect();
+                int lenghtOfFile = conexion.getContentLength();
+                Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream(fileName);
+                byte data[] = new byte[1024];
+                long total = 0;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        protected void onProgressUpdate(String... progress) {
+            Log.d("ANDRO_ASYNC", progress[0]);
+            showProgress(progress[0]);
+//            mProgressDialog.setProgress(Integer.parseInt(progress[0]));
+        }
+
+        @Override
+        protected void onPostExecute(String unused) {
+            startBuild();
+//            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showProgress(String progress) {
+        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
+    }
+
 
 }

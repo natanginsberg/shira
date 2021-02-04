@@ -68,9 +68,9 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/reverb_on"
+            android:layout_centerInParent="true"
             android:onClick="turnReverbOnOrOff"
-            android:layout_centerInParent="true"/>
+            android:text="@string/reverb_on" />
 
         <!--        <TextView-->
         <!--            android:id="@+id/disabled"-->
@@ -97,8 +97,6 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header">
-
-
 
 
         <com.google.android.exoplayer2.ui.PlayerView
@@ -129,4 +127,15 @@
         app:layout_constraintLeft_toLeftOf="@id/video"
         app:layout_constraintRight_toRightOf="@id/video"
         app:layout_constraintTop_toTopOf="@id/video" />
+
+    <TextView
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="20dp"
+        android:textColor="@android:color/white"
+        android:textSize="25sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/exo_pr_circle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
