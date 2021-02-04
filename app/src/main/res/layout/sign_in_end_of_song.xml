@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/sign_in_end_song"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="6dp"
+    android:background="@drawable/end_songs_background"
+    android:orientation="vertical"
+    android:theme="@style/AppTheme"
+    tools:context=".SingActivity">
+
+    <LinearLayout
+        android:id="@+id/sign_up_option_layou"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+
+        <TextView
+            android:id="@+id/sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_margin="5dp"
+            android:layout_weight="0.2"
+            android:background="@drawable/menu_header"
+            android:fontFamily="@font/varela_round_regular"
+            android:gravity="center"
+            android:text="@string/sign_up"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+        <LinearLayout
+            android:id="@+id/all_options"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginVertical="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0.8"
+            android:orientation="vertical">
+
+            <TextView
+
+                android:id="@+id/prompt_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:fontFamily="@font/varela_round_regular"
+                android:gravity="center"
+                android:onClick="playback"
+                android:text="@string/this_recording_you_just_have_to_share_in_order_to_share_sign_up_to_ashira_n_with_your_gmail_account"
+                android:textColor="@color/sing_up_hover"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:orientation="vertical">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+
+                    android:background="@drawable/end_song_button_circles">
+
+                    <TextView
+                        android:id="@+id/sign_up"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="20dp"
+                        android:text="@string/sign_up_for_free"
+                        android:textColor="@color/sing_up_hover"
+                        android:textSize="18sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_goneMarginStart="10dp" />
+
+                    <ImageView
+                        android:id="@+id/icon"
+                        android:layout_width="@dimen/no_hardcode_dimension"
+                        android:layout_height="@dimen/no_hardcode_dimension"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="15dp"
+                        android:src="@mipmap/ic_gmail_open"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintDimensionRatio="1:1"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHeight_percent="0.6"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/exit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="@string/easy_and_free_sign_up"
+                    android:textColor="@color/sing_up_hover"
+                    android:textSize="18sp" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

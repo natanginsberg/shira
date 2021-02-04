@@ -3,7 +3,6 @@ package com.function.karaoke.hardware.storage;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
-import com.function.karaoke.hardware.activities.Model.SignInViewModel;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -12,6 +11,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,8 +21,8 @@ import java.util.Map;
  * This class manage sign up and getting the user object.
  */
 public class UserService extends ViewModel {
-    private static final int NUMBER_OF_FREE_SHARES = 3;
-    private static final String SHARES = "shares";
+    private static final String DOWNLOADS = "shares";
+    private static final String VIEWS = "views";
     private static final String TYPE = "subscriptionType";
     private DatabaseDriver databaseDriver;
     private AuthenticationDriver authenticationDriver;
@@ -32,6 +32,7 @@ public class UserService extends ViewModel {
     private static final String TAG = UserService.class.getSimpleName();
     private UserInfo user;
     private DocumentReference userDocument;
+    private final List<String> fields = new ArrayList<>();
 
     public UserService(DatabaseDriver databaseDriver, AuthenticationDriver authenticationDriver) {
         this.databaseDriver = databaseDriver;
@@ -39,8 +40,7 @@ public class UserService extends ViewModel {
         usersCollectionRef = databaseDriver.getCollectionReferenceByName(COLLECTION_USERS_NAME);
     }
 
-    public void getUserFromDatabase(SignInViewModel.FreeShareListener freeShareListener) {
-
+    public void getUserFromDatabase(GetUserListener getUserListener) {
         final List<UserInfo> documentsList = new LinkedList<>();
         Query getUserQuery = databaseDriver.getCollectionReferenceByName(UserService.COLLECTION_USERS_NAME).whereEqualTo(UserService.UID, authenticationDriver.getUserUid());
         getUserQuery.get().addOnCompleteListener(task -> {
@@ -53,7 +53,7 @@ public class UserService extends ViewModel {
                         documentsList.add(document.toObject(UserInfo.class));
                     }
                     user = documentsList.get(0);
-                    freeShareListener.hasFreeAcquisition(user.getShares() < NUMBER_OF_FREE_SHARES);
+                    getUserListener.user(user);
                 }
             } else {
 
@@ -76,6 +76,7 @@ public class UserService extends ViewModel {
                             this.userDocument = task.getResult().getDocuments().get(0).getReference();
                             documentsList.add(document.toObject(UserInfo.class));
                         }
+                        user = documentsList.get(0);
                         getUserListener.user(documentsList.get(0));
                     }
                 } else {
@@ -96,6 +97,18 @@ public class UserService extends ViewModel {
     }
 
     public void addSubscriptionType(UserUpdateListener userUpdateListener, int type) {
+        if (user == null)
+            getUser(new GetUserListener() {
+                @Override
+                public void user(UserInfo userInfo) {
+                    changeType(userUpdateListener, type);
+                }
+            });
+        else
+            changeType(userUpdateListener, type);
+    }
+
+    private void changeType(UserUpdateListener userUpdateListener, int type) {
         Map<String, Object> data = new HashMap<>();
         data.put(TYPE, type);
         userDocument.update(data).
@@ -119,23 +132,30 @@ public class UserService extends ViewModel {
     }
 
 
-    public void addOneToUserShares(UserUpdateListener userUpdateListener) {
-        Map<String, Object> data = new HashMap<>();
-        data.put(SHARES, user.getShares() + 1);
-        userDocument.update(data).
-                addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        userUpdateListener.onSuccess();
-                    }
-                }).
+    public void updateUserFields(UserUpdateListener userUpdateListener) {
+        if (fields.size() > 0)
+            if (user == null)
+                getUser(userInfo -> updateFields(userUpdateListener));
+            else
+                updateFields(userUpdateListener);
 
-                addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        userUpdateListener.onFailure();
-                    }
-                });
+    }
+
+    private void updateFields(UserUpdateListener userUpdateListener) {
+        Map<String, Object> data = new HashMap<>();
+        if (fields.contains(VIEWS))
+            data.put(VIEWS, user.getViews() + 1);
+        if (fields.contains(DOWNLOADS))
+            data.put(DOWNLOADS, user.getShares() + 1);
+        userDocument.update(data).
+                addOnSuccessListener(aVoid -> userUpdateListener.onSuccess()).
+                addOnFailureListener(e -> userUpdateListener.onFailure());
+        fields.clear();
+    }
+
+    public void addFieldToUpdate(String field) {
+        if (!fields.contains(field))
+            fields.add(field);
     }
 
     public interface UserUpdateListener {
@@ -144,7 +164,7 @@ public class UserService extends ViewModel {
         void onFailure();
     }
 
-    public interface GetUserListener{
+    public interface GetUserListener {
         void user(UserInfo userInfo);
     }
 }

@@ -16,6 +16,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -45,12 +46,30 @@ import java.util.List;
 public class CameraPreview {
 
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    static {
+        ORIENTATIONS.append(Surface.ROTATION_0, 0);
+        ORIENTATIONS.append(Surface.ROTATION_90, 90);
+        ORIENTATIONS.append(Surface.ROTATION_180, 180);
+        ORIENTATIONS.append(Surface.ROTATION_270, 270);
+    }
+
     private final Context context;
+    String fileName;
     //    private AudioRecorder audioRecorder;
-    private AppCompatActivity activity;
+    private final AppCompatActivity activity;
     private TextureView mTextureView;
     private CameraDevice mCamera;
-    private CameraDevice.StateCallback mCameraStateCallback = new CameraDevice.StateCallback() {
+    private CaptureRequest.Builder mCaptureRequestBuilder;
+    private CameraManager mCameraManager;
+    private String cameraId;
+    private HandlerThread mBackgroundHandlerThread;
+    private Handler mBackgroundHandler;
+
+    //    private boolean cameraClosed = false;
+    private Size mPreviewSize;
+    private final CameraDevice.StateCallback mCameraStateCallback = new CameraDevice.StateCallback() {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
 //            if (!cameraClosed) {
@@ -71,41 +90,12 @@ public class CameraPreview {
             mCamera = null;
         }
     };
-    private CaptureRequest.Builder mCaptureRequestBuilder;
-    private CameraManager mCameraManager;
-    private String cameraId;
-    private HandlerThread mBackgroundHandlerThread;
-    private Handler mBackgroundHandler;
-    private static SparseIntArray ORIENTATIONS = new SparseIntArray();
-
-    static {
-        ORIENTATIONS.append(Surface.ROTATION_0, 0);
-        ORIENTATIONS.append(Surface.ROTATION_90, 90);
-        ORIENTATIONS.append(Surface.ROTATION_180, 180);
-        ORIENTATIONS.append(Surface.ROTATION_270, 270);
-    }
-
-//    private boolean cameraClosed = false;
-
-    public File getVideo() {
-        return mVideoFile;
-    }
-
-    private static class CompareSizeByArea implements Comparator<Size> {
-
-        @Override
-        public int compare(Size lhs, Size rhs) {
-            return Long.signum((long) lhs.getWidth() * lhs.getHeight() / (long) rhs.getWidth() * rhs.getHeight());
-        }
-    }
-
-    private Size mPreviewSize;
     private Size mVideoSize;
     private File mVideoFolder;
     private File mVideoFile;
-    String fileName;
     private int mTotalRotation;
     private MediaRecorder mMediaRecorder;
+    private long timeCreated;
 
     public CameraPreview(AppCompatActivity activity, Context context) {
 //        if (hasCamera)
@@ -117,6 +107,30 @@ public class CameraPreview {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //            audioRecorder = new AudioRecorder(context);
 
+    }
+
+    private static int sensitiveDeviceRotation(CameraCharacteristics cameraCharacteristics, int deviceOrientation) {
+        int sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        deviceOrientation = ORIENTATIONS.get(deviceOrientation);
+        return (sensorOrientation + deviceOrientation + 360) % 360;
+    }
+
+    private static Size chooseOptimalSize(Size[] choices, int width, int height) {
+        List<Size> bigEnough = new ArrayList<>();
+        for (Size option : choices) {
+            if (option.getHeight() < option.getWidth() * height / width && option.getWidth() < width && option.getHeight() < height) {
+                bigEnough.add(option);
+            }
+        }
+        if (bigEnough.size() > 0) {
+            return Collections.min(bigEnough, new CompareSizeByArea());
+        } else {
+            return choices[0];
+        }
+    }
+
+    public File getVideo() {
+        return mVideoFile;
     }
 
     public void closeCamera() {
@@ -179,26 +193,6 @@ public class CameraPreview {
 
     }
 
-    private static int sensitiveDeviceRotation(CameraCharacteristics cameraCharacteristics, int deviceOrientation) {
-        int sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
-        deviceOrientation = ORIENTATIONS.get(deviceOrientation);
-        return (sensorOrientation + deviceOrientation + 360) % 360;
-    }
-
-    private static Size chooseOptimalSize(Size[] choices, int width, int height) {
-        List<Size> bigEnough = new ArrayList<>();
-        for (Size option : choices) {
-            if (option.getHeight() < option.getWidth() * height / width && option.getWidth() < width && option.getHeight() < height) {
-                bigEnough.add(option);
-            }
-        }
-        if (bigEnough.size() > 0) {
-            return Collections.min(bigEnough, new CompareSizeByArea());
-        } else {
-            return choices[0];
-        }
-    }
-
     public void connectCamera() {
 //        cameraClosed = false;
         CameraManager cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
@@ -211,7 +205,6 @@ public class CameraPreview {
             e.printStackTrace();
         }
     }
-
 
     private void startPreview() {
         SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
@@ -282,7 +275,7 @@ public class CameraPreview {
         }
 
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
 
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
@@ -294,23 +287,48 @@ public class CameraPreview {
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
 
-            mMediaRecorder.setAudioChannels(1);
-            mMediaRecorder.setAudioEncodingBitRate(12200);
-            mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
-            mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
-            mMediaRecorder.setAudioSamplingRate(8000);
+        mMediaRecorder.setAudioChannels(1);
+        mMediaRecorder.setAudioEncodingBitRate(12200);
+        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
+        mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+        mMediaRecorder.setAudioSamplingRate(8000);
 //        }
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
+            final File f = new File(fileName);
+            f.delete();
+            final long milliseconds = new Date().getTime();
             mMediaRecorder.prepare();
             mMediaRecorder.start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int counter = 0;
+                        while (!f.exists() && counter < 400) {
+                            counter++;
+                            Thread.sleep(1);
+                        }
+                        final long freeSpace = f.getFreeSpace();
+                        while (freeSpace == f.getFreeSpace() && counter < 400) {
+                            counter++;
+                            Thread.sleep(5);
+                        }
+                        timeCreated = new Date().getTime();
+                        Log.i("bug77", "milliseconds:" + (new Date().getTime() - milliseconds));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+//            audioRecorder.startRecorder();
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-//            audioRecorder.startRecorder();
     }
 
     private void setMediaRecorder() {
@@ -393,7 +411,25 @@ public class CameraPreview {
 
         } else
             throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
+    }
 
+    public long getTimeCreated() {
+        return timeCreated;
+    }
+
+    public void realeaseRecorder() {
+        if (mMediaRecorder != null) {
+            mMediaRecorder.release();
+            mMediaRecorder = null;
+        }
+    }
+
+    private static class CompareSizeByArea implements Comparator<Size> {
+
+        @Override
+        public int compare(Size lhs, Size rhs) {
+            return Long.signum((long) lhs.getWidth() * lhs.getHeight() / (long) rhs.getWidth() * rhs.getHeight());
+        }
     }
 
 }

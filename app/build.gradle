@@ -3,13 +3,13 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 164
-        versionName "1.194" +
+        targetSdkVersion 30
+        versionCode 166
+        versionName "1.196" +
                 "" +
                 "" +
                 "" +

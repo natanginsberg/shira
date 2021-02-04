@@ -2,7 +2,6 @@ package com.function.karaoke.hardware;
 
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.fragment.app.FragmentActivity;
@@ -18,7 +17,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
-public class SignIn implements View.OnClickListener {
+public class SignIn {
 
     private final Context context;
     private final FragmentActivity activity;
@@ -75,11 +74,6 @@ public class SignIn implements View.OnClickListener {
             }
 //            updateAccordingToLoginState();
         };
-    }
-
-    @Override
-    public void onClick(View view) {
-        signIn();
     }
 
     private void signIn() {

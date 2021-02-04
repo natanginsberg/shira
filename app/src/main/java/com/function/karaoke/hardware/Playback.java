@@ -123,6 +123,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     };
     private int sessionId = -1;
     private AudioRendererWithoutClock earphoneRenderer;
+    private String password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,7 +209,11 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                             length = Long.parseLong(deepLink.getQueryParameter("length"));
                         if (deepLink.getQueryParameter("cameraOn") != null)
                             cameraOn = Boolean.parseBoolean(deepLink.getQueryParameter("cameraOn"));
-                        addUrls(recordingId, recorderId);
+                        if (deepLink.getQueryParameter("password") != null) {
+                            password = deepLink.getQueryParameter("password");
+                            showPasswordBox();
+                        } else
+                            addUrls(recordingId, recorderId);
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -218,6 +223,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     public void onFailure(@NonNull Exception e) {
                     }
                 });
+    }
+
+    private void showPasswordBox() {
+        //todo speak to yitchack about box
     }
 
     private void addUrls(String recordingId, String recorderId) {
@@ -269,7 +278,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
         player.addListener(new Player.EventListener() {
 
-//            @Override
+            //            @Override
 //            public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
 //                if (playbackState == ExoPlayer.STATE_ENDED) {
 ////                    releasePlayer();
@@ -282,7 +291,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 //                }
 //            }
             @Override
-            public void onPlaybackStateChanged(int state){
+            public void onPlaybackStateChanged(int state) {
                 if (state == ExoPlayer.STATE_ENDED) {
                     releasePlayer();
                     finish();

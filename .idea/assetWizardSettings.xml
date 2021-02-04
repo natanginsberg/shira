@@ -175,6 +175,7 @@
                                               <map>
                                                 <entry key="color" value="000000" />
                                                 <entry key="imagePath" value="C:\Users\Natan\Downloads\google_icon_black (1).png" />
+                                                <entry key="paddingPercent" value="10" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -207,8 +208,9 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
+                                      <entry key="iconShape" value="CIRCLE" />
                                       <entry key="imageAsset" value="C:\Users\Natan\Downloads\google_icon_black (1).png" />
-                                      <entry key="outputName" value="ic_gmail_open" />
+                                      <entry key="outputName" value="ic_gmail_open_2" />
                                     </map>
                                   </option>
                                 </PersistentState>

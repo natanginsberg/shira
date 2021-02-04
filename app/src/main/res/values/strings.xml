@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ASHIRA</string>
+    <string name="app_name">Ashira</string>
     <string name="title_activity_login" translatable="false">LoginActivity</string>
     <string name="prompt_user_name">User Name</string>
     <string name="prompt_email">Email</string>
@@ -24,7 +24,7 @@
     <string name="sing_again">Sing Again</string>
     <string name="playback">Playback</string>
     <string name="share">Share</string>
-    <string name="share_save">Save\\Share</string>
+    <string name="share_save">Save\Share</string>
     <string name="promo">Jewish Karoke App</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">Log In / Sign Up</string>
@@ -122,7 +122,8 @@
     <string name="from">From</string>
     <string name="recording_tag_display_constant">" Recordings"</string>
     <string name="recording_search">Search In Recordings</string>
-    <string name="with_video">With video</string>
+    <string name="with_video">Video recording</string>
+    <string name="without_video">Video not recording</string>
     <string name="continue_text">Continue</string>
     <string name="stop">Stop</string>
     <string name="delete">Delete</string>
@@ -133,5 +134,28 @@
     <string name="comments">Comments</string>
     <string name="song_is_in_system">The song you requested is in the our system already.</string>
     <string name="sign_in_with_google"><u>Sign in with Google</u></string>
+    <string name="this_recording_you_just_have_to_share_in_order_to_share_sign_up_to_ashira_n_with_your_gmail_account">This recording was amazing! In order to watch, save or share sign up to Ashira \n with your Google account.</string>
+    <string name="sign_up_for_free">Sign up for free</string>
+    <string name="easy_and_free_sign_up">(Easy and free sign up)</string>
+    <string name="thank_you_for_signing_up_to_ashira_n_you_have_up_to_3_saves_shares_free">Thank you for signing up to Ashira. \n You have up to 3 saves/shares free</string>
+    <string name="do_you_want_to_save_and_share_countless_of_recordings">Do you want to save and share all of your recordings?</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="_36_shekel_a_month_or_175_shekel_a_year">36 shekel a month or 175 shekel a year</string>
+    <string name="share_left_label">" share left"</string>
+    <string name="don_t_send"><u>Don\'t send</u></string>
+    <string name="backslash">" \\ "</string>
+    <string name="send_without_video"><u>Send without video</u></string>
+    <string name="open_share">Everyone</string>
+    <string name="password_protected">Users with the password</string>
+    <string name="friends_i_tell">Friends I tell</string>
+    <string name="who_can_view_your_recording">Who can view your recording?</string>
+    <string name="you_have_3_remaining_shares"><u>You have 3 remaining shares</u></string>
+    <string name="your_recording_is_being_saved_in_the_background_don_t_close_tha_app_until_it_is_finished">Your recording is being saved in the background don\'t close tha app until it is finished</string>
+    <string name="we_have_a_link_for_you_n_this_link_is_open_to_anyone_who_types_it_in">We have a link for you\n this link is open to anyone who types it in</string>
+    <string name="copy_the_link_to_clipboard">Copy the link to clipboard</string>
+    <string name="share_with">Share with</string>
+    <string name="change_share_settings"><u>Change share settings</u></string>
+    <string name="link">Link:</string>
+    <string name="password">Password:</string>
 
 </resources>

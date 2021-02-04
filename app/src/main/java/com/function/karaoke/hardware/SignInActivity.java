@@ -91,9 +91,14 @@ public class SignInActivity extends AppCompatActivity {
             }
 
             public void onFinish() {
-                initiateActivity();
+                startMainActivity();
             }
         }.start();
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent(this, SongsActivity.class);
+        startActivity(intent);
     }
 
     private void initiateActivity() {
@@ -180,7 +185,10 @@ public class SignInActivity extends AppCompatActivity {
                             if (inDatabase) {
                                 user = signInViewModel.getUser();
                             } else {
-                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0);
+                                user = new UserInfo(firebaseUser.getEmail(),
+                                        firebaseUser.getDisplayName(),
+                                        firebaseUser.getPhotoUrl().toString(),
+                                        firebaseUser.getUid(), 0, 0);
 
                                 signInViewModel.addNewUserToDatabase(user);
                             }
@@ -189,7 +197,10 @@ public class SignInActivity extends AppCompatActivity {
 
                         @Override
                         public void failedToSearchDatabase() {
-                            user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0);
+                            user = new UserInfo(firebaseUser.getEmail(),
+                                    firebaseUser.getDisplayName(),
+                                    firebaseUser.getPhotoUrl().toString(),
+                                    firebaseUser.getUid(), 0, 0);
 
                             signInViewModel.addNewUserToDatabase(user);
                         }

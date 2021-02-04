@@ -21,6 +21,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
@@ -28,6 +29,7 @@ import com.squareup.picasso.Picasso;
 
 public class SingActivityUI {
 
+    private static final int NUMBER_OF_FREE_SHARES = 3;
     private final View view;
     private final DatabaseSong song;
     private final int sdkInt;
@@ -37,6 +39,15 @@ public class SingActivityUI {
     private TextView loadingAmount;
     private PopupWindow recordingsPopup;
     private boolean songEnded;
+    private PopupWindow previousPopupWindow;
+    private View previousPopupView;
+    private View secondPopupView;
+    private PopupWindow secondPopup;
+    private View thirdPopupView;
+    private PopupWindow thirdPopup;
+    private UserInfo user;
+    private ShareListener mListener;
+    private Context context;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -104,7 +115,6 @@ public class SingActivityUI {
     public void openEndPopup(Context context, boolean songEnded) {
         popupOpened = true;
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        songEnded = true;
         if (songEnded) {
             RelativeLayout viewGroup = view.findViewById(R.id.end_options_end_song);
             popupView = layoutInflater.inflate(R.layout.end_song_options_end_song, viewGroup);
@@ -122,7 +132,7 @@ public class SingActivityUI {
     private void placePopupOnScreen(Context context) {
         popup = new PopupWindow(context);
 
-        setEndOptionsPopupAttributes(context, popup, popupView);
+        setPopupAttributes(context, popup, popupView);
         view.post(new Runnable() {
             @Override
             public void run() {
@@ -149,11 +159,11 @@ public class SingActivityUI {
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    private void setEndOptionsPopupAttributes(Context context, PopupWindow popup, View layout) {
+    private void setPopupAttributes(Context context, PopupWindow popup, View layout) {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.77);
         int height;
         if (songEnded) {
-            height = (int)(width * 1.5);
+            height = (int) (width * 1.5);
             ImageView imageView = layout.findViewById(R.id.check);
             imageView.getLayoutParams().height = ((int) (width * .25));
             imageView.getLayoutParams().width = ((int) (width * .25));
@@ -210,6 +220,7 @@ public class SingActivityUI {
     @SuppressLint("UseCompatLoadingForDrawables")
     public void openTonePopup(DatabaseSong song, Context context) {
         popupOpened = true;
+        this.context = context;
         RelativeLayout viewGroup = view.findViewById(R.id.tone_picker);
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.tone_picker_popup, viewGroup);
@@ -329,7 +340,7 @@ public class SingActivityUI {
     private void placeRecordingsPopupOnScreen(View recordingsView, Context context) {
         recordingsPopup = new PopupWindow(context);
         recordingsPopup.setFocusable(true);
-        setEndOptionsPopupAttributes(context, recordingsPopup, recordingsView);
+        setPopupAttributes(context, recordingsPopup, recordingsView);
         recordingsPopup.showAtLocation(recordingsView, Gravity.CENTER, 0, 0);
     }
 
@@ -341,10 +352,11 @@ public class SingActivityUI {
         if (cameraOn) {
             popupView.findViewById(R.id.check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.no_check).setVisibility(View.INVISIBLE);
+            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.with_video));
         } else {
             popupView.findViewById(R.id.no_check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.check).setVisibility(View.INVISIBLE);
-
+            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.without_video));
         }
     }
 
@@ -373,5 +385,106 @@ public class SingActivityUI {
         int seconds = duration % 60;
         @SuppressLint("DefaultLocale") String text = String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
         ((TextView) view.findViewById(R.id.all_time)).setText(text);
+    }
+
+    public void openInitialShareOptions(Context context, UserInfo user, FreeShareListener freeShareListener) {
+        popupView.setVisibility(View.INVISIBLE);
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout viewGroup = view.findViewById(R.id.new_user_share);
+        secondPopupView = layoutInflater.inflate(R.layout.new_user_share_screen, viewGroup);
+
+        if (user != null)
+            setRecordingsLeftNumber(context, user, freeShareListener);
+        placeSignUpOptionsOnScreen(context);
+        secondPopup.setFocusable(true);
+        secondPopup.setOnDismissListener(() -> popupView.setVisibility(View.VISIBLE));
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void setRecordingsLeftNumber(Context context, UserInfo user, FreeShareListener freeShareListener) {
+        String textToDisplay = user.getShares() >= NUMBER_OF_FREE_SHARES ? "0" : NUMBER_OF_FREE_SHARES - user.getShares() + context.getResources().getString(R.string.share_left_label);
+        ((TextView) secondPopupView.findViewById(R.id.free_saves_left_text)).setText(textToDisplay);
+        if (user.getShares() >= NUMBER_OF_FREE_SHARES) {
+            secondPopupView.findViewById(R.id.save_free_recordings).setBackground(context.getResources().getDrawable(R.drawable.ic_search_port_gray));
+            //todo add click to payment
+        } else {
+            secondPopupView.findViewById(R.id.save_free_recordings).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    secondPopup.dismiss();
+                    freeShareListener.startSaveProcess();
+                }
+            });
+        }
+    }
+
+    private void placeSignUpOptionsOnScreen(Context context) {
+        secondPopup = new PopupWindow(context);
+        setSignUpPopupAttributes(context, secondPopup, secondPopupView);
+        view.post(() -> secondPopup.showAtLocation(secondPopupView, Gravity.CENTER, 0, 0));
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void setSignUpPopupAttributes(Context context, PopupWindow popup, View layout) {
+        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.8);
+        int height = (int) (width * 1.3);
+        popup.setContentView(layout);
+        popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
+        popup.setWidth(width);
+        popup.setHeight(height);
+    }
+
+    public void openSignInPopup(Context context, SignInListener listener) {
+        popupView.setVisibility(View.INVISIBLE);
+
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout viewGroup = view.findViewById(R.id.sign_in_end_song);
+        secondPopupView = layoutInflater.inflate(R.layout.sign_in_end_of_song, viewGroup);
+
+        placeSignUpOptionsOnScreen(context);
+        secondPopup.setFocusable(true);
+        secondPopup.setOnDismissListener(() -> popupView.setVisibility(View.VISIBLE));
+        secondPopupView.findViewById(R.id.sign_up).setOnClickListener(view -> {
+            listener.openSignIn();
+            secondPopup.dismiss();
+        });
+    }
+
+    public void openShareOptions(Context context, UserInfo userInfo, ShareListener shareListener) {
+        popupView.setVisibility(View.INVISIBLE);
+        ShareOptionsUI shareOptionsUI = new ShareOptionsUI(view, userInfo);
+        shareOptionsUI.openShareOptions(context, shareListener);
+        getThirdPopupDismissListener(shareOptionsUI);
+
+    }
+
+    private void getThirdPopupDismissListener(ShareOptionsUI shareOptionsUI) {
+        shareOptionsUI.getThirdPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                if (shareOptionsUI.isClear())
+                    popupView.setVisibility(View.VISIBLE);
+                else
+                    getThirdPopupDismissListener(shareOptionsUI);
+            }
+        });
+    }
+
+    public interface SignInListener {
+        void openSignIn();
+    }
+
+    public interface FreeShareListener {
+        void startSaveProcess();
+    }
+
+    public interface ShareListener {
+        void createShareLink(TextView viewById);
+
+        void share(View view);
+
+        CharSequence getLink();
+
+        void setPassword(TextView viewById);
     }
 }

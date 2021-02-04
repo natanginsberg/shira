@@ -167,7 +167,4 @@ public class SignInViewModel extends ViewModel {
         void onFailure();
     }
 
-    public interface FreeShareListener {
-        void hasFreeAcquisition(boolean freeShare);
-    }
 }

@@ -145,12 +145,13 @@ public class SettingUI {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     public void setProfilePic(String picUrl) {
-        Picasso.get()
-                .load(picUrl)
-                .placeholder(context.getResources().getDrawable(R.mipmap.ic_gmail_open))
-                .fit()
-                .transform(new CropCircleTransformation())
-                .into(profilePic);
+        if (!(picUrl == null || picUrl.equalsIgnoreCase(" ")))
+            Picasso.get()
+                    .load(picUrl)
+                    .placeholder(context.getResources().getDrawable(R.mipmap.ic_gmail_open))
+                    .fit()
+                    .transform(new CropCircleTransformation())
+                    .into(profilePic);
 
     }
 
@@ -179,7 +180,6 @@ public class SettingUI {
             popup.dismiss();
         }
     }
-
 
 
 }

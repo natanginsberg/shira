@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ASHIRA</string>
+    <string name="app_name">Ashira</string>
     <string name="prompt_user_name">שם משתמש</string>
     <string name="prompt_email">אימייל</string>
     <string name="prompt_password">סיסמה </string>
@@ -27,7 +27,7 @@
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">הירשם/התחבר</string>
     <string name="search">חפש</string>
-    <string name="home">עמוד הראשי</string>
+    <string name="home">לעמוד הראשי</string>
     <string name="save_recording">שמור</string>
 
     <string name="back_to_home_dialog">בטוח שרוצה לצאת?</string>
@@ -41,7 +41,7 @@
     <string name="mic_access_title">שימוש במיקרופון חיוני</string>
     <string name="mic_access_text">כדי להינות מחווית הקריוקי יש לאשר גישה למיקרופון</string>
     <string name="sign_in_language">הירשם כדי לצפות בביצועים שלך</string>
-    <string name="my_recordings">ביצועים שלי</string>
+    <string name="my_recordings">הביצועים שלי</string>
     <string name="sign_in">כנס/הירשם</string>
     <string name="contact_us">צור קשר</string>
     <string name="policy">תקנון</string>
@@ -59,7 +59,7 @@
     <string name="recording_volume">עוצמת ההקלטה</string>
     <string name="default_value">ברירת מחדל</string>
     <string name="sign_in_error">ההרשמה נכשלה</string>
-    <string name="attach_earphones">תחבר אזניות בשביל חוויה יותר טובה.</string>
+    <string name="attach_earphones">יש לחבר אזניות בשביל חוויה יותר טובה.</string>
     <string name="synthymusic">&amp; Synthymusic</string>
     <string name="feedback">Feedback</string>
     <string name="man">גבר</string>
@@ -80,13 +80,13 @@
     <string name="video_loading">שגיאת וידיאו</string>
     <string name="video_loading_body">הוידיאו עוד לא עלה לשרתים שלנו. סליחה על האי נוחות</string>
     <string name="you_re_recording_was_saved_do_you_want_to_share_it">הביצוע שלך נשמר, תרצה לשמור אותו?</string>
-    <string name="share_save">שמור\\שתף</string>
+    <string name="share_save">שמור ושתף</string>
     <string name="no_thank_you">לא תודה</string>
     <string name="yearly_sub">מנוי שנתי  180 שח</string>
     <string name="monthly_sub">מנוי חדשי 18 שח</string>
     <string name="sub_invite">הירשם בשביל גישה לא מוגבלת</string>
     <string name="reverb_on">רברב</string>
-    <string name="song_suggestion">המלצת שיר</string>
+    <string name="song_suggestion">בקשת שיר</string>
     <string name="add_song_window">איזה שיר היית רוצה שנוסיף?</string>
     <string name="exceed_message">מלאת את כל המקום שלך בזיכרון. עליך למחוק ביצוע קודם</string>
     <string name="popular">פופולרי</string>
@@ -97,16 +97,40 @@
     <string name="from">מבית</string>
     <string name="recording_tag_display_constant">" ביצועים"</string>
     <string name="recording_search">חיפוש בביצועים שלי</string>
-    <string name="with_video">עם וידיאו</string>
+    <string name="with_video">וידיאו מופעל</string>
+    <string name="without_video">וידיאו לא מופעל</string>
     <string name="continue_text">המשך</string>
     <string name="stop">עצור</string>
     <string name="delete">מחק</string>
     <string name="close">סגור</string>
     <string name="you_stopped_mid_recording">עצרת באמצע הביצוע</string>
     <string name="you_finished_the_recording">השלמת את השיר!</string>
-    <string name="share_your_recordings_with_family_and_friends">שתף ביצועים עם משפחה וחברים</string>
+    <string name="share_your_recordings_with_family_and_friends">שתף/י ביצועים עם משפחה וחברים</string>
     <string name="comments">הערות</string>
     <string name="song_is_in_system">השיר שביקשת כבר נמצא לנו במערכת.</string>
-    <string name="sign_in_with_google"><u>הירשם באצמעות Google</u></string>
+    <string name="sign_in_with_google"><u>הירשם/י באצמעות Google</u></string>
+    <string name="this_recording_you_just_have_to_share_in_order_to_share_sign_up_to_ashira_n_with_your_gmail_account">וואו! איזה ביצוע מעולה! כדי לצפות, לשמור או לשתף את הביצוע שלך, עליך להירשם ל-Asira \n באמתעות חשבון גוגל.</string>
+    <string name="sign_up_for_free">הירשם/י עכשו בחינם</string>
+    <string name="easy_and_free_sign_up">(הרשמה קלה וללא עלות)</string>
+    <string name="thank_you_for_signing_up_to_ashira_n_you_have_up_to_3_saves_shares_free">שמחים שבחרת להירשם ל-Ashira! \n כעת תוכל/י לשמור ולשתף עד 3 ביצועים ללא עלות</string>
+    <string name="do_you_want_to_save_and_share_countless_of_recordings">רוצה לשמור ולשתף את כל הביצועים שלך?</string>
+    <string name="subscribe">הירשם/י כמנוי</string>
+    <string name="_36_shekel_a_month_or_175_shekel_a_year">עלות השירות 36 ש"ח לחודש / 100 ש"ח לשנה</string>
+    <string name="share_left_label">" שיתופים נותרו "</string>
+    <string name="don_t_send"><u>אל תשתף</u></string>
+    <string name="backslash">" \/ "</string>
+    <string name="send_without_video"><u>תשתף בלי וידיאו</u></string>
+    <string name="open_share">כל אחד</string>
+    <string name="password_protected">רק מי שיש לו סיסמא</string>
+    <string name="friends_i_tell">חברים/ות שאני מספר להם</string>
+    <string name="who_can_view_your_recording">מי יוכל לצפות בסרטון?</string>
+    <string name="you_have_3_remaining_shares"><u>נותרו לך עוד 3 שיתופים חינם</u></string>
+    <string name="your_recording_is_being_saved_in_the_background_don_t_close_tha_app_until_it_is_finished">הקובץ עולה ברקע, אל תסגור את האפליקציה עד שתסיים ההעלאה</string>
+    <string name="we_have_a_link_for_you_n_this_link_is_open_to_anyone_who_types_it_in">יש לנו קישור בשבילך\n הקישור פתוח לכל מי שיקליד אותו</string>
+    <string name="copy_the_link_to_clipboard">העתק קישור ללוח</string>
+    <string name="share_with">שתף באמצעות</string>
+    <string name="change_share_settings"><u>שנה הגדרות שיתוף</u></string>
+    <string name="link">קישור:</string>
+    <string name="password">סיסמא:</string>
 
 </resources>

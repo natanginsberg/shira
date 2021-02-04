@@ -377,7 +377,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             String artistName = (String) ((EditText) suggestionView.findViewById(R.id.artist_name)).getText().toString();
             String comments = (String) ((EditText) suggestionView.findViewById(R.id.comments)).getText().toString();
             if (!allSongsDatabase.containsSong(songName, artistName)) {
-                if (!songName.equalsIgnoreCase("") && artistName.equalsIgnoreCase(""))
+                if (!songName.equalsIgnoreCase("") && !artistName.equalsIgnoreCase(""))
                     mListener.sendEmailWithSongSuggestion(songName, artistName, comments);
             } else {
                 songsActivityUI.showSongInSystem();

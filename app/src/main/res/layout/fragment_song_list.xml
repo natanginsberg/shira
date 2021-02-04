@@ -222,7 +222,7 @@
             android:id="@+id/loading_songs_progress_bar"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:background="@mipmap/ic_video_camera_round"
+            android:background="@drawable/ic_logo_with_mic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

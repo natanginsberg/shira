@@ -43,7 +43,10 @@ import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.ui.GenresUI;
 import com.function.karaoke.hardware.ui.SettingUI;
+import com.function.karaoke.hardware.ui.ShareOptionsUI;
+import com.function.karaoke.hardware.ui.SingActivityUI;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
+import com.function.karaoke.hardware.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 import com.function.karaoke.hardware.utils.static_classes.ShareLink;
 import com.google.android.gms.tasks.Task;
@@ -66,6 +69,8 @@ public class RecordingsActivity extends AppCompatActivity implements
     private static final int MY_RECORDINGS = 101;
 
     private static final int NUM_COLUMNS = 2;
+    private static final String USER_INFO = "User";
+    private static final String GENRES = "genres";
     private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
@@ -123,6 +128,10 @@ public class RecordingsActivity extends AppCompatActivity implements
     private UserInfo user;
     private Genres genres;
     private GenresUI genresUI;
+    private ShareOptionsUI sharingUI;
+    private Recording recordingToShare;
+    private String password;
+    private String link1;
 
 
     @Override
@@ -133,6 +142,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         getGenres();
         setContentView(R.layout.activity_recordings);
         genresUI = new GenresUI(findViewById(android.R.id.content).getRootView(), this, language, this);
+        sharingUI = new ShareOptionsUI(findViewById(android.R.id.content).getRootView(), user);
         recordingService = new RecordingService();
         recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
@@ -167,8 +177,8 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     private void getGenres() {
-        if (getIntent().getExtras().containsKey("genres")) {
-            genres = (Genres) getIntent().getSerializableExtra("genres");
+        if (getIntent().getExtras().containsKey(GENRES)) {
+            genres = (Genres) getIntent().getSerializableExtra(GENRES);
         }
     }
 
@@ -184,8 +194,8 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     private void getUser() {
-        if (getIntent().getExtras().containsKey("user")) {
-            user = (UserInfo) getIntent().getSerializableExtra("user");
+        if (getIntent().getExtras().containsKey(USER_INFO)) {
+            user = (UserInfo) getIntent().getSerializableExtra(USER_INFO);
         }
     }
 
@@ -341,15 +351,45 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     @Override
     public void onListFragmentInteractionShare(Recording item) {
-        Task<ShortDynamicLink> link = ShareLink.createLink(item);
-        link.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Uri shortLink = task.getResult().getShortLink();
-                Uri flowchartLink = task.getResult().getPreviewLink();
-                String link1 = shortLink.toString();
-                sendDataThroughIntent(link1);
-            } else {
-                showFailure();
+        recordingToShare = item;
+        sharingUI.openShareOptions(this, new SingActivityUI.ShareListener() {
+            @Override
+            public void createShareLink(TextView viewById) {
+                Task<ShortDynamicLink> link = ShareLink.createLink(recordingToShare, password);
+                link.addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Short link created
+                        Uri shortLink = task.getResult().getShortLink();
+                        Uri flowchartLink = task.getResult().getPreviewLink();
+                        link1 = shortLink.toString();
+                        viewById.setText(link1);
+
+
+                    } else {
+                        showFailure();
+                        // Error
+                        // ...
+                    }
+                });
+//        activityUI.hideShareItems();
+            }
+
+            @Override
+            public void share(View view) {
+                if (link1 != null) {
+                    sendDataThroughIntent(link1);
+                }
+            }
+
+            @Override
+            public CharSequence getLink() {
+                return link1;
+            }
+
+            @Override
+            public void setPassword(TextView viewById) {
+                password = GenerateRandomId.generateRandomPassword();
+                viewById.setText(password);
             }
         });
 

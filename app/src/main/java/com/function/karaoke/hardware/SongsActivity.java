@@ -53,6 +53,7 @@ import com.function.karaoke.hardware.storage.StorageAdder;
 import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
+import com.function.karaoke.hardware.utils.Checks;
 import com.function.karaoke.hardware.utils.JsonHandler;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -71,13 +72,15 @@ import java.util.Objects;
 
 public class SongsActivity
         extends FragmentActivity
-        implements SongsListFragment.OnListFragmentInteractionListener {
+        implements SongsListFragment.OnListFragmentInteractionListener, DialogBox.CallbackListener {
 
     private static final int AUDIO_CODE = 101;
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
     private static final String SONG_SUGGEST_EMAIL = "ashira.songs@gmail.com";
+    private static final String USER_INFO = "User";
+    private static final String GENRES = "genres";
 
     private Billing billingSession;
     public String language;
@@ -92,8 +95,8 @@ public class SongsActivity
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent intent = result.getData();
                         if (intent.getExtras() != null) {
-                            if (intent.getExtras().containsKey("User"))
-                                user = (UserInfo) intent.getSerializableExtra("User");
+                            if (intent.getExtras().containsKey(USER_INFO))
+                                user = (UserInfo) intent.getSerializableExtra(USER_INFO);
                             else if (intent.getExtras().containsKey("genre")) {
                                 SongsListFragment fragment = getFragment();
                                 fragment.getAllSongsFromGenre(intent.getExtras().getInt("genre"));
@@ -148,36 +151,37 @@ public class SongsActivity
         checkForSignedInUser();
         setContentView(R.layout.activity_songs);
         loadingText = (TextView) (findViewById(R.id.loading_percent));
-        billingSession = new Billing(SongsActivity.this, (billingResult, purchases) -> {
+        if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext()))
+            billingSession = new Billing(SongsActivity.this, (billingResult, purchases) -> {
 
-            if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
-                    && purchases != null) {
-                for (Purchase purchase : purchases) {
-                    if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-                        billingSession.handlePurchase(purchase);
+                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
+                        && purchases != null) {
+                    for (Purchase purchase : purchases) {
+                        if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+                            billingSession.handlePurchase(purchase);
+                        }
+                        // the credit card is taking time
                     }
-                    // the credit card is taking time
+                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
+                    Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
+                    // the user pressed back
+                    // Handle an error caused by a user cancelling the purchase flow.
+                } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
+                    Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
+                    // if the credit card was cancelled
+                    // Handle any other error codes.
+                } else {
+                    Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
+                    int k = 0;
                 }
-            } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-                Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
-                // the user pressed back
-                // Handle an error caused by a user cancelling the purchase flow.
-            } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
-                Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
-                // if the credit card was cancelled
-                // Handle any other error codes.
-            } else {
-                Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
-                int k = 0;
-            }
-        }, false, () -> {
-            if (billingSession.isSubscribed()) {
-                File file = renamePendingFiles();
-                if (file != null)
+            }, false, () -> {
+                if (billingSession.isSubscribed()) {
+                    File file = renamePendingFiles();
+                    if (file != null)
 
-                    checkForFilesToUpload();
-            }
-        });
+                        checkForFilesToUpload();
+                }
+            });
         billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
             @Override
             public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
@@ -187,7 +191,6 @@ public class SongsActivity
             }
         });
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
-        //todo check for the internet connection in order that the app doesnt go on falling because of the error
     }
 
     private File renamePendingFiles() {
@@ -399,7 +402,7 @@ public class SongsActivity
         intent.setData(Uri.parse("mailto:"));
         if (deviceHasGoogleAccount())
             intent.setPackage("com.google.android.gm");
-        startActivity(intent);
+        mGetContent.launch(intent);
     }
 
     @Override
@@ -418,8 +421,8 @@ public class SongsActivity
     @Override
     public void startRecordingsActivity(Genres genres) {
         Intent intent = new Intent(this, RecordingsActivity.class);
-        intent.putExtra("user", user);
-        intent.putExtra("genres", genres);
+        intent.putExtra(USER_INFO, user);
+        intent.putExtra(GENRES, genres);
         mGetContent.launch(intent);
     }
 
@@ -549,7 +552,7 @@ public class SongsActivity
         Intent intent = new Intent(this, SingActivity.class);
         intent.putExtra(SingActivity.EXTRA_SONG, songClicked);
         if (authenticationDriver.isSignIn() && user != null) {
-            intent.putExtra("user", user);
+            intent.putExtra(USER_INFO, user);
         }
         startActivity(intent);
     }
@@ -569,7 +572,7 @@ public class SongsActivity
                             if (inDatabase) {
                                 user = signInViewModel.getUser();
                             } else {
-                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0);
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
 
                                 signInViewModel.addNewUserToDatabase(user);
                             }
@@ -577,9 +580,11 @@ public class SongsActivity
 
                         @Override
                         public void failedToSearchDatabase() {
-                            user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0);
+                            if (checkInternet()) {
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
 
-                            signInViewModel.addNewUserToDatabase(user);
+                                signInViewModel.addNewUserToDatabase(user);
+                            }
                         }
                     });
                 }
@@ -589,13 +594,13 @@ public class SongsActivity
                     showFaileure();
                 }
             });
-//
-//            signInViewModel.addNewUserToDatabase();
-
-
         } catch (Exception e) {
 //                Toast.makeText(this, context.getResources().getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean checkInternet() {
+        return Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext());
     }
 
     private void showFaileure() {
@@ -603,4 +608,8 @@ public class SongsActivity
     }
 
 
+    @Override
+    public void callback(String result) {
+
+    }
 }

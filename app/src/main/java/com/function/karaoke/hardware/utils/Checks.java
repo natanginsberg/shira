@@ -8,7 +8,6 @@ import android.net.NetworkInfo;
 import androidx.fragment.app.FragmentManager;
 
 import com.function.karaoke.hardware.DialogBox;
-import com.function.karaoke.hardware.SingActivity;
 
 public class Checks {
 
@@ -21,7 +20,7 @@ public class Checks {
         return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
     }
 
-    public static boolean checkForInternetConnection(SingActivity activity, FragmentManager supportFragmentManager, Context applicationContext) {
+    public static boolean checkForInternetConnection(DialogBox.CallbackListener activity, FragmentManager supportFragmentManager, Context applicationContext) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
