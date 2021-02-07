@@ -12,12 +12,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 
 import com.function.karaoke.hardware.activities.Model.SignInViewModel;
-import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -27,17 +24,9 @@ import java.util.Locale;
 public class SignInActivity extends AppCompatActivity {
 
 
-    private static final int RC_SIGN_IN = 101;
-    private static final String RESULT_CODE = "code";
-    private static final String SING_ACTIVITY = "sing activity";
-    private static final String CALLBACK = "callback";
-    private GoogleSignInClient mGoogleSignInClient;
     private AuthenticationDriver authenticationDriver;
-    private UserInfo user;
-    private Observer<Boolean> gettingNewUserSucceeded;
     private SignInViewModel signInViewModel;
     private int code = -1;
-    private boolean callback;
     private Locale myLocale;
 
     @Override
@@ -90,7 +79,8 @@ public class SignInActivity extends AppCompatActivity {
     public void continueAsGuest() {
         if (authenticationDriver.isSignIn()) {
             openMain();
-        } else
+        } else {
+            signInViewModel = new SignInViewModel();
             signInViewModel.createGuestId(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -102,6 +92,7 @@ public class SignInActivity extends AppCompatActivity {
                     }
                 }
             });
+        }
 
     }
 

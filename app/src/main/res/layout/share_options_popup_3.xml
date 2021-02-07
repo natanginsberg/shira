@@ -4,7 +4,8 @@
     android:id="@+id/share_options_3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/unclicked_recording_background"
+    android:background="@drawable/end_songs_background"
+    android:padding="5dp"
     android:orientation="vertical"
     android:theme="@style/AppTheme"
     android:weightSum="10"
@@ -104,7 +105,7 @@
             android:textSize="18sp" />
 
         <Button
-            android:padding="5dp"
+            android:paddingHorizontal="25dp"
             android:id="@+id/copy_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

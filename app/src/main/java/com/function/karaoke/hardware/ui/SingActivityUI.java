@@ -303,25 +303,25 @@ public class SingActivityUI {
     }
 
     public void showShareItems() {
-        popupView.findViewById(R.id.share_options_layout).setVisibility(View.VISIBLE);
+//        popupView.findViewById(R.id.share_options_layout).setVisibility(View.VISIBLE);
 //        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
-        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
+//        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
     }
 
     public void hideShareItems() {
 //        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
-        popupView.findViewById(R.id.share_options_layout).setVisibility(View.GONE);
-        popupView.findViewById(R.id.loading_amount_window).setVisibility(View.VISIBLE);
+//        popupView.findViewById(R.id.share_options_layout).setVisibility(View.GONE);
+//        popupView.findViewById(R.id.loading_amount_window).setVisibility(View.VISIBLE);
     }
 
     public void showSubscribeOptions() {
-        popupView.findViewById(R.id.subscript_layout).setVisibility(View.VISIBLE);
+//        popupView.findViewById(R.id.subscript_layout).setVisibility(View.VISIBLE);
 //        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
     }
 
     public void hideSubscribeOptions() {
 //        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
-        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
+//        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
     }
 
     public void popupClosed() {
@@ -402,9 +402,9 @@ public class SingActivityUI {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void setRecordingsLeftNumber(Context context, UserInfo user, FreeShareListener freeShareListener) {
-        String textToDisplay = user.getShares() >= NUMBER_OF_FREE_SHARES ? "0" : NUMBER_OF_FREE_SHARES - user.getShares() + context.getResources().getString(R.string.share_left_label);
+        String textToDisplay = context.getResources().getString(R.string.share_left_label, user.getFreeShares());
         ((TextView) secondPopupView.findViewById(R.id.free_saves_left_text)).setText(textToDisplay);
-        if (user.getShares() >= NUMBER_OF_FREE_SHARES) {
+        if (user.getFreeShares() <= 0) {
             secondPopupView.findViewById(R.id.save_free_recordings).setBackground(context.getResources().getDrawable(R.drawable.ic_search_port_gray));
             //todo add click to payment
         } else {
@@ -412,7 +412,7 @@ public class SingActivityUI {
                 @Override
                 public void onClick(View view) {
                     secondPopup.dismiss();
-                    freeShareListener.startSaveProcess();
+                    freeShareListener.startSaveProcess(true);
                 }
             });
         }
@@ -475,7 +475,7 @@ public class SingActivityUI {
     }
 
     public interface FreeShareListener {
-        void startSaveProcess();
+        void startSaveProcess(boolean freeShareUsed);
     }
 
     public interface ShareListener {

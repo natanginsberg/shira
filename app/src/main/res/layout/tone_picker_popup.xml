@@ -98,7 +98,7 @@
             android:onClick="kidTone"
             android:text="@string/kid"
             android:textColor="@color/sing_up_hover"
-            android:textSize="16sp" />
+            android:textSize="18sp" />
 
 
         <View
@@ -156,7 +156,7 @@
             android:layout_marginStart="20dp"
             android:fontFamily="@font/varela_round_regular"
             android:text="@string/with_video"
-            android:textColor="@android:color/white"
+            android:textColor="@color/sing_up_hover"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

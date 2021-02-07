@@ -11,9 +11,7 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
+import android.widget.LinearLayout;
 
 import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.core.model.Song;
@@ -47,17 +45,23 @@ public class KaraokeController implements Recorder.IToneListener {
     // views
     private LyricsView mLyrics;
     private LyricsView wordsToRead;
-    private ConstraintLayout wordSpace;
+    private LinearLayout wordSpace;
 
 //    private ToneRender mToneRender;
 
     private final Runnable mUpdater = new Runnable() {
         @Override
         public void run() {
+//            if (timerStarted == 0) {
+//                while (timerStarted == 0 && mPlayer.getCurrentPosition() <= 0) {
+//                    mHandler.postDelayed(mUpdater, 5);
+//                }
+//
+//            }
 
             mHandler.postDelayed(mUpdater, 100);
             double position = mPlayer.getCurrentPosition() / 1000.0;
-            if (position <= mPlayer.getDuration() / 1000.0) {
+            if (position > 0 && position <= mPlayer.getDuration() / 1000.0) {
 //                if (timerStarted == 0)
 //                    timerStarted = new Date().getTime();
                 if ((mPlayer.getDuration() / 1000.0) - position < 0.7) {
@@ -73,7 +77,7 @@ public class KaraokeController implements Recorder.IToneListener {
     private LyricsView twoLinesAhead;
     private LyricsView threeLinesAhead;
     private int lyricsHeight = 0;
-    private long timerStarted = 0;
+    private long timerStarted;
 
 
     public KaraokeController() {
@@ -126,6 +130,7 @@ public class KaraokeController implements Recorder.IToneListener {
     public void loadAudio(String url) {
         try {
             mPlayer.setDataSource(url);
+
 //            mPlayer.setVolume(0, 0);
             mPlayer.setOnPreparedListener(mediaPlayer -> {
                 prepared = true;
@@ -194,35 +199,39 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     private void changeLines() {
-        setOriginalYs();
-        float topDelta = -lyricsHeight - mLyrics.getOriginalPlace();
-        float secondDelta = mLyrics.getY() - wordsToRead.getOriginalPlace();
-        float thirdDelta = wordsToRead.getY() - twoLinesAhead.getOriginalPlace();
-        float bottomDelta = twoLinesAhead.getY() - threeLinesAhead.getOriginalPlace();
-        tempViews.push(mLyrics);
+
+//        setOriginalYs();
+//        float topDelta = -lyricsHeight - mLyrics.getOriginalPlace();
+//        float secondDelta = mLyrics.getY() - wordsToRead.getOriginalPlace();
+//        float thirdDelta = wordsToRead.getY() - twoLinesAhead.getOriginalPlace();
+//        float bottomDelta = twoLinesAhead.getY() - threeLinesAhead.getOriginalPlace();
+//        tempViews.push(mLyrics);
 
 //        mLyrics.animate().translationY(topDelta).setDuration(500).start();
 //        wordsToRead.animate().translationY(secondDelta).setDuration(500).start();
 //        twoLinesAhead.animate().translationY(bottomDelta).setDuration(500).start();
 
-        ObjectAnimator animation = scrollViewUp(topDelta, mLyrics, 1);
-        animation.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-                tempViews.pop().setVisibility(View.GONE);
-
-            }
-        });
-        scrollViewUp(secondDelta, wordsToRead, 2);
-        scrollViewUp(thirdDelta, twoLinesAhead, 3);
-        scrollViewUp(bottomDelta, threeLinesAhead, 4);
+//        ObjectAnimator animation = scrollViewUp(topDelta, mLyrics, 1);
+//        animation.addListener(new AnimatorListenerAdapter() {
+//            @Override
+//            public void onAnimationCancel(Animator animation) {
+//                super.onAnimationCancel(animation);
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animator animator) {
+//                tempViews.pop().setVisibility(View.GONE);
+//
+//            }
+//        });
+//        scrollViewUp(secondDelta, wordsToRead, 2);
+//        scrollViewUp(thirdDelta, twoLinesAhead, 3);
+//        scrollViewUp(bottomDelta, threeLinesAhead, 4);
+//        giveLyricsViewWeightOfZero(mLyrics);
+        mLyrics.setVisibility(View.GONE);
         mLyrics = wordsToRead;
         wordsToRead = twoLinesAhead;
+        giveLyricsViewWeightOfOne(twoLinesAhead);
         twoLinesAhead = threeLinesAhead;
         threeLinesAhead = createNewLyricsView();
     }
@@ -259,31 +268,45 @@ public class KaraokeController implements Recorder.IToneListener {
         return animation.clone();
     }
 
+    private void giveLyricsViewWeightOfOne(LyricsView lyricsView) {
+        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+        param.height = 0;
+        lyricsView.setLayoutParams(param);
+    }
+
+    private void giveLyricsViewWeightOfZero(LyricsView lyricsView) {
+        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+        lyricsView.setLayoutParams(param);
+    }
+
     private LyricsView createNewLyricsView() {
-        ConstraintSet set = new ConstraintSet();
-        set.clone(wordSpace);
+//        ConstraintSet set = new ConstraintSet();
+//        set.clone(wordSpace);
+//        LinearLayout linearLayout = wordSpace;
 
         LyricsView lyricsView = new LyricsView(context, null);
         lyricsView.setId(View.generateViewId());
         lyricsView.setTextColor(context.getResources().getColor(R.color.unhighlight_words));
         setAttributes(lyricsView);
+
         wordSpace.addView(lyricsView);
-        set.connect(lyricsView.getId(), ConstraintSet.TOP, wordSpace.getId(), ConstraintSet.BOTTOM, 0);
+//        set.connect(lyricsView.getId(), ConstraintSet.TOP, wordSpace.getId(), ConstraintSet.BOTTOM, 0);
 //        set.connect(lyricsView.getId(), ConstraintSet.TOP, bottomGuide.getId(), ConstraintSet.TOP, 0);
-        set.connect(lyricsView.getId(), ConstraintSet.RIGHT, wordSpace.getId(), ConstraintSet.RIGHT, 0);
-        set.connect(lyricsView.getId(), ConstraintSet.LEFT, wordSpace.getId(), ConstraintSet.LEFT, 0);
-        set.constrainHeight(lyricsView.getId(), lyricsHeight);
-        set.constrainedWidth(lyricsView.getId(), true);
-        set.applyTo(wordSpace);
+//        set.connect(lyricsView.getId(), ConstraintSet.RIGHT, wordSpace.getId(), ConstraintSet.RIGHT, 0);
+//        set.connect(lyricsView.getId(), ConstraintSet.LEFT, wordSpace.getId(), ConstraintSet.LEFT, 0);
+//        set.constrainHeight(lyricsView.getId(), lyricsHeight);
+//        set.constrainedWidth(lyricsView.getId(), true);
+//        set.applyTo(wordSpace);
+//        linearLayout.addView(lyricsView);
         return lyricsView;
     }
 
     private void setAttributes(LyricsView lyricsView) {
-//        lyricsView.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT));
+//        giveLyricsViewWeightOfOne(lyricsView);
         lyricsView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         lyricsView.setGravity(Gravity.CENTER);
-//        Typeface tf = Typeface.createFromAsset(getContext().getAssets(), "fonts/SecularOne_Regular.ttf");
-        lyricsView.setTypeface(Typeface.SANS_SERIF);
+        Typeface tf = Typeface.createFromAsset(context.getAssets(), "fonts/varela_round_regular.ttf");
+        lyricsView.setTypeface(tf);
     }
 
 

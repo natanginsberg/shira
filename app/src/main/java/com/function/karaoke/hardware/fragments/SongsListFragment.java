@@ -365,6 +365,17 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         signInButtonListener();
         contactUsListener();
         policyListener();
+        couponListener();
+    }
+
+    private void couponListener() {
+        popupView.findViewById(R.id.coupons).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (userIsSignedIn())
+                    mListener.startCouponActivity();
+            }
+        });
     }
 
     public void showSongSuggestionBox() {
@@ -453,7 +464,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     public void openMyRecordings() {
-        if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("")) {
+        if (userIsSignedIn()) {
             if (contentDisplayed == ALL_SONGS_DISPLAYED) {
                 AuthenticationDriver authenticationDriver = new AuthenticationDriver();
                 if (popup != null)
@@ -466,6 +477,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             mListener.alertUserToSignIn();
 
         }
+    }
+
+    private boolean userIsSignedIn() {
+        return authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
     }
 
     private void languageChangeListener() {
@@ -516,6 +531,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         UserInfo getUser();
 
         void signIn();
+
+        void startCouponActivity();
     }
 
     private class GenreListener implements View.OnClickListener {

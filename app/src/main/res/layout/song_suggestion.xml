@@ -96,7 +96,7 @@
         android:layout_gravity="center"
         android:background="@drawable/share_background"
         android:text="@string/submit"
-        android:textColor="@android:color/white"
+        android:textColor="@color/sing_up_hover"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="4:1"
         app:layout_constraintLeft_toLeftOf="parent"

@@ -149,12 +149,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         playerView = findViewById(R.id.surface_view);
         if (getIntent().getExtras() != null)
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
-                createVideoFolder();
-                try {
-                    createVideoFileName();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 getUrisFromIntent();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
                 getUrlsFromIntent();
@@ -210,9 +204,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             length = getIntent().getLongExtra(LENGTH, 10000);
 //            buildMediaSourceFromUris(uris);
 //            createPlayer();
-            new DownloadFileAsync().execute(audioPath);
+            downloadFile(audioPath);
         }
     }
+
 
     private void getDynamicLink() {
         FirebaseDynamicLinks.getInstance()
@@ -528,6 +523,17 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         }
     }
 
+    private void downloadFile(String audioPath) {
+        createVideoFolder();
+        try {
+            createVideoFileName();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new DownloadFileAsync().execute(audioPath);
+    }
+
+
     private void createVideoFolder() {
 //        File movieFile = activity.getCacheDir();
 //        File movieFile = context.getFilesDir();
@@ -587,7 +593,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
         @Override
         protected void onPostExecute(String unused) {
-            startBuild();
+//            startBuild();
 //            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
         }
 

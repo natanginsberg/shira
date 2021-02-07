@@ -24,7 +24,7 @@
     <string name="sing_again">Sing Again</string>
     <string name="playback">Playback</string>
     <string name="share">Share</string>
-    <string name="share_save">Save\Share</string>
+    <string name="share_save">Save\\Share</string>
     <string name="promo">Jewish Karoke App</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">Log In / Sign Up</string>
@@ -141,7 +141,7 @@
     <string name="do_you_want_to_save_and_share_countless_of_recordings">Do you want to save and share all of your recordings?</string>
     <string name="subscribe">Subscribe</string>
     <string name="_36_shekel_a_month_or_175_shekel_a_year">36 shekel a month or 175 shekel a year</string>
-    <string name="share_left_label">" share left"</string>
+    <string name="share_left_label">You have %1$d free shares left</string>
     <string name="don_t_send"><u>Don\'t send</u></string>
     <string name="backslash">" \\ "</string>
     <string name="send_without_video"><u>Send without video</u></string>
@@ -157,5 +157,13 @@
     <string name="change_share_settings"><u>Change share settings</u></string>
     <string name="link">Link:</string>
     <string name="password">Password:</string>
+    <string name="enter_code">Enter code...</string>
+    <string name="enter_the_coupon_code">Enter the coupon code</string>
+    <string name="coupons">Coupons</string>
+    <string name="no_coupon">The code entered is not valid</string>
+    <string name="month_coupon">Valid code. You have an extra month</string>
+    <string name="yearly_coupon">Valid code. You have an extra year</string>
+    <string name="free_shares_awarded">Valid code! You have %1$d extra shares</string>
+    <string name="loading">Loading…</string>
 
 </resources>

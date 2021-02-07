@@ -116,7 +116,7 @@
     <string name="do_you_want_to_save_and_share_countless_of_recordings">רוצה לשמור ולשתף את כל הביצועים שלך?</string>
     <string name="subscribe">הירשם/י כמנוי</string>
     <string name="_36_shekel_a_month_or_175_shekel_a_year">עלות השירות 36 ש"ח לחודש / 100 ש"ח לשנה</string>
-    <string name="share_left_label">" שיתופים נותרו "</string>
+    <string name="share_left_label">נותרו לך עוד %1$d שיתופים בחינם</string>
     <string name="don_t_send"><u>אל תשתף</u></string>
     <string name="backslash">" \/ "</string>
     <string name="send_without_video"><u>תשתף בלי וידיאו</u></string>
@@ -132,5 +132,13 @@
     <string name="change_share_settings"><u>שנה הגדרות שיתוף</u></string>
     <string name="link">קישור:</string>
     <string name="password">סיסמא:</string>
+    <string name="enter_code">הזן קוד…</string>
+    <string name="enter_the_coupon_code">הזן קוד קופון</string>
+    <string name="coupons">קופונים</string>
+    <string name="no_coupon">הקוד שהזנת שגוי</string>
+    <string name="month_coupon">קוד תקין! יש לך חודש נוסף</string>
+    <string name="yearly_coupon">קוד תקין! יש לך שנה נוספת</string>
+    <string name="free_shares_awarded">קוד תקין! יש לך עוד %1$d שיתופים</string>
+    <string name="loading">טוען…</string>
 
 </resources>

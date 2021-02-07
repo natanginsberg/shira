@@ -48,10 +48,13 @@ public class ShareOptionsUI {
     }
 
     private void setFreeShares(Context context) {
-        String textToDisplay = shares >= NUMBER_OF_FREE_SHARES ? "0" : NUMBER_OF_FREE_SHARES - shares + context.getResources().getString(R.string.share_left_label);
         TextView textView = (TextView) thirdPopupView.findViewById(R.id.remaining_free_shares);
-        textView.setText(textToDisplay);
-        textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        if (user.getFreeShares() > 0) {
+            String textToDisplay = context.getResources().getString(R.string.share_left_label, user.getFreeShares());
+            textView.setText(textToDisplay);
+            textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+        } else
+            textView.setVisibility(View.INVISIBLE);
     }
 
     private void setThirdPopupOnClickListeners(Context context) {

@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/varela_round_regular"
+        android:fontFamily="@font/logo_font_2"
         android:text="@string/app_name"
         android:textColor="@color/default_text_color"
         android:textSize="60sp"

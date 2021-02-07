@@ -13,8 +13,11 @@ public class UserInfo implements Serializable {
     int subscriptionType = -1;
     String id;
     int shares;
+    int freeShares = 3;
     String picUrl;
     int views;
+    int couponsUsed = 0;
+    String expirationDate = "";
 
     public UserInfo() {
     }
@@ -79,5 +82,38 @@ public class UserInfo implements Serializable {
 
     public int getViews() {
         return views;
+    }
+
+    public int getCouponUsed() {
+        return couponsUsed;
+    }
+
+    public void setCouponUsed(int couponUsed) {
+        this.couponsUsed = couponUsed;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    public String getExpirationDate() {
+        return expirationDate;
+    }
+
+    public int getFreeShares() {
+        return freeShares;
+    }
+
+    public void setFreeShares(int freeShares) {
+        this.freeShares = freeShares;
+    }
+
+
+    public void addFreeShares(int freeShares) {
+        this.freeShares += freeShares;
+    }
+
+    public void freeShareUsed() {
+        freeShares -= 1;
     }
 }

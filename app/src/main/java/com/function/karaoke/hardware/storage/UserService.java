@@ -24,6 +24,10 @@ public class UserService extends ViewModel {
     private static final String DOWNLOADS = "shares";
     private static final String VIEWS = "views";
     private static final String TYPE = "subscriptionType";
+    private static final String FREE_SHARES = "freeShares";
+    private static final String EXPIRATION_DATE = "expirationDate";
+    private static final String COUPONS_USED = "couponsUsed";
+    private static final String FREE_SHARE_USED = "freeShares";
     private DatabaseDriver databaseDriver;
     private AuthenticationDriver authenticationDriver;
     private CollectionReference usersCollectionRef;
@@ -147,6 +151,8 @@ public class UserService extends ViewModel {
             data.put(VIEWS, user.getViews() + 1);
         if (fields.contains(DOWNLOADS))
             data.put(DOWNLOADS, user.getShares() + 1);
+        if (fields.contains(FREE_SHARE_USED))
+            data.put(FREE_SHARE_USED, user.getFreeShares() - 1);
         userDocument.update(data).
                 addOnSuccessListener(aVoid -> userUpdateListener.onSuccess()).
                 addOnFailureListener(e -> userUpdateListener.onFailure());
@@ -156,6 +162,44 @@ public class UserService extends ViewModel {
     public void addFieldToUpdate(String field) {
         if (!fields.contains(field))
             fields.add(field);
+    }
+
+    public void changeFreeShares(int freeShares) {
+        if (user == null)
+            getUser(new GetUserListener() {
+                @Override
+                public void user(UserInfo userInfo) {
+                    changeShares(freeShares);
+                }
+            });
+        else
+            changeShares(freeShares);
+    }
+
+    private void changeShares(int freeShares) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(FREE_SHARES, user.getFreeShares() + freeShares);
+        data.put(COUPONS_USED, user.getCouponUsed() + 1);
+        userDocument.update(data);
+    }
+
+    public void changeExpirationDate(String date) {
+        if (user == null)
+            getUser(new GetUserListener() {
+                @Override
+                public void user(UserInfo userInfo) {
+                    changeDate(date);
+                }
+            });
+        else
+            changeShares(user.getFreeShares());
+    }
+
+    private void changeDate(String date) {
+        Map<String, Object> data = new HashMap<>();
+        data.put(EXPIRATION_DATE, date);
+        data.put(COUPONS_USED, user.getCouponUsed() + 1);
+        userDocument.update(data);
     }
 
     public interface UserUpdateListener {

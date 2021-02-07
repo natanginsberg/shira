@@ -443,6 +443,13 @@ public class SongsActivity
         signIn.openSignIn();
     }
 
+    @Override
+    public void startCouponActivity() {
+        Intent intent = new Intent(this, CouponActivity.class);
+        intent.putExtra(USER_INFO, user);
+        mGetContent.launch(intent);
+    }
+
     private boolean deviceHasGoogleAccount() {
         AccountManager accMan = AccountManager.get(this);
         Account[] accArray = accMan.getAccountsByType("com.google");

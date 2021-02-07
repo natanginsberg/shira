@@ -57,7 +57,7 @@ public class SignIn {
 
         setUpGettingNewUserSucceeded();
         signIn();
-//        signInViewModel.getUserFromDatabase().observe(lifeCycleOwner, gettingNewUserSucceeded);
+//        signInViewModel.validateCoupon().observe(lifeCycleOwner, gettingNewUserSucceeded);
     }
 
     private void setUpGettingNewUserSucceeded() {

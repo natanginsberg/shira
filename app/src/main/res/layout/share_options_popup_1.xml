@@ -4,11 +4,13 @@
     android:id="@+id/share_options_1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/unclicked_recording_background"
+    android:background="@drawable/end_songs_background"
     android:orientation="vertical"
     android:theme="@style/AppTheme"
     android:weightSum="10"
-    tools:context=".SingActivity">
+    tools:context=".SingActivity"
+    android:padding="5dp"
+    >
 
     <TextView
         android:id="@+id/header"
@@ -154,7 +156,7 @@
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:text="@string/don_t_send"
-            android:textColor="@android:color/white"
+            android:textColor="@color/sing_up_hover"
             android:textSize="13sp" />
 
         <TextView
@@ -173,7 +175,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/send_without_video"
-            android:textColor="@android:color/white"
+            android:textColor="@color/sing_up_hover"
             android:textSize="13sp" />
 
 

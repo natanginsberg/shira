@@ -74,7 +74,6 @@
                 android:layout_height="@dimen/no_hardcode_dimension"
                 android:layout_alignParentStart="true"
                 android:background="@drawable/ic_hamburger_icon"
-                android:textColor="@color/sing_up_hover"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintDimensionRatio="1.06"
                 app:layout_constraintStart_toStartOf="@id/settings_guide"
@@ -105,7 +104,7 @@
             android:layout_marginStart="10dp"
             android:fontFamily="@font/varela_round_regular"
             android:text="@string/sign_in_with_google"
-            android:textColor="@android:color/white"
+            android:textColor="@color/sing_up_hover"
             android:textSize="15sp"
             app:layout_constraintBottom_toTopOf="@id/list_of_items"
             app:layout_constraintStart_toEndOf="@id/user_picture"
@@ -148,7 +147,7 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/my_recordings"
-                android:textColor="@android:color/white"
+                android:textColor="@color/sing_up_hover"
                 android:textSize="15sp" />
 
             <View
@@ -157,7 +156,7 @@
                 android:background="@android:color/darker_gray" />
 
             <TextView
-                android:id="@+id/payment_history"
+                android:id="@+id/coupons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -165,8 +164,8 @@
                 android:gravity="center_vertical"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:text="@string/payment_history"
-                android:textColor="@android:color/white"
+                android:text="@string/coupons"
+                android:textColor="@color/sing_up_hover"
                 android:textSize="15sp" />
 
             <View
@@ -182,7 +181,7 @@
                 android:gravity="center_vertical"
                 android:paddingBottom="10dp"
                 android:text="@string/language_change"
-                android:textColor="@android:color/white"
+                android:textColor="@color/sing_up_hover"
                 android:textSize="15sp" />
 
             <View
@@ -198,7 +197,7 @@
                 android:gravity="center_vertical"
                 android:paddingBottom="10dp"
                 android:text="@string/policy"
-                android:textColor="@android:color/white"
+                android:textColor="@color/sing_up_hover"
                 android:textSize="15sp" />
 
             <View
@@ -230,7 +229,7 @@
                 android:gravity="center_vertical"
                 android:paddingBottom="10dp"
                 android:text="@string/sign_out"
-                android:textColor="@android:color/white"
+                android:textColor="@color/sing_up_hover"
                 android:textSize="15sp"
                 android:visibility="invisible" />
 
@@ -283,7 +282,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="@string/close"
-            android:textColor="@android:color/white"
+            android:textColor="@color/sing_up_hover"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"

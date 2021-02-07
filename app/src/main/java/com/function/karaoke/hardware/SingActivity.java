@@ -103,6 +103,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final String RESULT_CODE = "code";
     private static final String SAVE_FUNC = "save";
     private static final String USER_INFO = "User";
+    private static final String FREE_SHARE_USED = "freeShares";
     private final String TIMES_DOWNLOADED = "timesDownloaded";
     private final String TIMES_PLAYED = "timesPlayed";
 
@@ -809,16 +810,17 @@ public class SingActivity extends AppCompatActivity implements
         if (isRunning)
             activityUI.songPaused();
         isRunning = false;
-        mKaraokeKonroller.onPause();
         if (Util.SDK_INT >= 24) {
             if (isRecording) {
                 cameraPreview.pauseRecording();
             }
             if (postParseVideoFile == null && cameraPreview.getVideo() != null)
                 startPauseTimerToSaveBattery();
-        } else
+        } else {
+            mKaraokeKonroller.onPause();
             finishSong();
-
+        }
+        mKaraokeKonroller.onPause();
     }
 
     private void startPauseTimerToSaveBattery() {
@@ -884,6 +886,8 @@ public class SingActivity extends AppCompatActivity implements
         int duration = mp.getDuration();
         delay = (int) (duration - lengthOfAudioPlayed);
 //        delay = (int) (mKaraokeKonroller.getTimerStarted() - cameraPreview.getTimeCreated());
+//
+//        showFailure();
     }
 
 
@@ -998,11 +1002,15 @@ public class SingActivity extends AppCompatActivity implements
             if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
                     !authenticationDriver.getUserEmail().equals(""))
 
-                if (!itemAcquired)
+                if (!itemAcquired) {
                     //todo check if user has room only if he is a subcscribed user
-                    startBilling(SHARE);
-
-                else
+                    String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                            Locale.getDefault()).format(new Date());
+                    if (date.compareTo(user.getExpirationDate()) > 0)
+                        startBilling();
+                    else
+                        startSaveProcess(false);
+                } else
                     activityUI.openShareOptions(this, user, this);
             else {
                 activityUI.openSignInPopup(this, this);
@@ -1020,7 +1028,7 @@ public class SingActivity extends AppCompatActivity implements
             @Override
             public void recordings(List<Recording> recordings) {
                 if (recordings.size() < ALLOCATED_NUMBER_OF_RECORDINGS) {
-                    checkIfUserHasFreeAcquisition(SHARE);
+                    checkIfUserHasFreeAcquisition();
                 } else {
                     View recordingPopup = activityUI.openRecordingsForDelete(SingActivity.this);
                     RecyclerView recyclerView = (RecyclerView) recordingPopup.findViewById(R.id.recordings_recycler);
@@ -1061,7 +1069,7 @@ public class SingActivity extends AppCompatActivity implements
         return Locale.getDefault().getLanguage();
     }
 
-    private void checkIfUserHasFreeAcquisition(int funcToCall) {
+    private void checkIfUserHasFreeAcquisition() {
         userService.getUserFromDatabase(new UserService.GetUserListener() {
             @Override
             public void user(UserInfo freeShare) {
@@ -1084,7 +1092,7 @@ public class SingActivity extends AppCompatActivity implements
                     });
 
                 } else
-                    SingActivity.this.startBilling(funcToCall);
+                    SingActivity.this.startBilling();
             }
         });
     }
@@ -1111,7 +1119,7 @@ public class SingActivity extends AppCompatActivity implements
 //        createLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
     }
 
-    private void startBilling(int funcToCall) {
+    private void startBilling() {
         billingSession = new Billing(SingActivity.this, (billingResult, purchases) -> {
 
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
@@ -1160,7 +1168,7 @@ public class SingActivity extends AppCompatActivity implements
                     userService.addSubscriptionType(changeUserTypeListener, FAILED_TO_RECORD_SUB_TYPE);
                     user.setSubscriptionType(FAILED_TO_RECORD_SUB_TYPE);
                 }
-                startSaveProcess();
+                startSaveProcess(false);
             } else {
                 if (user.getSubscriptionType() != NOT_PAYING_MEMBER) {
                     userService.addSubscriptionType(changeUserTypeListener, NOT_PAYING_MEMBER);
@@ -1183,31 +1191,35 @@ public class SingActivity extends AppCompatActivity implements
                 }
             }, type);
             user.setSubscriptionType(type);
-            continueWithSaveProcess();
+            continueWithSaveProcess(false);
         });
         buttonClicked = false;
     }
 
-    public void startSaveProcess() {
+    public void startSaveProcess(boolean freeShareUsed) {
         keepVideo = true;
         saveSongToTempJsonFile();
-        continueWithSaveProcess();
+        continueWithSaveProcess(freeShareUsed);
 
     }
 
-    private void continueWithSaveProcess() {
+    private void continueWithSaveProcess(boolean freeShareUsed) {
 
         jsonFile = renameJsonPendingFile();
         addOneToSongsDownload();
-        addOneToUserDownloads();
+        addOneToUserDownloads(freeShareUsed);
         save(jsonFile);
         activityUI.openShareOptions(this, user, this);
     }
 
-    private void addOneToUserDownloads() {
+    private void addOneToUserDownloads(boolean freeShareUsed) {
         if (!userUpdated) {
             userUpdated = true;
             user.addShare();
+            if (freeShareUsed) {
+                user.freeShareUsed();
+                userService.addFieldToUpdate(FREE_SHARE_USED);
+            }
             userService.addFieldToUpdate(USER_DOWNLOADS);
             userService.addFieldToUpdate(USER_VIEWS);
             userService.updateUserFields(new UserService.UserUpdateListener() {
@@ -1369,7 +1381,7 @@ public class SingActivity extends AppCompatActivity implements
             public void onSuccess() {
                 showSuccessToast();
                 activityUI.dismissRecordings();
-                checkIfUserHasFreeAcquisition(SHARE);
+                checkIfUserHasFreeAcquisition();
 
             }
 
@@ -1399,10 +1411,10 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void onSongEnded() {
-        songService.addFieldToUpdate(TIMES_PLAYED);
-        userService.addFieldToUpdate(USER_VIEWS);
         lengthOfAudioPlayed = mPlayer.getCurrentPosition();
         postParseVideoFile = wrapUpSong();
+        songService.addFieldToUpdate(TIMES_PLAYED);
+        userService.addFieldToUpdate(USER_VIEWS);
         isRunning = false;
         ending = true;
         finishSong();
