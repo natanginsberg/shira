@@ -180,5 +180,6 @@
     <string name="server_is_down">Our servers are backed up at the moment</string>
     <string name="inapproriate_under_review">This video is being reviewed by the Ashira staff</string>
     <string name="recording_does_not_exist">The recording does not exist in our server anymore</string>
+    <string name="loading_percent">Loading  %1$d%</string>
 
 </resources>

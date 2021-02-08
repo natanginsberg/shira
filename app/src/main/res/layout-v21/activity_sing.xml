@@ -25,7 +25,7 @@
             android:layout_margin="10dp"
             android:background="@drawable/ic_arrow_back"
             android:onClick="returnToMain"
-            android:rotation="@integer/rotation"/>
+            android:rotation="@integer/rotation" />
 
     </RelativeLayout>
 
@@ -110,25 +110,25 @@
         android:id="@+id/word_space"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:animateLayoutChanges="true"
+        android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/progress_bar"
-        app:layout_constraintHeight_percent="0.2"
-        android:gravity="center"
-        android:animateLayoutChanges="true">
+        app:layout_constraintHeight_percent="0.2">
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/lyrics_guide1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.33" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/lyrics_guide1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.33" />
 
-                <androidx.constraintlayout.widget.Guideline
-                    android:id="@+id/lyrics_guide2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    app:layout_constraintGuide_percent="0.66" />
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/lyrics_guide2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent="0.66" />
 
 
         <!--                <TextView-->
@@ -145,10 +145,10 @@
             android:id="@+id/lyrics"
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_gravity="center"
             android:layout_weight="1"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:layout_gravity="center"
             android:textColor="#99FFFFFF"
             android:textSize="24sp"
             app:layout_constraintBottom_toTopOf="@+id/lyrics_guide1"
@@ -183,6 +183,7 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:gravity="center"
+            android:layoutDirection="ltr"
             android:textColor="#99FFFFFF"
             android:textSize="20sp"
             app:layout_constraintTop_toBottomOf="parent" />
@@ -236,21 +237,21 @@
         android:id="@+id/duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
         android:fontFamily="@font/number_font"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@id/progress_bar"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent" />
 
     <TextView
         android:id="@+id/all_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
         android:fontFamily="@font/number_font"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@id/progress_bar"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintRight_toRightOf="parent" />
 
 
     <ProgressBar

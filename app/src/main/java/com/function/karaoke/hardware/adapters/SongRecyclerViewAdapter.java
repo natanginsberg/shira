@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.function.karaoke.core.model.Song;
 import com.function.karaoke.hardware.R;
+import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.Recording;
-import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.fragments.SongsListFragment.OnListFragmentInteractionListener;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -32,16 +32,16 @@ import java.util.List;
  */
 public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder> {
 
-    private static final Comparator<Reocording> mComparator = new Comparator<Reocording>() {
+    private static final Comparator<DatabaseSong> mComparator = new Comparator<DatabaseSong>() {
         @Override
-        public int compare(Reocording a, Reocording b) {
+        public int compare(DatabaseSong a, DatabaseSong b) {
             if (!a.getTitle().equalsIgnoreCase(b.getTitle()))
                 return a.getTitle().compareToIgnoreCase(b.getTitle());
             return a.getArtist().compareToIgnoreCase(b.getArtist());
         }
     };
 
-    private List<Reocording> mValues;
+    private List<DatabaseSong> mValues;
     private List<Recording> mRecordings;
     private final OnListFragmentInteractionListener mListener;
     private String text;
@@ -51,10 +51,15 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             R.drawable.custom_song_rec_2_t, R.drawable.custom_song_rec_3_t, R.drawable.custom_song_rec_4_t};
     private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
     private static final double[] heightFactors = new double[]{2.5, 3.5};
+    private double averageSongsPlayed;
 
-    public SongRecyclerViewAdapter(List<? extends Reocording> items, OnListFragmentInteractionListener listener, String textToDisplay) {
+    public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener, String textToDisplay) {
         setData(items, textToDisplay);
         mListener = listener;
+    }
+
+    public void setAverage(double averageSongsPlayed) {
+        this.averageSongsPlayed = averageSongsPlayed;
     }
 
     class ViewHolderBig extends ViewHolder {
@@ -118,18 +123,18 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 //        switch (holder.getItemViewType()){
 //            case 0:
 //                ViewHolderBig bigHolder = (ViewHolderBig) holder;
-                holder.setItem(mValues.get(position));
+        holder.setItem(mValues.get(position));
 
-                // making the click only on the button and not on the whole icon
+        // making the click only on the button and not on the whole icon
 
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (null != mListener) {
-                            mListener.onListFragmentInteractionPlay(holder.mItem);
-                        }
-                    }
-                });
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (null != mListener) {
+                    mListener.onListFragmentInteractionPlay(holder.mItem);
+                }
+            }
+        });
 //                break;
 //            case 1:
 //                ViewHolderSmall smallHolder = (ViewHolderSmall) holder;
@@ -154,7 +159,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         return mValues.size();
     }
 
-    public void setData(List<? extends Reocording> songs, String textToDisplay) {
+    public void setData(List<? extends DatabaseSong> songs, String textToDisplay) {
         mValues = new ArrayList<>(songs); // make a copy
         Collections.sort(mValues, mComparator);
         text = textToDisplay;
@@ -167,7 +172,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         private final ShapeableImageView mCover;
 
         //        public Song mItem;
-        public Reocording mItem;
+        public DatabaseSong mItem;
 
         public ViewHolder(View view) {
             super(view);
@@ -183,7 +188,11 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             return super.toString() + " '" + mLblArtist.getText() + "'";
         }
 
-        public void setItem(Reocording song) {
+        public void setItem(DatabaseSong song) {
+            if (song.getTimesPlayed() > 2 * averageSongsPlayed)
+                mView.findViewById(R.id.popular_song_tag).setVisibility(View.VISIBLE);
+            else
+                mView.findViewById(R.id.popular_song_tag).setVisibility(View.INVISIBLE);
             mItem = song;
             mLblTitle.setText(song.getTitle());
             mLblArtist.setText(song.getArtist());
@@ -200,6 +209,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                     .setTopRightCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .build());
+
         }
     }
 

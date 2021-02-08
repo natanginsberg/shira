@@ -18,7 +18,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +43,7 @@ import com.android.billingclient.api.Purchase;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
+import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.Reocording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.SignInViewModel;
@@ -55,16 +58,21 @@ import com.function.karaoke.hardware.tasks.NetworkTasks;
 import com.function.karaoke.hardware.utils.Billing;
 import com.function.karaoke.hardware.utils.Checks;
 import com.function.karaoke.hardware.utils.JsonHandler;
+import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.shape.CornerFamily;
 import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -113,6 +121,9 @@ public class SongsActivity
                 }
             });
     private SignInViewModel signInViewModel;
+    private LayoutInflater inflater;
+    private View songUploadedView;
+    private List<Recording> recordingsBeingUploaded = new ArrayList<>();
 
     private SongsListFragment getFragment() {
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
@@ -120,9 +131,10 @@ public class SongsActivity
     }
 
     private DatabaseSong songClicked;
-    private TextView loadingText;
+    private LinearLayout loadingText;
     private CountDownTimer cTimer = null;
     private RecordingDelete recordingDelete;
+    private Recording recordingsDisplayed;
 
     private void updateUI() {
 //        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
@@ -135,12 +147,84 @@ public class SongsActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             double content = intent.getDoubleExtra("content", 0.0);
-            loadingText.setText((int) content + "%");
-            if (content >= 100) {
-                startTimerForThreeSecondsToShow();
-            }
+            Recording recording = (Recording) intent.getSerializableExtra("recording");
+            addRecordingToScreen(content, recording);
+
         }
     };
+
+    private void addRecordingToScreen(double content, Recording recording) {
+        if (recordingsDisplayed == null) {
+            songUploadedView = createViewForLoading(content, recording);
+            loadingText.addView(songUploadedView);
+            recordingsDisplayed = recording;
+            if (recordingsBeingUploaded.size() > 0) {
+                removeRecordingFromRecordingsBeingUploaded(recording);
+            }
+        } else if (recording != null && recordingsDisplayed.getRecordingId().equals(recording.getRecordingId())) {
+            addPercentLoaded(songUploadedView, content);
+        } else if (recording != null) {
+            addOntToTheUploads(recording);
+        }
+//            loadingText.setText((int) content + "%");
+        if (recording != null && content >= 100) {
+            if (recordingsDisplayed.getRecordingId().equals(recording.getRecordingId())) {
+                recordingsDisplayed = null;
+                loadingText.removeAllViews();
+            }
+
+        }
+    }
+
+    private void removeRecordingFromRecordingsBeingUploaded(Recording recording) {
+        List<Recording> tempList = new ArrayList<>();
+        for (Recording r : recordingsBeingUploaded) {
+            if (!r.getRecordingId().equals(recording.getRecordingId()))
+                tempList.add(r);
+        }
+        recordingsBeingUploaded.clear();
+        recordingsBeingUploaded.addAll(tempList);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void addOntToTheUploads(Recording recording) {
+        for (Recording r : recordingsBeingUploaded) {
+            if (r.getRecordingId().equals(recording.getRecordingId()))
+                return;
+        }
+        recordingsBeingUploaded.add(recording);
+        ((TextView) songUploadedView.findViewById(R.id.other_recordings_being_uploaded)).setText("+" + recordingsBeingUploaded.size());
+    }
+
+    private View createViewForLoading(double content, Recording recording) {
+        View to_add = LayoutInflater.from(this).inflate(R.layout.recording_upload, null);
+        addValuesToView(to_add, content, recording);
+        return to_add;
+    }
+
+    private void addValuesToView(View view, double content, Recording recording) {
+        ((TextView) view.findViewById(R.id.artist_name)).setText(recording.getArtist());
+        ((TextView) view.findViewById(R.id.song_name)).setText(recording.getTitle());
+        ShapeableImageView mCover = view.findViewById(R.id.recording_album_pic);
+        if (!recording.getImageResourceFile().equals("")) {
+            Picasso.get()
+                    .load(recording.getImageResourceFile())
+                    .placeholder(R.drawable.plain_rec)
+                    .fit()
+                    .into(mCover);
+        }
+        mCover.setShapeAppearanceModel(mCover.getShapeAppearanceModel()
+                .toBuilder()
+                .setAllCorners(CornerFamily.ROUNDED, Converter.convertDpToPx(10))
+                .build());
+        addPercentLoaded(view, content);
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void addPercentLoaded(View view, double content) {
+        ((TextView) view.findViewById(R.id.loading_percent_upload)).setText("Loading " + content + "%");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,9 +234,10 @@ public class SongsActivity
         dbSongs = new DatabaseSongsDB();
         checkForSignedInUser();
         setContentView(R.layout.activity_songs);
-        loadingText = (TextView) (findViewById(R.id.loading_percent));
+        loadingText = (LinearLayout) (findViewById(R.id.loading_percent));
         findViewById(android.R.id.content).getRootView().post(this::checkForBillingPurposes);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
+//        inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     private void checkForBillingPurposes() {
@@ -274,13 +359,18 @@ public class SongsActivity
 
                             @Override
                             public void progressUpdate(double progress) {
-                                if (findViewById(R.id.loading_percent) != null) {
-                                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
-                                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
-                                    if (progress == 100.0) {
-                                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
-                                    }
-                                }
+                                Intent intent = new Intent();
+                                intent.setAction("changed");
+                                intent.putExtra("content", progress);
+                                intent.putExtra("recording", saveItems.getRecording());
+                                LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
+//                                if (findViewById(R.id.loading_percent) != null) {
+//                                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
+//                                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
+//                                    if (progress == 100.0) {
+//                                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
+//                                    }
+//                                }
                             }
                         });
                     }
@@ -294,11 +384,18 @@ public class SongsActivity
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onProgress(int percent) {
-                        if (findViewById(R.id.loading_percent) != null)
-                            loadingText.setText(percent + "%");
-                        if (percent >= 100) {
-                            startTimerForThreeSecondsToShow();
-                        }
+//                        if (findViewById(R.id.loading_percent) != null)
+//                            loadingText.setText(percent + "%");
+//                        if (percent >= 100) {
+//                            startTimerForThreeSecondsToShow();
+//                        }
+                        Intent intent = new Intent();
+                        intent.setAction("changed");
+                        intent.putExtra("content", (double) percent);
+                        intent.putExtra("recording", saveItems.getRecording());
+                        LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
+//                        addRecordingToScreen(percent, saveItems.getRecording());
+//                        loadingText.addView(createViewForLoading(percent, saveItems.getRecording()));
                     }
                 });
             }
@@ -323,7 +420,7 @@ public class SongsActivity
 
                 public void onFinish() {
                     cTimer.cancel();
-                    loadingText.setText("");
+//                    loadingText.setText("");
                     cTimer = null;
                 }
             };

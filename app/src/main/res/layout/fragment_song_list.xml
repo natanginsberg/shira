@@ -78,16 +78,6 @@
                 android:orientation="vertical"
                 app:layout_constraintGuide_percent="0.97" />
 
-
-            <TextView
-                android:id="@+id/loading_percent"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/white"
-                app:layout_constraintBottom_toBottomOf="@id/mic_icon"
-                app:layout_constraintEnd_toStartOf="@id/mic_icon"
-                app:layout_constraintTop_toTopOf="@id/mic_icon" />
-
             <TextView
                 android:id="@+id/internet_speed"
                 android:layout_width="wrap_content"
@@ -242,6 +232,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/loading_percent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

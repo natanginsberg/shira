@@ -2,7 +2,10 @@ package com.function.karaoke.hardware;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -13,9 +16,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Observer;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -132,6 +138,92 @@ public class RecordingsActivity extends AppCompatActivity implements
     private Recording recordingToShare;
     private String password;
     private String link1;
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @SuppressLint("SetTextI18n")
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            double content = intent.getDoubleExtra("content", 0.0);
+            Recording recording = (Recording) intent.getSerializableExtra("recording");
+            addRecordingToScreen(content, recording);
+
+        }
+    };
+    private Recording recordingsDisplayed;
+    private View songUploadedView;
+    private LinearLayout loadingText;
+    private List<Recording> recordingsBeingUploaded = new ArrayList<>();
+
+    private void addRecordingToScreen(double content, Recording recording) {
+        if (recordingsDisplayed == null) {
+            songUploadedView = createViewForLoading(content, recording);
+            loadingText.addView(songUploadedView);
+            recordingsDisplayed = recording;
+            if (recordingsBeingUploaded.size() > 0) {
+                removeRecordingFromRecordingsBeingUploaded(recording);
+            }
+        } else if (recording != null && recordingsDisplayed.getRecordingId().equals(recording.getRecordingId())) {
+            addPercentLoaded(songUploadedView, content);
+        } else if (recording != null) {
+            addOntToTheUploads(recording);
+        }
+//            loadingText.setText((int) content + "%");
+        if (recording != null && content >= 100) {
+            if (recordingsDisplayed.getRecordingId().equals(recording.getRecordingId())) {
+                recordingsDisplayed = null;
+                loadingText.removeAllViews();
+            }
+        }
+    }
+
+    private void removeRecordingFromRecordingsBeingUploaded(Recording recording) {
+        List<Recording> tempList = new ArrayList<>();
+        for (Recording r : recordingsBeingUploaded) {
+            if (!r.getRecordingId().equals(recording.getRecordingId()))
+                tempList.add(r);
+        }
+        recordingsBeingUploaded.clear();
+        recordingsBeingUploaded.addAll(tempList);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void addOntToTheUploads(Recording recording) {
+        for (Recording r : recordingsBeingUploaded) {
+            if (r.getRecordingId().equals(recording.getRecordingId()))
+                return;
+        }
+        recordingsBeingUploaded.add(recording);
+        ((TextView) songUploadedView.findViewById(R.id.other_recordings_being_uploaded)).setText("+" + recordingsBeingUploaded.size());
+    }
+
+    private View createViewForLoading(double content, Recording recording) {
+        View to_add = LayoutInflater.from(this).inflate(R.layout.recording_upload, null);
+        addValuesToView(to_add, content, recording);
+        return to_add;
+    }
+
+    private void addValuesToView(View view, double content, Recording recording) {
+        ((TextView) view.findViewById(R.id.artist_name)).setText(recording.getArtist());
+        ((TextView) view.findViewById(R.id.song_name)).setText(recording.getTitle());
+        ShapeableImageView mCover = view.findViewById(R.id.recording_album_pic);
+        if (!recording.getImageResourceFile().equals("")) {
+            Picasso.get()
+                    .load(recording.getImageResourceFile())
+                    .placeholder(R.drawable.plain_rec)
+                    .fit()
+                    .into(mCover);
+        }
+        mCover.setShapeAppearanceModel(mCover.getShapeAppearanceModel()
+                .toBuilder()
+                .setAllCorners(CornerFamily.ROUNDED, Converter.convertDpToPx(10))
+                .build());
+        addPercentLoaded(view, content);
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void addPercentLoaded(View view, double content) {
+        ((TextView) view.findViewById(R.id.loading_percent_upload)).setText("Loading " + content + "%");
+    }
 
 
     @Override
@@ -147,10 +239,12 @@ public class RecordingsActivity extends AppCompatActivity implements
         recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
         recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
+        loadingText = (LinearLayout) (findViewById(R.id.loading_percent));
         setRecordingsObserver();
         addSearchListener();
         addGenres();
         addGenreListeners();
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
     }
 
     public void loadLocale() {
@@ -164,6 +258,8 @@ public class RecordingsActivity extends AppCompatActivity implements
                 setLocale(language);
             }
         }
+        if (language == null)
+            language = Locale.getDefault().getLanguage();
     }
 
     private void addGenreListeners() {

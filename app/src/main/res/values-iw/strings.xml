@@ -155,5 +155,6 @@
     <string name="server_is_down">יש עומס רב על השרתים שלנו</string>
     <string name="inapproriate_under_review">הסרטון בבדיקה על ידי צוות אשירה</string>
     <string name="recording_does_not_exist">הביצוע כבר לא נמצא במערכת</string>
+    <string name="loading_percent">Loading  %1$d%</string>
 
 </resources>

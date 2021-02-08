@@ -1363,7 +1363,7 @@ public class SingActivity extends AppCompatActivity implements
 
                 @Override
                 public void onProgress(int progress) {
-                    activityUI.showProgress(progress, getBaseContext());
+                    activityUI.showProgress(progress, getBaseContext(), saveItems.getRecording());
                 }
             });
             cloudUpload.saveToCloud(new File(saveItems.getFile()));

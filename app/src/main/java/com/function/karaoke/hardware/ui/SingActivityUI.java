@@ -21,6 +21,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
+import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.google.android.material.imageview.ShapeableImageView;
@@ -263,18 +264,19 @@ public class SingActivityUI {
 
 
     @SuppressLint("SetTextI18n")
-    public void showProgress(double progress, Context baseContext) {
+    public void showProgress(double progress, Context baseContext, Recording recording) {
         if (loadingAmount != null)
 
             loadingAmount.setText(progress + "%");
         if (!popupOpened)
-            sendIntent(progress, baseContext);
+            sendIntent(progress, baseContext, recording);
     }
 
-    private void sendIntent(double progress, Context baseContext) {
+    private void sendIntent(double progress, Context baseContext, Recording recording) {
         Intent intent = new Intent();
         intent.setAction("changed");
         intent.putExtra("content", progress);
+        intent.putExtra("recording", recording);
         LocalBroadcastManager.getInstance(baseContext).sendBroadcast(intent);
     }
 

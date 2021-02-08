@@ -31,6 +31,17 @@ public class DatabaseSongsDB {
         return false;
     }
 
+    public double getAverageSongsPlayed() {
+        long number = 0;
+        for (DatabaseSong song : mSongs) {
+            number += song.getTimesPlayed();
+        }
+        if (mSongs.size() > 0)
+            return (double) number / (double) mSongs.size();
+        else
+            return 0.0;
+    }
+
     public interface IListener {
         void onListUpdated();
     }
