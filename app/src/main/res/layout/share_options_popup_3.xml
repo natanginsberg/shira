@@ -75,6 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:text="@string/loading"
             android:background="@drawable/ic_search_port"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"

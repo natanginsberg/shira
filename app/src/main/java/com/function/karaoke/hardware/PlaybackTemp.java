@@ -155,23 +155,23 @@ public class PlaybackTemp extends AppCompatActivity implements TimeBar.OnScrubLi
     }
 
     private void addUrls(String recordingId, String recorderId) {
-        RecordingService recordingService = new RecordingService();
-        final Observer<Recording> recordingObserver = recording -> {
-            if (recording != null) {
-                urls.add(recording.getRecordingUrl());
-                if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
-                    urls.add(recording.getAudioFileUrl());
-                    earphonesUsed = true;
+//        RecordingService recordingService = new RecordingService();
+//        final Observer<Recording> recordingObserver = recording -> {
+//            if (recording != null) {
+//                urls.add(recording.getRecordingUrl());
+//                if (recording.getAudioFileUrl().equals(EARPHONES_USED)) {
+//                    urls.add(recording.getAudioFileUrl());
+//                    earphonesUsed = true;
+////                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+//                } else {
 //                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                } else {
-                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
-                }
-                createTwoPlayers();
-                initializePlayer();
-            }
-        };
-        recordingService.getSharedRecording(recordingId, recorderId).observe(this, recordingObserver);
+//                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+//                }
+//                createTwoPlayers();
+//                initializePlayer();
+//            }
+//        };
+//        recordingService.getSharedRecording(recordingId, recorderId).observe(this, recordingObserver);
     }
 
 

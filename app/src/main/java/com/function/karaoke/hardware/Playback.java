@@ -1,26 +1,35 @@
 package com.function.karaoke.hardware;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.media.audiofx.PresetReverb;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.Observer;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
+import com.function.karaoke.hardware.activities.Model.SignInViewModel;
+import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
+import com.function.karaoke.hardware.ui.IndicationPopups;
+import com.function.karaoke.hardware.ui.PlaybackPopupOpen;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -53,7 +62,10 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
 
 import java.io.BufferedInputStream;
@@ -67,15 +79,17 @@ import java.net.URLConnection;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 
 
-public class Playback extends AppCompatActivity implements PlaybackStateListener {
+public class Playback extends AppCompatActivity implements PlaybackStateListener, PlaybackPopupOpen.PlaybackPopupListener {
 
     public static final String RECORDING = "recording";
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
     private static final String DELAY = "delay";
+    private static final String REPORT_EMAIL = "ashira.jewishkaraoke@gmail.com";
     private static final String EARPHONES_NOT_USED = "empty";
     private static final String LENGTH = "length";
     private static final String CAMERA_ON = "camera on";
@@ -140,6 +154,13 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private File mVideoFolder;
     private String fileName;
     private File mVideoFile;
+    private CountDownTimer cTimer;
+    private String recordingId;
+    private String recorderId;
+    private PlaybackPopupOpen playbackPopupOpen;
+    private boolean externalView = false;
+    private RecordingService recordingService;
+    private boolean validated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +168,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         setContentView(R.layout.activity_playback);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         playerView = findViewById(R.id.surface_view);
+        playbackPopupOpen = new PlaybackPopupOpen(findViewById(android.R.id.content).getRootView(), this, this);
         if (getIntent().getExtras() != null)
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
                 getUrisFromIntent();
@@ -210,6 +232,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
 
     private void getDynamicLink() {
+        externalView = true;
+        continueAsGuest();
         FirebaseDynamicLinks.getInstance()
                 .getDynamicLink(getIntent())
                 .addOnSuccessListener(this, pendingDynamicLinkData -> {
@@ -222,18 +246,22 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
 //                            addUrls(deepLink.toString());
 
-                        String recordingId = deepLink.getQueryParameter("recId");
-                        String recorderId = deepLink.getQueryParameter("uid");
-                        delay = Integer.parseInt(deepLink.getQueryParameter("delay"));
-                        if (deepLink.getQueryParameter("length") != null)
-                            length = Long.parseLong(deepLink.getQueryParameter("length"));
-                        if (deepLink.getQueryParameter("cameraOn") != null)
-                            cameraOn = Boolean.parseBoolean(deepLink.getQueryParameter("cameraOn"));
-                        if (deepLink.getQueryParameter("password") != null) {
-                            password = deepLink.getQueryParameter("password");
-                            showPasswordBox();
-                        } else
-                            addUrls(recordingId, recorderId);
+                        if (deepLink == null)
+                            finish();
+                        else {
+                            recordingId = deepLink.getQueryParameter("recId");
+                            recorderId = deepLink.getQueryParameter("uid");
+                            delay = Integer.parseInt(Objects.requireNonNull(deepLink.getQueryParameter("delay")));
+                            if (deepLink.getQueryParameter("length") != null)
+                                length = Long.parseLong(Objects.requireNonNull(deepLink.getQueryParameter("length")));
+                            if (deepLink.getQueryParameter("cameraOn") != null)
+                                cameraOn = Boolean.parseBoolean(deepLink.getQueryParameter("cameraOn"));
+                            if (deepLink.getQueryParameter("password") != null) {
+                                password = deepLink.getQueryParameter("password");
+                                showPasswordBox();
+                            } else
+                                addUrls(recordingId, recorderId);
+                        }
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
@@ -245,16 +273,92 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 });
     }
 
-    private void showPasswordBox() {
-        //todo speak to yitchack about box
+    private void continueAsGuest() {
+        AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+        if (authenticationDriver.isSignIn())
+            return;
+        SignInViewModel signInViewModel = new SignInViewModel();
+        signInViewModel.createGuestId(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (!task.isSuccessful()) {
+                    IndicationPopups.openXIndication(getBaseContext(), findViewById(android.R.id.content).getRootView(), getResources().getString(R.string.server_is_down));
+                    startTimerToFinish();
+                }
+
+            }
+        });
     }
 
+    private void startTimerToFinish() {
+        cTimer = new CountDownTimer(1500, 500) {
+            @SuppressLint("SetTextI18n")
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                startPromo();
+            }
+
+        };
+        cTimer.start();
+    }
+
+    private void showPasswordBox() {
+
+        View popupView = playbackPopupOpen.openPopup(R.id.password_protected_popup, R.layout.password_protected_popup);
+        popupView.findViewById(R.id.enter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                validatePassword(popupView.findViewById(R.id.password) != null ? (String) ((EditText) popupView.findViewById(R.id.password)).getText().toString() : "");
+            }
+        });
+
+        playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                if (!validated)
+                    startPromo();
+            }
+        });
+
+    }
+
+    @Override
+    public void validatePassword(String password) {
+        if (password.equalsIgnoreCase(this.password)) {
+            addUrls(recordingId, recorderId);
+            validated = true;
+            playbackPopupOpen.dismissPopup();
+        } else
+            invalidCodeIndication();
+    }
+
+
+    private void invalidCodeIndication() {
+        playbackPopupOpen.showInvalidPassword();
+    }
+
+
     private void addUrls(String recordingId, String recorderId) {
-        RecordingService recordingService = new RecordingService();
-        final Observer<Recording> recordingObserver = recording -> {
-            if (recording != null) {
-                if (recording.isLoading()) {
-                    alertUserThatVideoIsNotLoaded();
+        recordingService = new RecordingService();
+        recordingService.getSharedRecording(recordingId, recorderId, new RecordingService.GetRecordingListener() {
+            @Override
+            public void recording(Recording recording) {
+                delWithRecording(recording);
+            }
+        });
+//        .observe(this, recordingObserver);
+    }
+
+    private void delWithRecording(Recording recording) {
+        if (recording != null) {
+            if (recording.isLoading()) {
+                alertUserThatVideoIsNotLoaded();
+            } else {
+                if (recording.getReports() > 3) {
+                    IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.inapproriate_under_review));
+                    startTimerToFinish();
                 } else {
                     urls.add(recording.getRecordingUrl());
                     if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
@@ -266,12 +370,12 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     }
                     buildMediaSourceFromUrls(urls);
                     createPlayer();
-//                initializePlayer();
                 }
+//                initializePlayer();
             }
-
-        };
-        recordingService.getSharedRecording(recordingId, recorderId).observe(this, recordingObserver);
+        } else {
+            IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.recording_does_not_exist));
+        }
     }
 
     private void alertUserThatVideoIsNotLoaded() {
@@ -295,6 +399,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
         playerView.setPlayer(player);
         player.setMediaSource(mediaSource);
+//        playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
+//        player.setVideoScalingMode(Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
         findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
         player.addListener(new Player.EventListener() {
 
@@ -325,7 +431,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
-        player.setPlayWhenReady(false);
+        player.setPlayWhenReady(true);
         addSpinnerListeners();
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
             @Override
@@ -388,7 +494,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         super.onStop();
         if (Util.SDK_INT >= 24) {
             releasePlayer();
-            mVideoFile.delete();
+            if (mVideoFile != null)
+                mVideoFile.delete();
         }
     }
 
@@ -488,6 +595,77 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             sessionId = player.getAudioSessionId();
         addReverb();
     }
+
+    public void pauseVideo(View view) {
+        if (player != null && player.getPlaybackState() == Player.STATE_READY) {
+            player.setPlayWhenReady(false);
+            View popupView = playbackPopupOpen.openPopup(R.id.pause_playback_video, R.layout.pause_playback_video);
+            playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    if (player != null)
+                        player.setPlayWhenReady(true);
+                }
+            });
+            addPopupListeners(popupView);
+        }
+    }
+
+    private void addPopupListeners(View popupView) {
+        popupView.findViewById(R.id.continue_watching).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playbackPopupOpen.dismissPopup();
+
+            }
+        });
+
+        popupView.findViewById(R.id.report).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendReport();
+
+            }
+        });
+
+        popupView.findViewById(R.id.exit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onStop();
+                playbackPopupOpen.dismissPopup();
+                if (externalView) {
+                    startPromo();
+                } else {
+                    finish();
+                }
+
+            }
+        });
+    }
+
+    private void startPromo() {
+        Intent intent = new Intent(this, PromoActivity.class);
+        startActivity(intent);
+    }
+
+    private void sendReport() {
+        if (recordingService != null)
+            recordingService.addReport();
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{REPORT_EMAIL});
+        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_inappropriate_content));
+        intent.setData(Uri.parse("mailto:"));
+        if (deviceHasGoogleAccount())
+            intent.setPackage("com.google.android.gm");
+        startActivity(intent);
+    }
+
+    private boolean deviceHasGoogleAccount() {
+        AccountManager accMan = AccountManager.get(this);
+        Account[] accArray = accMan.getAccountsByType("com.google");
+        return accArray.length >= 1;
+    }
+
 
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
@@ -593,7 +771,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
         @Override
         protected void onPostExecute(String unused) {
-//            startBuild();
+            startBuild();
 //            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
         }
 

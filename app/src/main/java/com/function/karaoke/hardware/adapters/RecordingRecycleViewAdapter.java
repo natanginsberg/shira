@@ -2,7 +2,6 @@ package com.function.karaoke.hardware.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,7 +71,6 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         }
     };
     private boolean removeInProgress = false;
-    private List<Integer> itemsToDelete = new ArrayList<>();
     private List<Recording> recordingsToDelete = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
@@ -175,17 +173,6 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         itemView.findViewById(R.id.delete_button).setBackground(AppCompatResources.getDrawable(context, R.drawable.outline_circle));
         itemView.findViewById(R.id.trash).setBackground(AppCompatResources.getDrawable(context, R.drawable.ic_trash_icon_white));
         itemView.setBackground(AppCompatResources.getDrawable(context, R.drawable.unclicked_recording_background));
-    }
-
-    public void removeAt(int i) {
-        mValues.remove(i);
-        notifyItemRemoved(i);
-        notifyItemRangeChanged(i, mValues.size());
-
-    }
-
-    public List<Integer> getItemsToDelete() {
-        return itemsToDelete;
     }
 
     @Override

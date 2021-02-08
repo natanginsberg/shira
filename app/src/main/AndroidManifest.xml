@@ -43,7 +43,7 @@
                app to run.
         -->
         <activity
-            android:name=".SignInActivity"
+            android:name=".PromoActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>

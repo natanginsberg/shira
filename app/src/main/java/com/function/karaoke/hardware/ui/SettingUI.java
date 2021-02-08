@@ -104,6 +104,7 @@ public class SettingUI {
 
     private void setSignOutButton() {
         ((TextView) popupView.findViewById(R.id.sign_out_button)).setVisibility(View.VISIBLE);
+        popupView.findViewById(R.id.sign_out_line).setVisibility(View.VISIBLE);
     }
 
     public void setEmailAddressIfSignedIn(String emailAddressIfSignedIn) {

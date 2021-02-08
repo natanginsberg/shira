@@ -59,7 +59,7 @@
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_margin="2dp"
-            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintDimensionRatio="1.1"
             app:layout_constraintEnd_toEndOf="@id/song_placeholder"
             app:layout_constraintStart_toStartOf="@id/song_placeholder"
             app:layout_constraintTop_toTopOf="parent"

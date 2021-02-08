@@ -151,7 +151,12 @@ public class SongsActivity
         checkForSignedInUser();
         setContentView(R.layout.activity_songs);
         loadingText = (TextView) (findViewById(R.id.loading_percent));
-        if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext()))
+        findViewById(android.R.id.content).getRootView().post(this::checkForBillingPurposes);
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
+    }
+
+    private void checkForBillingPurposes() {
+        if (Checks.checkForInternetConnection(findViewById(android.R.id.content).getRootView(), this)) {
             billingSession = new Billing(SongsActivity.this, (billingResult, purchases) -> {
 
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
@@ -182,15 +187,15 @@ public class SongsActivity
                         checkForFilesToUpload();
                 }
             });
-        billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
-            @Override
-            public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
-                File file = renamePendingFiles();
-                if (file != null)
-                    checkForFilesToUpload();
-            }
-        });
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
+            billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
+                @Override
+                public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
+                    File file = renamePendingFiles();
+                    if (file != null)
+                        checkForFilesToUpload();
+                }
+            });
+        }
     }
 
     private File renamePendingFiles() {
@@ -339,7 +344,7 @@ public class SongsActivity
 
 
     private void launchSignIn() {
-        Intent intent = new Intent(this, SignInActivity.class);
+        Intent intent = new Intent(this, PromoActivity.class);
         intent.putExtra("callback", true);
         intent.putExtra("language", Locale.getDefault().getLanguage());
         mGetContent.launch(intent);
@@ -531,6 +536,8 @@ public class SongsActivity
                 setLocale(language);
             }
         }
+        if (language == null)
+            language = Locale.getDefault().getLanguage();
     }
 
 
@@ -607,7 +614,7 @@ public class SongsActivity
     }
 
     private boolean checkInternet() {
-        return Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext());
+        return Checks.checkForInternetConnection(findViewById(R.id.song_list_fragment), this);
     }
 
     private void showFaileure() {

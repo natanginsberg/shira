@@ -67,6 +67,22 @@ public class RecordingDB {
         recordingsPerSong.put(recordings.get(0), recordings);
     }
 
+    public void addRecordings(List<Recording> recordings) {
+        boolean updated = false;
+        for (Recording recording : recordings)
+            for (Recording recording1 : this.recordings)
+                if (recording.getDate().equalsIgnoreCase(recording1.getDate()) && recording.equals(recording1))
+                    break;
+                else {
+                    this.recordings.add(recording);
+                    updated = true;
+                }
+        if (updated) {
+            createMap();
+            notifyUpdated();
+        }
+    }
+
     public void removeDeletedRecordings(List<Recording> deletedRecordings) {
         List<Recording> newList = new ArrayList<>();
         for (Recording deletedRecording : deletedRecordings)

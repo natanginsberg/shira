@@ -5,7 +5,8 @@
     android:id="@+id/recordings_activty"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordingsActivity">
+    tools:context=".RecordingsActivity"
+    android:background="@drawable/main_background">
 
     <View
         android:layout_width="match_parent"
@@ -53,7 +54,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:background="@drawable/main_background"
-        app:layout_constraintHeight_percent="0.15"
+        app:layout_constraintHeight_percent="0.16"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -129,7 +130,7 @@
             android:id="@+id/search_input"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_margin="5dp"
+            android:layout_margin="10dp"
             android:background="@drawable/ic_search_port"
             android:focusable="false"
             android:gravity="center"
@@ -163,11 +164,11 @@
         android:id="@+id/user_interaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:elevation="10dp"
         android:fontFamily="@font/varela_round_regular"
         android:text="@string/share_your_recordings_with_family_and_friends"
         android:textColor="@android:color/white"
-        android:layout_margin="10dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header" />
@@ -187,7 +188,7 @@
         android:background="@drawable/main_background"
         android:visibility="gone"
         app:layout_constraintHeight_percent="0.18"
-        app:layout_constraintTop_toBottomOf="@id/header">
+        app:layout_constraintTop_toBottomOf="@id/user_interaction">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/outer_trash"
@@ -293,7 +294,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.04" />
+            app:layout_constraintGuide_percent="0.08" />
 
         <ImageView
             android:layout_width="@dimen/no_hardcode_dimension"

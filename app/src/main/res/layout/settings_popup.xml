@@ -231,12 +231,14 @@
                 android:text="@string/sign_out"
                 android:textColor="@color/sing_up_hover"
                 android:textSize="15sp"
-                android:visibility="invisible" />
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/white" />
+                android:background="@android:color/white"
+                android:id="@+id/sign_out_line"
+                android:visibility="gone"/>
 
 
         </LinearLayout>

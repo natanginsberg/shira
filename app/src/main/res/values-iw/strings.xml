@@ -140,5 +140,20 @@
     <string name="yearly_coupon">קוד תקין! יש לך שנה נוספת</string>
     <string name="free_shares_awarded">קוד תקין! יש לך עוד %1$d שיתופים</string>
     <string name="loading">טוען…</string>
+    <string name="no_video_share">(בלי וידיאו)</string>
+    <string name="with_video_share">ם וידיאו</string>
+    <string name="copyright_with_acum">שומרים על זכויות יוצרים עם אקו"ם</string>
+    <string name="this_video_is_password_protected">This video is password protected</string>
+    <string name="watch">צפה</string>
+    <string name="enter_password">הזן סיסמא…</string>
+    <string name="wrong_password">סיסמא שגויה</string>
+    <string name="incorrect_password_please_try_again">הסיסמא שהזנת שגויה, נסה שנית</string>
+    <string name="ashira_jewish_karaoke">אשירה - קריוקי יהודי</string>
+    <string name="report_inappropriate_content"><u>דווח על תוכן לא ראוי</u></string>
+    <string name="you_paused_the_video">עצרת באמצע ביצוע</string>
+    <string name="exit">יציאה</string>
+    <string name="server_is_down">יש עומס רב על השרתים שלנו</string>
+    <string name="inapproriate_under_review">הסרטון בבדיקה על ידי צוות אשירה</string>
+    <string name="recording_does_not_exist">הביצוע כבר לא נמצא במערכת</string>
 
 </resources>

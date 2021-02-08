@@ -260,9 +260,13 @@ public class RecordingsActivity extends AppCompatActivity implements
     private void setRecordingsObserver() {
         final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
             if (personalRecordings != null) {
-                currentDatabaseRecordings = new RecordingDB(personalRecordings);
-                findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
-                findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                if (currentDatabaseRecordings == null) {
+                    currentDatabaseRecordings = new RecordingDB(personalRecordings);
+                    findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
+                    findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                } else {
+                    currentDatabaseRecordings.addRecordings(personalRecordings);
+                }
                 displayRecordingSongs();
                 addProfilePic();
             } else
@@ -354,8 +358,8 @@ public class RecordingsActivity extends AppCompatActivity implements
         recordingToShare = item;
         sharingUI.openShareOptions(this, new SingActivityUI.ShareListener() {
             @Override
-            public void createShareLink(TextView viewById) {
-                Task<ShortDynamicLink> link = ShareLink.createLink(recordingToShare, password);
+            public void createShareLink(TextView viewById, boolean video) {
+                Task<ShortDynamicLink> link = ShareLink.createLink(recordingToShare, password, video);
                 link.addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         // Short link created
@@ -390,6 +394,11 @@ public class RecordingsActivity extends AppCompatActivity implements
             public void setPassword(TextView viewById) {
                 password = GenerateRandomId.generateRandomPassword();
                 viewById.setText(password);
+            }
+
+            @Override
+            public CharSequence getPassword() {
+                return password;
             }
         });
 

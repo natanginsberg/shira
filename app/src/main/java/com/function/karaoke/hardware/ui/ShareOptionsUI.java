@@ -24,12 +24,11 @@ public class ShareOptionsUI {
     private View thirdPopupView;
     private PopupWindow thirdPopup;
     private boolean clear = true;
-    private final int shares;
+    private boolean video = true;
 
     public ShareOptionsUI(View view, UserInfo user) {
         this.view = view;
         this.user = user;
-        shares = user.getShares();
     }
 
     private UserInfo user;
@@ -54,14 +53,11 @@ public class ShareOptionsUI {
             textView.setText(textToDisplay);
             textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         } else
-            textView.setVisibility(View.INVISIBLE);
+            textView.setVisibility(View.GONE);
     }
 
+    @SuppressLint("SetTextI18n")
     private void setThirdPopupOnClickListeners(Context context) {
-        thirdPopupView.findViewById(R.id.no_send).setOnClickListener(view -> {
-            clear = true;
-            thirdPopup.dismiss();
-        });
         thirdPopupView.findViewById(R.id.open_share).setOnClickListener(view -> {
             clear = false;
             PopupWindow tempPopup = thirdPopup;
@@ -74,16 +70,29 @@ public class ShareOptionsUI {
             clear = false;
             PopupWindow tempPopup = thirdPopup;
 //            thirdPopup.dismiss();
-            openShareWithPassWord(context);
+            openShareWithPassword(context);
             tempPopup.dismiss();
         });
+
+        thirdPopupView.findViewById(R.id.no_video_send).setOnClickListener(view -> {
+            if (video) {
+                video = false;
+                ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save) + context.getResources().getString(R.string.no_video_share));
+                ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.with_video_share));
+            } else {
+                video = true;
+                ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save));
+                ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.send_without_video));
+            }
+        });
+
     }
 
-    private void openShareWithPassWord(Context context) {
+    private void openShareWithPassword(Context context) {
         clear = true;
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout viewGroup = view.findViewById(R.id.share_options_3);
-        thirdPopupView = layoutInflater.inflate(R.layout.share_options_popup_3, viewGroup);
+        RelativeLayout viewGroup = view.findViewById(R.id.share_options_3_small);
+        thirdPopupView = layoutInflater.inflate(R.layout.share_options_popup_3_smaller, viewGroup);
         setPassword();
         setCommonShareFields(context);
     }
@@ -96,6 +105,13 @@ public class ShareOptionsUI {
         setFooterListener(context);
         setCopyListener(context);
         setShareListener();
+        if (!video)
+            setNoVideoShare(context);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setNoVideoShare(Context context) {
+        ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save) + context.getResources().getString(R.string.no_video_share));
     }
 
     private void setShareListener() {
@@ -109,7 +125,11 @@ public class ShareOptionsUI {
     private void setCopyListener(Context context) {
         thirdPopupView.findViewById(R.id.copy_link).setOnClickListener(view -> {
             ClipboardManager clipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("label", mListener.getLink());
+            ClipData clip = ClipData.newPlainText("Url and password",
+                    context.getResources().getString(R.string.link) + " " +
+                            mListener.getLink() + " " +
+                            context.getResources().getString(R.string.password) + " " +
+                            mListener.getPassword());
             clipboard.setPrimaryClip(clip);
         });
     }
@@ -124,7 +144,7 @@ public class ShareOptionsUI {
     }
 
     private void setLink() {
-        mListener.createShareLink(((TextView) thirdPopupView.findViewById(R.id.link)));
+        mListener.createShareLink(((TextView) thirdPopupView.findViewById(R.id.link)), video);
     }
 
     private void setPassword() {

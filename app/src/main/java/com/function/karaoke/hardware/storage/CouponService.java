@@ -67,7 +67,7 @@ public class CouponService {
     }
 
     private void checkIfEmailIsInList(GetCouponType getCouponType, Coupon coupon, String emailAddress) {
-        if (coupon.getEmails().contains(emailAddress.toLowerCase())) {
+        if (coupon.getEmails().toLowerCase().contains(emailAddress.toLowerCase())) {
             removeEmailFromCoupon(coupon, emailAddress);
             if (coupon.getType() == FREE_SHARES)
                 getCouponType.freeShares(FREE_SHARES, coupon.getFreeShares());
@@ -78,7 +78,7 @@ public class CouponService {
     }
 
     private void removeEmailFromCoupon(Coupon coupon, String emailAddress) {
-        String emails = this.coupon.getEmails().replaceFirst(emailAddress, "");
+        String emails = this.coupon.getEmails().toLowerCase().replaceFirst(emailAddress.toLowerCase(), "");
         changeCoupon(emails);
 
     }

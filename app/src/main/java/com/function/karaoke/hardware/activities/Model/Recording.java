@@ -19,6 +19,7 @@ public class Recording implements Serializable, Reocording {
     private long length = 0;
     private boolean cameraOn = true;
     private boolean loading = false;
+    private int reports = 0;
 
     public Recording() {
     }
@@ -212,5 +213,13 @@ public class Recording implements Serializable, Reocording {
         result = prime * result
                 + ((imageResourceFile == null) ? 0 : imageResourceFile.hashCode());
         return result;
+    }
+
+    public int getReports() {
+        return reports;
+    }
+
+    public void setReports(int reports) {
+        this.reports = reports;
     }
 }

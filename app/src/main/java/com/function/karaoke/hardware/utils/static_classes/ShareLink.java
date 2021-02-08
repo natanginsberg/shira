@@ -9,7 +9,7 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 public class ShareLink {
 
-    public static Task<ShortDynamicLink> createLink(Recording recording, String password) {
+    public static Task<ShortDynamicLink> createLink(Recording recording, String password, boolean video) {
 
         String passwordText = "";
         if (password != null)
@@ -18,7 +18,7 @@ public class ShareLink {
 //                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
                 .setLink(Uri.parse("https://ashira2020.wixsite.com/website/?recId=" + recording.getRecordingId() +
                         "&uid=" + recording.getRecorderId() +
-                        "&delay=" + recording.getDelay() + "&cameraOn=" + recording.isCameraOn() +
+                        "&delay=" + recording.getDelay() + "&cameraOn=" + (recording.isCameraOn() && video) +
                         "&length=" + recording.getLength() + passwordText))
                 .setDomainUriPrefix("https://singjewish.page.link")
 

@@ -65,6 +65,7 @@
 
     <TextView
 
+        android:id="@+id/from"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/from"
@@ -80,10 +81,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/small_circle"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/acum_sign"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ashira" />
+        app:layout_constraintTop_toBottomOf="@id/from" />
 
     <ImageView
         android:layout_width="@dimen/no_hardcode_dimension"
@@ -106,6 +107,31 @@
         app:layout_constraintLeft_toRightOf="@id/and_sign"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@id/and_sign" />
+
+    <ImageView
+        android:id="@+id/acum_sign"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/ic_acum"
+        app:layout_constraintBottom_toTopOf="@id/acum_words"
+        app:layout_constraintDimensionRatio="1"
+        app:layout_constraintHeight_percent="0.07"
+        app:layout_constraintLeft_toLeftOf="@id/and_sign"
+        app:layout_constraintRight_toRightOf="@id/and_sign"
+        app:layout_constraintTop_toBottomOf="@id/and_sign" />
+
+    <TextView
+        android:id="@+id/acum_words"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/copyright_with_acum"
+        android:textColor="#80FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@id/acum_sign"
+        app:layout_constraintRight_toRightOf="@id/acum_sign"
+        app:layout_constraintTop_toBottomOf="@id/acum_sign" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

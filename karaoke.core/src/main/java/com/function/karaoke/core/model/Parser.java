@@ -8,6 +8,7 @@ public class Parser {
     public static Song parse(List<String> data) {
         Song song = new Song();
         Song.Line lastLine = null;
+        int j = -1;
         for (int i = 0; i < data.size() - 1; i++) {
             String line = data.get(i);
 
@@ -45,6 +46,17 @@ public class Parser {
                             nextLineIndex++;
                         }
                         String[] lineWordsAndTimes = line.split("<");
+
+//                        if (lineWordsAndTimes.length > 6) {
+//                            int j = 0;
+//                            String[] tempLine = new String[lineWordsAndTimes.length / 2];
+//                            while (j < lineWordsAndTimes.length / 2) {
+//                                tempLine[j] = lineWordsAndTimes[j];
+//                                j++;
+//                            } tempLine[j] = lineWordsAndTimes[j].replace()
+//                        }
+
+
                         Song.Line nextLineInSong = parseLine(lineWordsAndTimes, nextLine, isLastLine);
                         song.lines.add(nextLineInSong);
                         if (lastWordIsUnproportionatelyLong(getLineTimeStamp(nextLine), nextLineInSong.to)) {

@@ -314,11 +314,6 @@ public class SingActivityUI {
 //        popupView.findViewById(R.id.loading_amount_window).setVisibility(View.VISIBLE);
     }
 
-    public void showSubscribeOptions() {
-//        popupView.findViewById(R.id.subscript_layout).setVisibility(View.VISIBLE);
-//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
-    }
-
     public void hideSubscribeOptions() {
 //        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
 //        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
@@ -479,12 +474,14 @@ public class SingActivityUI {
     }
 
     public interface ShareListener {
-        void createShareLink(TextView viewById);
+        void createShareLink(TextView viewById, boolean video);
 
         void share(View view);
 
         CharSequence getLink();
 
         void setPassword(TextView viewById);
+
+        CharSequence getPassword();
     }
 }

@@ -38,6 +38,7 @@ import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A fragment representing a list of Songs.
@@ -129,9 +130,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 Activity.MODE_PRIVATE);
         if (prefs != null) {
             String language = prefs.getString(langPref, "");
-            return language;
+            if (language != null && !language.equalsIgnoreCase(""))
+                return language;
         }
-        return null;
+        return Locale.getDefault().getLanguage();
     }
 
 
@@ -500,6 +502,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         return false;
     }
 
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -538,7 +541,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private class GenreListener implements View.OnClickListener {
         @Override
         public void onClick(View view) {
-            songsActivityUI.addGenresToScreen(genres, currentGenre, genres.getGenres().contains(currentGenre) ? GENRE : SONG_SUGGESTION);
+            if (genres != null)
+                songsActivityUI.addGenresToScreen(genres, currentGenre, genres.getGenres().contains(currentGenre) ? GENRE : SONG_SUGGESTION);
         }
     }
 

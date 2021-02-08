@@ -124,7 +124,7 @@
     <string name="recording_search">Search In Recordings</string>
     <string name="with_video">Video recording</string>
     <string name="without_video">Video not recording</string>
-    <string name="continue_text">Continue</string>
+    <string name="continue_text">Resume</string>
     <string name="stop">Stop</string>
     <string name="delete">Delete</string>
     <string name="close">Close</string>
@@ -157,7 +157,7 @@
     <string name="change_share_settings"><u>Change share settings</u></string>
     <string name="link">Link:</string>
     <string name="password">Password:</string>
-    <string name="enter_code">Enter code...</string>
+    <string name="enter_code">Enter code…</string>
     <string name="enter_the_coupon_code">Enter the coupon code</string>
     <string name="coupons">Coupons</string>
     <string name="no_coupon">The code entered is not valid</string>
@@ -165,5 +165,20 @@
     <string name="yearly_coupon">Valid code. You have an extra year</string>
     <string name="free_shares_awarded">Valid code! You have %1$d extra shares</string>
     <string name="loading">Loading…</string>
+    <string name="no_video_share">(without video)</string>
+    <string name="with_video_share">With video</string>
+    <string name="copyright_with_acum">Copyright with ACUM</string>
+    <string name="this_video_is_password_protected">This video is password protected</string>
+    <string name="watch">Watch</string>
+    <string name="enter_password">Enter password…</string>
+    <string name="wrong_password">Wrong password</string>
+    <string name="incorrect_password_please_try_again">Incorrect password, please try again</string>
+    <string name="ashira_jewish_karaoke">Ashira</string>
+    <string name="report_inappropriate_content"><u>Report</u></string>
+    <string name="you_paused_the_video">You paused the video</string>
+    <string name="exit">Exit</string>
+    <string name="server_is_down">Our servers are backed up at the moment</string>
+    <string name="inapproriate_under_review">This video is being reviewed by the Ashira staff</string>
+    <string name="recording_does_not_exist">The recording does not exist in our server anymore</string>
 
 </resources>

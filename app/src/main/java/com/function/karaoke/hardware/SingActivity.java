@@ -104,13 +104,8 @@ public class SingActivity extends AppCompatActivity implements
     private static final String SAVE_FUNC = "save";
     private static final String USER_INFO = "User";
     private static final String FREE_SHARE_USED = "freeShares";
-    private final String TIMES_DOWNLOADED = "timesDownloaded";
-    private final String TIMES_PLAYED = "timesPlayed";
-
     private static final String USER_DOWNLOADS = "shares";
     private static final String USER_VIEWS = "views";
-
-
     private static final int BACK_CODE = 101;
     private static final int MESSAGE_RESULT = 1;
     private static final int SHARING_ERROR = 100;
@@ -126,6 +121,8 @@ public class SingActivity extends AppCompatActivity implements
     private static final int YEARLY_SUB = 1;
     private static final int MONTHLY_SUB = 0;
     private static final int NOT_PAYING_MEMBER = -1;
+    private final String TIMES_DOWNLOADED = "timesDownloaded";
+    private final String TIMES_PLAYED = "timesPlayed";
     private final int CAMERA_CODE = 2;
     private final Target target = new Target() {
         @Override
@@ -153,6 +150,10 @@ public class SingActivity extends AppCompatActivity implements
         }
 
     };
+    private final int ALLOCATED_NUMBER_OF_RECORDINGS = 100;
+    private final boolean timerStarted = false;
+    private final boolean songStarted = false;
+    private final boolean prompted = false;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
     AuthenticationDriver authenticationDriver;
@@ -165,6 +166,31 @@ public class SingActivity extends AppCompatActivity implements
     private boolean buttonClicked = false;
     private TextureView mTextureView;
     private CameraPreview cameraPreview;
+    private boolean isRecording = false;
+    private boolean ending = false;
+    private boolean fileSaved = false;
+    private boolean cameraOn = false;
+    private boolean permissionRequested = false;
+    private String timeStamp;
+    private long lengthOfAudioPlayed = 0;
+    private SingActivityUI activityUI;
+    private int delay;
+    private Billing billingSession;
+    private boolean itemAcquired = false;
+    private boolean keepVideo = false;
+    private File postParseVideoFile;
+    private Recording recording;
+    private boolean measured = false;
+    private boolean ml;
+    private UserInfo user;
+    private SignInViewModel signInViewModel;
+    private UserService userService;
+    private String songPlayed;
+    private String funcToCall;
+    private boolean cancelled;
+    private String language;
+    private Handler hdlr;
+    private boolean cameraClosed = false;
     private final TextureView.SurfaceTextureListener mSurfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
@@ -190,28 +216,12 @@ public class SingActivity extends AppCompatActivity implements
 
         }
     };
-    private boolean isRecording = false;
-    private boolean ending = false;
-    private boolean timerStarted = false;
-    private boolean fileSaved = false;
-    private boolean cameraOn = false;
-    private boolean permissionRequested = false;
-    private String timeStamp;
-    private long lengthOfAudioPlayed = 0;
-    private SingActivityUI activityUI;
-    private int delay;
-    private Billing billingSession;
-    private boolean itemAcquired = false;
-    private boolean keepVideo = false;
-    private File postParseVideoFile;
-    private Recording recording;
-    private boolean measured = false;
-    private boolean ml;
-    private UserInfo user;
-    private SignInViewModel signInViewModel;
-    private UserService userService;
-    private String songPlayed;
-    private String funcToCall;
+    private boolean startTimerStarted = false;
+    private boolean resumeTimer = false;
+    private BroadcastReceiver bReceiver;
+    private File compressedFile;
+    private File jsonFile;
+    private int type = -1;
     private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getData() != null) {
@@ -227,19 +237,6 @@ public class SingActivity extends AppCompatActivity implements
                     }
                 }
             });
-    private boolean cancelled;
-    private String language;
-    private Handler hdlr;
-    private boolean cameraClosed = false;
-    private boolean startTimerStarted = false;
-    private boolean resumeTimer = false;
-    private boolean songStarted = false;
-    private BroadcastReceiver bReceiver;
-    private boolean prompted = false;
-    private File compressedFile;
-    private File jsonFile;
-    private int type = -1;
-    private final int ALLOCATED_NUMBER_OF_RECORDINGS = 100;
     private RecordingDelete recordingDelete;
     private EarphoneListener earphonesListener;
     private String link1;
@@ -260,26 +257,49 @@ public class SingActivity extends AppCompatActivity implements
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song, Util.SDK_INT);
         setContentView(R.layout.activity_sing);
-        setKaraokeController();
-        loadSong();
-        activityUI.setSongInfo();
-        blurAlbumInBackground();
+        findViewById(android.R.id.content).getRootView().post(this::continueWithSetup);
+
 
         mTextureView = findViewById(R.id.surface_camera);
         recordingId = GenerateRandomId.generateRandomId();
 //        createEarphoneReceivers();
         earphonesListener = new EarphoneListener(this);
         checkForPermissionAndOpenCamera();
-        if (song.hasDifferentTones()) {
-            activityUI.openTonePopup(song, SingActivity.this);
-        } else {
-            songPlayed = song.getSongResourceFile();
-            mKaraokeKonroller.loadAudio(songPlayed);
-//            createEarphoneReceivers();
-        }
+
         if (Util.SDK_INT < 24)
             alertUserThatHeCanNotPause();
 
+    }
+
+    private void continueWithSetup() {
+        if (checkForInternet()) {
+            setKaraokeController();
+            loadSong();
+            activityUI.setSongInfo();
+            blurAlbumInBackground();
+            if (song.hasDifferentTones()) {
+                activityUI.openTonePopup(song, SingActivity.this);
+            } else {
+                songPlayed = song.getSongResourceFile();
+                mKaraokeKonroller.loadAudio(songPlayed);
+//            createEarphoneReceivers();
+            }
+        } else
+            startTimerToFinish();
+    }
+
+    private void startTimerToFinish() {
+        cTimer = new CountDownTimer(1500, 500) {
+            @SuppressLint("SetTextI18n")
+            public void onTick(long millisUntilFinished) {
+            }
+
+            public void onFinish() {
+                finishActivity();
+            }
+
+        };
+        cTimer.start();
     }
 
     private void createServices() {
@@ -423,26 +443,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void loadSong() {
         if (song.getLines() == null) {
-            if (Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext())) {
-                NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
-                    @Override
-                    public void onSuccess() {
-
-                        if (!mKaraokeKonroller.loadWords(song.getLines())) {
-                            if (activityUI.isPopupOpened()) {
-                                activityUI.dismissPopup();
-                            }
-                            finish();
-                        }
-
-                    }
-
-                    @Override
-                    public void onFail() {
-                        finish();
-                    }
-                });
-            }
+            findViewById(android.R.id.content).getRootView().post(() -> parseWords());
         } else {
 
             if (!mKaraokeKonroller.loadWords(song.getLines())) {
@@ -460,6 +461,31 @@ public class SingActivity extends AppCompatActivity implements
             activityUI.setBackgroundColor();
 //            findViewById(R.id.camera).setBackgroundColor(Color.BLACK);
         }
+    }
+
+    private void parseWords() {
+        if (checkForInternet()) {
+            NetworkTasks.parseWords(song, new NetworkTasks.ParseListener() {
+                @Override
+                public void onSuccess() {
+
+                    if (!mKaraokeKonroller.loadWords(song.getLines())) {
+                        if (activityUI.isPopupOpened()) {
+                            activityUI.dismissPopup();
+                        }
+                        finish();
+                    }
+
+                }
+
+                @Override
+                public void onFail() {
+                    finish();
+                }
+            });
+        }
+//        else
+//            startTimerToFinish();
     }
 
     @Override
@@ -820,7 +846,8 @@ public class SingActivity extends AppCompatActivity implements
             mKaraokeKonroller.onPause();
             finishSong();
         }
-        mKaraokeKonroller.onPause();
+        if (mKaraokeKonroller != null)
+            mKaraokeKonroller.onPause();
     }
 
     private void startPauseTimerToSaveBattery() {
@@ -1198,13 +1225,15 @@ public class SingActivity extends AppCompatActivity implements
 
     public void startSaveProcess(boolean freeShareUsed) {
         keepVideo = true;
+        itemAcquired = true;
         saveSongToTempJsonFile();
         continueWithSaveProcess(freeShareUsed);
 
     }
 
     private void continueWithSaveProcess(boolean freeShareUsed) {
-
+        keepVideo = true;
+        itemAcquired = true;
         jsonFile = renameJsonPendingFile();
         addOneToSongsDownload();
         addOneToUserDownloads(freeShareUsed);
@@ -1314,7 +1343,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void launchSignIn(int code) {
-        mGetContent.launch(new Intent(this, SignInActivity.class).putExtra(RESULT_CODE, code).putExtra(SING_ACTIVITY, true).putExtra(CALLBACK, true));
+        mGetContent.launch(new Intent(this, PromoActivity.class).putExtra(RESULT_CODE, code).putExtra(SING_ACTIVITY, true).putExtra(CALLBACK, true));
     }
 
     private void saveToCloud(SaveItems saveItems) {
@@ -1432,8 +1461,6 @@ public class SingActivity extends AppCompatActivity implements
         signIn.openSignIn();
     }
 
-    //todo sleep time on even when song is totally stopped
-
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
@@ -1487,7 +1514,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private boolean checkForInternet() {
-        return Checks.checkForInternetConnection(this, getSupportFragmentManager(), getApplicationContext());
+        return Checks.checkForInternetConnection(findViewById(android.R.id.content).getRootView(), this);
     }
 
     private void showFailure() {
@@ -1495,8 +1522,9 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void createShareLink(TextView viewById) {
-        Task<ShortDynamicLink> link = ShareLink.createLink(recording, password);
+    public void createShareLink(TextView viewById, boolean video) {
+        link1 = null;
+        Task<ShortDynamicLink> link = ShareLink.createLink(recording, password, video);
         link.addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // Short link created
@@ -1518,6 +1546,11 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     public CharSequence getLink() {
         return link1;
+    }
+
+    @Override
+    public CharSequence getPassword() {
+        return password;
     }
 
     @Override

@@ -19,7 +19,7 @@ public class IndicationPopups {
         RelativeLayout viewGroup = view.findViewById(R.id.check_popup);
         View popupView = layoutInflater.inflate(R.layout.check_popup, viewGroup);
         ((TextView) popupView.findViewById(R.id.text_to_display)).setText(words);
-        return placeShareOptionsOnScreen(context, popupView);
+        return placeIndicationOnScreen(context, popupView);
     }
 
     public static PopupWindow openXIndication(Context context, View view, String words) {
@@ -27,11 +27,11 @@ public class IndicationPopups {
         RelativeLayout viewGroup = view.findViewById(R.id.x_popup);
         View popupView = layoutInflater.inflate(R.layout.x_popup, viewGroup);
         ((TextView) popupView.findViewById(R.id.text_to_display)).setText(words);
-        return placeShareOptionsOnScreen(context, popupView);
+        return placeIndicationOnScreen(context, popupView);
 
     }
 
-    private static PopupWindow placeShareOptionsOnScreen(Context context, View popupView) {
+    private static PopupWindow placeIndicationOnScreen(Context context, View popupView) {
         PopupWindow popup = new PopupWindow(context);
         setSharePopupAttributes(context, popup, popupView);
         popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);

@@ -29,9 +29,11 @@ public class RecordingService {
     private static final String TAG = RecordingService.class.getSimpleName();
     private static final String LOADING = "loading";
     private static final String RECORDING_URL = "recordingUrl";
+    private static final String REPORTS = "reports";
     private AuthenticationDriver authenticationDriver;
     private CollectionReference recordingsCollectionRef;
     private DocumentReference recodingDocument;
+    private Recording recording;
 
     public RecordingService() {
         DatabaseDriver databaseDriver = new DatabaseDriver();
@@ -80,25 +82,28 @@ public class RecordingService {
         });
     }
 
-    public LiveData<Recording> getSharedRecording(String recordingId, String recorderId) {
-        MutableLiveData<Recording> recording = new MutableLiveData<>();
+    public void getSharedRecording(String recordingId, String recorderId, GetRecordingListener getRecordingListener) {
+//        MutableLiveData<Recording> recordings = new MutableLiveData<>();
         final List<Recording> documentsList = new LinkedList<>();
         Query getRecordingsQuery = recordingsCollectionRef.whereEqualTo(RECORDING_ID, recordingId).whereEqualTo(RECORDER_ID, recorderId);
         getRecordingsQuery.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 if (task.getResult().isEmpty()) {
-                    recording.setValue(null);
+//                    recordings.setValue(null);
+                    getRecordingListener.recording(null);
                 } else {
+                    recodingDocument = task.getResult().getDocuments().get(0).getReference();
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         documentsList.add(document.toObject(Recording.class));
                     }
-                    recording.setValue(documentsList.get(0));
+                    recording = documentsList.get(0);
+//                    recordings.setValue(documentsList.get(0));
+                    getRecordingListener.recording(recording);
                 }
             } else {
 
             }
         });
-        return recording;
     }
 
     public void isRecordingInDatabase(RecordingInDatabaseListener listener, String recordingId, String recorderId) {
@@ -178,14 +183,24 @@ public class RecordingService {
         });
     }
 
+    public void addReport() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(REPORTS, recording.getReports() + 1);
+        recodingDocument.update(data);
+    }
+
     public interface RecordingInDatabaseListener {
         void isInDatabase(boolean isIn);
     }
 
-    public interface NumberListener{
+    public interface NumberListener {
         void recordings(List<Recording> recordings);
 
         void failure();
+    }
+
+    public interface GetRecordingListener {
+        void recording(Recording recording);
     }
 }
 

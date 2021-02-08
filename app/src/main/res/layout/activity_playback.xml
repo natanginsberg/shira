@@ -4,9 +4,60 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/appColor"
-    android:padding="@dimen/box_inset_layout_padding"
+    android:background="@drawable/main_background"
     tools:context=".Playback">
+
+
+    <FrameLayout
+        android:id="@+id/video"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="-10dp"
+            android:onClick="pauseVideo"
+            app:controller_layout_id="@layout/custom_exo_playerview"
+            app:hide_on_touch="false"
+            app:resize_mode="zoom"
+            app:show_timeout="0" />
+
+        <include
+            android:id="@+id/logo"
+            layout="@layout/logo_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:elevation="30dp"
+            android:visibility="invisible" />
+
+
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/exo_pr_circle"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/video"
+        app:layout_constraintLeft_toLeftOf="@id/video"
+        app:layout_constraintRight_toRightOf="@id/video"
+        app:layout_constraintTop_toTopOf="@id/video" />
+
+    <TextView
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="20dp"
+        android:textColor="@android:color/white"
+        android:textSize="25sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/exo_pr_circle" />
 
     <RelativeLayout
         android:id="@+id/header"
@@ -15,6 +66,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
+        android:elevation="15dp"
         android:orientation="horizontal"
         app:layout_constraintHeight_percent="0.07"
         app:layout_constraintTop_toTopOf="parent">
@@ -65,77 +117,14 @@
 
         </LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:onClick="turnReverbOnOrOff"
-            android:text="@string/reverb_on" />
-
-        <!--        <TextView-->
-        <!--            android:id="@+id/disabled"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content"-->
-        <!--            android:layout_centerVertical="true"-->
-        <!--            android:layout_alignStart="@id/playback_spinner"-->
-        <!--            android:layout_alignEnd="@id/playback_spinner"-->
-        <!--            android:text="@string/recording_volume"-->
-        <!--            android:textColor="@android:color/white" />-->
-        <!--        -->
-        <!--        -->
-
-
     </RelativeLayout>
 
-
-    <FrameLayout
-        android:id="@+id/video"
-        android:layout_width="match_parent"
+    <ImageView
+        android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_margin="15dp"
+        android:layout_marginBottom="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header">
-
-
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/surface_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:controller_layout_id="@layout/custom_exo_playerview" />
-
-        <include
-            android:id="@+id/logo"
-            layout="@layout/logo_layout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:elevation="30dp"
-            android:visibility="invisible" />
-
-
-    </FrameLayout>
-
-    <ProgressBar
-        android:id="@+id/exo_pr_circle"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="center"
-        android:elevation="10dp"
-        app:layout_constraintBottom_toBottomOf="@id/video"
-        app:layout_constraintLeft_toLeftOf="@id/video"
-        app:layout_constraintRight_toRightOf="@id/video"
-        app:layout_constraintTop_toTopOf="@id/video" />
-
-    <TextView
-        android:id="@+id/loading_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:elevation="20dp"
-        android:textColor="@android:color/white"
-        android:textSize="25sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/exo_pr_circle" />
+        app:layout_constraintRight_toRightOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

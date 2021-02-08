@@ -21,19 +21,29 @@ import com.google.firebase.auth.AuthResult;
 
 import java.util.Locale;
 
-public class SignInActivity extends AppCompatActivity {
+public class PromoActivity extends AppCompatActivity {
 
 
     private AuthenticationDriver authenticationDriver;
     private SignInViewModel signInViewModel;
     private int code = -1;
     private Locale myLocale;
+    private boolean appStarted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         loadLocale();
         showPromo();
+    }
+
+    @Override
+    public void onResume() {
+        if (appStarted)
+            finish();
+        else
+            appStarted = true;
+        super.onResume();
     }
 
 
@@ -76,7 +86,7 @@ public class SignInActivity extends AppCompatActivity {
         }.start();
     }
 
-    public void continueAsGuest() {
+    private void continueAsGuest() {
         if (authenticationDriver.isSignIn()) {
             openMain();
         } else {
@@ -93,7 +103,6 @@ public class SignInActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
 
     private void openMain() {
