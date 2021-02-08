@@ -69,7 +69,7 @@ import java.util.Objects;
 import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
 public class RecordingsActivity extends AppCompatActivity implements
-        RecordingCategoryAdapter.RecordingSongListener, RecordingRecycleViewAdapter.RecordingListener, GenresUI.GenreUIListener {
+        RecordingCategoryAdapter.RecordingSongListener, RecordingRecycleViewAdapter.RecordingListener, GenresUI.GenreUIListener, RecordingDB.IListener {
 
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
     private static final int MY_RECORDINGS = 101;
@@ -350,7 +350,9 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     private void addCopyOfSongsDBToList(RecordingDB recordings) {
-        previousRecordings.add(new RecordingDB(recordings.getRecordings()));
+        RecordingDB preSongs = new RecordingDB();
+        preSongs.updateRecordings(recordings.getRecordings());
+        previousRecordings.add(preSongs);
     }
 
     private void setRecordingsObserver() {
@@ -358,6 +360,7 @@ public class RecordingsActivity extends AppCompatActivity implements
             if (personalRecordings != null) {
                 if (currentDatabaseRecordings == null) {
                     currentDatabaseRecordings = new RecordingDB(personalRecordings);
+                    currentDatabaseRecordings.subscribe(this);
                     findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
                     findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
                 } else {
@@ -394,7 +397,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         if (recordingState == RecordingsScreenState.RECORDING_SONGS_DISPLAYED)
             finish();
         else {
-            currentDatabaseRecordings.updateRecordings(currentRecordings);
+            currentDatabaseRecordings.changeSongsAfterDelete(currentRecordings);
             recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
             recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
             displayRecordingSongs();
@@ -793,6 +796,12 @@ public class RecordingsActivity extends AppCompatActivity implements
     public void deleteClicked(View view) {
         deleteAllClickedRecordings();
         trashClicked(view);
+    }
+
+    @Override
+    public void onListUpdated() {
+        recordingCategoryAdapter.setData(currentDatabaseRecordings.getRecordingsPerSong());
+        recordingCategoryAdapter.notifyDataSetChanged();
     }
 
     private class GenreListener implements View.OnClickListener {

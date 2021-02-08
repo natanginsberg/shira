@@ -15,10 +15,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.PopupWindow;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,6 +37,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -196,8 +195,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             }
             earphonesUsed = true;
         } else {
-            findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-            findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+//            findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+//            findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
         }
         delay = recording.getDelay();
         if (recording.getLength() != 0)
@@ -219,8 +218,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 audioPath = (String) getIntent().getStringExtra(AUDIO_FILE);
                 earphonesUsed = true;
             } else {
-                findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+//                findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+//                findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
             }
             delay = getIntent().getIntExtra(DELAY, 0);
             length = getIntent().getLongExtra(LENGTH, 10000);
@@ -365,8 +364,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                         urls.add(recording.getAudioFileUrl());
                         earphonesUsed = true;
                     } else {
-                        findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                        findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+//                        findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+//                        findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                     }
                     buildMediaSourceFromUrls(urls);
                     createPlayer();
@@ -431,18 +430,17 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
+        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
         player.setPlayWhenReady(true);
-        addSpinnerListeners();
+//        addSpinnerListeners();
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
             @Override
             public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
                 sessionId = audioSessionId;
             }
-
         });
         if (!cameraOn)
             findViewById(R.id.logo).setVisibility(View.VISIBLE);
-
     }
 
     private void addReverb() {
@@ -556,38 +554,38 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     }
 
     private void addSpinnerListeners() {
-        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
-        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String volume = adapterView.getItemAtPosition(i).toString();
-                if (!volume.equals(getResources().getString(R.string.default_value))) {
-                    player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
-        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (earphonesUsed) {
-                    String volume = adapterView.getItemAtPosition(i).toString();
-                    if (!volume.equals(getResources().getString(R.string.default_value))) {
-                        player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
-                    }
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+//        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
+//        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                String volume = adapterView.getItemAtPosition(i).toString();
+//                if (!volume.equals(getResources().getString(R.string.default_value))) {
+//                    player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+//        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
+//        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                if (earphonesUsed) {
+//                    String volume = adapterView.getItemAtPosition(i).toString();
+//                    if (!volume.equals(getResources().getString(R.string.default_value))) {
+//                        player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
     }
 
     public void turnReverbOnOrOff(View view) {

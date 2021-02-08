@@ -16,11 +16,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -79,10 +81,15 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -245,6 +252,8 @@ public class SingActivity extends AppCompatActivity implements
     private boolean songUpdated = false;
     private boolean userUpdated = false;
     private String password;
+    private File mVideoFolder;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,6 +290,7 @@ public class SingActivity extends AppCompatActivity implements
                 activityUI.openTonePopup(song, SingActivity.this);
             } else {
                 songPlayed = song.getSongResourceFile();
+
                 mKaraokeKonroller.loadAudio(songPlayed);
 //            createEarphoneReceivers();
             }
@@ -352,7 +362,15 @@ public class SingActivity extends AppCompatActivity implements
     private void setAudioAndDismissPopup() {
         activityUI.changeLayout();
         activityUI.dismissPopup();
+        activityUI.showLoadingIcon();
 //        createEarphoneReceivers();
+        downloadFile(songPlayed);
+        // todo this is what I added download file it is at the end of the class
+//        mKaraokeKonroller.loadAudio(songPlayed);
+
+    }
+
+    private void startBuild() {
         mKaraokeKonroller.loadAudio(songPlayed);
     }
 
@@ -1564,6 +1582,90 @@ public class SingActivity extends AppCompatActivity implements
         void play(Recording mItem);
 
         void delete(Recording mItem);
+    }
+
+    private void downloadFile(String audioPath) {
+        createVideoFolder();
+        try {
+            createVideoFileName();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new DownloadFileAsync().execute(audioPath);
+    }
+
+
+    private void createVideoFolder() {
+//        File movieFile = activity.getCacheDir();
+//        File movieFile = context.getFilesDir();
+        mVideoFolder = new File(getFilesDir(), DIRECTORY_NAME);
+        if (!mVideoFolder.exists()) {
+            mVideoFolder.mkdirs();
+        }
+    }
+
+    private void createVideoFileName() throws IOException {
+        String prepend = "exoplayer";
+        File videoFile = new File(mVideoFolder, prepend + ".mp4");
+        fileName = videoFile.getAbsolutePath();
+//        mVideoFile = videoFile;
+    }
+
+    class DownloadFileAsync extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//            showDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+        @Override
+        protected String doInBackground(String... aurl) {
+            int count;
+            try {
+                URL url = new URL(aurl[0]);
+                URLConnection conexion = url.openConnection();
+                conexion.connect();
+                int lenghtOfFile = conexion.getContentLength();
+                Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream(fileName);
+                byte data[] = new byte[1024];
+                long total = 0;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        protected void onProgressUpdate(String... progress) {
+            Log.d("ANDRO_ASYNC", progress[0]);
+            showProgress(progress[0]);
+//            mProgressDialog.setProgress(Integer.parseInt(progress[0]));
+        }
+
+        @Override
+        protected void onPostExecute(String unused) {
+            startBuild();
+//            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+
+    }
+
+
+
+    @SuppressLint("SetTextI18n")
+    private void showProgress(String progress) {
+        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
     }
 }
 

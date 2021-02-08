@@ -132,6 +132,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void loadAudio(String url) {
         try {
+
             mPlayer.setDataSource(url);
 
 //            mPlayer.setVolume(0, 0);
@@ -382,4 +383,5 @@ public class KaraokeController implements Recorder.IToneListener {
 
         void songPrepared();
     }
+
 }

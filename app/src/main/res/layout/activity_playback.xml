@@ -59,65 +59,65 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/exo_pr_circle" />
 
-    <RelativeLayout
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="5dp"
-        android:elevation="15dp"
-        android:orientation="horizontal"
-        app:layout_constraintHeight_percent="0.07"
-        app:layout_constraintTop_toTopOf="parent">
+<!--    <RelativeLayout-->
+<!--        android:id="@+id/header"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="@dimen/no_hardcode_dimension"-->
+<!--        android:layout_marginLeft="5dp"-->
+<!--        android:layout_marginTop="5dp"-->
+<!--        android:layout_marginRight="5dp"-->
+<!--        android:elevation="15dp"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintHeight_percent="0.07"-->
+<!--        app:layout_constraintTop_toTopOf="parent">-->
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:orientation="vertical">
+<!--        <LinearLayout-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentStart="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:orientation="vertical">-->
 
-            <TextView
-                android:id="@+id/playback_word"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/playback_volume"
-                android:textColor="@android:color/white" />
+<!--            <TextView-->
+<!--                android:id="@+id/playback_word"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/playback_volume"-->
+<!--                android:textColor="@android:color/white" />-->
 
-            <Spinner
-                android:id="@+id/playback_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/volumes"
-                android:prompt="@string/playback_volume" />
+<!--            <Spinner-->
+<!--                android:id="@+id/playback_spinner"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:entries="@array/volumes"-->
+<!--                android:prompt="@string/playback_volume" />-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:orientation="vertical">
+<!--        <LinearLayout-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_alignParentEnd="true"-->
+    <!--            android:layout_centerVertical="true"-->
+    <!--            android:orientation="vertical">-->
 
-            <TextView
-                android:id="@+id/recording_word"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/recording_volume"
-                android:textColor="@android:color/white" />
+    <!--            <TextView-->
+    <!--                android:id="@+id/recording_word"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:text="@string/recording_volume"-->
+    <!--                android:textColor="@android:color/white" />-->
 
-            <Spinner
-                android:id="@+id/recording_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/volumes"
-                android:prompt="@string/recording_volume" />
+    <!--            <Spinner-->
+    <!--                android:id="@+id/recording_spinner"-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:entries="@array/volumes"-->
+    <!--                android:prompt="@string/recording_volume" />-->
 
-        </LinearLayout>
+    <!--        </LinearLayout>-->
 
-    </RelativeLayout>
+    <!--    </RelativeLayout>-->
 
     <ImageView
         android:layout_width="@dimen/no_hardcode_dimension"

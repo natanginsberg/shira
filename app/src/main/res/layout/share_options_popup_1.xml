@@ -58,17 +58,17 @@
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/warning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1.2"
-            android:fontFamily="@font/varela_round_regular"
-            android:gravity="center"
-            android:text="@string/your_recording_is_being_saved_in_the_background_don_t_close_tha_app_until_it_is_finished"
-            android:textColor="@android:color/white"
-            android:textSize="15sp" />
+        <!--        <TextView-->
+        <!--            android:id="@+id/warning"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:layout_gravity="center"-->
+        <!--            android:layout_weight="1.2"-->
+        <!--            android:fontFamily="@font/varela_round_regular"-->
+        <!--            android:gravity="center"-->
+        <!--            android:text="@string/your_recording_is_being_saved_in_the_background_don_t_close_tha_app_until_it_is_finished"-->
+        <!--            android:textColor="@android:color/white"-->
+        <!--            android:textSize="15sp" />-->
 
         <TextView
             android:id="@+id/question"

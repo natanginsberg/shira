@@ -106,7 +106,7 @@
             android:textSize="18sp" />
 
         <Button
-            android:paddingHorizontal="25dp"
+            android:paddingHorizontal="35dp"
             android:id="@+id/copy_link"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

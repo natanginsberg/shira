@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Paint;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
+
+import org.w3c.dom.Text;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 
@@ -77,7 +80,9 @@ public class ShareOptionsUI {
         thirdPopupView.findViewById(R.id.no_video_send).setOnClickListener(view -> {
             if (video) {
                 video = false;
-                ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save) + context.getResources().getString(R.string.no_video_share));
+                TextView headerText = (TextView) thirdPopupView.findViewById(R.id.header);
+                headerText.setText(context.getResources().getString(R.string.share_save) + context.getResources().getString(R.string.no_video_share));
+                headerText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
                 ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.with_video_share));
             } else {
                 video = true;

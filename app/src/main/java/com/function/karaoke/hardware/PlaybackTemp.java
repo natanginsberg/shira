@@ -83,8 +83,8 @@ public class PlaybackTemp extends AppCompatActivity implements TimeBar.OnScrubLi
                     uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
                     earphonesUsed = true;
                 } else {
-                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+//                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = getIntent().getIntExtra(DELAY, 0);
                 createTwoPlayers();
@@ -98,8 +98,8 @@ public class PlaybackTemp extends AppCompatActivity implements TimeBar.OnScrubLi
 
 //                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
                 } else {
-                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
+//                    findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
+//                    findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
                 }
                 delay = recording.getDelay();
                 createTwoPlayers();
@@ -331,40 +331,40 @@ public class PlaybackTemp extends AppCompatActivity implements TimeBar.OnScrubLi
     }
 
     private void addSpinnerListeners() {
-        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
-        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String volume = adapterView.getItemAtPosition(i).toString();
-                if (volume.equals(getResources().getString(R.string.default_value))) {
-                    players.get(0).setVolume(0.8f);
-                } else
-                    players.get(0).setVolume(Float.parseFloat(volume));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
-        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (earphonesUsed) {
-                    String volume = adapterView.getItemAtPosition(i).toString();
-                    if (volume.equals(getResources().getString(R.string.default_value))) {
-                        players.get(1).setVolume(0.7f);
-                    } else
-                        players.get(1).setVolume(Float.parseFloat(volume));
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+////        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
+//        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                String volume = adapterView.getItemAtPosition(i).toString();
+//                if (volume.equals(getResources().getString(R.string.default_value))) {
+//                    players.get(0).setVolume(0.8f);
+//                } else
+//                    players.get(0).setVolume(Float.parseFloat(volume));
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
+//        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
+//        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+//            @Override
+//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+//                if (earphonesUsed) {
+//                    String volume = adapterView.getItemAtPosition(i).toString();
+//                    if (volume.equals(getResources().getString(R.string.default_value))) {
+//                        players.get(1).setVolume(0.7f);
+//                    } else
+//                        players.get(1).setVolume(Float.parseFloat(volume));
+//                }
+//            }
+//
+//            @Override
+//            public void onNothingSelected(AdapterView<?> adapterView) {
+//
+//            }
+//        });
     }
 
     @Override

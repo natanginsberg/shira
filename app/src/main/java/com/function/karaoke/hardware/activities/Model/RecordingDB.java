@@ -7,9 +7,12 @@ import java.util.List;
 
 public class RecordingDB {
 
-    private List<Recording> recordings;
+    private List<Recording> recordings =  new ArrayList<>();
     private HashMap<Reocording, List<Recording>> recordingsPerSong = new HashMap<>();
     private String recorderId;
+
+    public RecordingDB() {
+    }
 
 
     public RecordingDB(List<Recording> recordings) {
@@ -17,7 +20,8 @@ public class RecordingDB {
         this.recordings = recordings;
         if (recordings != null && recordings.size() > 0)
             createMap();
-        recorderId = recordings.get(0).getRecorderId();
+        if (recordings != null && recordings.size() > 0)
+            recorderId = recordings.get(0).getRecorderId();
     }
 
     private void createMap() {
@@ -37,6 +41,11 @@ public class RecordingDB {
 
     public String getRecorderId() {
         return recorderId;
+    }
+
+    public void changeSongsAfterDelete(List<Recording> currentRecordings) {
+        recordingsPerSong.put(currentRecordings.get(0), currentRecordings);
+        notifyUpdated();
     }
 
     public interface IListener {
@@ -59,7 +68,12 @@ public class RecordingDB {
     }
 
     public void updateRecordings(List<Recording> recordingsList) {
-        recordingsPerSong.put(recordingsList.get(0), recordingsList);
+//        recordings.remove(recordingsList.get(0));
+        recordings.clear();
+        recordingsPerSong.clear();
+//        recordingsPerSong.put(recordingsList.get(0), recordingsList);
+        recordings.addAll(recordingsList);
+        createMap();
         notifyUpdated();
     }
 

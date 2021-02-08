@@ -209,8 +209,6 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                     .setTopRightCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .build());
-
         }
     }
-
 }

@@ -467,6 +467,10 @@ public class SingActivityUI {
         });
     }
 
+    public void showLoadingIcon() {
+        view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+    }
+
     public interface SignInListener {
         void openSignIn();
     }

@@ -49,11 +49,9 @@ import java.util.Locale;
 public class SongsListFragment extends Fragment implements DatabaseSongsDB.IListener,
         ActivityResultCaller, GenresUI.GenreUIListener {
 
-    private static final String ARG_COLUMN_COUNT = "column-count";
     private static final int ALL_SONGS_DISPLAYED = 1;
     private static final int SONG_SUGGESTION = 102;
 
-    private static final int PERSONAL_RECORDING_DISPLAYED = 2;
     private static final int GENRE = -1;
     private final GenreListener genreListener = new GenreListener();
     private int mColumnCount = 1;
@@ -373,13 +371,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void couponListener() {
-        popupView.findViewById(R.id.coupons).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (userIsSignedIn())
-                    mListener.startCouponActivity();
-            }
-        });
+        if (userIsSignedIn())
+            popupView.findViewById(R.id.coupons).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (userIsSignedIn())
+                        mListener.startCouponActivity();
+                }
+            });
+        else
+            mListener.alertUserToSignIn();
     }
 
     public void showSongSuggestionBox() {
@@ -469,14 +470,12 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void openMyRecordings() {
         if (userIsSignedIn()) {
-            if (contentDisplayed == ALL_SONGS_DISPLAYED) {
-                AuthenticationDriver authenticationDriver = new AuthenticationDriver();
-                if (popup != null)
-                    popup.dismiss();
-                restoreScreenToSongsState();
-                mListener.startRecordingsActivity(genres);
+            AuthenticationDriver authenticationDriver = new AuthenticationDriver();
+            if (popup != null)
+                popup.dismiss();
+            restoreScreenToSongsState();
+            mListener.startRecordingsActivity(genres);
 //                ((TextView) view).setTextColor(getResources().getColor(R.color.gold));
-            }
         } else {
             mListener.alertUserToSignIn();
 

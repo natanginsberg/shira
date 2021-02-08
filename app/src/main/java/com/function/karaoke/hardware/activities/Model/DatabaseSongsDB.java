@@ -64,16 +64,8 @@ public class DatabaseSongsDB {
 
     private void songsUpdated(List<DatabaseSong> songs) {
         mScanTask = null;
-        if (mSongs.size() == 0)
-            mSongs.addAll(songs);
-        else
-            for (DatabaseSong song : songs)
-                if (mSongs.contains(song))
-                    continue;
-                else
-                    mSongs.add(song);
-//        mSongs.clear();
-
+        mSongs.clear();
+        mSongs.addAll(songs);
         notifyUpdated();
     }
 
