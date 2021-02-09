@@ -36,13 +36,10 @@ import java.util.Locale;
  */
 public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerViewAdapter.ViewHolder> {
 
-    private static final Comparator<DatabaseSong> mComparator = new Comparator<DatabaseSong>() {
-        @Override
-        public int compare(DatabaseSong a, DatabaseSong b) {
-            if (!a.getTitle().equalsIgnoreCase(b.getTitle()))
-                return a.getTitle().compareToIgnoreCase(b.getTitle());
-            return a.getArtist().compareToIgnoreCase(b.getArtist());
-        }
+    private static final Comparator<DatabaseSong> mComparator = (a, b) -> {
+        if (!a.getTitle().equalsIgnoreCase(b.getTitle()))
+            return a.getTitle().compareToIgnoreCase(b.getTitle());
+        return a.getArtist().compareToIgnoreCase(b.getArtist());
     };
 
     private List<DatabaseSong> mValues;
@@ -56,7 +53,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private static final double[] heightFactors = new double[]{2.5, 3.5};
     private double averageSongsPlayed;
 
-    public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener, String textToDisplay) {
+    public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener) {
         setData(items);
         mListener = listener;
     }
@@ -84,17 +81,15 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 //        else
 //            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        int width = (int) (parent.getWidth() / 2.1);
+        int width = (int) (parent.getWidth() / 2.04);
         layoutParams.width = (width);
         layoutParams.height = (int) (1.3 * width);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             view.findViewById(R.id.song_placeholder).setBackground(parent.getContext().getResources().getDrawable(rectangles[viewType * 2 + randomColor], null));
             view.findViewById(R.id.song_placeholder).setBackgroundTintBlendMode(BlendMode.COLOR_DODGE);
         } else {
             view.findViewById(R.id.song_placeholder).setBackground(parent.getContext().getResources().getDrawable(transparentRectangles[viewType * 2 + randomColor]));
         }
-
         view.setLayoutParams(layoutParams);
 
         return new ViewHolder(view);

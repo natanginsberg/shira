@@ -83,7 +83,7 @@ public class RecordingCategoryAdapter extends RecyclerView.Adapter<RecordingCate
 //        else
 //            view.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        int width = (int) (parent.getWidth() / 2.1);
+        int width = (int) (parent.getWidth() / 2.04);
         layoutParams.width = (width);
         layoutParams.height = (int) (1.3 * width);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

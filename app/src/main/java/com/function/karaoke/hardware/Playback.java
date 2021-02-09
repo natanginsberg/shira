@@ -37,7 +37,6 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -432,7 +431,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
-        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
+//        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
         player.setPlayWhenReady(true);
 //        addSpinnerListeners();
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {

@@ -262,6 +262,7 @@ public class SingActivity extends AppCompatActivity implements
         authenticationDriver = new AuthenticationDriver();
         createServices();
         getUser();
+        getAudioFile();
         createCameraAndRecorderInstance();
         song = (DatabaseSong) getIntent().getSerializableExtra(EXTRA_SONG);
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song, Util.SDK_INT);
@@ -278,6 +279,11 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
+    private void getAudioFile() {
+        if (getIntent().getExtras().containsKey("song file"))
+            fileName = getIntent().getStringExtra("song file");
+    }
+
     private void continueWithSetup() {
         if (checkForInternet()) {
             setKaraokeController();
@@ -285,7 +291,7 @@ public class SingActivity extends AppCompatActivity implements
             activityUI.setSongInfo();
             activityUI.showAlbumInBackground();
 //            blurAlbumInBackground();
-            if (song.hasDifferentTones()) {
+            if (song.hasDifferentTones() && fileName == null) {
                 activityUI.openTonePopup(song, SingActivity.this);
             } else {
                 songPlayed = song.getSongResourceFile();
@@ -361,15 +367,19 @@ public class SingActivity extends AppCompatActivity implements
     private void setAudioAndDismissPopup() {
         activityUI.changeLayout();
         activityUI.dismissPopup();
-        activityUI.showLoadingIcon();
+//        activityUI.showLoadingIcon();
 //        createEarphoneReceivers();
-//        downloadFile(songPlayed);
-        // todo this is what I added download file it is at the end of the class
-        mKaraokeKonroller.loadAudio(songPlayed);
+        if (fileName == null)
+            downloadFile(songPlayed);
+            // todo this is what I added download file it is at the end of the class
+        else
+            startBuild();
 
     }
 
     private void startBuild() {
+        findViewById(R.id.loading_progress).setVisibility(View.INVISIBLE);
+        activityUI.showPlayButton();
         mKaraokeKonroller.loadAudio(fileName);
     }
 
@@ -572,31 +582,12 @@ public class SingActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
 //        if (earphonesUsed)
-        intent.putExtra(AUDIO_FILE, songPlayed);
+        intent.putExtra(AUDIO_FILE, fileName);
         intent.putExtra(CAMERA_ON, cameraOn);
         intent.putExtra(DELAY, delay);
         intent.putExtra(LENGTH, lengthOfAudioPlayed);
         startActivity(intent);
     }
-
-//    private void blurAlbumInBackground() {
-////        if (song.getImageResourceFile() != null && !song.getImageResourceFile().equals("")) {
-////            final ImageView tv = findViewById(R.id.initial_album_cover);
-////            final ViewTreeObserver observer = tv.getViewTreeObserver();
-////            observer.addOnGlobalLayoutListener(() -> {
-////                if (!measured) {
-////                    measured = true;
-//        ImageView imageView = (ImageView) findViewById(R.id.initial_album_cover);
-//        Picasso.get()
-//                .load(song.getImageResourceFile())
-////                .resize(450, 420)
-//                .centerCrop()
-//                .fit()
-//                .into(imageView);
-//    }
-////            });
-////        }
-////    }
 
     @Override
     protected void onResume() {
@@ -974,6 +965,7 @@ public class SingActivity extends AppCompatActivity implements
         if (activityUI.isPopupOpened()) {
             activityUI.dismissPopup();
         }
+        intent.putExtra("song file", fileName);
         finish();
         startActivity(intent);
     }
@@ -1121,8 +1113,8 @@ public class SingActivity extends AppCompatActivity implements
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
         if (postParseVideoFile != null) {
-            recording = new Recording(song, songPlayed, timeStamp,
-                    authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn, freeShareUsed);
+            recording = new Recording(freeShareUsed, song, songPlayed, timeStamp,
+                    authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn);
 //        if (!earphonesUsed)
 //            recording.earphonesNotUsed();
             JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
@@ -1644,6 +1636,7 @@ public class SingActivity extends AppCompatActivity implements
 
     @SuppressLint("SetTextI18n")
     private void showProgress(String progress) {
+        findViewById(R.id.loading_progress).setVisibility(View.VISIBLE);
         ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
     }
 }

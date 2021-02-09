@@ -57,7 +57,7 @@
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:text="@string/play_again"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/sing_up_hover" />
 
         <View
             android:id="@+id/top_line"
@@ -76,7 +76,7 @@
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:text="@string/report_inappropriate_content"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/sing_up_hover" />
 
         <View
             android:id="@+id/bottom_line"
@@ -95,7 +95,7 @@
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:text="@string/exit"
-            android:textColor="@android:color/white" />
+            android:textColor="@color/sing_up_hover" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

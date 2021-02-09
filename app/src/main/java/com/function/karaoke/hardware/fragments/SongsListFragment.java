@@ -109,6 +109,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         Context context = songsView.getContext();
         recyclerView = songsView.findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
+        
         recyclerView.setAdapter(mAdapter);
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
@@ -239,7 +240,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     + " must implement OnListFragmentInteractionListener");
         }
         currentDatabaseSongs = mListener.getSongs();
-        mAdapter = new SongRecyclerViewAdapter(currentDatabaseSongs.getSongs(), mListener, getActivity().getResources().getString(R.string.play));
+        mAdapter = new SongRecyclerViewAdapter(currentDatabaseSongs.getSongs(), mListener);
 //        gAdapter = new GridAdapter(getContext(), currentDatabaseSongs.getSongs(), mListener);
     }
 

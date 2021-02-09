@@ -5,8 +5,8 @@
     android:id="@+id/recordings_activty"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RecordingsActivity"
-    android:background="@drawable/main_background">
+    android:background="@drawable/main_background"
+    tools:context=".RecordingsActivity">
 
     <View
         android:layout_width="match_parent"
@@ -303,6 +303,7 @@
             android:name="com.damn.karaoke.phone.SongFragment"
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_marginHorizontal="20dp"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"

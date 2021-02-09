@@ -131,21 +131,21 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     public void loadAudio(String url) {
-        try {
-
-            mPlayer.setDataSource(url);
+        if (url.length() > 0) {
+            try {
+                mPlayer.setDataSource(url);
 
 //            mPlayer.setVolume(0, 0);
-            mPlayer.setOnPreparedListener(mediaPlayer -> {
-                prepared = true;
-                mPlayer.seekTo(0);
-                listener.songPrepared();
-            });
-            mPlayer.prepareAsync();
-        } catch (IOException e) {
-            e.printStackTrace();
+                mPlayer.setOnPreparedListener(mediaPlayer -> {
+                    prepared = true;
+                    mPlayer.seekTo(0);
+                    listener.songPrepared();
+                });
+                mPlayer.prepareAsync();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     @SuppressLint("SetTextI18n")
