@@ -21,10 +21,14 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link Song} and makes a call to the
@@ -189,10 +193,8 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
 
         public void setItem(DatabaseSong song) {
-            if (song.getTimesPlayed() > 2 * averageSongsPlayed)
-                mView.findViewById(R.id.popular_song_tag).setVisibility(View.VISIBLE);
-            else
-                mView.findViewById(R.id.popular_song_tag).setVisibility(View.INVISIBLE);
+            setPopularTag(song);
+            setNewTag(song);
             mItem = song;
             mLblTitle.setText(song.getTitle());
             mLblArtist.setText(song.getArtist());
@@ -209,6 +211,30 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                     .setTopRightCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .build());
+        }
+
+        private void setNewTag(DatabaseSong song) {
+            if (song.getDate().equals("")) {
+                mView.findViewById(R.id.new_song_tag).setVisibility(View.INVISIBLE);
+                return;
+            }
+            Date today = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            calendar.add(Calendar.MONTH, 1);
+            String lastNewDate = String.valueOf(new SimpleDateFormat("yyyy-MM-dd",
+                    Locale.getDefault()).format(calendar.getTime().getTime()));
+            if (song.getDate().compareTo(lastNewDate) < 0) {
+                mView.findViewById(R.id.new_song_tag).setVisibility(View.VISIBLE);
+            } else
+                mView.findViewById(R.id.new_song_tag).setVisibility(View.INVISIBLE);
+        }
+
+        private void setPopularTag(DatabaseSong song) {
+            if (song.getTimesPlayed() > 2 * averageSongsPlayed)
+                mView.findViewById(R.id.popular_song_tag).setVisibility(View.VISIBLE);
+            else
+                mView.findViewById(R.id.popular_song_tag).setVisibility(View.INVISIBLE);
         }
     }
 }

@@ -213,7 +213,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
             cameraOn = getIntent().getExtras().getBoolean(CAMERA_ON);
             if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
-//                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
+                uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
 
                 audioPath = (String) getIntent().getStringExtra(AUDIO_FILE);
                 earphonesUsed = true;
@@ -223,9 +223,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             }
             delay = getIntent().getIntExtra(DELAY, 0);
             length = getIntent().getLongExtra(LENGTH, 10000);
-//            buildMediaSourceFromUris(uris);
-//            createPlayer();
-            downloadFile(audioPath);
+            buildMediaSourceFromUris(uris);
+            createPlayer();
+//            downloadFile(audioPath);
         }
     }
 

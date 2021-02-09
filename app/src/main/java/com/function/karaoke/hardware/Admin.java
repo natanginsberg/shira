@@ -10,6 +10,10 @@ import com.function.karaoke.hardware.activities.Model.FirestoreSong;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.SongAdder;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class Admin extends AppCompatActivity {
 
     private String songName;
@@ -23,14 +27,15 @@ public class Admin extends AppCompatActivity {
         setContentView(R.layout.activity_admin);
         songAdder = new SongAdder(new DatabaseDriver());
 
-            }
+    }
 
     public void enterSong(View view) {
         songName = (String) ((EditText) findViewById(R.id.song_name)).getText().toString();
         genres = (String) ((EditText) findViewById(R.id.genre)).getText().toString();
         artistName = (String) ((EditText) findViewById(R.id.artist_name)).getText().toString();
 
-        FirestoreSong firestoreSong = new FirestoreSong(songName, artistName, genres);
+        FirestoreSong firestoreSong = new FirestoreSong(songName, artistName, genres, new SimpleDateFormat("yyyy-MM-dd",
+                Locale.getDefault()).format(new Date()));
         songAdder.addSongToDatabase(firestoreSong);
     }
 }

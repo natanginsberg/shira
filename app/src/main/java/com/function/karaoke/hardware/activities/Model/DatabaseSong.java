@@ -24,6 +24,7 @@ public class DatabaseSong implements Serializable, Reocording {
     private Bitmap image = null;
     private String genre;
     private String songReference;
+    private String date = "";
 
     public DatabaseSong() {
 
@@ -144,5 +145,13 @@ public class DatabaseSong implements Serializable, Reocording {
 
     public void setKidToneResourceFile(String kidToneResourceFile) {
         this.kidToneResourceFile = kidToneResourceFile;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

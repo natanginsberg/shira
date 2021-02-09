@@ -25,9 +25,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -45,6 +43,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.billingclient.api.BillingClient;
+import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.hardware.activities.Model.DatabaseSong;
@@ -254,6 +253,7 @@ public class SingActivity extends AppCompatActivity implements
     private String password;
     private File mVideoFolder;
     private String fileName;
+    private String purchaseId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -267,8 +267,6 @@ public class SingActivity extends AppCompatActivity implements
         activityUI = new SingActivityUI(findViewById(android.R.id.content).getRootView(), song, Util.SDK_INT);
         setContentView(R.layout.activity_sing);
         findViewById(android.R.id.content).getRootView().post(this::continueWithSetup);
-
-
         mTextureView = findViewById(R.id.surface_camera);
         recordingId = GenerateRandomId.generateRandomId();
 //        createEarphoneReceivers();
@@ -285,7 +283,8 @@ public class SingActivity extends AppCompatActivity implements
             setKaraokeController();
             loadSong();
             activityUI.setSongInfo();
-            blurAlbumInBackground();
+            activityUI.showAlbumInBackground();
+//            blurAlbumInBackground();
             if (song.hasDifferentTones()) {
                 activityUI.openTonePopup(song, SingActivity.this);
             } else {
@@ -364,14 +363,14 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.dismissPopup();
         activityUI.showLoadingIcon();
 //        createEarphoneReceivers();
-        downloadFile(songPlayed);
+//        downloadFile(songPlayed);
         // todo this is what I added download file it is at the end of the class
-//        mKaraokeKonroller.loadAudio(songPlayed);
+        mKaraokeKonroller.loadAudio(songPlayed);
 
     }
 
     private void startBuild() {
-        mKaraokeKonroller.loadAudio(songPlayed);
+        mKaraokeKonroller.loadAudio(fileName);
     }
 
     public void manTone(View view) {
@@ -568,35 +567,6 @@ public class SingActivity extends AppCompatActivity implements
 //        view.setBackgroundColor(getResources().getColor(R.color.appColor, getTheme()));
     }
 
-//    private void compress(String filePath, String destPath) {
-//        VideoCompressor.start(filePath, destPath, new CompressionListener() {
-//            @Override
-//            public void onStart() {
-//
-//            }
-//
-//            @Override
-//            public void onSuccess() {
-//                openNewIntent(Uri.fromFile(compressedFile));
-//            }
-//
-//            @Override
-//            public void onFailure(String s) {
-//
-//            }
-//
-//            @Override
-//            public void onProgress(float v) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled() {
-//
-//            }
-//        });
-//    }
-
     private void openNewIntent(Uri uriFromFile) {
 
         Intent intent = new Intent(this, Playback.class);
@@ -609,20 +579,24 @@ public class SingActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
-    private void blurAlbumInBackground() {
-        if (song.getImageResourceFile() != null && !song.getImageResourceFile().equals("")) {
-            final ImageView tv = findViewById(R.id.initial_album_cover);
-            final ViewTreeObserver observer = tv.getViewTreeObserver();
-            observer.addOnGlobalLayoutListener(() -> {
-                if (!measured) {
-                    measured = true;
-                    Picasso.get()
-                            .load(song.getImageResourceFile())
-                            .into(target);
-                }
-            });
-        }
-    }
+//    private void blurAlbumInBackground() {
+////        if (song.getImageResourceFile() != null && !song.getImageResourceFile().equals("")) {
+////            final ImageView tv = findViewById(R.id.initial_album_cover);
+////            final ViewTreeObserver observer = tv.getViewTreeObserver();
+////            observer.addOnGlobalLayoutListener(() -> {
+////                if (!measured) {
+////                    measured = true;
+//        ImageView imageView = (ImageView) findViewById(R.id.initial_album_cover);
+//        Picasso.get()
+//                .load(song.getImageResourceFile())
+////                .resize(450, 420)
+//                .centerCrop()
+//                .fit()
+//                .into(imageView);
+//    }
+////            });
+////        }
+////    }
 
     @Override
     protected void onResume() {
@@ -870,6 +844,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void startPauseTimerToSaveBattery() {
         cancelTimer();
+        //todo change back to 120000
         cTimer = new CountDownTimer(120000, 110000) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
@@ -1175,6 +1150,7 @@ public class SingActivity extends AppCompatActivity implements
                     if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 //                          saveSongToJsonFile();
                         itemAcquired = true;
+                        purchaseId = purchase.getPurchaseToken();
                         billingSession.handlePurchase(purchase);
 
                     }
@@ -1195,49 +1171,8 @@ public class SingActivity extends AppCompatActivity implements
                 keepVideo = false;
                 Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
             }
-        }, true, () -> {
-            UserService.UserUpdateListener changeUserTypeListener = new UserService.UserUpdateListener() {
-
-                @Override
-                public void onSuccess() {
-
-                }
-
-                @Override
-                public void onFailure() {
-
-                }
-            };
-            if (billingSession.isSubscribed()) {
-                if (user.getSubscriptionType() == NOT_PAYING_MEMBER) {
-                    userService.addSubscriptionType(changeUserTypeListener, FAILED_TO_RECORD_SUB_TYPE);
-                    user.setSubscriptionType(FAILED_TO_RECORD_SUB_TYPE);
-                }
-                startSaveProcess(false);
-            } else {
-                if (user.getSubscriptionType() != NOT_PAYING_MEMBER) {
-                    userService.addSubscriptionType(changeUserTypeListener, NOT_PAYING_MEMBER);
-                    user.setSubscriptionType(NOT_PAYING_MEMBER);
-                }
-                startSubscriptionPath();
-            }
-
-        });
-        billingSession.subscribeListener(billingResult -> {
-            userService.addSubscriptionType(new UserService.UserUpdateListener() {
-                @Override
-                public void onSuccess() {
-
-                }
-
-                @Override
-                public void onFailure() {
-
-                }
-            }, type);
-            user.setSubscriptionType(type);
-            continueWithSaveProcess(false);
-        });
+        }, true, this::ready);
+        billingSession.subscribeListener(this::onAcknowledgePurchaseResponse);
         buttonClicked = false;
     }
 
@@ -1578,6 +1513,51 @@ public class SingActivity extends AppCompatActivity implements
         viewById.setText(password);
     }
 
+    private void ready() {
+        UserService.UserUpdateListener changeUserTypeListener = new UserService.UserUpdateListener() {
+
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        };
+        if (billingSession.isSubscribed()) {
+            if (user.getSubscriptionType() == NOT_PAYING_MEMBER) {
+                userService.addSubscriptionType(changeUserTypeListener, FAILED_TO_RECORD_SUB_TYPE, purchaseId);
+                user.setSubscriptionType(FAILED_TO_RECORD_SUB_TYPE);
+            }
+            startSaveProcess(false);
+        } else {
+            if (user.getSubscriptionType() != NOT_PAYING_MEMBER) {
+                userService.addSubscriptionType(changeUserTypeListener, NOT_PAYING_MEMBER, purchaseId);
+                user.setSubscriptionType(NOT_PAYING_MEMBER);
+            }
+            startSubscriptionPath();
+        }
+
+    }
+
+    private void onAcknowledgePurchaseResponse(BillingResult billingResult) {
+        userService.addSubscriptionType(new UserService.UserUpdateListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        }, type, purchaseId);
+        user.setSubscriptionType(type);
+        continueWithSaveProcess(false);
+    }
+
     public interface DeleteRecordingListener {
         void play(Recording mItem);
 
@@ -1660,7 +1640,6 @@ public class SingActivity extends AppCompatActivity implements
 
 
     }
-
 
 
     @SuppressLint("SetTextI18n")

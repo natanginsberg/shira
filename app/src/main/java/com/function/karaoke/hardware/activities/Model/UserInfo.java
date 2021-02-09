@@ -18,6 +18,7 @@ public class UserInfo implements Serializable {
     int views;
     int couponsUsed = 0;
     String expirationDate = "";
+    String purchaseToken = "";
 
     public UserInfo() {
     }
@@ -115,5 +116,13 @@ public class UserInfo implements Serializable {
 
     public void freeShareUsed() {
         freeShares -= 1;
+    }
+
+    public String getPurchaseToken() {
+        return purchaseToken;
+    }
+
+    public void setPurchaseToken(String purchaseToken) {
+        this.purchaseToken = purchaseToken;
     }
 }

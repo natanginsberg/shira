@@ -43,8 +43,8 @@ public class CouponActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Date today = new Date();
         setContentView(R.layout.activity_coupon);
+        Date today = new Date();
         calendar = Calendar.getInstance();
         calendar.setTime(today);
         getUser();

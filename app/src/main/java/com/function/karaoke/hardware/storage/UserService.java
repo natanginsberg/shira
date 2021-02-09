@@ -28,6 +28,7 @@ public class UserService extends ViewModel {
     private static final String EXPIRATION_DATE = "expirationDate";
     private static final String COUPONS_USED = "couponsUsed";
     private static final String FREE_SHARE_USED = "freeShares";
+    private static final String PURCHASE_TOKEN = "purchaseToken";
     private DatabaseDriver databaseDriver;
     private AuthenticationDriver authenticationDriver;
     private CollectionReference usersCollectionRef;
@@ -100,21 +101,22 @@ public class UserService extends ViewModel {
         });
     }
 
-    public void addSubscriptionType(UserUpdateListener userUpdateListener, int type) {
+    public void addSubscriptionType(UserUpdateListener userUpdateListener, int type, String purchaseId) {
         if (user == null)
             getUser(new GetUserListener() {
                 @Override
                 public void user(UserInfo userInfo) {
-                    changeType(userUpdateListener, type);
+                    changeType(userUpdateListener, type, purchaseId);
                 }
             });
         else
-            changeType(userUpdateListener, type);
+            changeType(userUpdateListener, type, purchaseId);
     }
 
-    private void changeType(UserUpdateListener userUpdateListener, int type) {
+    private void changeType(UserUpdateListener userUpdateListener, int type, String purchaseId) {
         Map<String, Object> data = new HashMap<>();
         data.put(TYPE, type);
+        data.put(PURCHASE_TOKEN, purchaseId);
         userDocument.update(data).
                 addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override

@@ -228,6 +228,7 @@ public class SingActivityUI {
         placePopupOnScreen(context);
         popup.setFocusable(false);
         setArtistAndSongNames(song);
+        view.findViewById(R.id.play_button).setVisibility(View.INVISIBLE);
     }
 
     private void setArtistAndSongNames(DatabaseSong song) {
@@ -469,6 +470,16 @@ public class SingActivityUI {
 
     public void showLoadingIcon() {
         view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+    }
+
+    public void showAlbumInBackground() {
+        ImageView imageView = (ImageView) view.findViewById(R.id.initial_album_cover);
+        Picasso.get()
+                .load(song.getImageResourceFile())
+//                .resize(450, 420)
+                .centerCrop()
+                .fit()
+                .into(imageView);
     }
 
     public interface SignInListener {

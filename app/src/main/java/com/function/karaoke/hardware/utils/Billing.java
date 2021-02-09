@@ -131,19 +131,6 @@ public class Billing {
                             .setPurchaseToken(purchase.getPurchaseToken())
                             .build();
             billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
-
-            // the in app purchase for one time product
-//            ConsumeParams consumeParams =
-//                    ConsumeParams.newBuilder()
-//                            .setPurchaseToken(purchase.getPurchaseToken())
-//                            .build();
-
-//            ConsumeResponseListener listener = (BillingResult billingResult, String purchaseToken) -> {
-//                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-//                    // Handle the success of the consume operation.
-//                }
-//            };
-//            billingClient.consumeAsync(consumeParams, consumeResponseListener)
         }
     }
 

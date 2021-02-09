@@ -1,6 +1,9 @@
 package com.function.karaoke.hardware.activities.Model;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class FirestoreSong implements Serializable {
 
@@ -14,15 +17,17 @@ public class FirestoreSong implements Serializable {
     private int timesPlayed = 0;
     private String title;
     private String genre;
+    private String date;
 
     public FirestoreSong() {
 
     }
 
-    public FirestoreSong(String songName, String artistName, String genre) {
+    public FirestoreSong(String songName, String artistName, String genre, String date) {
         this.title = songName;
         this.artist = artistName;
         this.genre = genre;
+        this.date = date;
     }
 
     public String getArtist() {
@@ -105,4 +110,11 @@ public class FirestoreSong implements Serializable {
         this.genre = genre;
     }
 
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 }

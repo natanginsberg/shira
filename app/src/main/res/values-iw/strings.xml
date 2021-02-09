@@ -70,7 +70,7 @@
     <string name="admin_window">חלון מנהלים</string>
     <string name="song_name">שם השיר</string>
     <string name="genres">גנרה</string>
-    <string name="artist_name">זמר\מלחין</string>
+    <string name="artist_name">זמר/מלחין</string>
     <string name="submit">שלח</string>
     <string name="sharing_failed">השיתוף נכשל</string>
     <string name="auth_failed">הזיהוי נכשל, תנסה יותר מאוחר</string>
