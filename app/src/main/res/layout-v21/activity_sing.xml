@@ -115,7 +115,8 @@
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/progress_bar"
-        app:layout_constraintHeight_percent="0.2">
+        app:layout_constraintHeight_percent="0.2"
+        app:layout_constraintTop_toBottomOf="@id/song_info">
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/lyrics_guide1"
@@ -261,23 +262,32 @@
         android:layout_height="wrap_content"
         android:layoutDirection="ltr"
         android:progressDrawable="@drawable/horizontal_progress_bar"
-        app:layout_constraintBottom_toTopOf="@id/camera_holder" />
+        app:layout_constraintTop_toBottomOf="@id/word_space" />
 
-    <RelativeLayout
-        android:id="@+id/camera_holder"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:background="@android:color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHeight_percent="0.61">
+        android:fillViewport="true"
+        android:orientation="vertical"
+        android:scrollbars="none"
+        app:layout_constraintHeight_percent="0.7"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
-        <TextureView
-            android:id="@+id/surface_camera"
+        <LinearLayout
+            android:id="@+id/camera_holder"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:orientation="vertical">
 
-    </RelativeLayout>
+            <TextureView
+                android:id="@+id/surface_camera"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
+        </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/pause"

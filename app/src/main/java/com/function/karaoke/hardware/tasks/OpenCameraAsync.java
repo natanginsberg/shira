@@ -1,5 +1,6 @@
 package com.function.karaoke.hardware.tasks;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.view.TextureView;
 

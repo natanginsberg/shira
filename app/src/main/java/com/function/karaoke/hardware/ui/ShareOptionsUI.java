@@ -16,8 +16,6 @@ import android.widget.TextView;
 import com.function.karaoke.hardware.R;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 
-import org.w3c.dom.Text;
-
 import static android.content.Context.CLIPBOARD_SERVICE;
 
 public class ShareOptionsUI {
@@ -47,6 +45,14 @@ public class ShareOptionsUI {
         thirdPopup.setFocusable(true);
         setFreeShares(context);
         setThirdPopupOnClickListeners(context);
+        if (!video) {
+            headerWithoutVideo(context);
+            setFooterWithVideo(context);
+        }
+    }
+
+    private void setFooterWithVideo(Context context) {
+        ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.with_video_share));
     }
 
     private void setFreeShares(Context context) {
@@ -80,17 +86,21 @@ public class ShareOptionsUI {
         thirdPopupView.findViewById(R.id.no_video_send).setOnClickListener(view -> {
             if (video) {
                 video = false;
-                TextView headerText = (TextView) thirdPopupView.findViewById(R.id.header);
-                headerText.setText(context.getResources().getString(R.string.share_save) + context.getResources().getString(R.string.no_video_share));
-                headerText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
-                ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.with_video_share));
+                headerWithoutVideo(context);
+                setFooterWithVideo(context);
             } else {
                 video = true;
                 ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save));
                 ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.send_without_video));
             }
         });
+    }
 
+    @SuppressLint("SetTextI18n")
+    private void headerWithoutVideo(Context context) {
+        TextView headerText = (TextView) thirdPopupView.findViewById(R.id.header);
+        headerText.setText(context.getResources().getString(R.string.share_save) + " " + context.getResources().getString(R.string.no_video_share));
+        headerText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f);
     }
 
     private void openShareWithPassword(Context context) {
@@ -111,12 +121,7 @@ public class ShareOptionsUI {
         setCopyListener(context);
         setShareListener();
         if (!video)
-            setNoVideoShare(context);
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void setNoVideoShare(Context context) {
-        ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save) + context.getResources().getString(R.string.no_video_share));
+            headerWithoutVideo(context);
     }
 
     private void setShareListener() {

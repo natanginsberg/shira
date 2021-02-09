@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,7 +31,6 @@ import com.squareup.picasso.Picasso;
 
 public class SingActivityUI {
 
-    private static final int NUMBER_OF_FREE_SHARES = 130;
     private final View view;
     private final DatabaseSong song;
     private final int sdkInt;
@@ -40,14 +40,8 @@ public class SingActivityUI {
     private TextView loadingAmount;
     private PopupWindow recordingsPopup;
     private boolean songEnded;
-    private PopupWindow previousPopupWindow;
-    private View previousPopupView;
     private View secondPopupView;
     private PopupWindow secondPopup;
-    private View thirdPopupView;
-    private PopupWindow thirdPopup;
-    private UserInfo user;
-    private ShareListener mListener;
     private Context context;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
@@ -469,7 +463,24 @@ public class SingActivityUI {
     }
 
     public void showLoadingIcon() {
-        view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+        startTimerForPercent();
+//        view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+    }
+
+    private void startTimerForPercent() {
+        CountDownTimer countDownTimer = null;
+        countDownTimer = new CountDownTimer(5000, 50) {
+            @SuppressLint("SetTextI18n")
+            public void onTick(long millisUntilFinished) {
+                ((TextView) view.findViewById(R.id.loading_progress)).setText(((int) 100 - (millisUntilFinished / 50)) + "%");
+            }
+
+            public void onFinish() {
+                view.findViewById(R.id.loading_progress).setVisibility(View.INVISIBLE);
+                showPlayButton();
+            }
+        };
+        countDownTimer.start();
     }
 
     public void showAlbumInBackground() {

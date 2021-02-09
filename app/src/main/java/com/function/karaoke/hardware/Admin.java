@@ -16,9 +16,6 @@ import java.util.Locale;
 
 public class Admin extends AppCompatActivity {
 
-    private String songName;
-    private String artistName;
-    private String genres;
     SongAdder songAdder;
 
     @Override
@@ -30,9 +27,9 @@ public class Admin extends AppCompatActivity {
     }
 
     public void enterSong(View view) {
-        songName = (String) ((EditText) findViewById(R.id.song_name)).getText().toString();
-        genres = (String) ((EditText) findViewById(R.id.genre)).getText().toString();
-        artistName = (String) ((EditText) findViewById(R.id.artist_name)).getText().toString();
+        String songName = (String) ((EditText) findViewById(R.id.song_name)).getText().toString();
+        String genres = (String) ((EditText) findViewById(R.id.genre)).getText().toString();
+        String artistName = (String) ((EditText) findViewById(R.id.artist_name)).getText().toString();
 
         FirestoreSong firestoreSong = new FirestoreSong(songName, artistName, genres, new SimpleDateFormat("yyyy-MM-dd",
                 Locale.getDefault()).format(new Date()));

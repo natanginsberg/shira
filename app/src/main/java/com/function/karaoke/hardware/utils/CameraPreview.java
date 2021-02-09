@@ -3,6 +3,7 @@ package com.function.karaoke.hardware.utils;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -18,6 +19,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 import android.util.SparseIntArray;
+import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
 import android.widget.Toast;
@@ -26,6 +28,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import com.function.karaoke.hardware.SingActivity;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -72,6 +76,7 @@ public class CameraPreview {
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
 //            if (!cameraClosed) {
+
             mCamera = cameraDevice;
             startPreview();
 //            }
@@ -106,6 +111,54 @@ public class CameraPreview {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //            audioRecorder = new AudioRecorder(context);
 
+    }
+
+    private void updateTextureMatrix(int width, int height, boolean swapRotation)
+    {
+        boolean isPortrait = false;
+//
+        Display display = ((SingActivity)context).getWindowManager().getDefaultDisplay();
+        if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180) isPortrait = true;
+        else if (display.getRotation() == Surface.ROTATION_90 || display.getRotation() == Surface.ROTATION_270) isPortrait = false;
+
+        int previewWidth = mPreviewSize.getWidth();
+        int previewHeight = mPreviewSize.getHeight();
+
+        if (isPortrait)
+        {
+            previewWidth = previewHeight;
+            previewHeight = previewWidth;
+        }
+
+        float ratioSurface = (float) width / height;
+        float ratioPreview = (float) previewWidth / previewHeight;
+
+        float scaleX;
+        float scaleY;
+
+        if (ratioSurface > ratioPreview)
+        {
+            scaleX = (float) height / previewHeight;
+            scaleY = 1;
+        }
+        else
+        {
+            scaleX = 1;
+            scaleY = (float) width / previewWidth;
+        }
+
+        Matrix matrix = new Matrix();
+
+        matrix.setScale(scaleX, scaleY);
+        mTextureView.setTransform(matrix);
+
+        float scaledWidth = width * scaleX;
+        float scaledHeight = height * scaleY;
+
+        float dx = (width - scaledWidth) / 2;
+        float dy = (height - scaledHeight) / 2;
+        mTextureView.setTranslationX(dx);
+        mTextureView.setTranslationY(dy);
     }
 
     private static int sensitiveDeviceRotation(CameraCharacteristics cameraCharacteristics, int deviceOrientation) {
@@ -157,6 +210,7 @@ public class CameraPreview {
                 int deviceOrientation = activity.getWindowManager().getDefaultDisplay().getRotation();
                 mTotalRotation = sensitiveDeviceRotation(cameraCharacteristics, deviceOrientation);
                 boolean swapRotation = mTotalRotation == 90 || mTotalRotation == 270;
+
                 int rotatedWidth = width;
                 int rotatedHeight = height;
                 if (swapRotation) {
@@ -165,6 +219,7 @@ public class CameraPreview {
                 }
                 mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), rotatedWidth, rotatedHeight);
                 mVideoSize = chooseOptimalSize(map.getOutputSizes(MediaRecorder.class), rotatedWidth, rotatedHeight);
+//                updateTextureMatrix(rotatedWidth, rotatedHeight, swapRotation);
                 cameraId = id;
                 return;
             }

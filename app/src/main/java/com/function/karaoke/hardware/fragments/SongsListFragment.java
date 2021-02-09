@@ -261,7 +261,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             double averageSongsPlayed = songsDb.getAverageSongsPlayed();
             recyclerView.setAdapter(mAdapter);
             mAdapter.setAverage(averageSongsPlayed);
-            mAdapter.setData(songsDb.getSongs(), getActivity().getResources().getString(R.string.play));
+            mAdapter.setData(songsDb.getSongs());
             mAdapter.notifyDataSetChanged();
         }
     }

@@ -469,8 +469,8 @@ public class SingActivity extends AppCompatActivity implements
                 }
                 finish();
             }
-            activityUI.hideLoadingIndicator();
-            activityUI.showPlayButton();
+//            activityUI.hideLoadingIndicator();
+//            activityUI.showPlayButton();
         }
         if (null != song) {
 //            addTitleToScreen();
@@ -1099,7 +1099,7 @@ public class SingActivity extends AppCompatActivity implements
                     userService.updateUserFields(new UserService.UserUpdateListener() {
                         @Override
                         public void onSuccess() {
-                            saveSongToTempJsonFile();
+                            saveSongToTempJsonFile(false);
                             jsonFile = renameJsonPendingFile();
                             save(jsonFile);
                             activityUI.showShareItems();
@@ -1117,12 +1117,12 @@ public class SingActivity extends AppCompatActivity implements
         });
     }
 
-    private void saveSongToTempJsonFile() {
+    private void saveSongToTempJsonFile(boolean freeShareUsed) {
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
         if (postParseVideoFile != null) {
             recording = new Recording(song, songPlayed, timeStamp,
-                    authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn, true);
+                    authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn, freeShareUsed);
 //        if (!earphonesUsed)
 //            recording.earphonesNotUsed();
             JsonHandler.createTempJsonObject(postParseVideoFile, recording, this.getFilesDir());
@@ -1145,7 +1145,7 @@ public class SingActivity extends AppCompatActivity implements
             if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK
                     && purchases != null) {
                 keepVideo = true;
-                saveSongToTempJsonFile();
+                saveSongToTempJsonFile(false);
                 for (Purchase purchase : purchases) {
                     if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
 //                          saveSongToJsonFile();
@@ -1179,7 +1179,7 @@ public class SingActivity extends AppCompatActivity implements
     public void startSaveProcess(boolean freeShareUsed) {
         keepVideo = true;
         itemAcquired = true;
-        saveSongToTempJsonFile();
+        saveSongToTempJsonFile(freeShareUsed);
         continueWithSaveProcess(freeShareUsed);
 
     }
@@ -1350,11 +1350,11 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-
+    //todo called to see if user is out of storage
     public void deleteRecording(Recording mItem) {
         List<Recording> deleting = new ArrayList<>();
         deleting.add(mItem);
-        recordingDelete = new RecordingDelete(() -> deleteRecording(), deleting);
+        recordingDelete = new RecordingDelete(this::deleteRecording, deleting);
     }
 
     private void deleteRecording() {
@@ -1404,8 +1404,8 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void songPrepared() {
-        activityUI.showPlayButton();
-        activityUI.hideLoadingIndicator();
+//        activityUI.showPlayButton();
+//        activityUI.hideLoadingIndicator();
     }
 
     @Override

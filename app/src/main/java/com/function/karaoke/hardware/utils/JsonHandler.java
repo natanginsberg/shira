@@ -97,6 +97,8 @@ public class JsonHandler {
                 true);
         if (recordingToAdd.has("length"))
             recording.setLength(recordingToAdd.getLong("length"));
+        if (recordingToAdd.has("freeShareUsed"))
+            recording.setFreeShareUsed(recordingToAdd.getBoolean("freeShareUsed"));
         return new SaveItems(fileUri, recording);
     }
 

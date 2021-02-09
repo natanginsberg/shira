@@ -134,9 +134,11 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                         selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
                     }
                 } else if (MimeTypes.isVideo(trackGroups.get(i).getFormat(0).sampleMimeType)) {
-                    Integer index = audioRenderers.poll();
-                    if (index != null) {
-                        selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
+                    if (cameraOn) {
+                        Integer index = audioRenderers.poll();
+                        if (index != null) {
+                            selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
+                        }
                     }
                 }
             }
@@ -419,7 +421,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             public void onPlaybackStateChanged(int state) {
                 if (state == ExoPlayer.STATE_ENDED) {
                     releasePlayer();
-                    finish();
+                    showEndPopup();
                 }
                 if (state == ExoPlayer.STATE_READY) {
                     if (sessionId == -1)
@@ -441,6 +443,44 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
         if (!cameraOn)
             findViewById(R.id.logo).setVisibility(View.VISIBLE);
+    }
+
+    private void showEndPopup() {
+        View popupView = playbackPopupOpen.openPopup(R.id.end_playback_video, R.layout.end_playback_video);
+        playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                if (player == null)
+                    endVideo();
+            }
+        });
+        addEndPopupListeners(popupView);
+    }
+
+    private void addEndPopupListeners(View popupView) {
+        addRestartListener(popupView);
+        if (externalView)
+            addReportListener(popupView);
+        addExitListener(popupView);
+    }
+
+    private void addRestartListener(View popupView) {
+        popupView.findViewById(R.id.continue_watching).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                playbackPosition = 0;
+                createPlayer();
+                playbackPopupOpen.dismissPopup();
+            }
+        });
+    }
+
+    private void endVideo() {
+        if (externalView) {
+            startPromo();
+        } else {
+            finish();
+        }
     }
 
     private void addReverb() {
@@ -610,6 +650,16 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     }
 
     private void addPopupListeners(View popupView) {
+        addContinueListener(popupView);
+        if (externalView)
+            addReportListener(popupView);
+
+        addExitListener(popupView);
+
+
+    }
+
+    private void addContinueListener(View popupView) {
         popupView.findViewById(R.id.continue_watching).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -617,7 +667,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
             }
         });
+    }
 
+    private void addReportListener(View popupView) {
         popupView.findViewById(R.id.report).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -625,17 +677,15 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
             }
         });
+    }
 
+    private void addExitListener(View popupView) {
         popupView.findViewById(R.id.exit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onStop();
                 playbackPopupOpen.dismissPopup();
-                if (externalView) {
-                    startPromo();
-                } else {
-                    finish();
-                }
+                endVideo();
 
             }
         });

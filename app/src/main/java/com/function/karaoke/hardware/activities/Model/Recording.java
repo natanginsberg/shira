@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 public class Recording implements Serializable, Reocording {
     private static final String EARPHONES_NOT_USED = "empty";
+    private boolean freeShareUsed;
     private String recordingId;
     private String recorderId;
     private String recordingUrl;
@@ -68,6 +69,21 @@ public class Recording implements Serializable, Reocording {
         this.length = length;
         this.cameraOn = cameraOn;
         this.loading = loading;
+    }
+
+    public Recording(boolean freeShareUsed, DatabaseSong song, String songPlayed, String date,
+                     String recorderId, String recordingId, int delay, long length, boolean cameraOn) {
+        this.title = song.getTitle();
+        this.artist = song.getArtist();
+        this.audioFileUrl = songPlayed;
+        this.imageResourceFile = song.getImageResourceFile();
+        this.date = date;
+        this.recorderId = recorderId;
+        this.recordingId = recordingId;
+        this.delay = delay;
+        this.length = length;
+        this.cameraOn = cameraOn;
+        this.freeShareUsed = freeShareUsed;
     }
 
 
@@ -163,6 +179,7 @@ public class Recording implements Serializable, Reocording {
         recording.put("delay", delay);
         recording.put("length", length);
         recording.put("cameraOn", cameraOn);
+        recording.put("freeShareUsed", freeShareUsed);
         return recording;
 
     }
@@ -221,5 +238,13 @@ public class Recording implements Serializable, Reocording {
 
     public void setReports(int reports) {
         this.reports = reports;
+    }
+
+    public boolean isFreeShareUsed() {
+        return freeShareUsed;
+    }
+
+    public void setFreeShareUsed(boolean freeShareUsed) {
+        this.freeShareUsed = freeShareUsed;
     }
 }

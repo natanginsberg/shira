@@ -48,7 +48,6 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private List<DatabaseSong> mValues;
     private List<Recording> mRecordings;
     private final OnListFragmentInteractionListener mListener;
-    private String text;
     private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
             R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
     private static final int[] transparentRectangles = new int[]{R.drawable.custom_song_rec_1_t,
@@ -58,7 +57,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private double averageSongsPlayed;
 
     public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener, String textToDisplay) {
-        setData(items, textToDisplay);
+        setData(items);
         mListener = listener;
     }
 
@@ -66,22 +65,6 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         this.averageSongsPlayed = averageSongsPlayed;
     }
 
-    class ViewHolderBig extends ViewHolder {
-
-
-        public ViewHolderBig(View itemView) {
-            super(itemView);
-
-        }
-    }
-
-    class ViewHolderSmall extends ViewHolder {
-
-
-        public ViewHolderSmall(View itemView) {
-            super(itemView);
-        }
-    }
 
     @Override
     public int getItemViewType(final int position) {
@@ -113,48 +96,21 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
 
         view.setLayoutParams(layoutParams);
-//        switch (viewType){
-//            case 0:
-//                return new ViewHolderBig(view);
-//            case 1:
-//                return new ViewHolderSmall(view);
-//        }
+
         return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
-//        switch (holder.getItemViewType()){
-//            case 0:
-//                ViewHolderBig bigHolder = (ViewHolderBig) holder;
-        holder.setItem(mValues.get(position));
+//        DatabaseSong song = mValues.get(position);
+//        ShapeableImageView mCover = (ShapeableImageView) holder.mCover;
+        holder.setItem(holder.mView, mValues.get(position));
 
-        // making the click only on the button and not on the whole icon
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (null != mListener) {
-                    mListener.onListFragmentInteractionPlay(holder.mItem);
-                }
+        holder.itemView.setOnClickListener(view -> {
+            if (null != mListener) {
+                mListener.onListFragmentInteractionPlay(holder.mItem);
             }
         });
-//                break;
-//            case 1:
-//                ViewHolderSmall smallHolder = (ViewHolderSmall) holder;
-//                smallHolder.setItem(mValues.get(position));
-//
-//                 making the click only on the button and not on the whole icon
-//
-//                smallHolder.itemView.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        if (null != mListener) {
-//                            mListener.onListFragmentInteractionRecordingClick(holder.mItem);
-//                        }
-//                    }
-//                });
-//        }
 
     }
 
@@ -163,54 +119,57 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         return mValues.size();
     }
 
-    public void setData(List<? extends DatabaseSong> songs, String textToDisplay) {
+    public void setData(List<? extends DatabaseSong> songs) {
         mValues = new ArrayList<>(songs); // make a copy
         Collections.sort(mValues, mComparator);
-        text = textToDisplay;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private final View mView;
-        private final TextView mLblTitle;
-        private final TextView mLblArtist;
-        private final ShapeableImageView mCover;
+        private View mView;
+        private TextView mLblTitle;
+        private TextView mLblArtist;
+        private String url;
 
         //        public Song mItem;
         public DatabaseSong mItem;
 
         public ViewHolder(View view) {
             super(view);
-            mView = view;
-            mLblTitle = view.findViewById(R.id.lbl_title);
-            mLblArtist = view.findViewById(R.id.lbl_artist);
-            mCover = view.findViewById(R.id.img_cover);
+            this.mView = view;
+
 //            ((TextView) view.findViewById(R.id.play_button)).setText(text);
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mLblArtist.getText() + "'";
+            return super.toString() + " '" + mLblArtist.getText() + "'" + mLblTitle.getText() + "'" + url;
         }
 
-        public void setItem(DatabaseSong song) {
-            setPopularTag(song);
-            setNewTag(song);
-            mItem = song;
-            mLblTitle.setText(song.getTitle());
-            mLblArtist.setText(song.getArtist());
+        public void setItem(View mView, DatabaseSong song) {
+            if (mView == this.mView) {
+                url = song.getImageResourceFile();
+                mLblTitle = mView.findViewById(R.id.lbl_title);
+                mLblArtist = mView.findViewById(R.id.lbl_artist);
+                ShapeableImageView mCover = mView.findViewById(R.id.img_cover);
+                setPopularTag(song);
+                setNewTag(song);
+                mItem = song;
+                mLblTitle.setText(song.getTitle());
+                mLblArtist.setText(song.getArtist());
 //            if (!language.equals("English")) {
-            if (!song.getImageResourceFile().equals("")) {
-                Picasso.get()
-                        .load(song.getImageResourceFile())
-                        .placeholder(R.drawable.plain_rec)
-                        .fit()
-                        .into(mCover);
+                if (!song.getImageResourceFile().equals("")) {
+                    Picasso.get()
+                            .load(song.getImageResourceFile())
+                            .placeholder(R.drawable.plain_rec)
+                            .fit()
+                            .into(mCover);
+                }
+                mCover.setShapeAppearanceModel(mCover.getShapeAppearanceModel()
+                        .toBuilder()
+                        .setTopRightCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
+                        .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
+                        .build());
             }
-            mCover.setShapeAppearanceModel(mCover.getShapeAppearanceModel()
-                    .toBuilder()
-                    .setTopRightCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
-                    .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
-                    .build());
         }
 
         private void setNewTag(DatabaseSong song) {

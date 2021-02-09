@@ -54,7 +54,7 @@
     <string name="my_recordings">My Recordings</string>
     <string name="sign_in">Sign In</string>
     <string name="contact_us">Contact Us</string>
-    <string name="policy">Privacy policy</string>
+    <string name="policy">Privacy policy and contract</string>
     <string name="sign_in_title">Not a User</string>
     <string name="recording_sign_in_text">You must sign in to view recordings</string>
     <string name="no_recordings">Sorry,\n you have no recordings</string>
@@ -140,7 +140,7 @@
     <string name="thank_you_for_signing_up_to_ashira_n_you_have_up_to_3_saves_shares_free">Thank you for signing up to Ashira. \n You have up to 3 saves/shares free</string>
     <string name="do_you_want_to_save_and_share_countless_of_recordings">Do you want to save and share all of your recordings?</string>
     <string name="subscribe">Subscribe</string>
-    <string name="_36_shekel_a_month_or_175_shekel_a_year">36 shekel a month or 175 shekel a year</string>
+    <string name="_36_shekel_a_month_or_175_shekel_a_year">36 shekel a month or 170 shekel a year</string>
     <string name="share_left_label">You have %1$d free shares left</string>
     <string name="don_t_send"><u>Don\'t send</u></string>
     <string name="backslash">" \\ "</string>
@@ -181,5 +181,7 @@
     <string name="inapproriate_under_review">This video is being reviewed by the Ashira staff</string>
     <string name="recording_does_not_exist">The recording does not exist in our server anymore</string>
     <string name="loading_percent">Loading  %1$d%</string>
+    <string name="the_video_is_finished">The video is finished</string>
+    <string name="play_again">Play again</string>
 
 </resources>
