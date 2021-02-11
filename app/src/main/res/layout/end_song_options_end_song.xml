@@ -44,7 +44,7 @@
             android:layout_margin="20dp"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:text="@string/you_finished_the_recording"
+            android:text="@string/you_finished_the_recording_your_voice"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 

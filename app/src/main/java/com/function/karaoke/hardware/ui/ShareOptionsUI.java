@@ -91,7 +91,7 @@ public class ShareOptionsUI {
             } else {
                 video = true;
                 ((TextView) thirdPopupView.findViewById(R.id.header)).setText(context.getResources().getString(R.string.share_save));
-                ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.send_without_video));
+                ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.send_without_video_click_option));
             }
         });
     }
@@ -136,9 +136,9 @@ public class ShareOptionsUI {
         thirdPopupView.findViewById(R.id.copy_link).setOnClickListener(view -> {
             ClipboardManager clipboard = (ClipboardManager) context.getSystemService(CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText("Url and password",
-                    context.getResources().getString(R.string.link) + " " +
+                    context.getResources().getString(R.string.video_link) + " " +
                             mListener.getLink() + " " +
-                            context.getResources().getString(R.string.password) + " " +
+                            context.getResources().getString(R.string.video_password) + " " +
                             mListener.getPassword());
             clipboard.setPrimaryClip(clip);
         });

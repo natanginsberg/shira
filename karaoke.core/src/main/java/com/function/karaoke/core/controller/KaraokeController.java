@@ -24,6 +24,7 @@ import com.function.phone.core.R;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -55,12 +56,14 @@ public class KaraokeController implements Recorder.IToneListener {
     private final Runnable mUpdater = new Runnable() {
         @Override
         public void run() {
-//            if (timerStarted == 0) {
-//                while (timerStarted == 0 && mPlayer.getCurrentPosition() <= 0) {
-//                    mHandler.postDelayed(mUpdater, 5);
-//                }
-//
-//            }
+            if (timerStarted == 0) {
+                if (mPlayer.getCurrentPosition() <= 0) {
+                    mHandler.postDelayed(mUpdater, 5);
+                } else {
+                    timerStarted =  new Date().getTime();
+                }
+
+            }
 
             mHandler.postDelayed(mUpdater, 100);
             double position = mPlayer.getCurrentPosition() / 1000.0;
@@ -317,9 +320,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
     public void onPause() {
         if (mPlayer != null && mPlayer.isPlaying()) {
-
             mPlayer.pause();
-//            mRecorder.pause();
         }
         mHandler.removeCallbacks(mUpdater);
     }

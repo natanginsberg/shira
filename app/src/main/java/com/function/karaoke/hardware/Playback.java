@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
@@ -46,9 +47,11 @@ import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.source.ClippingMediaSource;
+import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -121,12 +124,19 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                     configs[i] = RendererConfiguration.DEFAULT;
                 } else if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_VIDEO) {
                     if (cameraOn) {
+
                         audioRenderers.add(i);
+
                         configs[i] = RendererConfiguration.DEFAULT;
                     }
+
                 }
             }
-            for (int i = 0; i < trackGroups.length; i++) {
+
+            int previousIndex = 0;
+            for (
+                    int i = 0;
+                    i < trackGroups.length; i++) {
                 if (MimeTypes.isAudio(trackGroups.get(i).getFormat(0).sampleMimeType)) {
                     Integer index = audioRenderers.poll();
                     if (index != null) {
@@ -135,9 +145,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 } else if (MimeTypes.isVideo(trackGroups.get(i).getFormat(0).sampleMimeType)) {
                     if (cameraOn) {
                         Integer index = audioRenderers.poll();
-                        if (index != null) {
+                        if (index != null)
                             selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
-                        }
+
                     }
                 }
             }
@@ -148,6 +158,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         public void onSelectionActivated(Object info) {
         }
     };
+
     private int sessionId = -1;
     private AudioRendererWithoutClock earphoneRenderer;
     private String password;
@@ -382,7 +393,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setCancelable(true);
         alertBuilder.setTitle(R.string.video_loading);
-        alertBuilder.setMessage(R.string.video_loading_body);
+        alertBuilder.setMessage(R.string.video_loading_body_if_video_not_loaded);
         alertBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             finish();
         });
@@ -429,9 +440,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 }
             }
         });
+        removeVideo(player);
         player.prepare();
         player.seekTo(currentWindow, playbackPosition);
-//        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
+        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
         player.setPlayWhenReady(true);
 //        addSpinnerListeners();
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
@@ -442,6 +454,14 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         });
         if (!cameraOn)
             findViewById(R.id.logo).setVisibility(View.VISIBLE);
+    }
+
+    private void removeVideo(SimpleExoPlayer player) {
+//        for (int i = 0; i < player.getRendererCount(); i++) {
+//            if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
+//                trackSelector.setRendererDisabled(i, true);
+//            }
+//        }
     }
 
     private void showEndPopup() {
@@ -548,19 +568,23 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         MediaItem mediaItem = new MediaItem.Builder().setUri(uri.get(0)).build();
         MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
         if (delay != 0) {
-            mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000, 1000000000, false, true, true);
+            mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000,
+                    (length + delay) * 1000, false, false, true);
         }
         if (uris.size() > 1) {
             MediaItem mediaItem1 = new MediaItem.Builder().setUri(uri.get(1)).build();
             MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
+
             if (length != 0)
                 mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
+
+
             MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
             mediaSource = new MergingMediaSource(true, mediaSources);
         } else
             mediaSource = mediaSource1;
     }
-
+    
     private void buildMediaSourceFromUrls(List<String> urls) {
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
         Uri song = Uri.parse(urls.get(0));

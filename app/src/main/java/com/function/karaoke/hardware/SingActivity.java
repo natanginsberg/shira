@@ -344,8 +344,8 @@ public class SingActivity extends AppCompatActivity implements
     public void alertUserThatHeCanNotPause() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setCancelable(true);
-        alertBuilder.setTitle(R.string.no_pause_title);
-        alertBuilder.setMessage(R.string.no_pause_body);
+        alertBuilder.setTitle(R.string.no_pause_title_for_older_phones);
+        alertBuilder.setMessage(R.string.no_pause_body_for_older_phones);
         alertBuilder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
         });
         AlertDialog alert = alertBuilder.create();
@@ -367,20 +367,20 @@ public class SingActivity extends AppCompatActivity implements
     private void setAudioAndDismissPopup() {
         activityUI.changeLayout();
         activityUI.dismissPopup();
-//        activityUI.showLoadingIcon();
+        activityUI.showLoadingIcon();
 //        createEarphoneReceivers();
-        if (fileName == null)
-            downloadFile(songPlayed);
-            // todo this is what I added download file it is at the end of the class
-        else
-            startBuild();
+//        if (fileName == null)
+//            downloadFile(songPlayed);
+        // todo this is what I added download file it is at the end of the class
+//        else
+        startBuild();
 
     }
 
     private void startBuild() {
         findViewById(R.id.loading_progress).setVisibility(View.INVISIBLE);
-        activityUI.showPlayButton();
-        mKaraokeKonroller.loadAudio(fileName);
+//        activityUI.showPlayButton();
+        mKaraokeKonroller.loadAudio(songPlayed);
     }
 
     public void manTone(View view) {
@@ -540,12 +540,12 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void endSong() {
+        if (isRecording) {
+            cameraPreview.stopRecording();
+        }
         if (mKaraokeKonroller.isPlaying()) {
             mKaraokeKonroller.onStop();
 //                customMediaPlayer.onStop();
-        }
-        if (isRecording) {
-            cameraPreview.stopRecording();
         }
         if (!keepVideo)
             deleteVideo();
@@ -582,7 +582,7 @@ public class SingActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
 //        if (earphonesUsed)
-        intent.putExtra(AUDIO_FILE, fileName);
+        intent.putExtra(AUDIO_FILE, songPlayed);
         intent.putExtra(CAMERA_ON, cameraOn);
         intent.putExtra(DELAY, delay);
         intent.putExtra(LENGTH, lengthOfAudioPlayed);
@@ -849,6 +849,7 @@ public class SingActivity extends AppCompatActivity implements
         cTimer.start();
     }
 
+    // todo make sure song finishes when page is left
     private void finishSong() {
         cancelTimer();
         if (isRecording) {
@@ -895,10 +896,12 @@ public class SingActivity extends AppCompatActivity implements
     private void setDelay(Uri uriFromFile) {
         MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
         int duration = mp.getDuration();
-        delay = (int) (duration - lengthOfAudioPlayed);
-//        delay = (int) (mKaraokeKonroller.getTimerStarted() - cameraPreview.getTimeCreated());
-//
-//        showFailure();
+        int delay1 = (int) (duration - lengthOfAudioPlayed);
+        long recordingStarted = cameraPreview.getTimeCreated();
+        long playStarted = mKaraokeKonroller.getTimerStarted();
+        delay = (int) Math.abs(recordingStarted - playStarted);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
 
@@ -1396,8 +1399,8 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void songPrepared() {
-//        activityUI.showPlayButton();
-//        activityUI.hideLoadingIndicator();
+        activityUI.showPlayButton();
+        activityUI.hideLoadingIndicator();
     }
 
     @Override
@@ -1578,7 +1581,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void createVideoFileName() throws IOException {
         String prepend = "exoplayer";
-        File videoFile = new File(mVideoFolder, prepend + ".mp4");
+        File videoFile = new File(mVideoFolder, prepend + ".mp3");
         fileName = videoFile.getAbsolutePath();
 //        mVideoFile = videoFile;
     }

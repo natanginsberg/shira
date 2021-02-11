@@ -20,7 +20,7 @@
         <Button
             android:id="@+id/back_button"
             android:layout_width="21dp"
-            android:layout_height="15dp"
+            android:layout_height="20dp"
             android:layout_centerVertical="true"
             android:layout_margin="10dp"
             android:background="@drawable/ic_arrow_back"
@@ -45,7 +45,7 @@
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="20dp"
             android:src="@drawable/recordings_album_holder"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
@@ -64,7 +64,7 @@
             android:id="@+id/artist_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="20dp"
             android:fontFamily="@font/varela_round_regular"
             android:textColor="@android:color/white"
             android:textSize="14sp"
@@ -75,7 +75,7 @@
             android:id="@+id/song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_marginStart="20dp"
             android:fontFamily="@font/varela_round_regular"
             android:textColor="@android:color/white"
             android:textSize="20sp"
@@ -100,7 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_margin="25dp"
-        android:elevation="15dp"
+        android:elevation="20dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -230,7 +230,7 @@
     <!--                    android:layout_gravity="center"-->
     <!--                    android:layout_weight="1"-->
     <!--                    android:textColor="@color/default_text_color"-->
-    <!--                    android:textSize="15sp" />-->
+    <!--                    android:textSize="20sp" />-->
 
     <!--            </LinearLayout>-->
 
@@ -271,7 +271,8 @@
         android:fillViewport="true"
         android:orientation="vertical"
         android:scrollbars="none"
-        app:layout_constraintHeight_percent="0.7"
+        android:background="@android:color/black"
+        app:layout_constraintHeight_percent="0.8"
         app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
         <LinearLayout
@@ -290,12 +291,13 @@
     </ScrollView>
 
     <Button
+        android:elevation="20dp"
         android:id="@+id/pause"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="15dp"
+        android:layout_marginBottom="20dp"
         android:background="@drawable/ic_pause_icon"
         android:onClick="pauseSong"
         android:visibility="invisible"
@@ -310,6 +312,8 @@
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_margin="45dp"
+        android:elevation="20dp"
+
         android:background="@drawable/ic_play_icon_shadow"
         android:onClick="resumeSong"
         android:visibility="invisible"
@@ -324,6 +328,8 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/varela_round_regular"
         android:text="@string/continue_text"
+        android:elevation="20dp"
+
         android:textColor="@android:color/white"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -338,6 +344,8 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="45dp"
+        android:elevation="20dp"
+
         android:background="@drawable/ic_stop_icon"
         android:onClick="openEndOptions"
         android:visibility="invisible"
@@ -354,6 +362,8 @@
         android:fontFamily="@font/varela_round_regular"
         android:text="@string/stop"
         android:textColor="@android:color/white"
+        android:elevation="20dp"
+
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="@id/stop"
@@ -361,13 +371,11 @@
         app:layout_constraintTop_toBottomOf="@id/stop" />
 
 
-    <include
+    <WebView
         android:id="@+id/logo"
-        layout="@layout/logo_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:elevation="10dp"
+        android:background="@android:color/black"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -380,11 +388,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:elevation="10dp"
+        android:elevation="20dp"
         android:fontFamily="monospace"
         android:padding="1dp"
         android:textColor="@color/default_text_color"
         android:textSize="25sp"
+
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -399,6 +408,8 @@
         android:layout_margin="25dp"
         android:background="@drawable/ic_play_icon_shadow"
         android:onClick="playMusic"
+        android:elevation="20dp"
+
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="42:52"

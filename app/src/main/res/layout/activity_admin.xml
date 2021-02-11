@@ -35,7 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:id="@+id/genre"
-        android:hint="@string/genres"
+        android:hint="Genres"
         android:gravity="center"/>
 
     <EditText

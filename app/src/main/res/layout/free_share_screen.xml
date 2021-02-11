@@ -22,18 +22,13 @@
         android:textSize="30sp" />
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20sp"
+        android:layout_gravity="center"
         android:layout_weight="0.8"
-        android:orientation="vertical"
-        android:weightSum="1">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:orientation="vertical">
+        android:gravity="center"
+        android:orientation="vertical">
 
             <TextView
                 android:id="@+id/ackknowledge_signin"
@@ -41,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="@string/thank_you_for_signing_up_to_ashira_n_you_have_up_to_3_saves_shares_free"
+                android:text="@string/acknowledge_of_sign_in"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
@@ -69,46 +64,4 @@
 
 
         </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/member_invite"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/do_you_want_to_save_and_share_countless_of_recordings"
-                android:textColor="@android:color/white"
-                android:textSize="18sp" />
-
-            <Button
-                android:id="@+id/share_question2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="@drawable/end_song_button_circles"
-                android:fontFamily="@font/varela_round_regular"
-                android:gravity="center"
-                android:text="@string/subscribe"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="24sp" />
-
-            <TextView
-                android:id="@+id/pricing"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="@string/_36_shekel_a_month_or_175_shekel_a_year"
-                android:textColor="@android:color/white"
-                android:textSize="15sp" />
-        </LinearLayout>
-    </LinearLayout>
-
 </LinearLayout>

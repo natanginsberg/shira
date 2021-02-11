@@ -17,6 +17,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Display;
@@ -337,6 +338,8 @@ public class CameraPreview {
         if (mCamera != null) {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+            Log.i("bug77", "profile fr:" + profile.videoFrameRate);
+            Log.i("bug77", "profile br:" + profile.videoBitRate);
             mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }
@@ -351,9 +354,32 @@ public class CameraPreview {
 //        mMediaRecorder.setAudioSamplingRate(8000);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
+            final File f = new File(fileName);
+            f.delete();
+            final long milliseconds = new Date().getTime();
             mMediaRecorder.prepare();
             mMediaRecorder.start();
-
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int counter = 0;
+                        while (!f.exists() && counter < 400) {
+                            counter++;
+                            Thread.sleep(1);
+                        }
+                        final long freeSpace = f.getFreeSpace();
+                        while (freeSpace == f.getFreeSpace() && counter < 400) {
+                            counter++;
+                            Thread.sleep(5);
+                        }
+                        timeCreated = new Date().getTime();
+                        Log.i("bug77", "milliseconds:" + (new Date().getTime() - milliseconds));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //            audioRecorder.startRecorder();
@@ -361,6 +387,7 @@ public class CameraPreview {
             e.printStackTrace();
         }
     }
+
 
     private void setMediaRecorder() {
         try {

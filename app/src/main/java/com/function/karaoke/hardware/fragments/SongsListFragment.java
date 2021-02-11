@@ -109,7 +109,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         Context context = songsView.getContext();
         recyclerView = songsView.findViewById(R.id.list);
         recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-        
+
         recyclerView.setAdapter(mAdapter);
         addSearchListener();
         this.databaseDriver = new DatabaseDriver();
@@ -372,16 +372,15 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void couponListener() {
-        if (userIsSignedIn())
-            popupView.findViewById(R.id.coupons).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (userIsSignedIn())
-                        mListener.startCouponActivity();
-                }
-            });
-        else
-            mListener.alertUserToSignIn();
+        popupView.findViewById(R.id.coupons).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (userIsSignedIn())
+                    mListener.startCouponActivity();
+                else
+                    mListener.alertUserToSignIn();
+            }
+        });
     }
 
     public void showSongSuggestionBox() {

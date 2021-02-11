@@ -135,7 +135,7 @@
             android:background="@drawable/purple_click"
             android:fontFamily="@font/varela_round_regular"
             android:onClick="manTone"
-            android:text="@string/man"
+            android:text="@string/man_tone"
             android:textColor="@color/sing_up_hover"
             android:textSize="18sp" />
 
@@ -155,7 +155,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:fontFamily="@font/varela_round_regular"
-            android:text="@string/with_video"
+            android:text="@string/with_video_when_chosing"
             android:textColor="@color/sing_up_hover"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"

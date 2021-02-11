@@ -53,7 +53,7 @@
                 android:fontFamily="@font/varela_round_regular"
                 android:gravity="center"
                 android:onClick="playback"
-                android:text="@string/this_recording_you_just_have_to_share_in_order_to_share_sign_up_to_ashira_n_with_your_gmail_account"
+                android:text="@string/sign_up_reason"
                 android:textColor="@color/sing_up_hover"
                 android:textSize="18sp" />
 

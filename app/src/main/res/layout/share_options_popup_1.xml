@@ -54,7 +54,7 @@
             android:layout_weight="1.2"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:text="@string/you_have_3_remaining_shares"
+            android:text="@string/you_have_3_remaining_shares_hint"
             android:textColor="@android:color/white"
             android:textSize="20sp" />
 
@@ -78,7 +78,7 @@
             android:layout_weight="1.2"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:text="@string/who_can_view_your_recording"
+            android:text="@string/share_options_question"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
@@ -131,7 +131,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/send_without_video"
+            android:text="@string/send_without_video_click_option"
             android:textColor="@color/sing_up_hover"
             android:textSize="13sp" />
 

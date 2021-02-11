@@ -106,7 +106,7 @@ public class CouponActivity extends AppCompatActivity {
     }
 
     private void invalidCodeIndication() {
-        PopupWindow popupWindow = openXIndication(this, findViewById(android.R.id.content).getRootView(), getResources().getString(R.string.no_coupon));
+        PopupWindow popupWindow = openXIndication(this, findViewById(android.R.id.content).getRootView(), getResources().getString(R.string.incorrect_coupon));
         showPopupForOneSecond(popupWindow, false);
 
     }

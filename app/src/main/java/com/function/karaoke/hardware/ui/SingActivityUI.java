@@ -12,6 +12,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOverlay;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -28,6 +31,10 @@ import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
 import com.squareup.picasso.Picasso;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class SingActivityUI {
 
@@ -59,13 +66,50 @@ public class SingActivityUI {
         view.findViewById(R.id.camera_holder).setBackgroundColor(Color.BLACK);
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     public void setSurfaceForRecording(boolean cameraOn) {
         view.findViewById(R.id.play_button).setVisibility(View.GONE);
 //        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
-        if (!cameraOn)
-            view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
+        if (!cameraOn) {
+            WebView webview = (WebView) view.findViewById(R.id.logo);
+            webview.setVisibility(View.VISIBLE);
+            WebSettings webSettings = webview.getSettings();
+            webSettings.setJavaScriptEnabled(true);
+            webSettings.setDomStorageEnabled(true);
+            webSettings.setBuiltInZoomControls(true);
+            webview.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            webview.setWebChromeClient(new WebChromeClient());
+            webview.setBackgroundColor(Color.BLACK);
+            String file = readFileToString("ashira_ani.html");
+            webview.loadDataWithBaseURL("file:///android_asset/", file, "text/html", "utf-8", null);
+        }
+//            view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
 
 
+    }
+
+    private String readFileToString(String s) {
+        BufferedReader br = null;
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            br = new BufferedReader(new InputStreamReader(context.getAssets().open(s), "UTF-8"));
+            String myLine;
+            while ((myLine = br.readLine()) != null) {
+                stringBuilder.append(myLine);
+                stringBuilder.append("\n");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 
     public void turnOffCameraOptions() {
@@ -344,11 +388,11 @@ public class SingActivityUI {
         if (cameraOn) {
             popupView.findViewById(R.id.check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.no_check).setVisibility(View.INVISIBLE);
-            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.with_video));
+            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.with_video_when_chosing));
         } else {
             popupView.findViewById(R.id.no_check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.check).setVisibility(View.INVISIBLE);
-            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.without_video));
+            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.without_video_when_chosing));
         }
     }
 
@@ -381,33 +425,36 @@ public class SingActivityUI {
 
     public void openInitialShareOptions(Context context, UserInfo user, FreeShareListener freeShareListener) {
         popupView.setVisibility(View.INVISIBLE);
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout viewGroup = view.findViewById(R.id.new_user_share);
-        secondPopupView = layoutInflater.inflate(R.layout.new_user_share_screen, viewGroup);
-
-        if (user != null)
+        if (user != null && user.getFreeShares() > 0) {
+            openSharePopup(context, R.id.new_user_share, R.layout.free_share_screen);
+        } else {
+            openSharePopup(context, R.id.new_member_screen, R.layout.new_member_screen);
+        }
+        if (user != null && user.getFreeShares() > 0)
             setRecordingsLeftNumber(context, user, freeShareListener);
         placeSignUpOptionsOnScreen(context);
         secondPopup.setFocusable(true);
         secondPopup.setOnDismissListener(() -> popupView.setVisibility(View.VISIBLE));
     }
 
+    private void openSharePopup(Context context, int id, int laoyout) {
+        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout viewGroup = view.findViewById(id);
+        secondPopupView = layoutInflater.inflate(laoyout, viewGroup);
+    }
+
     @SuppressLint("UseCompatLoadingForDrawables")
     private void setRecordingsLeftNumber(Context context, UserInfo user, FreeShareListener freeShareListener) {
         String textToDisplay = context.getResources().getString(R.string.share_left_label, user.getFreeShares());
         ((TextView) secondPopupView.findViewById(R.id.free_saves_left_text)).setText(textToDisplay);
-        if (user.getFreeShares() <= 0) {
-            secondPopupView.findViewById(R.id.save_free_recordings).setBackground(context.getResources().getDrawable(R.drawable.ic_search_port_gray));
-            //todo add click to payment
-        } else {
-            secondPopupView.findViewById(R.id.save_free_recordings).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    secondPopup.dismiss();
-                    freeShareListener.startSaveProcess(true);
-                }
-            });
-        }
+        secondPopupView.findViewById(R.id.save_free_recordings).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                secondPopup.dismiss();
+                freeShareListener.startSaveProcess(true);
+            }
+        });
+
     }
 
     private void placeSignUpOptionsOnScreen(Context context) {
@@ -463,8 +510,8 @@ public class SingActivityUI {
     }
 
     public void showLoadingIcon() {
-        startTimerForPercent();
-//        view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+//        startTimerForPercent();
+        view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
     }
 
     private void startTimerForPercent() {

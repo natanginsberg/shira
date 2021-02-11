@@ -450,6 +450,9 @@ public class SongsActivity
     @Override
     protected void onResume() {
         super.onResume();
+        File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
+        if (!folder.exists())
+            deleteSongsFolder();
         //todo check to see if json folder is empty and delete all songs
     }
 
