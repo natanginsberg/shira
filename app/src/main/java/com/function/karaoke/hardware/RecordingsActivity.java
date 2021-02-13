@@ -534,7 +534,7 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     private void showSuccessToast() {
-        Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
     }
 
     private void sendDataThroughIntent(String link) {

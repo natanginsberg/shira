@@ -2,13 +2,11 @@ package com.function.karaoke.hardware;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -26,27 +24,8 @@ import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.IndicationPopups;
 import com.function.karaoke.hardware.ui.PlaybackPopupOpen;
 import com.function.karaoke.hardware.utils.PlaybackPlayer;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Renderer;
-import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.RendererConfiguration;
-import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.audio.AudioRendererEventListener;
-import com.google.android.exoplayer2.audio.AudioSink;
-import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
-import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.util.MediaClock;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -62,11 +41,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 
 
 public class Playback extends AppCompatActivity implements PlaybackStateListener, PlaybackPopupOpen.PlaybackPopupListener {
@@ -82,70 +59,11 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private static final String DIRECTORY_NAME = "playback";
 
 
-    private final List<String> urls = new ArrayList<>();
     private final List<Uri> uris = new ArrayList<>();
-    RenderersFactory renderersFactory;
-    private String audioPath;
-    private PlayerView playerView;
-    private long playbackPosition = 0;
     private long length;
-    private int currentWindow;
     private int delay;
     private boolean earphonesUsed = false;
-    private MediaSource mediaSource;
-    //    private SimpleExoPlayer player;
-    private List<Renderer> renderers;
     private boolean cameraOn = true;
-    private final TrackSelector trackSelector = new TrackSelector() {
-        @Override
-        public TrackSelectorResult selectTracks(RendererCapabilities[] rendererCapabilities,
-                                                TrackGroupArray trackGroups, MediaSource.MediaPeriodId periodId, Timeline timeline) {
-            Queue<Integer> audioRenderers = new ArrayDeque<>();
-            RendererConfiguration[] configs = new RendererConfiguration[rendererCapabilities.length];
-            TrackSelection[] selections = new TrackSelection[rendererCapabilities.length];
-            for (int i = 0; i < rendererCapabilities.length; i++) {
-                if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_AUDIO) {
-                    audioRenderers.add(i);
-                    configs[i] = RendererConfiguration.DEFAULT;
-                } else if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_VIDEO) {
-                    if (cameraOn) {
-
-                        audioRenderers.add(i);
-
-                        configs[i] = RendererConfiguration.DEFAULT;
-                    }
-
-                }
-            }
-
-            int previousIndex = 0;
-            for (
-                    int i = 0;
-                    i < trackGroups.length; i++) {
-                if (MimeTypes.isAudio(trackGroups.get(i).getFormat(0).sampleMimeType)) {
-                    Integer index = audioRenderers.poll();
-                    if (index != null) {
-                        selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
-                    }
-                } else if (MimeTypes.isVideo(trackGroups.get(i).getFormat(0).sampleMimeType)) {
-                    if (cameraOn) {
-                        Integer index = audioRenderers.poll();
-                        if (index != null)
-                            selections[index] = new FixedTrackSelection(trackGroups.get(i), 0);
-
-                    }
-                }
-            }
-            return new TrackSelectorResult(configs, selections, new Object());
-        }
-
-        @Override
-        public void onSelectionActivated(Object info) {
-        }
-    };
-
-    private int sessionId = -1;
-    private AudioRendererWithoutClock earphoneRenderer;
     private String password;
     private File mVideoFolder;
     private String fileName;
@@ -164,7 +82,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playback);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        playerView = findViewById(R.id.surface_view);
+        PlayerView playerView = findViewById(R.id.surface_view);
         playbackPlayer = new PlaybackPlayer(this, playerView);
         playbackPlayer.assignView(findViewById(android.R.id.content).getRootView());
         playbackPopupOpen = new PlaybackPopupOpen(findViewById(android.R.id.content).getRootView(), this, this);
@@ -220,7 +138,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
 
-                audioPath = (String) getIntent().getStringExtra(AUDIO_FILE);
+                String audioPath = (String) getIntent().getStringExtra(AUDIO_FILE);
                 earphonesUsed = true;
             } else {
 //                findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
@@ -391,7 +309,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         popupView.findViewById(R.id.continue_watching).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                playbackPosition = 0;
+                playbackPlayer.restart();
 
                 playbackPlayer.createPlayer(Playback.this);
                 playbackPopupOpen.dismissPopup();
@@ -591,40 +509,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     @SuppressLint("SetTextI18n")
     private void showProgress(String progress) {
         ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
-    }
-
-    private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
-        public AudioRendererWithoutClock(Context context,
-                                         MediaCodecSelector mediaCodecSelector) {
-            super(context, mediaCodecSelector);
-        }
-
-        @Override
-        public MediaClock getMediaClock() {
-            return null;
-        }
-    }
-
-    private class CustomRendererFactory extends DefaultRenderersFactory {
-
-        public CustomRendererFactory(Context context) {
-            super(context);
-        }
-
-        // it is called internally. Do not delete!
-        protected void buildAudioRenderers​(Context context,
-                                            int extensionRendererMode,
-                                            MediaCodecSelector mediaCodecSelector,
-                                            boolean enableDecoderFallback, AudioSink audioSink,
-                                            Handler eventHandler, AudioRendererEventListener eventListener,
-                                            ArrayList<Renderer> out) {
-            super.buildAudioRenderers(context, extensionRendererMode, mediaCodecSelector, enableDecoderFallback, audioSink, eventHandler, eventListener, out);
-
-            if (earphonesUsed)
-                earphoneRenderer = new AudioRendererWithoutClock(context, mediaCodecSelector);
-            out.add(earphoneRenderer);
-            renderers = out;
-        }
     }
 
     class DownloadFileAsync extends AsyncTask<String, String, String> {

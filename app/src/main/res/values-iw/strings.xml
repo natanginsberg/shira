@@ -143,5 +143,6 @@
     <string name="member_sign_in">הרשמה כמנוי</string>
     <string name="click_to_join">בצעו ושתפו</string>
     <string name="the_recording_is_finished">סיימת לצפות בביצוע</string>
+    <string name="success">בוצע בהצלחה</string>
 
 </resources>

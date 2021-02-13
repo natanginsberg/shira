@@ -135,11 +135,11 @@ public class SignInViewModel extends ViewModel {
         });
     }
 
-    public void firebaseAuthWithGoogle(String idToken, FirebaseAuthListener firebaseAuthListener) {
+    public void firebaseAuthWithGoogle(String idToken, SuccessFailListener successFailListener) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         authenticationDriver.getAuth().signInWithCredential(credential).addOnSuccessListener(authResult -> {
             FirebaseUser user = authenticationDriver.getAuth().getCurrentUser();
-            firebaseAuthListener.onSuccess(user);
+            successFailListener.onSuccess(user);
 
         });
     }
@@ -157,7 +157,7 @@ public class SignInViewModel extends ViewModel {
         void failedToSearchDatabase();
     }
 
-    public interface FirebaseAuthListener {
+    public interface SuccessFailListener {
         void onSuccess(FirebaseUser firebaseUser);
 
         void onFailure();

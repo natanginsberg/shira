@@ -176,5 +176,6 @@
     <string name="member_sign_in">Member sign in</string>
     <string name="click_to_join">Click to join</string>
     <string name="the_recording_is_finished">The recording is finished</string>
+    <string name="success">Success</string>
 
 </resources>

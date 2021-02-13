@@ -2,6 +2,7 @@ package com.function.karaoke.hardware;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.View;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.fragment.app.FragmentActivity;
@@ -12,10 +13,14 @@ import androidx.lifecycle.ViewModelProviders;
 import com.function.karaoke.hardware.activities.Model.SignInViewModel;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.activities.Model.enums.LoginState;
+import com.function.karaoke.hardware.utils.Checks;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SignIn {
 
@@ -83,5 +88,55 @@ public class SignIn {
 
     }
 
+    public void handleSignInResult(Task<GoogleSignInAccount> completedTask, View view, SuccessFailListener resultSuccessFailListener) {
+        try {
+            signInViewModel = ViewModelProviders.of(activity).get(SignInViewModel.class);
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
+            signInViewModel.firebaseAuthWithGoogle(account.getIdToken(), new SignInViewModel.SuccessFailListener() {
+                @Override
+                public void onSuccess(FirebaseUser firebaseUser) {
+                    signInViewModel.isUserInDatabase(new SignInViewModel.DatabaseListener() {
+
+                        @Override
+                        public void isInDatabase(boolean inDatabase) {
+                            if (inDatabase) {
+                                user = signInViewModel.getUser();
+                            } else {
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
+
+                                signInViewModel.addNewUserToDatabase(user);
+                            }
+                        }
+
+                        @Override
+                        public void failedToSearchDatabase() {
+                            if (checkForInternet(view)) {
+                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
+
+                                signInViewModel.addNewUserToDatabase(user);
+                            }
+                        }
+                    });
+                    resultSuccessFailListener.onSuccess();
+
+                }
+
+                @Override
+                public void onFailure() {
+                    resultSuccessFailListener.onFailure();
+                }
+            });
+        } catch (Exception e) {
+//                Toast.makeText(this, context.getResources().getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private boolean checkForInternet(View view) {
+        return Checks.checkForInternetConnection(view, context);
+    }
+
+    public UserInfo getUser() {
+        return user;
+    }
 }

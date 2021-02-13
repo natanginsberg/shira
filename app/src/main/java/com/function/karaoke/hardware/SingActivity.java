@@ -10,10 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -39,8 +36,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
@@ -51,12 +46,10 @@ import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.SaveItems;
 import com.function.karaoke.hardware.activities.Model.SignInViewModel;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
-import com.function.karaoke.hardware.adapters.DeleteRecordingRecycler;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.CloudUpload;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingDelete;
-import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.storage.SongService;
 import com.function.karaoke.hardware.storage.UserService;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
@@ -77,8 +70,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -130,32 +121,7 @@ public class SingActivity extends AppCompatActivity implements
     private final String TIMES_DOWNLOADED = "timesDownloaded";
     private final String TIMES_PLAYED = "timesPlayed";
     private final int CAMERA_CODE = 2;
-    private final Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            // Bitmap is loaded, use image here
-            float bitmapScale = 0.4f;
-            int width = Math.round(bitmap.getWidth() * bitmapScale);
-            int height = Math.round(bitmap.getHeight() * bitmapScale);
 
-            Bitmap inputBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false);
-            Bitmap outputBitmap = Bitmap.createBitmap(inputBitmap);
-
-//            Bitmap bm = BlurBuilder.blur(getBaseContext(), bitmap);
-            findViewById(R.id.initial_album_cover).setBackground((new BitmapDrawable(getResources(), outputBitmap)));
-        }
-
-        @Override
-        public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-            Toast.makeText(getBaseContext(), "failed to loadWords album", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-        }
-
-    };
     private final int ALLOCATED_NUMBER_OF_RECORDINGS = 100;
     private final boolean timerStarted = false;
     private final boolean songStarted = false;
@@ -242,12 +208,10 @@ public class SingActivity extends AppCompatActivity implements
     private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getData() != null) {
-                    if (result.getResultCode() == SAVE) {
-//                        saveRecordingToTheCloud(this.getCurrentFocus());
-                    } else if (result.getResultCode() == SHARE) {
+                    if (result.getResultCode() == SHARE) {
                         saveAndShare(this.getCurrentFocus());
                     } else if (result.getResultCode() == WATCH_RECORDING) {
-                        openNewIntent(Uri.fromFile(postParseVideoFile));
+                        openWatchRecording(Uri.fromFile(postParseVideoFile));
                     } else {
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         handleSignInResult(task);
@@ -255,6 +219,7 @@ public class SingActivity extends AppCompatActivity implements
                 }
             });
     private Locale myLocale;
+    private SignIn signIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -564,12 +529,11 @@ public class SingActivity extends AppCompatActivity implements
             if (postParseVideoFile == null)
                 postParseVideoFile = wrapUpSong();
             buttonClicked = false;
-            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
-                    !authenticationDriver.getUserEmail().equals("")) {
+            if (userSignedIn()) {
 //                compressedFile = getTempMediaFile();
 
 //                compress(postParseVideoFile.getPath(), compressedFile.getPath());
-                openNewIntent(Uri.fromFile(postParseVideoFile));
+                openWatchRecording(Uri.fromFile(postParseVideoFile));
 //
             } else {
                 activityUI.openSignInPopup(this, this);
@@ -579,7 +543,12 @@ public class SingActivity extends AppCompatActivity implements
 //        view.setBackgroundColor(getResources().getColor(R.color.appColor, getTheme()));
     }
 
-    private void openNewIntent(Uri uriFromFile) {
+    private boolean userSignedIn() {
+        return authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
+                !authenticationDriver.getUserEmail().equals("");
+    }
+
+    private void openWatchRecording(Uri uriFromFile) {
 
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
@@ -998,21 +967,21 @@ public class SingActivity extends AppCompatActivity implements
         return mediaFile;
     }
 
-    private File getTempMediaFile() {
-        File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
-        if (!mediaStorageDir.exists()) {
-            if (!mediaStorageDir.mkdirs()) {
-                return null;
-            }
-        }
-        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
-                Locale.getDefault()).format(new Date());
-        File mediaFile;
-
-        mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                + "VID_COMPRESS" + timeStamp + ".mp4");
-        return mediaFile;
-    }
+//    private File getTempMediaFile() {
+//        File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
+//        if (!mediaStorageDir.exists()) {
+//            if (!mediaStorageDir.mkdirs()) {
+//                return null;
+//            }
+//        }
+//        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+//                Locale.getDefault()).format(new Date());
+//        File mediaFile;
+//
+//        mediaFile = new File(mediaStorageDir.getPath() + File.separator
+//                + "VID_COMPRESS" + timeStamp + ".mp4");
+//        return mediaFile;
+//    }
 
     public void saveAndShare(View view) {
         if (!buttonClicked) {
@@ -1038,40 +1007,40 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    //todo check if user has room before sharing
-
-    private void checkIfUserHasRoomToStore() {
-        RecordingService recordingService = new RecordingService();
-        recordingService.getNumberOfRecordingsFromUID(new RecordingService.NumberListener() {
-            @Override
-            public void recordings(List<Recording> recordings) {
-                if (recordings.size() < ALLOCATED_NUMBER_OF_RECORDINGS) {
-                    checkIfUserHasFreeAcquisition();
-                } else {
-                    View recordingPopup = activityUI.openRecordingsForDelete(SingActivity.this);
-                    RecyclerView recyclerView = (RecyclerView) recordingPopup.findViewById(R.id.recordings_recycler);
-                    recyclerView.setLayoutManager(new LinearLayoutManager(SingActivity.this));
-                    DeleteRecordingRecycler recordAdapter = new DeleteRecordingRecycler(recordings, new DeleteRecordingListener() {
-                        @Override
-                        public void play(Recording mItem) {
-                            playRecording(mItem);
-                        }
-
-                        @Override
-                        public void delete(Recording mItem) {
-                            deleteRecording(mItem);
-                        }
-                    }, getCurrentLanguage());
-                    recyclerView.setAdapter(recordAdapter);
-                }
-            }
-
-            @Override
-            public void failure() {
-
-            }
-        });
-    }
+//    //todo check if user has room before sharing
+//
+//    private void checkIfUserHasRoomToStore() {
+//        RecordingService recordingService = new RecordingService();
+//        recordingService.getNumberOfRecordingsFromUID(new RecordingService.NumberListener() {
+//            @Override
+//            public void recordings(List<Recording> recordings) {
+//                if (recordings.size() < ALLOCATED_NUMBER_OF_RECORDINGS) {
+//                    checkIfUserHasFreeAcquisition();
+//                } else {
+//                    View recordingPopup = activityUI.openRecordingsForDelete(SingActivity.this);
+//                    RecyclerView recyclerView = (RecyclerView) recordingPopup.findViewById(R.id.recordings_recycler);
+//                    recyclerView.setLayoutManager(new LinearLayoutManager(SingActivity.this));
+//                    DeleteRecordingRecycler recordAdapter = new DeleteRecordingRecycler(recordings, new DeleteRecordingListener() {
+//                        @Override
+//                        public void play(Recording mItem) {
+//                            playRecording(mItem);
+//                        }
+//
+//                        @Override
+//                        public void delete(Recording mItem) {
+//                            deleteRecording(mItem);
+//                        }
+//                    }, getCurrentLanguage());
+//                    recyclerView.setAdapter(recordAdapter);
+//                }
+//            }
+//
+//            @Override
+//            public void failure() {
+//
+//            }
+//        });
+//    }
 
     private void playRecording(Recording mItem) {
         Intent intent = new Intent(this, Playback.class);
@@ -1372,7 +1341,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void showSuccessToast() {
-        Toast.makeText(this, "success", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
     }
 
     public void changeCameraFeature(View view) {
@@ -1406,62 +1375,31 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void openSignIn() {
-        SignIn signIn = new SignIn(this, this, this, mGetContent);
+        signIn = new SignIn(this, this, this, mGetContent);
         signIn.openSignIn();
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
-        try {
-            signInViewModel = ViewModelProviders.of(this).get(SignInViewModel.class);
-            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+        signIn.handleSignInResult(completedTask, findViewById(android.R.id.content).getRootView(), new SuccessFailListener() {
+            @Override
+            public void onSuccess() {
+                user = signIn.getUser();
+                if (user != null)
+                    switch (funcToCall) {
+                        case PLAYBACK:
+                            playback(findViewById(R.id.sing_song));
+                            break;
+                        case SAVE_FUNC:
+                            saveAndShare(findViewById(R.id.sing_song));
+                            break;
+                    }
+            }
 
-            signInViewModel.firebaseAuthWithGoogle(account.getIdToken(), new SignInViewModel.FirebaseAuthListener() {
-                @Override
-                public void onSuccess(FirebaseUser firebaseUser) {
-                    signInViewModel.isUserInDatabase(new SignInViewModel.DatabaseListener() {
-
-                        @Override
-                        public void isInDatabase(boolean inDatabase) {
-                            if (inDatabase) {
-                                user = signInViewModel.getUser();
-                            } else {
-                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
-
-                                signInViewModel.addNewUserToDatabase(user);
-                            }
-                            if (user != null) {
-                                switch (funcToCall) {
-                                    case PLAYBACK:
-                                        playback(findViewById(R.id.sing_song));
-                                        break;
-                                    case SAVE_FUNC:
-                                        saveAndShare(findViewById(R.id.sing_song));
-                                        break;
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void failedToSearchDatabase() {
-                            if (checkForInternet()) {
-                                user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
-
-                                signInViewModel.addNewUserToDatabase(user);
-                            }
-                        }
-                    });
-                    activityUI.showGoodSuccessSignIn();
-
-                }
-
-                @Override
-                public void onFailure() {
-                    showFailure();
-                }
-            });
-        } catch (Exception e) {
-//                Toast.makeText(this, context.getResources().getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
-        }
+            @Override
+            public void onFailure() {
+                showFailure();
+            }
+        });
     }
 
     private boolean checkForInternet() {

@@ -219,6 +219,10 @@ public class PlaybackPlayer {
             view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
     }
 
+    public void restart() {
+        playbackPosition = 0;
+    }
+
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
                                          MediaCodecSelector mediaCodecSelector) {
