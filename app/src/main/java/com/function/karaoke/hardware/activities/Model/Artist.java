@@ -7,7 +7,7 @@ public class Artist {
     public Artist() {
     }
 
-    public Artist(String artistName, int singleDownloads){
+    public Artist(String artistName, int singleDownloads) {
         this.singleDownloads = singleDownloads;
         this.artistName = artistName;
     }

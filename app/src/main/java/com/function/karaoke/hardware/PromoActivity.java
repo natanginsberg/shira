@@ -26,7 +26,7 @@ public class PromoActivity extends AppCompatActivity {
 
     private AuthenticationDriver authenticationDriver;
     private SignInViewModel signInViewModel;
-    private int code = -1;
+    private final int code = -1;
     private Locale myLocale;
     private boolean appStarted = false;
 

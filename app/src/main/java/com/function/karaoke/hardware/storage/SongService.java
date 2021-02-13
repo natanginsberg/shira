@@ -16,7 +16,7 @@ public class SongService {
     private final String TIMES_PLAYED = "timesPlayed";
     private final String UPDATING = "updating";
     private CollectionReference songsCollectionRef;
-    private List<String> fields = new ArrayList<>();
+    private final List<String> fields = new ArrayList<>();
 
 
     public void updateSongData(String title) {

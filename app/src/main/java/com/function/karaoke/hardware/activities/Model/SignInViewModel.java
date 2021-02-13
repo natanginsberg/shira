@@ -26,13 +26,13 @@ public class SignInViewModel extends ViewModel {
     private static final String TAG = SignInViewModel.class.getSimpleName();
 
     private UserInfo user;
-    private DatabaseDriver databaseDriver;
-    private AuthenticationDriver authenticationDriver;
+    private final DatabaseDriver databaseDriver;
+    private final AuthenticationDriver authenticationDriver;
     private LoginState loginState;
 
     private Boolean mAccessingDatabase;
-    private UserService userService;
-    private int NUMBER_OF_FREE_SHARES = 1;
+    private final UserService userService;
+    private final int NUMBER_OF_FREE_SHARES = 1;
 
     public SignInViewModel() {
         mAccessingDatabase = false;
@@ -81,13 +81,9 @@ public class SignInViewModel extends ViewModel {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         authenticationDriver.getAuth().signInWithCredential(credential)
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update ui with the signed-in user's information
-                        success.setValue(true);
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        success.setValue(false);
-                    }
+                    // Sign in success, update ui with the signed-in user's information
+                    // If sign in fails, display a message to the user.
+                    success.setValue(task.isSuccessful());
                 });
         return success;
     }

@@ -9,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * A driver for dealing with FireBase authentication
  */
 public class AuthenticationDriver {
-    private FirebaseAuth auth;
+    private final FirebaseAuth auth;
 
     public AuthenticationDriver() {
         this.auth = FirebaseAuth.getInstance();
@@ -38,7 +38,7 @@ public class AuthenticationDriver {
         auth.signOut();
     }
 
-    public void createGuestId(OnCompleteListener<AuthResult> listener){
+    public void createGuestId(OnCompleteListener<AuthResult> listener) {
         auth.signInAnonymously()
                 .addOnCompleteListener(listener);
 

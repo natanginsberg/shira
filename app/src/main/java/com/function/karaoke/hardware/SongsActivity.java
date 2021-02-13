@@ -89,13 +89,13 @@ public class SongsActivity
     private static final String SONG_SUGGEST_EMAIL = "ashira.songs@gmail.com";
     private static final String USER_INFO = "User";
     private static final String GENRES = "genres";
-
-    private Billing billingSession;
     public String language;
     Locale myLocale;
+    private Billing billingSession;
     private DatabaseSongsDB dbSongs;
     private AuthenticationDriver authenticationDriver;
     private UserInfo user;
+    private SignInViewModel signInViewModel;
     private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -120,29 +120,15 @@ public class SongsActivity
                     }
                 }
             });
-    private SignInViewModel signInViewModel;
     private LayoutInflater inflater;
     private View songUploadedView;
-    private List<Recording> recordingsBeingUploaded = new ArrayList<>();
-
-    private SongsListFragment getFragment() {
-        List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        return (SongsListFragment) fragments.get(0);
-    }
-
+    private final List<Recording> recordingsBeingUploaded = new ArrayList<>();
     private DatabaseSong songClicked;
     private LinearLayout loadingText;
     private CountDownTimer cTimer = null;
     private RecordingDelete recordingDelete;
     private Recording recordingsDisplayed;
-
-    private void updateUI() {
-//        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
-//        findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
-//        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
-    }
-
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -152,6 +138,17 @@ public class SongsActivity
 
         }
     };
+
+    private SongsListFragment getFragment() {
+        List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        return (SongsListFragment) fragments.get(0);
+    }
+
+    private void updateUI() {
+//        findViewById(R.id.personal_library).setVisibility(View.VISIBLE);
+//        findViewById(R.id.sign_in_button).setVisibility(View.INVISIBLE);
+//        findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
+    }
 
     private void addRecordingToScreen(double content, Recording recording) {
         if (recordingsDisplayed == null) {
@@ -291,7 +288,7 @@ public class SongsActivity
         File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
         if (folder.exists()) {
             try {
-                List<File> listOfAllFiles = Arrays.asList(Objects.requireNonNull(folder.listFiles()));
+                File[] listOfAllFiles = Objects.requireNonNull(folder.listFiles());
                 for (File child : listOfAllFiles) {
                     if (child.getName().contains("Pending"))
                         continue;
@@ -453,7 +450,6 @@ public class SongsActivity
         File folder = new File(this.getFilesDir(), JSON_DIRECTORY_NAME);
         if (!folder.exists())
             deleteSongsFolder();
-        //todo check to see if json folder is empty and delete all songs
     }
 
     private void checkForSignedInUser() {
@@ -633,11 +629,12 @@ public class SongsActivity
             String language = prefs.getString(langPref, "");
             if (language != null && !language.equalsIgnoreCase("")) {
                 this.language = language;
-                setLocale(language);
+
             }
         }
         if (language == null)
             language = Locale.getDefault().getLanguage();
+        setLocale(language);
     }
 
 
@@ -668,7 +665,7 @@ public class SongsActivity
         if (authenticationDriver.isSignIn() && user != null) {
             intent.putExtra(USER_INFO, user);
         }
-        startActivity(intent);
+        mGetContent.launch(intent);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
@@ -701,7 +698,10 @@ public class SongsActivity
                             }
                         }
                     });
+                    SongsListFragment fragment = getFragment();
+                    fragment.showSuccessSignIn();
                 }
+
 
                 @Override
                 public void onFailure() {

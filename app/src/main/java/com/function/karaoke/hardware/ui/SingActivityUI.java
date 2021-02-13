@@ -35,6 +35,7 @@ import com.squareup.picasso.Picasso;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 public class SingActivityUI {
 
@@ -50,6 +51,7 @@ public class SingActivityUI {
     private View secondPopupView;
     private PopupWindow secondPopup;
     private Context context;
+    private CountDownTimer cTimer;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -92,7 +94,7 @@ public class SingActivityUI {
         BufferedReader br = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            br = new BufferedReader(new InputStreamReader(context.getAssets().open(s), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(context.getAssets().open(s), StandardCharsets.UTF_8));
             String myLine;
             while ((myLine = br.readLine()) != null) {
                 stringBuilder.append(myLine);
@@ -530,6 +532,14 @@ public class SingActivityUI {
         countDownTimer.start();
     }
 
+    public void showPopupLoadingIndicator() {
+        popupView.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+    }
+
+    public void hidePopupLoadingIndicator() {
+        popupView.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+    }
+
     public void showAlbumInBackground() {
         ImageView imageView = (ImageView) view.findViewById(R.id.initial_album_cover);
         Picasso.get()
@@ -538,6 +548,28 @@ public class SingActivityUI {
                 .centerCrop()
                 .fit()
                 .into(imageView);
+    }
+
+    public void showGoodSuccessSignIn() {
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().getString(R.string.cuccessfull_sign_in));
+        showPopupForOneSecond(popupWindow);
+    }
+
+    private void showPopupForOneSecond(PopupWindow popupWindow) {
+        if (cTimer == null) {
+            cTimer = new CountDownTimer(1500, 500) {
+                @SuppressLint("SetTextI18n")
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    cTimer.cancel();
+                    popupWindow.dismiss();
+                    cTimer = null;
+                }
+            };
+            cTimer.start();
+        }
     }
 
     public interface SignInListener {
@@ -549,14 +581,13 @@ public class SingActivityUI {
     }
 
     public interface ShareListener {
-        void createShareLink(TextView viewById, boolean video);
 
-        void share(View view);
+        void share(View view, boolean video);
 
         CharSequence getLink();
 
-        void setPassword(TextView viewById);
-
         CharSequence getPassword();
+
+        void setPassword(TextView viewById);
     }
 }

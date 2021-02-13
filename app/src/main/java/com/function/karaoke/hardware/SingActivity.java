@@ -186,7 +186,7 @@ public class SingActivity extends AppCompatActivity implements
     private boolean keepVideo = false;
     private File postParseVideoFile;
     private Recording recording;
-    private boolean measured = false;
+    private final boolean measured = false;
     private boolean ml;
     private UserInfo user;
     private SignInViewModel signInViewModel;
@@ -228,6 +228,17 @@ public class SingActivity extends AppCompatActivity implements
     private File compressedFile;
     private File jsonFile;
     private int type = -1;
+    private RecordingDelete recordingDelete;
+    private EarphoneListener earphonesListener;
+    private String link1;
+    private boolean earphonesUsed;
+    private SongService songService;
+    private boolean songUpdated = false;
+    private boolean userUpdated = false;
+    private String password;
+    private File mVideoFolder;
+    private String fileName;
+    private String purchaseId;
     private final ActivityResultLauncher<Intent> mGetContent = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getData() != null) {
@@ -243,17 +254,7 @@ public class SingActivity extends AppCompatActivity implements
                     }
                 }
             });
-    private RecordingDelete recordingDelete;
-    private EarphoneListener earphonesListener;
-    private String link1;
-    private boolean earphonesUsed;
-    private SongService songService;
-    private boolean songUpdated = false;
-    private boolean userUpdated = false;
-    private String password;
-    private File mVideoFolder;
-    private String fileName;
-    private String purchaseId;
+    private Locale myLocale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -336,9 +337,12 @@ public class SingActivity extends AppCompatActivity implements
             String language = prefs.getString(langPref, "");
             if (language != null && !language.equalsIgnoreCase("")) {
                 this.language = language;
-                setLocale(language);
+
             }
         }
+        if (language == null)
+            language = Locale.getDefault().getLanguage();
+        setLocale(language);
     }
 
     public void alertUserThatHeCanNotPause() {
@@ -353,14 +357,12 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void setLocale(String lang) {
-        Locale myLocale = new Locale(lang);
+        myLocale = new Locale(lang);
         Resources res = getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();
         conf.setLocale(myLocale);
         res.updateConfiguration(conf, dm);
-//        Intent refresh = new Intent(this, SingActivity.class);
-//        startActivity(refresh);
     }
 
 
@@ -524,14 +526,14 @@ public class SingActivity extends AppCompatActivity implements
                 if (activityUI.isPopupOpened()) {
                     activityUI.dismissPopup();
                 }
-                finish();
+                finishActivity();
                 break;
             case "ok":
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 if (activityUI.isPopupOpened()) {
                     activityUI.dismissPopup();
                 }
-                finish();
+                finishActivity();
                 break;
             case "no":
                 cancelled = false;
@@ -582,6 +584,7 @@ public class SingActivity extends AppCompatActivity implements
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
 //        if (earphonesUsed)
+//            intent.putExtra(EARPHONES)
         intent.putExtra(AUDIO_FILE, songPlayed);
         intent.putExtra(CAMERA_ON, cameraOn);
         intent.putExtra(DELAY, delay);
@@ -646,7 +649,7 @@ public class SingActivity extends AppCompatActivity implements
                 if (activityUI.isPopupOpened()) {
                     activityUI.dismissPopup();
                 }
-                finish();
+                finishActivity();
             }
             buttonClicked = false;
         }
@@ -1126,10 +1129,8 @@ public class SingActivity extends AppCompatActivity implements
 
 
     @Override
-    public void share(View view) {
-        if (link1 != null) {
-            sendDataThroughIntent(link1);
-        }
+    public void share(View view, boolean video) {
+        createShareLink(video);
 
 //        createLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
     }
@@ -1449,6 +1450,8 @@ public class SingActivity extends AppCompatActivity implements
                             }
                         }
                     });
+                    activityUI.showGoodSuccessSignIn();
+
                 }
 
                 @Override
@@ -1469,8 +1472,8 @@ public class SingActivity extends AppCompatActivity implements
         Toast.makeText(this, getResources().getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void createShareLink(TextView viewById, boolean video) {
+    private void createShareLink(boolean video) {
+        activityUI.showPopupLoadingIndicator();
         link1 = null;
         Task<ShortDynamicLink> link = ShareLink.createLink(recording, password, video);
         link.addOnCompleteListener(task -> {
@@ -1479,7 +1482,8 @@ public class SingActivity extends AppCompatActivity implements
                 Uri shortLink = task.getResult().getShortLink();
                 Uri flowchartLink = task.getResult().getPreviewLink();
                 link1 = shortLink.toString();
-                viewById.setText(link1);
+                sendDataThroughIntent(link1);
+                activityUI.hidePopupLoadingIndicator();
 
 
             } else {
@@ -1553,12 +1557,6 @@ public class SingActivity extends AppCompatActivity implements
         continueWithSaveProcess(false);
     }
 
-    public interface DeleteRecordingListener {
-        void play(Recording mItem);
-
-        void delete(Recording mItem);
-    }
-
     private void downloadFile(String audioPath) {
         createVideoFolder();
         try {
@@ -1568,7 +1566,6 @@ public class SingActivity extends AppCompatActivity implements
         }
         new DownloadFileAsync().execute(audioPath);
     }
-
 
     private void createVideoFolder() {
 //        File movieFile = activity.getCacheDir();
@@ -1584,6 +1581,18 @@ public class SingActivity extends AppCompatActivity implements
         File videoFile = new File(mVideoFolder, prepend + ".mp3");
         fileName = videoFile.getAbsolutePath();
 //        mVideoFile = videoFile;
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showProgress(String progress) {
+        findViewById(R.id.loading_progress).setVisibility(View.VISIBLE);
+        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
+    }
+
+    public interface DeleteRecordingListener {
+        void play(Recording mItem);
+
+        void delete(Recording mItem);
     }
 
     class DownloadFileAsync extends AsyncTask<String, String, String> {
@@ -1605,7 +1614,7 @@ public class SingActivity extends AppCompatActivity implements
                 Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
                 InputStream input = new BufferedInputStream(url.openStream());
                 OutputStream output = new FileOutputStream(fileName);
-                byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
                 long total = 0;
                 while ((count = input.read(data)) != -1) {
                     total += count;
@@ -1634,13 +1643,6 @@ public class SingActivity extends AppCompatActivity implements
         }
 
 
-    }
-
-
-    @SuppressLint("SetTextI18n")
-    private void showProgress(String progress) {
-        findViewById(R.id.loading_progress).setVisibility(View.VISIBLE);
-        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
     }
 }
 

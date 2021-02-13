@@ -41,18 +41,17 @@ public class RecordingCategoryAdapter extends RecyclerView.Adapter<RecordingCate
             return a.getArtist().compareToIgnoreCase(b.getArtist());
         }
     };
-
-    private List<Reocording> mValues;
-    private Map<Reocording, List<Recording>> reocordingListMap;
-    private List<Recording> mRecordings;
-    private final RecordingSongListener mListener;
-    private String recordingsWord;
     private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
             R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
     private static final int[] transparentRectangles = new int[]{R.drawable.custom_song_rec_1_t,
             R.drawable.custom_song_rec_2_t, R.drawable.custom_song_rec_3_t, R.drawable.custom_song_rec_4_t};
     private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
     private static final double[] heightFactors = new double[]{2.5, 3.5};
+    private final RecordingSongListener mListener;
+    private List<Reocording> mValues;
+    private Map<Reocording, List<Recording>> reocordingListMap;
+    private List<Recording> mRecordings;
+    private final String recordingsWord;
 
     //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
 //        setData(items);
@@ -150,6 +149,11 @@ public class RecordingCategoryAdapter extends RecyclerView.Adapter<RecordingCate
         Collections.sort(mValues, mComparator);
     }
 
+    public interface RecordingSongListener {
+
+        void onListFragmentInteractionPlay(List<Recording> recordings);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
         private final TextView mLblTitle;
@@ -195,11 +199,6 @@ public class RecordingCategoryAdapter extends RecyclerView.Adapter<RecordingCate
                     .setTopLeftCorner(CornerFamily.ROUNDED, Converter.convertDpToPx(17))
                     .build());
         }
-    }
-
-    public interface RecordingSongListener {
-
-        void onListFragmentInteractionPlay(List<Recording> recordings);
     }
 
 }

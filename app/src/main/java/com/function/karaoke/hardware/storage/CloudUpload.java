@@ -2,7 +2,6 @@ package com.function.karaoke.hardware.storage;
 
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.tasks.NetworkTasks;
-import com.function.karaoke.hardware.utils.JsonHandler;
 
 import java.io.File;
 import java.util.Objects;
@@ -14,9 +13,9 @@ public class CloudUpload {
     private final Recording recording;
     private final File appFolder;
     private final String artist;
-    private StorageAdder storageAdder;
     private final File jsonFileFolder;
     private final UploadListener uploadListener;
+    private StorageAdder storageAdder;
 
     public CloudUpload(Recording recording, File appFolder, String artist, UploadListener uploadListener) {
         this.recording = recording;

@@ -7,13 +7,14 @@ import java.util.List;
 
 public class RecordingDB {
 
-    private List<Recording> recordings =  new ArrayList<>();
-    private HashMap<Reocording, List<Recording>> recordingsPerSong = new HashMap<>();
+    private final HashSet<IListener> mListeners = new HashSet<>();
+    private List<Recording> recordings = new ArrayList<>();
+    private final HashMap<Reocording, List<Recording>> recordingsPerSong = new HashMap<>();
     private String recorderId;
+
 
     public RecordingDB() {
     }
-
 
     public RecordingDB(List<Recording> recordings) {
 //        mRoot = root;
@@ -48,15 +49,9 @@ public class RecordingDB {
         notifyUpdated();
     }
 
-    public interface IListener {
-        void onListUpdated();
-    }
-
     public List<Recording> getRecordings() {
         return recordings;
     }
-
-    private final HashSet<IListener> mListeners = new HashSet<>();
 
     public void subscribe(RecordingDB.IListener listener) {
         mListeners.add(listener);
@@ -109,5 +104,9 @@ public class RecordingDB {
 
     public HashMap<Reocording, List<Recording>> getRecordingsPerSong() {
         return recordingsPerSong;
+    }
+
+    public interface IListener {
+        void onListUpdated();
     }
 }

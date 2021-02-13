@@ -16,28 +16,25 @@ import java.util.Map;
  * This class manage sign up and getting the user object.
  */
 public class CouponService {
+    public static final String Coupons = "coupons";
+    public static final String UID = "id";
     private static final String COLLECTION_COUPONS = "coupons";
-
     private static final String DOWNLOADS = "shares";
     private static final String VIEWS = "views";
     private static final String TYPE = "subscriptionType";
     private static final String COUPON_CODE = "code";
-
     private static final int NOT_EXIST = -1;
     private static final int MONTHLY = 1;
     private static final int YEARLY = 2;
     private static final int FREE_SHARES = 3;
     private static final String EMAILS = "emails";
-
-    private DatabaseDriver databaseDriver;
-    private AuthenticationDriver authenticationDriver;
-    private CollectionReference couponsCollectionRef;
-    public static final String Coupons = "coupons";
-    public static final String UID = "id";
     private static final String TAG = UserService.class.getSimpleName();
+    private final List<String> fields = new ArrayList<>();
+    private final DatabaseDriver databaseDriver;
+    private AuthenticationDriver authenticationDriver;
+    private final CollectionReference couponsCollectionRef;
     private Coupon coupon;
     private DocumentReference couponDocument;
-    private final List<String> fields = new ArrayList<>();
 
     public CouponService(DatabaseDriver databaseDriver) {
         this.databaseDriver = databaseDriver;

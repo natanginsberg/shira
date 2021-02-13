@@ -5,5 +5,5 @@ package com.function.karaoke.hardware.activities.Model.enums;
  */
 public enum RecordingsScreenState {
     RECORDING_SONGS_DISPLAYED,
-    SINGLE_SONG_RECORDINGS;
+    SINGLE_SONG_RECORDINGS
 }

@@ -38,7 +38,7 @@ public class AudioLatencyTuner {
     private static final int STATE_LOWERING = 1;
     private static final int STATE_RAISING = 2;
 
-    private static boolean mLowLatencySupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+    private static final boolean mLowLatencySupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
 
     private final int mInitialSize;
     private final AudioTrack mAudioTrack;
@@ -63,6 +63,24 @@ public class AudioLatencyTuner {
         mInitialSize = track.getBufferSizeInFrames();
         mFramesPerBlock = framesPerBlock;
         reset();
+    }
+
+    public static boolean isLowLatencySupported() {
+        return mLowLatencySupported;
+    }
+
+    /**
+     * This only works on N or later versions of Android.
+     *
+     * @return flag used to enable LOW_LATENCY
+     */
+    @TargetApi(24)
+    public static int getLowLatencyFlag() {
+        if (mLowLatencySupported) {
+            return AudioAttributes.FLAG_LOW_LATENCY;
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -114,24 +132,6 @@ public class AudioLatencyTuner {
     @TargetApi(23)
     public int getBufferSizeInFrames() {
         return mAudioTrack.getBufferSizeInFrames();
-    }
-
-    public static boolean isLowLatencySupported() {
-        return mLowLatencySupported;
-    }
-
-    /**
-     * This only works on N or later versions of Android.
-     *
-     * @return flag used to enable LOW_LATENCY
-     */
-    @TargetApi(24)
-    public static int getLowLatencyFlag() {
-        if (mLowLatencySupported) {
-            return AudioAttributes.FLAG_LOW_LATENCY;
-        } else {
-            return 0;
-        }
     }
 
     /**

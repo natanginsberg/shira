@@ -159,12 +159,12 @@ public class Recording implements Serializable, Reocording {
         this.delay = delay;
     }
 
-    public void setLength(long length) {
-        this.length = length;
-    }
-
     public long getLength() {
         return length;
+    }
+
+    public void setLength(long length) {
+        this.length = length;
     }
 
     public JSONObject putRecordingInJsonObject() throws JSONException {

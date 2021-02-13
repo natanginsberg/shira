@@ -54,11 +54,8 @@ import com.function.karaoke.hardware.ui.SingActivityUI;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.function.karaoke.hardware.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
-import com.function.karaoke.hardware.utils.static_classes.ShareLink;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
-import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -138,7 +135,11 @@ public class RecordingsActivity extends AppCompatActivity implements
     private Recording recordingToShare;
     private String password;
     private String link1;
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private Recording recordingsDisplayed;
+    private View songUploadedView;
+    private LinearLayout loadingText;
+    private final List<Recording> recordingsBeingUploaded = new ArrayList<>();
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -148,10 +149,6 @@ public class RecordingsActivity extends AppCompatActivity implements
 
         }
     };
-    private Recording recordingsDisplayed;
-    private View songUploadedView;
-    private LinearLayout loadingText;
-    private List<Recording> recordingsBeingUploaded = new ArrayList<>();
 
     private void addRecordingToScreen(double content, Recording recording) {
         if (recordingsDisplayed == null) {
@@ -456,29 +453,9 @@ public class RecordingsActivity extends AppCompatActivity implements
     public void onListFragmentInteractionShare(Recording item) {
         recordingToShare = item;
         sharingUI.openShareOptions(this, new SingActivityUI.ShareListener() {
-            @Override
-            public void createShareLink(TextView viewById, boolean video) {
-                Task<ShortDynamicLink> link = ShareLink.createLink(recordingToShare, password, video);
-                link.addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        // Short link created
-                        Uri shortLink = task.getResult().getShortLink();
-                        Uri flowchartLink = task.getResult().getPreviewLink();
-                        link1 = shortLink.toString();
-                        viewById.setText(link1);
-
-
-                    } else {
-                        showFailure();
-                        // Error
-                        // ...
-                    }
-                });
-//        activityUI.hideShareItems();
-            }
 
             @Override
-            public void share(View view) {
+            public void share(View view, boolean video) {
                 if (link1 != null) {
                     sendDataThroughIntent(link1);
                 }
@@ -490,14 +467,14 @@ public class RecordingsActivity extends AppCompatActivity implements
             }
 
             @Override
-            public void setPassword(TextView viewById) {
-                password = GenerateRandomId.generateRandomPassword();
-                viewById.setText(password);
+            public CharSequence getPassword() {
+                return password;
             }
 
             @Override
-            public CharSequence getPassword() {
-                return password;
+            public void setPassword(TextView viewById) {
+                password = GenerateRandomId.generateRandomPassword();
+                viewById.setText(password);
             }
         });
 

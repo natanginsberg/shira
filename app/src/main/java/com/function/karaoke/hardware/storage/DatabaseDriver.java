@@ -5,11 +5,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Keys;
-import com.function.karaoke.hardware.activities.Model.SignInViewModel;
-import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -22,10 +19,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DatabaseDriver {
 
     private static final int NUMBER_OF_FREE_SHARES = 1;
-    private FirebaseFirestore db;
-    private FirebaseStorage firebaseStorage;
-    private StorageReference storageReference;
     private static final String TAG = "DatabaseDriver";
+    private final FirebaseFirestore db;
+    private final FirebaseStorage firebaseStorage;
+    private final StorageReference storageReference;
 
     public DatabaseDriver() {
         this.db = FirebaseFirestore.getInstance();
@@ -100,7 +97,6 @@ public class DatabaseDriver {
             int k = 0;
         });
     }
-
 
 
     public interface KeyListener {

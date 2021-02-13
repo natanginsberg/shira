@@ -11,7 +11,7 @@ public class DatabaseSongsDB {
     private final List<DatabaseSong> mSongs = new LinkedList<>();
 
 //    private File mRoot;
-
+    private final HashSet<IListener> mListeners = new HashSet<>();
     private AsyncTask mScanTask;
 
     public DatabaseSongsDB() {
@@ -42,15 +42,9 @@ public class DatabaseSongsDB {
             return 0.0;
     }
 
-    public interface IListener {
-        void onListUpdated();
-    }
-
     public List<DatabaseSong> getSongs() {
         return mSongs;
     }
-
-    private final HashSet<IListener> mListeners = new HashSet<>();
 
     public void subscribe(DatabaseSongsDB.IListener listener) {
         mListeners.add(listener);
@@ -71,5 +65,9 @@ public class DatabaseSongsDB {
 
     public void updateSongs(List<DatabaseSong> songs) {
         songsUpdated(songs);
+    }
+
+    public interface IListener {
+        void onListUpdated();
     }
 }

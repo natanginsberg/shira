@@ -2,9 +2,7 @@ package com.function.karaoke.hardware.storage;
 
 import androidx.annotation.NonNull;
 
-import com.function.karaoke.hardware.activities.Model.DatabaseSong;
 import com.function.karaoke.hardware.activities.Model.FirestoreSong;
-import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.CollectionReference;
 

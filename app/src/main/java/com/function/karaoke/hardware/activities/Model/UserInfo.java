@@ -41,6 +41,10 @@ public class UserInfo implements Serializable {
         return subscriptionType;
     }
 
+    public void setSubscriptionType(int subscriptionType) {
+        this.subscriptionType = subscriptionType;
+    }
+
     public String getUserEmail() {
         return userEmail;
     }
@@ -53,20 +57,16 @@ public class UserInfo implements Serializable {
         return picUrl;
     }
 
-    public void setSubscriptionType(int subscriptionType) {
-        this.subscriptionType = subscriptionType;
-    }
-
     public void setPicUrl(String picUrl) {
         this.picUrl = picUrl;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getShares() {
@@ -77,12 +77,12 @@ public class UserInfo implements Serializable {
         shares += 1;
     }
 
-    public void setViews(int views) {
-        this.views = views;
-    }
-
     public int getViews() {
         return views;
+    }
+
+    public void setViews(int views) {
+        this.views = views;
     }
 
     public int getCouponUsed() {
@@ -93,12 +93,12 @@ public class UserInfo implements Serializable {
         this.couponsUsed = couponUsed;
     }
 
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
     public String getExpirationDate() {
         return expirationDate;
+    }
+
+    public void setExpirationDate(String expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     public int getFreeShares() {

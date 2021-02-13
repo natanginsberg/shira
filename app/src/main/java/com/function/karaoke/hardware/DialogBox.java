@@ -9,12 +9,11 @@ import androidx.fragment.app.DialogFragment;
 
 public class DialogBox extends DialogFragment {
 
-    CallbackListener callbackListener;
-
     private static final int EARPHONES = 121;
+    private static final int NO_AUDIO_CODE = 103;
     private final int BACK_CODE = 101;
     private final int INTERNET_CODE = 102;
-    private static final int NO_AUDIO_CODE = 103;
+    CallbackListener callbackListener;
 
     public DialogBox() {
     }
@@ -79,6 +78,6 @@ public class DialogBox extends DialogFragment {
     }
 
     public interface CallbackListener {
-        public void callback(String result);
+        void callback(String result);
     }
 }

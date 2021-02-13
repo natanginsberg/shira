@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/end_songs_background"
-    android:orientation="vertical"
-    android:weightSum="1">
+    android:orientation="vertical">
 
 
     <TextView
@@ -24,7 +23,7 @@
     <LinearLayout
 
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_gravity="center"
         android:layout_weight="0.8"
         android:gravity="center"
@@ -38,7 +37,8 @@
                 android:gravity="center"
                 android:text="@string/acknowledge_of_sign_in"
                 android:textColor="@android:color/white"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:layout_margin="15dp"/>
 
             <Button
                 android:id="@+id/save_free_recordings"
@@ -50,7 +50,8 @@
                 android:gravity="center"
                 android:text="@string/share_save"
                 android:textColor="@color/sing_up_hover"
-                android:textSize="24sp" />
+                android:textSize="24sp"
+                android:layout_margin="10dp"/>
 
             <TextView
                 android:id="@+id/free_saves_left_text"

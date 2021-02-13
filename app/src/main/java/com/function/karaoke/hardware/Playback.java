@@ -1,12 +1,9 @@
 package com.function.karaoke.hardware;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.media.audiofx.PresetReverb;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,38 +25,26 @@ import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
 import com.function.karaoke.hardware.ui.IndicationPopups;
 import com.function.karaoke.hardware.ui.PlaybackPopupOpen;
+import com.function.karaoke.hardware.utils.PlaybackPlayer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.SeekParameters;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.AudioSink;
-import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.source.ClippingMediaSource;
-import com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.source.SequenceableLoader;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectorResult;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -99,8 +84,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
     private final List<String> urls = new ArrayList<>();
     private final List<Uri> uris = new ArrayList<>();
-    private String audioPath;
     RenderersFactory renderersFactory;
+    private String audioPath;
     private PlayerView playerView;
     private long playbackPosition = 0;
     private long length;
@@ -108,7 +93,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private int delay;
     private boolean earphonesUsed = false;
     private MediaSource mediaSource;
-    private SimpleExoPlayer player;
+    //    private SimpleExoPlayer player;
     private List<Renderer> renderers;
     private boolean cameraOn = true;
     private final TrackSelector trackSelector = new TrackSelector() {
@@ -172,6 +157,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private boolean externalView = false;
     private RecordingService recordingService;
     private boolean validated = false;
+    private PlaybackPlayer playbackPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,45 +165,52 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         setContentView(R.layout.activity_playback);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         playerView = findViewById(R.id.surface_view);
+        playbackPlayer = new PlaybackPlayer(this, playerView);
+        playbackPlayer.assignView(findViewById(android.R.id.content).getRootView());
         playbackPopupOpen = new PlaybackPopupOpen(findViewById(android.R.id.content).getRootView(), this, this);
         if (getIntent().getExtras() != null)
             if (getIntent().getExtras().containsKey(PLAYBACK)) {
                 getUrisFromIntent();
             } else if (getIntent().getExtras().containsKey(RECORDING)) {
-                getUrlsFromIntent();
+                Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
+                getUrisFromRecording(recording);
             } else {
                 getDynamicLink();
             }
     }
 
-    private void getUrlsFromIntent() {
-        Recording recording = (Recording) getIntent().getSerializableExtra(RECORDING);
-        if (recording == null) finish();
-        if (recording.isLoading()) {
-            uris.add(Uri.parse(recording.getRecordingUrl()));
-        } else {
-            urls.add(recording.getRecordingUrl());
-        }
-        cameraOn = recording.isCameraOn();
-        if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
-            if (recording.isLoading()) {
-                uris.add(Uri.parse(recording.getAudioFileUrl()));
+    private void getUrisFromRecording(Recording recording) {
+        if (recording == null) {
+            if (externalView) {
+                PopupWindow popupWindow = IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.recording_does_not_exist));
+                startTimerToFinish();
+                return;
             } else {
-                urls.add(recording.getAudioFileUrl());
+                finish();
             }
-            earphonesUsed = true;
-        } else {
-//            findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-//            findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
         }
-        delay = recording.getDelay();
-        if (recording.getLength() != 0)
-            length = recording.getLength();
-        if (uris.size() > 0)
-            buildMediaSourceFromUris(uris);
-        else
-            buildMediaSourceFromUrls(urls);
-        createPlayer();
+        if (externalView) {
+            if (recording.isLoading()) {
+                alertUserThatVideoIsNotLoaded();
+            } else if (externalView && recording.getReports() > 3) {
+                IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.inapproriate_under_review));
+                startTimerToFinish();
+            }
+        } else {
+            uris.add(Uri.parse(recording.getRecordingUrl()));
+            cameraOn = recording.isCameraOn();
+            if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
+                uris.add(Uri.parse(recording.getAudioFileUrl()));
+                earphonesUsed = true;
+            } else {
+            }
+            delay = recording.getDelay();
+            if (recording.getLength() != 0)
+                length = recording.getLength();
+            playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
+            playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
+            playbackPlayer.createPlayer(this);
+        }
     }
 
     private void getUrisFromIntent() {
@@ -235,8 +228,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             }
             delay = getIntent().getIntExtra(DELAY, 0);
             length = getIntent().getLongExtra(LENGTH, 10000);
-            buildMediaSourceFromUris(uris);
-            createPlayer();
+            playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
+            playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
+            playbackPlayer.createPlayer(this);
 //            downloadFile(audioPath);
         }
     }
@@ -356,37 +350,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         recordingService.getSharedRecording(recordingId, recorderId, new RecordingService.GetRecordingListener() {
             @Override
             public void recording(Recording recording) {
-                delWithRecording(recording);
+                getUrisFromRecording(recording);
             }
         });
 //        .observe(this, recordingObserver);
-    }
-
-    private void delWithRecording(Recording recording) {
-        if (recording != null) {
-            if (recording.isLoading()) {
-                alertUserThatVideoIsNotLoaded();
-            } else {
-                if (recording.getReports() > 3) {
-                    IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.inapproriate_under_review));
-                    startTimerToFinish();
-                } else {
-                    urls.add(recording.getRecordingUrl());
-                    if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
-                        urls.add(recording.getAudioFileUrl());
-                        earphonesUsed = true;
-                    } else {
-//                        findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
-//                        findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
-                    }
-                    buildMediaSourceFromUrls(urls);
-                    createPlayer();
-                }
-//                initializePlayer();
-            }
-        } else {
-            IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.recording_does_not_exist));
-        }
     }
 
     private void alertUserThatVideoIsNotLoaded() {
@@ -401,75 +368,12 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         alert.show();
     }
 
-    private void createPlayer() {
-        renderersFactory = new CustomRendererFactory(this);
-        player =
-                new SimpleExoPlayer.Builder(this, renderersFactory)
-                        .setTrackSelector(trackSelector)
-                        .build();
-        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
-        playerView.setPlayer(player);
-        player.setMediaSource(mediaSource);
-//        playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
-//        player.setVideoScalingMode(Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-        findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
-        player.addListener(new Player.EventListener() {
-
-            //            @Override
-//            public void onPlayerStateChanged(boolean playWhenReady, @Player.State int playbackState) {
-//                if (playbackState == ExoPlayer.STATE_ENDED) {
-////                    releasePlayer();
-////                    finish();
-//                }
-//                if (playbackState == ExoPlayer.STATE_READY) {
-//                    if (sessionId == -1)
-//                        sessionId = player.getAudioSessionId();
-//                    addReverb();
-//                }
-//            }
-            @Override
-            public void onPlaybackStateChanged(int state) {
-                if (state == ExoPlayer.STATE_ENDED) {
-                    releasePlayer();
-                    showEndPopup();
-                }
-                if (state == ExoPlayer.STATE_READY) {
-                    if (sessionId == -1)
-                        sessionId = player.getAudioSessionId();
-                    addReverb();
-                }
-            }
-        });
-        removeVideo(player);
-        player.prepare();
-        player.seekTo(currentWindow, playbackPosition);
-        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
-        player.setPlayWhenReady(true);
-//        addSpinnerListeners();
-        if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
-            @Override
-            public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
-                sessionId = audioSessionId;
-            }
-        });
-        if (!cameraOn)
-            findViewById(R.id.logo).setVisibility(View.VISIBLE);
-    }
-
-    private void removeVideo(SimpleExoPlayer player) {
-//        for (int i = 0; i < player.getRendererCount(); i++) {
-//            if (player.getRendererType(i) == C.TRACK_TYPE_VIDEO) {
-//                trackSelector.setRendererDisabled(i, true);
-//            }
-//        }
-    }
-
-    private void showEndPopup() {
+    public void showEndPopup() {
         View popupView = playbackPopupOpen.openPopup(R.id.end_playback_video, R.layout.end_playback_video);
         playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                if (player == null)
+                if (playbackPlayer.getPlayer() == null)
                     endVideo();
             }
         });
@@ -488,7 +392,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             @Override
             public void onClick(View view) {
                 playbackPosition = 0;
-                createPlayer();
+
+                playbackPlayer.createPlayer(Playback.this);
                 playbackPopupOpen.dismissPopup();
             }
         });
@@ -500,15 +405,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         } else {
             finish();
         }
-    }
-
-    private void addReverb() {
-        PresetReverb pReverb = new PresetReverb(1, sessionId);
-        pReverb.setPreset(PresetReverb.PRESET_SMALLROOM);
-        pReverb.setEnabled(true);
-        AuxEffectInfo effect = new AuxEffectInfo(pReverb.getId(), 1f);
-        player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_AUX_EFFECT_INFO).setPayload(effect).send();
-        player.prepare();
     }
 
 
@@ -523,34 +419,20 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     @Override
     public void onResume() {
         super.onResume();
-        hideSystemUi();
-//        if (player == null && (urls.size() > 0 || uris.size() > 0)) {
-//            createPlayer();
-//            initializePlayer();
-//        }
-    }
-
-    @SuppressLint("InlinedApi")
-    private void hideSystemUi() {
-        playerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
+        playbackPlayer.hideSystemUi();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        releasePlayer();
+        playbackPlayer.releasePlayer();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         if (Util.SDK_INT >= 24) {
-            releasePlayer();
+            playbackPlayer.releasePlayer();
             if (mVideoFile != null)
                 mVideoFile.delete();
         }
@@ -559,61 +441,10 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void startBuild() {
         findViewById(R.id.loading_progress).setVisibility(View.INVISIBLE);
         uris.add(Uri.fromFile(mVideoFile));
-        buildMediaSourceFromUris(uris);
-        createPlayer();
-    }
+        playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
+        playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
 
-    private void buildMediaSourceFromUris(List<Uri> uri) {
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
-        MediaItem mediaItem = new MediaItem.Builder().setUri(uri.get(0)).build();
-        MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
-        if (delay != 0) {
-            mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000,
-                    (length + delay) * 1000, false, false, true);
-        }
-        if (uris.size() > 1) {
-            MediaItem mediaItem1 = new MediaItem.Builder().setUri(uri.get(1)).build();
-            MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
-
-            if (length != 0)
-                mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
-
-
-            MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
-            mediaSource = new MergingMediaSource(true, mediaSources);
-        } else
-            mediaSource = mediaSource1;
-    }
-    
-    private void buildMediaSourceFromUrls(List<String> urls) {
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, Util.getUserAgent(this, "Shira"));
-        Uri song = Uri.parse(urls.get(0));
-        MediaItem mediaItem = new MediaItem.Builder().setUri(song).build();
-        MediaSource mediaSource1 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
-
-        if (delay != 0) {
-            mediaSource1 = new ClippingMediaSource(mediaSource1, delay * 1000, 1000000000, false, true, true);
-
-        }
-        if (urls.size() > 1) {
-            Uri song1 = Uri.parse(urls.get(1));
-            MediaItem mediaItem1 = new MediaItem.Builder().setUri(song1).build();
-            MediaSource mediaSource2 = new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem1);
-            if (length != 0)
-                mediaSource2 = new ClippingMediaSource(mediaSource2, 0, length * 1000);
-            MediaSource[] mediaSources = new MediaSource[]{mediaSource1, mediaSource2};
-            mediaSource = new MergingMediaSource(true, mediaSources);
-        } else
-            mediaSource = mediaSource1;
-    }
-
-    private void releasePlayer() {
-        if (player != null) {
-            playbackPosition = player.getCurrentPosition();
-            currentWindow = player.getCurrentWindowIndex();
-            player.release();
-            player = null;
-        }
+        playbackPlayer.createPlayer(this);
     }
 
     private void addSpinnerListeners() {
@@ -651,21 +482,22 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 //        });
     }
 
-    public void turnReverbOnOrOff(View view) {
-        if (sessionId == -1)
-            sessionId = player.getAudioSessionId();
-        addReverb();
-    }
+//    public void turnReverbOnOrOff(View view) {
+//        if (sessionId == -1)
+//            sessionId = player.getAudioSessionId();
+//        addReverb();
+//    }
 
+    //todo deal with this one
     public void pauseVideo(View view) {
-        if (player != null && player.getPlaybackState() == Player.STATE_READY) {
-            player.setPlayWhenReady(false);
+        if (playbackPlayer.getPlayer() != null && playbackPlayer.getPlayer().getPlaybackState() == Player.STATE_READY) {
+            playbackPlayer.setPlayerToStart(false);
             View popupView = playbackPopupOpen.openPopup(R.id.pause_playback_video, R.layout.pause_playback_video);
             playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
                 @Override
                 public void onDismiss() {
-                    if (player != null)
-                        player.setPlayWhenReady(true);
+                    if (playbackPlayer.getPlayer() != null)
+                        playbackPlayer.setPlayerToStart(true);
                 }
             });
             addPopupListeners(popupView);
@@ -722,21 +554,44 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void sendReport() {
         if (recordingService != null)
             recordingService.addReport();
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{REPORT_EMAIL});
-        intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report_inappropriate_content));
-        intent.setData(Uri.parse("mailto:"));
-        if (deviceHasGoogleAccount())
-            intent.setPackage("com.google.android.gm");
-        startActivity(intent);
+        IndicationPopups.openCheckIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.report_received));
+        startTimerToFinish();
     }
 
-    private boolean deviceHasGoogleAccount() {
-        AccountManager accMan = AccountManager.get(this);
-        Account[] accArray = accMan.getAccountsByType("com.google");
-        return accArray.length >= 1;
+    private void downloadFile(String audioPath) {
+        createVideoFolder();
+        try {
+            createVideoFileName();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        new DownloadFileAsync().execute(audioPath);
     }
 
+    ////////////////
+    /// this is for if need to download file from cloud
+    ////////////////
+
+    private void createVideoFolder() {
+//        File movieFile = activity.getCacheDir();
+//        File movieFile = context.getFilesDir();
+        mVideoFolder = new File(getFilesDir(), DIRECTORY_NAME);
+        if (!mVideoFolder.exists()) {
+            mVideoFolder.mkdirs();
+        }
+    }
+
+    private void createVideoFileName() throws IOException {
+        String prepend = "exoplayer";
+        File videoFile = new File(mVideoFolder, prepend + ".mp4");
+        fileName = videoFile.getAbsolutePath();
+        mVideoFile = videoFile;
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void showProgress(String progress) {
+        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
+    }
 
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
@@ -772,33 +627,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         }
     }
 
-    private void downloadFile(String audioPath) {
-        createVideoFolder();
-        try {
-            createVideoFileName();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        new DownloadFileAsync().execute(audioPath);
-    }
-
-
-    private void createVideoFolder() {
-//        File movieFile = activity.getCacheDir();
-//        File movieFile = context.getFilesDir();
-        mVideoFolder = new File(getFilesDir(), DIRECTORY_NAME);
-        if (!mVideoFolder.exists()) {
-            mVideoFolder.mkdirs();
-        }
-    }
-
-    private void createVideoFileName() throws IOException {
-        String prepend = "exoplayer";
-        File videoFile = new File(mVideoFolder, prepend + ".mp4");
-        fileName = videoFile.getAbsolutePath();
-        mVideoFile = videoFile;
-    }
-
     class DownloadFileAsync extends AsyncTask<String, String, String> {
 
         @Override
@@ -818,7 +646,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
                 Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
                 InputStream input = new BufferedInputStream(url.openStream());
                 OutputStream output = new FileOutputStream(fileName);
-                byte data[] = new byte[1024];
+                byte[] data = new byte[1024];
                 long total = 0;
                 while ((count = input.read(data)) != -1) {
                     total += count;
@@ -847,11 +675,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         }
 
 
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void showProgress(String progress) {
-        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
     }
 
 

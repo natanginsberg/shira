@@ -8,6 +8,19 @@
     android:background="@drawable/end_songs_background"
     tools:context=".SingActivity">
 
+    <ProgressBar
+        android:id="@+id/loading_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="25dp"
+        android:elevation="20dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/stop_words"
@@ -162,203 +175,203 @@
     </LinearLayout>
 
 
-<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--        android:id="@+id/share_options_layout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_margin="3dp"-->
-<!--        android:background="@color/appColor"-->
-<!--        android:visibility="gone">-->
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        android:id="@+id/share_options_layout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_margin="3dp"-->
+    <!--        android:background="@color/appColor"-->
+    <!--        android:visibility="gone">-->
 
-<!--        <androidx.constraintlayout.widget.Guideline-->
-<!--            android:id="@+id/congrats_guide1"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            app:layout_constraintGuide_percent="0.103" />-->
+    <!--        <androidx.constraintlayout.widget.Guideline-->
+    <!--            android:id="@+id/congrats_guide1"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:orientation="horizontal"-->
+    <!--            app:layout_constraintGuide_percent="0.103" />-->
 
-<!--        <TextView-->
-<!--            android:id="@+id/congrats1"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/good_job"-->
-<!--            android:textColor="@android:color/white"-->
-<!--            android:textSize="20sp"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/congrats_guide1" />-->
+    <!--        <TextView-->
+    <!--            android:id="@+id/congrats1"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:text="@string/good_job"-->
+    <!--            android:textColor="@android:color/white"-->
+    <!--            android:textSize="20sp"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/congrats_guide1" />-->
 
-<!--        <TextView-->
-<!--            android:id="@+id/share_question2"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:gravity="center"-->
-<!--            android:text="@string/you_re_recording_was_saved_do_you_want_to_share_it"-->
-<!--            android:textColor="@android:color/white"-->
-<!--            android:textSize="27dp"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/share2"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/congrats1" />-->
+    <!--        <TextView-->
+    <!--            android:id="@+id/share_question2"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:gravity="center"-->
+    <!--            android:text="@string/you_re_recording_was_saved_do_you_want_to_share_it"-->
+    <!--            android:textColor="@android:color/white"-->
+    <!--            android:textSize="27dp"-->
+    <!--            app:layout_constraintBottom_toTopOf="@id/share2"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/congrats1" />-->
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/share2"-->
-<!--            android:layout_width="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_height="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:background="@drawable/share_background"-->
-<!--            android:onClick="share"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/no_thanks"-->
-<!--            app:layout_constraintDimensionRatio="4.67"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/share_question2"-->
-<!--            app:layout_constraintWidth_percent="0.76">-->
+    <!--        <RelativeLayout-->
+    <!--            android:id="@+id/share2"-->
+    <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_marginTop="10dp"-->
+    <!--            android:layout_weight="1"-->
+    <!--            android:background="@drawable/share_background"-->
+    <!--            android:onClick="share"-->
+    <!--            app:layout_constraintBottom_toTopOf="@id/no_thanks"-->
+    <!--            app:layout_constraintDimensionRatio="4.67"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/share_question2"-->
+    <!--            app:layout_constraintWidth_percent="0.76">-->
 
-<!--            <TextView-->
+    <!--            <TextView-->
 
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_centerInParent="true"-->
-<!--                android:layout_centerHorizontal="true"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:onClick="share"-->
-<!--                android:text="@string/share"-->
-<!--                android:textColor="@color/purple_hover"-->
-<!--                android:textSize="24sp" />-->
-
-
-<!--        </RelativeLayout>-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/no_thanks"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:onClick="closeShareOptions"-->
-<!--            android:text="@string/no_thank_you"-->
-<!--            android:textColor="@color/sing_up_hover"-->
-<!--            android:textSize="17sp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/share2" />-->
-
-<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_centerInParent="true"-->
+    <!--                android:layout_centerHorizontal="true"-->
+    <!--                android:layout_centerVertical="true"-->
+    <!--                android:onClick="share"-->
+    <!--                android:text="@string/share"-->
+    <!--                android:textColor="@color/purple_hover"-->
+    <!--                android:textSize="24sp" />-->
 
 
-<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--        android:id="@+id/subscript_layout"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_margin="3dp"-->
-<!--        android:background="@color/appColor"-->
-<!--        android:visibility="gone">-->
+    <!--        </RelativeLayout>-->
 
-<!--        <Button-->
-<!--            android:id="@+id/subscribe_back_button"-->
-<!--            android:layout_width="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_height="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_margin="10dp"-->
-<!--            android:background="@drawable/ic_baseline_close_24"-->
-<!--            android:onClick="returnToEndOptions"-->
-<!--            app:layout_constraintDimensionRatio="0.7"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            app:layout_constraintWidth_percent="0.07" />-->
+    <!--        <TextView-->
+    <!--            android:id="@+id/no_thanks"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:onClick="closeShareOptions"-->
+    <!--            android:text="@string/no_thank_you"-->
+    <!--            android:textColor="@color/sing_up_hover"-->
+    <!--            android:textSize="17sp"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/share2" />-->
 
-<!--        <androidx.constraintlayout.widget.Guideline-->
-<!--            android:id="@+id/congrats_guide2"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:orientation="horizontal"-->
-<!--            app:layout_constraintGuide_percent="0.103" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/congrats2"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="@string/good_job"-->
-<!--            android:textColor="@android:color/white"-->
-<!--            android:textSize="20sp"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/congrats_guide2" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/subscription_invite"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:gravity="center"-->
-<!--            android:text="@string/sub_invite"-->
-<!--            android:textColor="@android:color/white"-->
-<!--            android:textSize="27dp"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/yearly_sub"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/congrats2" />-->
-
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/monthly_sub"-->
-<!--            android:layout_width="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_height="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:background="@drawable/share_background"-->
-<!--            android:onClick="openMonthlySubOption"-->
-<!--            app:layout_constraintBottom_toTopOf="@id/yearly_sub"-->
-<!--            app:layout_constraintDimensionRatio="4.67"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/subscription_invite"-->
-<!--            app:layout_constraintWidth_percent="0.76">-->
-
-<!--            <TextView-->
-
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_centerInParent="true"-->
-<!--                android:layout_centerHorizontal="true"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:onClick="openMonthlySubOption"-->
-<!--                android:text="@string/monthly_sub"-->
-<!--                android:textColor="@color/purple_hover"-->
-<!--                android:textSize="24sp" />-->
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 
 
-<!--        </RelativeLayout>-->
+    <!--    <androidx.constraintlayout.widget.ConstraintLayout-->
+    <!--        android:id="@+id/subscript_layout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        android:layout_margin="3dp"-->
+    <!--        android:background="@color/appColor"-->
+    <!--        android:visibility="gone">-->
+
+    <!--        <Button-->
+    <!--            android:id="@+id/subscribe_back_button"-->
+    <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_margin="10dp"-->
+    <!--            android:background="@drawable/ic_baseline_close_24"-->
+    <!--            android:onClick="returnToEndOptions"-->
+    <!--            app:layout_constraintDimensionRatio="0.7"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent"-->
+    <!--            app:layout_constraintWidth_percent="0.07" />-->
+
+    <!--        <androidx.constraintlayout.widget.Guideline-->
+    <!--            android:id="@+id/congrats_guide2"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:orientation="horizontal"-->
+    <!--            app:layout_constraintGuide_percent="0.103" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/congrats2"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:text="@string/good_job"-->
+    <!--            android:textColor="@android:color/white"-->
+    <!--            android:textSize="20sp"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/congrats_guide2" />-->
+
+    <!--        <TextView-->
+    <!--            android:id="@+id/subscription_invite"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:gravity="center"-->
+    <!--            android:text="@string/sub_invite"-->
+    <!--            android:textColor="@android:color/white"-->
+    <!--            android:textSize="27dp"-->
+    <!--            app:layout_constraintBottom_toTopOf="@id/yearly_sub"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/congrats2" />-->
+
+    <!--        <RelativeLayout-->
+    <!--            android:id="@+id/monthly_sub"-->
+    <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_marginTop="10dp"-->
+    <!--            android:layout_weight="1"-->
+    <!--            android:background="@drawable/share_background"-->
+    <!--            android:onClick="openMonthlySubOption"-->
+    <!--            app:layout_constraintBottom_toTopOf="@id/yearly_sub"-->
+    <!--            app:layout_constraintDimensionRatio="4.67"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/subscription_invite"-->
+    <!--            app:layout_constraintWidth_percent="0.76">-->
+
+    <!--            <TextView-->
+
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_centerInParent="true"-->
+    <!--                android:layout_centerHorizontal="true"-->
+    <!--                android:layout_centerVertical="true"-->
+    <!--                android:onClick="openMonthlySubOption"-->
+    <!--                android:text="@string/monthly_sub"-->
+    <!--                android:textColor="@color/purple_hover"-->
+    <!--                android:textSize="24sp" />-->
 
 
-<!--        <RelativeLayout-->
-<!--            android:id="@+id/yearly_sub"-->
-<!--            android:layout_width="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_height="@dimen/no_hardcode_dimension"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:background="@drawable/share_background"-->
-<!--            android:onClick="openYearlySubOption"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintDimensionRatio="4.67"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@id/subscription_invite"-->
-<!--            app:layout_constraintWidth_percent="0.76">-->
-
-<!--            <TextView-->
-
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_centerInParent="true"-->
-<!--                android:layout_centerHorizontal="true"-->
-<!--                android:layout_centerVertical="true"-->
-<!--                android:onClick="openYearlySubOption"-->
-<!--                android:text="@string/yearly_sub"-->
-<!--                android:textColor="@color/purple_hover"-->
-<!--                android:textSize="24sp" />-->
+    <!--        </RelativeLayout>-->
 
 
-<!--        </RelativeLayout>-->
+    <!--        <RelativeLayout-->
+    <!--            android:id="@+id/yearly_sub"-->
+    <!--            android:layout_width="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_height="@dimen/no_hardcode_dimension"-->
+    <!--            android:layout_marginTop="10dp"-->
+    <!--            android:layout_weight="1"-->
+    <!--            android:background="@drawable/share_background"-->
+    <!--            android:onClick="openYearlySubOption"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintDimensionRatio="4.67"-->
+    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--            app:layout_constraintRight_toRightOf="parent"-->
+    <!--            app:layout_constraintTop_toBottomOf="@id/subscription_invite"-->
+    <!--            app:layout_constraintWidth_percent="0.76">-->
+
+    <!--            <TextView-->
+
+    <!--                android:layout_width="wrap_content"-->
+    <!--                android:layout_height="wrap_content"-->
+    <!--                android:layout_centerInParent="true"-->
+    <!--                android:layout_centerHorizontal="true"-->
+    <!--                android:layout_centerVertical="true"-->
+    <!--                android:onClick="openYearlySubOption"-->
+    <!--                android:text="@string/yearly_sub"-->
+    <!--                android:textColor="@color/purple_hover"-->
+    <!--                android:textSize="24sp" />-->
 
 
-<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
+    <!--        </RelativeLayout>-->
+
+
+    <!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
 </androidx.constraintlayout.widget.ConstraintLayout>

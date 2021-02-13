@@ -30,8 +30,8 @@ public class RecordingService {
     private static final String LOADING = "loading";
     private static final String RECORDING_URL = "recordingUrl";
     private static final String REPORTS = "reports";
-    private AuthenticationDriver authenticationDriver;
-    private CollectionReference recordingsCollectionRef;
+    private final AuthenticationDriver authenticationDriver;
+    private final CollectionReference recordingsCollectionRef;
     private DocumentReference recodingDocument;
     private Recording recording;
 

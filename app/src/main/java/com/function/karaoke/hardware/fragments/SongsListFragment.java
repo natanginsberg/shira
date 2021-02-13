@@ -26,11 +26,13 @@ import com.function.karaoke.hardware.activities.Model.DatabaseSongsDB;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
 import com.function.karaoke.hardware.activities.Model.Reocording;
+import com.function.karaoke.hardware.activities.Model.SongRequest;
 import com.function.karaoke.hardware.activities.Model.UserInfo;
 import com.function.karaoke.hardware.adapters.SongRecyclerViewAdapter;
 import com.function.karaoke.hardware.storage.AuthenticationDriver;
 import com.function.karaoke.hardware.storage.DatabaseDriver;
 import com.function.karaoke.hardware.storage.RecordingService;
+import com.function.karaoke.hardware.storage.SongRequestAdder;
 import com.function.karaoke.hardware.ui.GenresUI;
 import com.function.karaoke.hardware.ui.SettingUI;
 import com.function.karaoke.hardware.ui.SongsActivityUI;
@@ -53,7 +55,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private static final int SONG_SUGGESTION = 102;
 
     private static final int GENRE = -1;
+    private static final int CLOSE_POPUP = 1;
+    private static final int HIDE_TEXT = 2;
     private final GenreListener genreListener = new GenreListener();
+    private final boolean differentSongsDisplayed = true;
+    private final int contentDisplayed = ALL_SONGS_DISPLAYED;
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
     private SongRecyclerViewAdapter mAdapter;
@@ -75,9 +81,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private AuthenticationDriver authenticationDriver;
     private SongsActivityUI songsActivityUI;
     private int clicked = 0;
-    private final boolean differentSongsDisplayed = true;
-    private final int contentDisplayed = ALL_SONGS_DISPLAYED;
-    private OpenSignUp openSignUpListener = new OpenSignUp();
+    private final OpenSignUp openSignUpListener = new OpenSignUp();
     private String currentGenre;
     private CountDownTimer cTimer;
 
@@ -358,7 +362,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void setOpenGmailClickers() {
-        popupView.findViewById(R.id.sign_in_invite).setOnClickListener(openSignUpListener);
+        popupView.findViewById(R.id.email_or_sign_in_invite).setOnClickListener(openSignUpListener);
         popupView.findViewById(R.id.user_picture).setOnClickListener(openSignUpListener);
     }
 
@@ -394,10 +398,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             String comments = (String) ((EditText) suggestionView.findViewById(R.id.comments)).getText().toString();
             if (!allSongsDatabase.containsSong(songName, artistName)) {
                 if (!songName.equalsIgnoreCase("") && !artistName.equalsIgnoreCase(""))
-                    mListener.sendEmailWithSongSuggestion(songName, artistName, comments);
+                    sendSuggestion(new SongRequest(songName, artistName, comments));
+
             } else {
                 songsActivityUI.showSongInSystem();
-                startTimerToCloseWindow();
+                startTimerToCloseWindow(HIDE_TEXT);
             }
 
         });
@@ -410,14 +415,38 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         });
     }
 
-    private void startTimerToCloseWindow() {
+    private void sendSuggestion(SongRequest songRequest) {
+        SongRequestAdder.addSongToDatabase(databaseDriver, songRequest, new SongRequestAdder.RequestListener() {
+            @Override
+            public void onSuccess() {
+                songsActivityUI.showRequestAccepted();
+                startTimerToCloseWindow(CLOSE_POPUP);
+            }
+
+            @Override
+            public void onFailure() {
+                songsActivityUI.showRequestDenied();
+                startTimerToCloseWindow(CLOSE_POPUP);
+            }
+        });
+    }
+
+    private void startTimerToCloseWindow(int reason) {
         cTimer = new CountDownTimer(2000, 500) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
             }
 
             public void onFinish() {
-                songsActivityUI.makeTextInvisible();
+                switch (reason) {
+                    case CLOSE_POPUP:
+                        songsActivityUI.closePopup();
+                        break;
+                    case HIDE_TEXT:
+                        songsActivityUI.makeTextInvisible();
+                        break;
+                }
+
                 cancelTimer();
             }
         };
@@ -501,6 +530,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             return true;
         }
         return false;
+    }
+
+    public void showSuccessSignIn() {
+        songsActivityUI.showSuccessSignIn();
     }
 
 

@@ -1,6 +1,8 @@
 package com.function.karaoke.hardware.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ public class SongsActivityUI {
     private final GenresUI genreUI;
     private PopupWindow suggestPopup;
     private View suggestionView;
+    private CountDownTimer cTimer;
 
     public SongsActivityUI(View songsActivity, GenresUI.GenreUIListener listener, String currentLanguage, Context context) {
         this.view = songsActivity;
@@ -71,5 +74,40 @@ public class SongsActivityUI {
 
     public PopupWindow getSuggestPopup() {
         return suggestPopup;
+    }
+
+    public void showRequestAccepted() {
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().
+                getString(R.string.request_received));
+        showPopupForOneSecond(popupWindow);
+
+    }
+
+    public void showRequestDenied() {
+        PopupWindow popupWindow = IndicationPopups.openXIndication(context, view, context.getResources().
+                getString(R.string.server_is_down));
+        showPopupForOneSecond(popupWindow);
+    }
+
+    private void showPopupForOneSecond(PopupWindow popupWindow) {
+        if (cTimer == null) {
+            cTimer = new CountDownTimer(1500, 500) {
+                @SuppressLint("SetTextI18n")
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    cTimer.cancel();
+                    popupWindow.dismiss();
+                    cTimer = null;
+                }
+            };
+            cTimer.start();
+        }
+    }
+
+    public void showSuccessSignIn() {
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().getString(R.string.cuccessfull_sign_in));
+        showPopupForOneSecond(popupWindow);
     }
 }

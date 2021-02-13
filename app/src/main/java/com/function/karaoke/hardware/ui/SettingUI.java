@@ -26,10 +26,10 @@ public class SettingUI {
 
     private final View view;
     private final Context context;
+    private final ClosePopListener closePopListener = new ClosePopListener();
     private View popupView;
     private PopupWindow popup;
     private ImageView profilePic;
-    private final ClosePopListener closePopListener = new ClosePopListener();
 
     public SettingUI(View view, Context c) {
         this.view = view;
@@ -72,7 +72,7 @@ public class SettingUI {
             }
         });
 
-        popupView.findViewById(R.id.sign_in_invite).setOnClickListener(new View.OnClickListener() {
+        popupView.findViewById(R.id.email_or_sign_in_invite).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -81,8 +81,7 @@ public class SettingUI {
     }
 
     private void showSignInText() {
-        popupView.findViewById(R.id.sign_in_invite).setVisibility(View.VISIBLE);
-        popupView.findViewById(R.id.email_address).setVisibility(View.INVISIBLE);
+        popupView.findViewById(R.id.email_or_sign_in_invite).setVisibility(View.VISIBLE);
     }
 
     private void showSignedInTheme(UserInfo user) {
@@ -108,8 +107,8 @@ public class SettingUI {
     }
 
     public void setEmailAddressIfSignedIn(String emailAddressIfSignedIn) {
-        popupView.findViewById(R.id.sign_in_invite).setVisibility(View.GONE);
-        ((TextView) popupView.findViewById(R.id.email_address)).setText(emailAddressIfSignedIn);
+//        popupView.findViewById(R.id.email_or_sign_in_invite).setVisibility(View.GONE);
+        ((TextView) popupView.findViewById(R.id.email_or_sign_in_invite)).setText(emailAddressIfSignedIn);
     }
 
     private void placePopupOnScreen() {

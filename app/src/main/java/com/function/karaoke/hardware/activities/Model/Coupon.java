@@ -7,7 +7,8 @@ public class Coupon {
     private int type;
     private int freeShares = 0;
 
-    public Coupon(){}
+    public Coupon() {
+    }
 
     public Coupon(String code, String emails, int type, int numberOfFreeShares) {
         this.code = code;

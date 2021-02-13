@@ -41,16 +41,15 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             return a.getTitle().compareToIgnoreCase(b.getTitle());
         return a.getArtist().compareToIgnoreCase(b.getArtist());
     };
-
-    private List<DatabaseSong> mValues;
-    private List<Recording> mRecordings;
-    private final OnListFragmentInteractionListener mListener;
     private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
             R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
     private static final int[] transparentRectangles = new int[]{R.drawable.custom_song_rec_1_t,
             R.drawable.custom_song_rec_2_t, R.drawable.custom_song_rec_3_t, R.drawable.custom_song_rec_4_t};
     private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
     private static final double[] heightFactors = new double[]{2.5, 3.5};
+    private final OnListFragmentInteractionListener mListener;
+    private List<DatabaseSong> mValues;
+    private List<Recording> mRecordings;
     private double averageSongsPlayed;
 
     public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener) {
@@ -120,13 +119,12 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private View mView;
+        //        public Song mItem;
+        public DatabaseSong mItem;
+        private final View mView;
         private TextView mLblTitle;
         private TextView mLblArtist;
         private String url;
-
-        //        public Song mItem;
-        public DatabaseSong mItem;
 
         public ViewHolder(View view) {
             super(view);

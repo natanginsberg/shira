@@ -1,4 +1,5 @@
 package com.function.karaoke.hardware.activities.Model.enums;
+
 /**
  * A closed list of states for SignInActivity
  */
@@ -7,5 +8,5 @@ public enum LoginState {
     LOGGING_IN,
     SIGN_IN_GET_USER,
     NEW_USER_SIGN_UP,
-    FINISH;
+    FINISH
 }

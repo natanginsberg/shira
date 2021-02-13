@@ -71,7 +71,7 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         }
     };
     private boolean removeInProgress = false;
-    private List<Recording> recordingsToDelete = new ArrayList<Recording>() {
+    private final List<Recording> recordingsToDelete = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
             return indexOf(o) >= 0;
@@ -206,6 +206,21 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         recordingsToDelete.addAll(deleteRecordingList);
     }
 
+    public interface RecordingListener {
+
+        void onListFragmentInteractionRecordingClick(Recording mItem, View mView);
+
+        void onListFragmentInteractionShare(Recording mItem);
+
+        void showAllGarbagesInChildren();
+
+        void changeIconToGreen(View itemView);
+
+        void deletePressed(Recording mItem, View itemView);
+
+        void changeIconToWhite(View mView);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final View mView;
         private final TextView mLblTitle;
@@ -247,21 +262,6 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
         private String getDateAndTime(String date) {
             return date.substring(9, 11) + ":" + date.substring(11, 13) + "  " + date.substring(6, 8) + "/" + date.substring(4, 6) + "/" + date.substring(2, 4);
         }
-    }
-
-    public interface RecordingListener {
-
-        void onListFragmentInteractionRecordingClick(Recording mItem, View mView);
-
-        void onListFragmentInteractionShare(Recording mItem);
-
-        void showAllGarbagesInChildren();
-
-        void changeIconToGreen(View itemView);
-
-        void deletePressed(Recording mItem, View itemView);
-
-        void changeIconToWhite(View mView);
     }
 
 }

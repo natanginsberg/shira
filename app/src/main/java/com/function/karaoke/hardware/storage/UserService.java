@@ -21,6 +21,8 @@ import java.util.Map;
  * This class manage sign up and getting the user object.
  */
 public class UserService extends ViewModel {
+    public static final String COLLECTION_USERS_NAME = "users";
+    public static final String UID = "id";
     private static final String DOWNLOADS = "shares";
     private static final String VIEWS = "views";
     private static final String TYPE = "subscriptionType";
@@ -29,15 +31,13 @@ public class UserService extends ViewModel {
     private static final String COUPONS_USED = "couponsUsed";
     private static final String FREE_SHARE_USED = "freeShares";
     private static final String PURCHASE_TOKEN = "purchaseToken";
-    private DatabaseDriver databaseDriver;
-    private AuthenticationDriver authenticationDriver;
-    private CollectionReference usersCollectionRef;
-    public static final String COLLECTION_USERS_NAME = "users";
-    public static final String UID = "id";
     private static final String TAG = UserService.class.getSimpleName();
+    private final List<String> fields = new ArrayList<>();
+    private final DatabaseDriver databaseDriver;
+    private final AuthenticationDriver authenticationDriver;
+    private final CollectionReference usersCollectionRef;
     private UserInfo user;
     private DocumentReference userDocument;
-    private final List<String> fields = new ArrayList<>();
 
     public UserService(DatabaseDriver databaseDriver, AuthenticationDriver authenticationDriver) {
         this.databaseDriver = databaseDriver;

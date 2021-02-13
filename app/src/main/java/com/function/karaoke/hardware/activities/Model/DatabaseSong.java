@@ -21,7 +21,7 @@ public class DatabaseSong implements Serializable, Reocording {
     private int timesPlayed;
     private String title;
     private List<String> lines;
-    private Bitmap image = null;
+    private final Bitmap image = null;
     private String genre;
     private String songReference;
     private String date = "";

@@ -24,21 +24,12 @@ import java.util.Comparator;
 import java.util.List;
 
 public class GridAdapter extends BaseAdapter {
-    private Context context;
-    private LayoutInflater layoutInflator;
-
-    private List<DatabaseSong> mValues;
-    private List<Recording> mRecordings;
-    private final SongsListFragment.OnListFragmentInteractionListener mListener;
-    private String language;
-    private String text;
     private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
             R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
     private static final int[] transparentRectangles = new int[]{R.drawable.custom_song_rec_1_t,
             R.drawable.custom_song_rec_2_t, R.drawable.custom_song_rec_3_t, R.drawable.custom_song_rec_4_t};
     private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
     private static final double[] heightFactors = new double[]{2.5, 3.5};
-
     private static final Comparator<Reocording> mComparator = new Comparator<Reocording>() {
         @Override
         public int compare(Reocording a, Reocording b) {
@@ -47,6 +38,13 @@ public class GridAdapter extends BaseAdapter {
             return a.getArtist().compareToIgnoreCase(b.getArtist());
         }
     };
+    private final SongsListFragment.OnListFragmentInteractionListener mListener;
+    private final Context context;
+    private final LayoutInflater layoutInflator;
+    private final List<DatabaseSong> mValues;
+    private List<Recording> mRecordings;
+    private final String language;
+    private String text;
 
     public GridAdapter(Context c, List<DatabaseSong> songs, SongsListFragment.OnListFragmentInteractionListener listener, String language) {
         mListener = listener;

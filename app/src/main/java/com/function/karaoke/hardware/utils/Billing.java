@@ -23,7 +23,8 @@ public class Billing {
 
     private final BillingClient billingClient;
     private final Activity activity;
-//    private final ConsumeResponseListener consumeResponseListener;
+    private final boolean displayProducts;
+    //    private final ConsumeResponseListener consumeResponseListener;
     private AcknowledgePurchaseResponseListener acknowledgePurchaseResponseListener = new AcknowledgePurchaseResponseListener() {
         @Override
         public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
@@ -31,7 +32,6 @@ public class Billing {
         }
     };
     private int counter = 0;
-    private final boolean displayProducts;
     private List<SkuDetails> skuDetailsList;
 
     public Billing(Activity activity, PurchasesUpdatedListener purchasesUpdatedListener, boolean displayProducts, ReadyListener readyListener) {
@@ -143,7 +143,7 @@ public class Billing {
         }
     }
 
-    public interface ReadyListener{
+    public interface ReadyListener {
         void ready();
     }
 }

@@ -20,6 +20,46 @@ public class NetworkTasks extends Fragment {
         parseWordsTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, dbSong);
     }
 
+    /**
+     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
+     * from.
+     */
+    public static UploadToWasabi uploadToWasabi(StorageAdder driver, UploadToWasabiListener listener) {
+        UploadToWasabi uploadToWasabi = new UploadToWasabi(listener);
+        uploadToWasabi.execute(driver);
+        return uploadToWasabi;
+    }
+
+    /**
+     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
+     * from.
+     */
+    public static DeleteFromWasabi deleteFromWasabi(RecordingDelete recordingDelete, DeleteListener listener) {
+        DeleteFromWasabi deleteFromWasabi = new DeleteFromWasabi(listener);
+        deleteFromWasabi.execute(recordingDelete);
+        return deleteFromWasabi;
+    }
+
+    public interface ParseListener {
+        void onSuccess();
+
+        void onFail();
+    }
+
+
+    public interface UploadToWasabiListener {
+        void onSuccess();
+
+        void onFail();
+
+        void onProgress(int progress);
+    }
+
+    public interface DeleteListener {
+        void onSuccess();
+
+        void onFail();
+    }
 
     /**
      * Implementation of AsyncTask designed to fetch data from the network.
@@ -97,23 +137,6 @@ public class NetworkTasks extends Fragment {
             }
         }
     }
-
-    public interface ParseListener {
-        void onSuccess();
-
-        void onFail();
-    }
-
-    /**
-     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
-     * from.
-     */
-    public static UploadToWasabi uploadToWasabi(StorageAdder driver, UploadToWasabiListener listener) {
-        UploadToWasabi uploadToWasabi = new UploadToWasabi(listener);
-        uploadToWasabi.execute(driver);
-        return uploadToWasabi;
-    }
-
 
     /**
      * Implementation of AsyncTask designed to fetch data from the network.
@@ -202,24 +225,6 @@ public class NetworkTasks extends Fragment {
     }
 
     /**
-     * Static initializer for NetworkFragment that sets the URL of the host it will be downloading
-     * from.
-     */
-    public static DeleteFromWasabi deleteFromWasabi(RecordingDelete recordingDelete, DeleteListener listener) {
-        DeleteFromWasabi deleteFromWasabi = new DeleteFromWasabi(listener);
-        deleteFromWasabi.execute(recordingDelete);
-        return deleteFromWasabi;
-    }
-
-    public interface UploadToWasabiListener {
-        void onSuccess();
-
-        void onFail();
-
-        void onProgress(int progress);
-    }
-
-    /**
      * Implementation of AsyncTask designed to fetch data from the network.
      */
     private static class DeleteFromWasabi extends AsyncTask<RecordingDelete, Integer, DeleteFromWasabi.Result> {
@@ -295,12 +300,6 @@ public class NetworkTasks extends Fragment {
                 this.exception = exception;
             }
         }
-    }
-
-    public interface DeleteListener {
-        void onSuccess();
-
-        void onFail();
     }
 
 }

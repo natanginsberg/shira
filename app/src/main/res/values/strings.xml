@@ -2,8 +2,8 @@
     <string name="app_name">Ashira</string>
     <string name="title_activity_login" translatable="false">LoginActivity</string>
 
-    <string name="monthly_membership">Monthly Membership 30 ₪</string>
-    <string name="yearly_membership">Yearly Membership Only 170 ₪</string>
+    <string name="monthly_membership">Monthly Membership</string>
+    <string name="yearly_membership">Yearly Membership</string>
 
     <string name="play">Play</string>
     <string name="good_job">Good Job!</string>
@@ -123,8 +123,8 @@
     <string name="sign_up_reason">This recording was amazing! In order to watch, save or share sign up to Ashira \n with your Google account.</string>
     <string name="sign_up_for_free">Sign up for free</string>
     <string name="easy_and_free_sign_up">(Easy and free sign up)</string>
-    <string name="acknowledge_of_sign_in">Thank you for signing up to Ashira. \n You have up to 3 saves/shares free</string>
-    <string name="share_incentive">Do you want to save and share all of your recordings?</string>
+    <string name="acknowledge_of_sign_in">Thank you for signing up to Ashira. \n You have up to 3 saves and shares free</string>
+    <string name="share_incentive">Enjoyed? \\n Do you want to save and share all of your recordings?</string>
     <string name="subscribe">Subscribe</string>
     <string name="sub_pricing">36 shekel a month or 170 shekel a year</string>
     <string name="share_left_label">You have %1$d free shares left</string>
@@ -170,5 +170,11 @@
     <string name="the_video_is_finished">The video is finished</string>
     <string name="play_again">Play again</string>
     <string name="sign_up">Sign up</string>
+    <string name="report_received">Thank you for reporting! </string>
+    <string name="cuccessfull_sign_in">Sign in successful!</string>
+    <string name="request_received">Thank you for your request \n we will try our best to add this song!</string>
+    <string name="member_sign_in">Member sign in</string>
+    <string name="click_to_join">Click to join</string>
+    <string name="the_recording_is_finished">The recording is finished</string>
 
 </resources>

@@ -22,10 +22,10 @@ public class SignIn {
     private final Context context;
     private final FragmentActivity activity;
     private final LifecycleOwner lifeCycleOwner;
+    private final ActivityResultLauncher<Intent> mGetContent;
     private SignInViewModel signInViewModel;
     private GoogleSignInClient mGoogleSignInClient;
     private Observer<Boolean> gettingNewUserSucceeded;
-    private final ActivityResultLauncher<Intent> mGetContent;
     private UserInfo user;
 
     public SignIn(FragmentActivity activity, Context context, LifecycleOwner lifecycleOwner, ActivityResultLauncher<Intent> mGetContent) {

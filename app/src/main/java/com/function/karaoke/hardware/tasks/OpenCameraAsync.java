@@ -1,6 +1,5 @@
 package com.function.karaoke.hardware.tasks;
 
-import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.view.TextureView;
 
@@ -22,14 +21,21 @@ public class OpenCameraAsync {
     }
 
 
+    public interface OpenCameraListener {
+        void onSuccess();
+
+        void onFail();
+
+    }
+
     /**
      * Implementation of AsyncTask designed to fetch data from the network.
      */
     private static class OpenCamera extends AsyncTask<CameraPreview, TextureView, OpenCamera.Result> {
 
-        private OpenCameraListener listener;
         private final TextureView mTextureView;
         private final TextureView.SurfaceTextureListener mSurfaceTextureListener;
+        private OpenCameraListener listener;
 
         OpenCamera(OpenCameraListener listener, TextureView textureView, TextureView.SurfaceTextureListener surfaceTextureListener) {
             this.mTextureView = textureView;
@@ -108,13 +114,6 @@ public class OpenCameraAsync {
                 this.exception = exception;
             }
         }
-    }
-
-    public interface OpenCameraListener {
-        void onSuccess();
-
-        void onFail();
-
     }
 
 }

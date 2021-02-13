@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class JsonHandler {
@@ -57,7 +58,7 @@ public class JsonHandler {
         Writer writer = new StringWriter();
         char[] buffer = new char[1024];
         try {
-            Reader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            Reader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             int n;
             while ((n = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, n);

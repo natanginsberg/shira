@@ -6,7 +6,7 @@ import com.abedelazizshe.lightcompressorlibrary.VideoQuality;
 
 public class Compressor {
 
-    public static void compress(String filePath, String destPath){
+    public static void compress(String filePath, String destPath) {
         VideoCompressor.start(filePath, destPath, new CompressionListener() {
             @Override
             public void onStart() {

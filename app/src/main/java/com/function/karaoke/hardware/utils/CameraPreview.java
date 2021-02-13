@@ -60,9 +60,9 @@ public class CameraPreview {
     }
 
     private final Context context;
-    String fileName;
     //    private AudioRecorder audioRecorder;
     private final AppCompatActivity activity;
+    String fileName;
     private TextureView mTextureView;
     private CameraDevice mCamera;
     private CaptureRequest.Builder mCaptureRequestBuilder;
@@ -114,54 +114,6 @@ public class CameraPreview {
 
     }
 
-    private void updateTextureMatrix(int width, int height, boolean swapRotation)
-    {
-        boolean isPortrait = false;
-//
-        Display display = ((SingActivity)context).getWindowManager().getDefaultDisplay();
-        if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180) isPortrait = true;
-        else if (display.getRotation() == Surface.ROTATION_90 || display.getRotation() == Surface.ROTATION_270) isPortrait = false;
-
-        int previewWidth = mPreviewSize.getWidth();
-        int previewHeight = mPreviewSize.getHeight();
-
-        if (isPortrait)
-        {
-            previewWidth = previewHeight;
-            previewHeight = previewWidth;
-        }
-
-        float ratioSurface = (float) width / height;
-        float ratioPreview = (float) previewWidth / previewHeight;
-
-        float scaleX;
-        float scaleY;
-
-        if (ratioSurface > ratioPreview)
-        {
-            scaleX = (float) height / previewHeight;
-            scaleY = 1;
-        }
-        else
-        {
-            scaleX = 1;
-            scaleY = (float) width / previewWidth;
-        }
-
-        Matrix matrix = new Matrix();
-
-        matrix.setScale(scaleX, scaleY);
-        mTextureView.setTransform(matrix);
-
-        float scaledWidth = width * scaleX;
-        float scaledHeight = height * scaleY;
-
-        float dx = (width - scaledWidth) / 2;
-        float dy = (height - scaledHeight) / 2;
-        mTextureView.setTranslationX(dx);
-        mTextureView.setTranslationY(dy);
-    }
-
     private static int sensitiveDeviceRotation(CameraCharacteristics cameraCharacteristics, int deviceOrientation) {
         int sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
         deviceOrientation = ORIENTATIONS.get(deviceOrientation);
@@ -180,6 +132,51 @@ public class CameraPreview {
         } else {
             return choices[0];
         }
+    }
+
+    private void updateTextureMatrix(int width, int height, boolean swapRotation) {
+        boolean isPortrait = false;
+//
+        Display display = ((SingActivity) context).getWindowManager().getDefaultDisplay();
+        if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180)
+            isPortrait = true;
+        else if (display.getRotation() == Surface.ROTATION_90 || display.getRotation() == Surface.ROTATION_270)
+            isPortrait = false;
+
+        int previewWidth = mPreviewSize.getWidth();
+        int previewHeight = mPreviewSize.getHeight();
+
+        if (isPortrait) {
+            previewWidth = previewHeight;
+            previewHeight = previewWidth;
+        }
+
+        float ratioSurface = (float) width / height;
+        float ratioPreview = (float) previewWidth / previewHeight;
+
+        float scaleX;
+        float scaleY;
+
+        if (ratioSurface > ratioPreview) {
+            scaleX = (float) height / previewHeight;
+            scaleY = 1;
+        } else {
+            scaleX = 1;
+            scaleY = (float) width / previewWidth;
+        }
+
+        Matrix matrix = new Matrix();
+
+        matrix.setScale(scaleX, scaleY);
+        mTextureView.setTransform(matrix);
+
+        float scaledWidth = width * scaleX;
+        float scaledHeight = height * scaleY;
+
+        float dx = (width - scaledWidth) / 2;
+        float dy = (height - scaledHeight) / 2;
+        mTextureView.setTranslationX(dx);
+        mTextureView.setTranslationY(dy);
     }
 
     public File getVideo() {

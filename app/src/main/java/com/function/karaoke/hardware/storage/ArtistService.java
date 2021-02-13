@@ -17,7 +17,7 @@ public class ArtistService {
     public static final String SINGLE_DOWNLOADS = "singleDownloads";
     private static final String UPDATING = "updating";
     private final ArtistServiceListener artistServiceListener;
-    private CollectionReference artistsCollectionRef;
+    private final CollectionReference artistsCollectionRef;
 
     public ArtistService(ArtistServiceListener artistServiceListener) {
         DatabaseDriver databaseDriver = new DatabaseDriver();

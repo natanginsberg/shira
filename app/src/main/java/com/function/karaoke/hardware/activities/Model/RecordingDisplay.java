@@ -2,26 +2,26 @@ package com.function.karaoke.hardware.activities.Model;
 
 public class RecordingDisplay implements Reocording {
 
-    private String imageResourceFile;
-    private String artist;
-    private String title;
+    private final String imageResourceFile;
+    private final String artist;
+    private final String title;
 
-    public RecordingDisplay(String imageResourceFile, String artist, String title){
-        this.imageResourceFile=imageResourceFile;
-        this.artist=artist;
-        this.title=title;
+    public RecordingDisplay(String imageResourceFile, String artist, String title) {
+        this.imageResourceFile = imageResourceFile;
+        this.artist = artist;
+        this.title = title;
     }
 
 
-    public String getImageResourceFile(){
+    public String getImageResourceFile() {
         return imageResourceFile;
     }
 
-    public String getArtist(){
+    public String getArtist() {
         return artist;
     }
 
-    public String getTitle(){
+    public String getTitle() {
         return title;
     }
 

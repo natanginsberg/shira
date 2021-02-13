@@ -5,7 +5,7 @@ public class AudioUploaded {
     String url;
     Long size;
 
-    public AudioUploaded(String url, Long size){
+    public AudioUploaded(String url, Long size) {
         this.url = url;
         this.size = size;
     }

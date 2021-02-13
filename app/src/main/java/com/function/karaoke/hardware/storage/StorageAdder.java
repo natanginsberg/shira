@@ -28,10 +28,10 @@ import software.amazon.awssdk.services.s3.model.DeleteBucketRequest;
 public class StorageAdder extends ViewModel implements Serializable {
     private final String BUCKET_NAME = "recordings-of-songs";
     private final File file;
+    private final StorageReference storageReference;
     private AmazonS3Client s3Client;
     private boolean setUp;
     private long bytesRead = 0;
-    private final StorageReference storageReference;
     private RecordingService recordingService;
 
     public StorageAdder(File file) {
@@ -39,6 +39,17 @@ public class StorageAdder extends ViewModel implements Serializable {
         getKeys();
         storageReference = FirebaseStorage.getInstance().getReference();
         recordingService = new RecordingService();
+    }
+
+    /**
+     * Deletes the bucket specified, given the bucket is empty.
+     *
+     * @param s3
+     * @param bucketName
+     */
+    public static void deleteEmptyBucket(final S3Client s3, final String bucketName) {
+        DeleteBucketRequest req = DeleteBucketRequest.builder().bucket(bucketName).build();
+        System.out.println(s3.deleteBucket(req).toString());
     }
 
     public void uploadRecording(Recording recording, UploadListener uploadListener) {
@@ -53,12 +64,6 @@ public class StorageAdder extends ViewModel implements Serializable {
                 }
             }
         }, recording.getRecordingId(), recording.getRecorderId());
-    }
-
-    public void updateRecordingUrl(Recording recording, UploadListener uploadListener) {
-        Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
-        recordingService = new RecordingService();
-        recordingService.updateUrlToRecording(recording.getRecordingId(), recording.getRecorderId(), downloadUri.toString(), uploadListener);
     }
 
 //    public void uploadRecording2(Recording recording, UploadListener uploadListener) {
@@ -93,6 +98,11 @@ public class StorageAdder extends ViewModel implements Serializable {
 //        });
 //    }
 
+    public void updateRecordingUrl(Recording recording, UploadListener uploadListener) {
+        Uri downloadUri = Uri.parse("https://s3.wasabisys.com/recordings-of-songs/" + file.getName());
+        recordingService = new RecordingService();
+        recordingService.updateUrlToRecording(recording.getRecordingId(), recording.getRecorderId(), downloadUri.toString(), uploadListener);
+    }
 
     private void getKeys() {
         DatabaseDriver dd = new DatabaseDriver();
@@ -135,17 +145,6 @@ public class StorageAdder extends ViewModel implements Serializable {
         s3Client.putObject(por);
         s3Client.setObjectAcl(BUCKET_NAME, file.getName(), CannedAccessControlList.PublicRead);
         return null;
-    }
-
-    /**
-     * Deletes the bucket specified, given the bucket is empty.
-     *
-     * @param s3
-     * @param bucketName
-     */
-    public static void deleteEmptyBucket(final S3Client s3, final String bucketName) {
-        DeleteBucketRequest req = DeleteBucketRequest.builder().bucket(bucketName).build();
-        System.out.println(s3.deleteBucket(req).toString());
     }
 
     private void addRecordingToFirestore(Recording recording, UploadListener uploadListener) {

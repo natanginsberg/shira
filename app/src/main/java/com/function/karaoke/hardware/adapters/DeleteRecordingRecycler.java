@@ -50,8 +50,8 @@ public class DeleteRecordingRecycler extends RecyclerView.Adapter<DeleteRecordin
         }
     };
     private final SingActivity.DeleteRecordingListener mListener;
-    private List<Recording> mValues;
     private final String language;
+    private List<Recording> mValues;
     private boolean removeInProgress = false;
 
     //    public SongRecyclerViewAdapter(List<Song> items, OnListFragmentInteractionListener listener, String language) {
