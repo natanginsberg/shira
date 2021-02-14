@@ -107,6 +107,7 @@ public class SignIn {
 
                                 signInViewModel.addNewUserToDatabase(user);
                             }
+                            resultSuccessFailListener.onSuccess();
                         }
 
                         @Override
@@ -115,10 +116,11 @@ public class SignIn {
                                 user = new UserInfo(firebaseUser.getEmail(), firebaseUser.getDisplayName(), firebaseUser.getPhotoUrl().toString(), firebaseUser.getUid(), 0, 0);
 
                                 signInViewModel.addNewUserToDatabase(user);
+                                resultSuccessFailListener.onSuccess();
                             }
                         }
                     });
-                    resultSuccessFailListener.onSuccess();
+
 
                 }
 

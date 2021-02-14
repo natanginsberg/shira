@@ -102,7 +102,7 @@ public class SongsActivity
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent intent = result.getData();
                         if (intent.getExtras() != null) {
-                            if (intent.getExtras().containsKey(USER_INFO))
+                                if (intent.getExtras().containsKey(USER_INFO))
                                 user = (UserInfo) intent.getSerializableExtra(USER_INFO);
                             else if (intent.getExtras().containsKey("genre")) {
                                 SongsListFragment fragment = getFragment();

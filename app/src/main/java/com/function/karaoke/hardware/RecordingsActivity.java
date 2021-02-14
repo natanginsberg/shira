@@ -462,16 +462,6 @@ public class RecordingsActivity extends AppCompatActivity implements
             }
 
             @Override
-            public CharSequence getLink() {
-                return link1;
-            }
-
-            @Override
-            public CharSequence getPassword() {
-                return password;
-            }
-
-            @Override
             public void setPassword(TextView viewById) {
                 password = GenerateRandomId.generateRandomPassword();
                 viewById.setText(password);

@@ -35,7 +35,6 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
@@ -66,9 +65,7 @@ import com.function.karaoke.hardware.utils.static_classes.SyncFileData;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 import java.io.BufferedInputStream;
@@ -302,7 +299,6 @@ public class SingActivity extends AppCompatActivity implements
             String language = prefs.getString(langPref, "");
             if (language != null && !language.equalsIgnoreCase("")) {
                 this.language = language;
-
             }
         }
         if (language == null)
@@ -378,7 +374,6 @@ public class SingActivity extends AppCompatActivity implements
         mPlayer = mKaraokeKonroller.getmPlayer();
         mKaraokeKonroller.setCustomObjectListener(SingActivity.this);
     }
-
 
     private void checkForPermissionAndOpenCamera() {
         if (Checks.checkCameraHardware(this)) {
@@ -1383,6 +1378,7 @@ public class SingActivity extends AppCompatActivity implements
         signIn.handleSignInResult(completedTask, findViewById(android.R.id.content).getRootView(), new SuccessFailListener() {
             @Override
             public void onSuccess() {
+                activityUI.showGoodSuccessSignIn();
                 user = signIn.getUser();
                 if (user != null)
                     switch (funcToCall) {
@@ -1431,16 +1427,6 @@ public class SingActivity extends AppCompatActivity implements
             }
         });
 //        activityUI.hideShareItems();
-    }
-
-    @Override
-    public CharSequence getLink() {
-        return link1;
-    }
-
-    @Override
-    public CharSequence getPassword() {
-        return password;
     }
 
     @Override
@@ -1494,6 +1480,11 @@ public class SingActivity extends AppCompatActivity implements
         user.setSubscriptionType(type);
         continueWithSaveProcess(false);
     }
+
+
+    //////////
+    // attempting to download the file before playing it
+    //////////
 
     private void downloadFile(String audioPath) {
         createVideoFolder();

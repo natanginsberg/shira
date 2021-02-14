@@ -584,10 +584,6 @@ public class SingActivityUI {
 
         void share(View view, boolean video);
 
-        CharSequence getLink();
-
-        CharSequence getPassword();
-
         void setPassword(TextView viewById);
     }
 }
