@@ -121,12 +121,11 @@ public class SingActivity extends AppCompatActivity implements
 
     private final int ALLOCATED_NUMBER_OF_RECORDINGS = 100;
     private final boolean timerStarted = false;
-    private final boolean songStarted = false;
+    private boolean songStarted;
     private final boolean prompted = false;
     CountDownTimer cTimer = null;
     MediaPlayer mPlayer;
     AuthenticationDriver authenticationDriver;
-    private String recordingId;
     @SuppressWarnings("SpellCheckingInspection")
     private KaraokeController mKaraokeKonroller;
     private DatabaseSong song;
@@ -215,7 +214,6 @@ public class SingActivity extends AppCompatActivity implements
                     }
                 }
             });
-    private Locale myLocale;
     private SignIn signIn;
 
     @Override
@@ -232,10 +230,11 @@ public class SingActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_sing);
         findViewById(android.R.id.content).getRootView().post(this::continueWithSetup);
         mTextureView = findViewById(R.id.surface_camera);
-        recordingId = GenerateRandomId.generateRandomId();
+
 //        createEarphoneReceivers();
         earphonesListener = new EarphoneListener(this);
         checkForPermissionAndOpenCamera();
+        songStarted = false;
 
         if (Util.SDK_INT < 24)
             alertUserThatHeCanNotPause();
@@ -318,7 +317,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void setLocale(String lang) {
-        myLocale = new Locale(lang);
+        Locale myLocale = new Locale(lang);
         Resources res = getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
         Configuration conf = res.getConfiguration();
@@ -593,8 +592,12 @@ public class SingActivity extends AppCompatActivity implements
         } else {
             finishSong();
         }
-        DialogBox back = DialogBox.newInstance(this, BACK_CODE);
-        back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+        if (songStarted) {
+            DialogBox back = DialogBox.newInstance(this, BACK_CODE);
+            back.show(getSupportFragmentManager(), "NoticeDialogFragment");
+        } else {
+            finishActivity();
+        }
     }
 
 
@@ -628,6 +631,7 @@ public class SingActivity extends AppCompatActivity implements
         updateServices();
         if (cameraPreview != null)
             cameraPreview.closeCamera();
+        cancelTimer();
 
         finish();
     }
@@ -685,9 +689,9 @@ public class SingActivity extends AppCompatActivity implements
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     refreshWindow();
                 } else {
+                    songStarted = true;
 //                customMediaPlayer.startSong();
                     mKaraokeKonroller.onResume();
-
                     earphonesUsed = earphonesListener.getEarphonesUsed();
                     isRunning = true;
                     setProgressBar();
@@ -786,6 +790,8 @@ public class SingActivity extends AppCompatActivity implements
         if (isRunning)
             activityUI.songPaused();
         isRunning = false;
+        if (mKaraokeKonroller != null)
+            mKaraokeKonroller.onPause();
         if (Util.SDK_INT >= 24) {
             if (isRecording) {
                 cameraPreview.pauseRecording();
@@ -793,16 +799,12 @@ public class SingActivity extends AppCompatActivity implements
             if (postParseVideoFile == null && cameraPreview.getVideo() != null)
                 startPauseTimerToSaveBattery();
         } else {
-            mKaraokeKonroller.onPause();
             finishSong();
         }
-        if (mKaraokeKonroller != null)
-            mKaraokeKonroller.onPause();
     }
 
     private void startPauseTimerToSaveBattery() {
         cancelTimer();
-        //todo change back to 120000
         cTimer = new CountDownTimer(120000, 110000) {
             @SuppressLint("SetTextI18n")
             public void onTick(long millisUntilFinished) {
@@ -863,10 +865,10 @@ public class SingActivity extends AppCompatActivity implements
     private void setDelay(Uri uriFromFile) {
         MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
         int duration = mp.getDuration();
-        int delay1 = (int) (duration - lengthOfAudioPlayed);
+        delay = (int) (duration - lengthOfAudioPlayed);
         long recordingStarted = cameraPreview.getTimeCreated();
         long playStarted = mKaraokeKonroller.getTimerStarted();
-        delay = (int) Math.abs(recordingStarted - playStarted);
+        int delay1 = (int) Math.abs(recordingStarted - playStarted);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
@@ -1002,7 +1004,7 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-//    //todo check if user has room before sharing
+//
 //
 //    private void checkIfUserHasRoomToStore() {
 //        RecordingService recordingService = new RecordingService();
@@ -1083,6 +1085,7 @@ public class SingActivity extends AppCompatActivity implements
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
         if (postParseVideoFile != null) {
+            String recordingId = GenerateRandomId.generateRandomId();
             recording = new Recording(freeShareUsed, song, songPlayed, timeStamp,
                     authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn);
 //        if (!earphonesUsed)

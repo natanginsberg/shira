@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Ashira</string>
-    <string name="monthly_membership">מנוי חודשי 36 ₪</string>
-    <string name="yearly_membership">מנוי שנתי רק 170 ₪</string>
+    <string name="monthly_membership">מנוי חודשי</string>
+    <string name="yearly_membership">מנוי שנתי</string>
     <!--    <string name="footer">התשלום יחויב על ידי הPlay Store \n המנוי יתחדש כל עוד לא ביטלת את החידוש האוטומטי</string>-->
     <string name="play">נגן</string>
     <string name="good_job">ביצוע מעולה!</string>
@@ -43,7 +43,7 @@
     <string name="recording_volume">עוצמת ההקלטה</string>
     <string name="default_value">ברירת מחדל</string>
     <string name="sign_in_error">ההרשמה נכשלה</string>
-    <string name="attach_earphones">חבר אוזניות לחוויה טובה יותר</string>
+    <string name="attach_earphones">יש לחבר אזניות חוטיות</string>
     <string name="feedback">Feedback</string>
     <string name="man_tone">גבר</string>
     <string name="kid">ילד/ה</string>

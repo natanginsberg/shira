@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.PopupWindow;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -52,7 +53,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private static final String PLAYBACK = "playback";
     private static final String AUDIO_FILE = "audio";
     private static final String DELAY = "delay";
-    private static final String REPORT_EMAIL = "ashira.jewishkaraoke@gmail.com";
     private static final String EARPHONES_NOT_USED = "empty";
     private static final String LENGTH = "length";
     private static final String CAMERA_ON = "camera on";
@@ -95,6 +95,40 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             } else {
                 getDynamicLink();
             }
+        setSeekBarListener();
+    }
+
+    private void setSeekBarListener() {
+        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+        int midProgress = 5;
+        int originalDelay = Integer.parseInt(String.valueOf(delay));
+        Log.i("bug78", "these are the seconds in the middle" + midProgress);
+        seekBar.setMax((int) 2 * midProgress);
+        seekBar.setProgress(midProgress);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                Log.i("bug78", "this is the old delay" + delay);
+                Log.i("bug78", "this is the progress" + i);
+                delay = Math.max(0, originalDelay + (i - midProgress) * 100);
+                Log.i("bug78", "this is the new delay" + delay);
+                ((TextView) findViewById(R.id.sync)).setText((i > midProgress ? "+" : "-") + Math.abs(i - midProgress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                playbackPlayer.getPlayer().setPlayWhenReady(false);
+                playbackPlayer.releasePlayer();
+                playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
+                playbackPlayer.createPlayer(Playback.this);
+            }
+        });
     }
 
     private void getUrisFromRecording(Recording recording) {
@@ -110,25 +144,26 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         if (externalView) {
             if (recording.isLoading()) {
                 alertUserThatVideoIsNotLoaded();
+                return;
             } else if (externalView && recording.getReports() > 3) {
                 IndicationPopups.openXIndication(this, findViewById(android.R.id.content).getRootView(), getString(R.string.inapproriate_under_review));
                 startTimerToFinish();
+                return;
             }
-        } else {
-            uris.add(Uri.parse(recording.getRecordingUrl()));
-            cameraOn = recording.isCameraOn();
-            if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
-                uris.add(Uri.parse(recording.getAudioFileUrl()));
-                earphonesUsed = true;
-            } else {
-            }
-            delay = recording.getDelay();
-            if (recording.getLength() != 0)
-                length = recording.getLength();
-            playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
-            playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
-            playbackPlayer.createPlayer(this);
         }
+        uris.add(Uri.parse(recording.getRecordingUrl()));
+        cameraOn = recording.isCameraOn();
+        if (!recording.getAudioFileUrl().equals(EARPHONES_NOT_USED)) {
+            uris.add(Uri.parse(recording.getAudioFileUrl()));
+            earphonesUsed = true;
+        }
+        delay = recording.getDelay();
+        if (recording.getLength() != 0)
+            length = recording.getLength();
+        playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
+        playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
+        playbackPlayer.createPlayer(this);
+
     }
 
     private void getUrisFromIntent() {
@@ -277,7 +312,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void alertUserThatVideoIsNotLoaded() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setCancelable(true);
-        alertBuilder.setTitle(R.string.video_loading);
         alertBuilder.setMessage(R.string.video_loading_body_if_video_not_loaded);
         alertBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             finish();
@@ -310,7 +344,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             @Override
             public void onClick(View view) {
                 playbackPlayer.restart();
-
                 playbackPlayer.createPlayer(Playback.this);
                 playbackPopupOpen.dismissPopup();
             }

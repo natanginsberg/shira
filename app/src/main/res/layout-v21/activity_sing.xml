@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:orientation="horizontal"
-        app:layout_constraintHeight_percent="0.05"
+        app:layout_constraintHeight_percent="0.06"
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
@@ -25,7 +25,7 @@
             android:layout_margin="10dp"
             android:background="@drawable/ic_arrow_back"
             android:onClick="returnToMain"
-            android:rotation="180" />
+            android:rotation="@integer/rotation" />
 
     </RelativeLayout>
 
@@ -133,26 +133,15 @@
             app:layout_constraintGuide_percent="0.66" />
 
 
-        <!--                <TextView-->
-        <!--                    android:id="@+id/words_read"-->
-        <!--                    android:layout_width="match_parent"-->
-        <!--                    android:layout_height="match_parent"-->
-        <!--                    android:layout_weight="1"-->
-        <!--                    android:gravity="center"-->
-        <!--                    android:textSize="24sp"-->
-        <!--                    tools:ignore="NestedWeights" />-->
-
-
         <com.function.karaoke.core.views.LyricsView
             android:id="@+id/lyrics"
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_gravity="center"
-            android:layout_weight="1"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:textColor="#99FFFFFF"
-            android:textSize="24sp"
+            android:textSize="26sp"
             app:layout_constraintBottom_toTopOf="@+id/lyrics_guide1"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -160,11 +149,10 @@
             android:id="@+id/words_to_read"
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_weight="1"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:textColor="#99FFFFFF"
-            android:textSize="20sp"
+            android:textSize="26sp"
             app:layout_constraintBottom_toTopOf="@id/lyrics_guide2"
             app:layout_constraintTop_toTopOf="@+id/lyrics_guide1" />
 
@@ -172,11 +160,10 @@
             android:id="@+id/words_to_read_2"
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
-            android:layout_weight="1"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
             android:textColor="#99FFFFFF"
-            android:textSize="20sp"
+            android:textSize="26sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/lyrics_guide2" />
 
@@ -186,7 +173,7 @@
             android:layout_height="@dimen/no_hardcode_dimension"
             android:gravity="center"
             android:textColor="#99FFFFFF"
-            android:textSize="20sp"
+            android:textSize="26sp"
             app:layout_constraintTop_toBottomOf="parent" />
 
         <TextView
@@ -268,10 +255,10 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:background="@android:color/black"
         android:fillViewport="true"
         android:orientation="vertical"
         android:scrollbars="none"
-        android:background="@android:color/black"
         app:layout_constraintHeight_percent="0.72"
         app:layout_constraintTop_toBottomOf="@id/progress_bar">
 
@@ -291,7 +278,6 @@
     </ScrollView>
 
     <Button
-        android:elevation="20dp"
         android:id="@+id/pause"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
@@ -299,6 +285,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:background="@drawable/ic_pause_icon"
+        android:elevation="20dp"
         android:onClick="pauseSong"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -312,9 +299,9 @@
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_margin="45dp"
-        android:elevation="20dp"
-
         android:background="@drawable/ic_play_icon_shadow"
+
+        android:elevation="20dp"
         android:onClick="resumeSong"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -326,9 +313,9 @@
         android:id="@+id/continue_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="20dp"
         android:fontFamily="@font/varela_round_regular"
         android:text="@string/continue_text"
-        android:elevation="20dp"
 
         android:textColor="@android:color/white"
         android:visibility="invisible"
@@ -344,9 +331,9 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="45dp"
-        android:elevation="20dp"
-
         android:background="@drawable/ic_stop_icon"
+
+        android:elevation="20dp"
         android:onClick="openEndOptions"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@id/play"
@@ -359,10 +346,10 @@
         android:id="@+id/stop_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:elevation="20dp"
         android:fontFamily="@font/varela_round_regular"
         android:text="@string/stop"
         android:textColor="@android:color/white"
-        android:elevation="20dp"
 
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -407,8 +394,8 @@
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_margin="25dp"
         android:background="@drawable/ic_play_icon_shadow"
-        android:onClick="playMusic"
         android:elevation="20dp"
+        android:onClick="playMusic"
 
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"

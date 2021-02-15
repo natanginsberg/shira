@@ -47,20 +47,23 @@ public class Parser {
                         }
                         String[] lineWordsAndTimes = line.split("<");
 
-//                        if (lineWordsAndTimes.length > 6) {
-//                            int j = 0;
-//                            String[] tempLine = new String[lineWordsAndTimes.length / 2];
-//                            while (j < lineWordsAndTimes.length / 2) {
-//                                tempLine[j] = lineWordsAndTimes[j];
-//                                j++;
-//                            } tempLine[j] = lineWordsAndTimes[j].replace()
-//                        }
+                        if (lineWordsAndTimes.length > 6) {
+                            List<String[]> lines = breakLineIntoManyLines(lineWordsAndTimes);
+                            for (int k = 0; k < 2; k++) {
+                                String[] l = lines.get(k);
 
-
-                        Song.Line nextLineInSong = parseLine(lineWordsAndTimes, nextLine, isLastLine);
-                        song.lines.add(nextLineInSong);
-                        if (lastWordIsUnproportionatelyLong(getLineTimeStamp(nextLine), nextLineInSong.to)) {
-                            song.lines.add(addIntroIndication(getLineTimeStamp(nextLine), false));
+                                Song.Line nextLineInSong = parseLine(l, getLineTimeStamp(k == 0 ? lines.get(1)[0] : nextLine), isLastLine);
+                                song.lines.add(nextLineInSong);
+                                if (lastWordIsUnproportionatelyLong(getLineTimeStamp(k == 0 ? lines.get(1)[0] : nextLine), nextLineInSong.to)) {
+                                    song.lines.add(addIntroIndication(getLineTimeStamp(k == 0 ? lines.get(1)[0] : nextLine), false));
+                                }
+                            }
+                        } else {
+                            Song.Line nextLineInSong = parseLine(lineWordsAndTimes, getLineTimeStamp(nextLine), isLastLine);
+                            song.lines.add(nextLineInSong);
+                            if (lastWordIsUnproportionatelyLong(getLineTimeStamp(nextLine), nextLineInSong.to)) {
+                                song.lines.add(addIntroIndication(getLineTimeStamp(nextLine), false));
+                            }
                         }
                     } else {
                         if (i < data.size() - 1) {
@@ -81,6 +84,53 @@ public class Parser {
 
         return song;
     }
+
+    private static List<String[]> breakLineIntoManyLines(String[] lineWordsAndTimes) {
+        List<String[]> allLines = new ArrayList<>();
+        int lengthOfNewSentence = (lineWordsAndTimes.length - 1) > 6 ? 4 : 3;
+
+        for (int k = 0; k < 2; k++)
+            allLines.add(parsePartOfLine(lineWordsAndTimes, lengthOfNewSentence, k * lengthOfNewSentence));
+        return allLines;
+    }
+
+    private static String[] parsePartOfLine(String[] lineWordsAndTimes, int lengthOfNewSentence, int i) {
+        int lengthOfSentence = i == 0 ? lengthOfNewSentence + 1 : lineWordsAndTimes.length - lengthOfNewSentence;
+        String[] nextLine = new String[lengthOfSentence];
+        for (int j = 0; j < lengthOfSentence - 1; j++) {
+            if (i + j > lineWordsAndTimes.length - 2)
+                break;
+            if (j == 0) {
+                if (lineWordsAndTimes[i].contains("]")) {
+                    nextLine[0] = lineWordsAndTimes[0];
+                } else {
+                    nextLine[0] = addFrontBracketToSentence(lineWordsAndTimes[i]);
+                }
+            } else
+                nextLine[j] = lineWordsAndTimes[i + j];
+        }
+        i = Math.min(i + lengthOfSentence - 1, lineWordsAndTimes.length - 1);
+        if (lineWordsAndTimes[i].contains("$"))
+            nextLine[lengthOfSentence - 1] = lineWordsAndTimes[i];
+        else
+            nextLine[lengthOfSentence - 1] = swapWordForDollar(lineWordsAndTimes[i]);
+
+        return nextLine;
+    }
+
+    private static String addFrontBracketToSentence(String lineWordsAndTime) {
+        StringBuffer stringBuffer = new StringBuffer(lineWordsAndTime.replace('>', ']'));
+        stringBuffer.insert(0, "[");
+        return String.valueOf(stringBuffer);
+    }
+
+    private static String swapWordForDollar(String lineWordsAndTime) {
+        String tempWord = lineWordsAndTime;
+        String[] wordAndTime = tempWord.split(">");
+        return tempWord.replace(wordAndTime[1], "$");
+
+    }
+
 
     private static boolean lastWordIsUnproportionatelyLong(double parseTimeStamp, double to) {
         return parseTimeStamp != to;
@@ -151,7 +201,7 @@ public class Parser {
         return currentLine;
     }
 
-    private static Song.Line parseLine(String[] line, String nextLine, boolean lastLine) {
+    private static Song.Line parseLine(String[] line, double nextLineTimeStamp, boolean lastLine) {
         Song.Line currentLine = new Song.Line();
         Song.Syllable syllable;
         double startTime = 0;
@@ -175,7 +225,7 @@ public class Parser {
                     startTime = parseTimeStamp(wordAndTime[0]);
                 }
                 if (wordAndTime[1].contains("$")) {
-                    endTime = getLineTimeStamp(nextLine);
+                    endTime = nextLineTimeStamp;
                     if (endTime - startTime > 5) {
                         endTime = startTime;
                     }
@@ -190,7 +240,7 @@ public class Parser {
                 if (lastLine) {
                     endTime = startTime + 100000;
                 } else {
-                    endTime = getLineTimeStamp(nextLine);
+                    endTime = nextLineTimeStamp;
                 }
                 if (endTime - startTime > 5) {
                     endTime = startTime + 2;

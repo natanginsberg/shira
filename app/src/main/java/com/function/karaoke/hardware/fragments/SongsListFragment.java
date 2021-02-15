@@ -372,7 +372,23 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         signInButtonListener();
         contactUsListener();
         policyListener();
+        adminListener();
         couponListener();
+    }
+
+    private void adminListener() {
+        popupView.findViewById(R.id.user_picture).setOnClickListener(view -> {
+            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null
+                    && (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
+                    authenticationDriver.getUserEmail().equals("natanginsberg@gmail.com") ||
+                    authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com"))) {
+                clicked++;
+                if (clicked == 5) {
+                    mListener.openAdminSide();
+                    clicked = 0;
+                }
+            }
+        });
     }
 
     private void couponListener() {
@@ -461,17 +477,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void policyListener() {
         popupView.findViewById(R.id.policy).setOnClickListener(view -> {
-            if (authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null
-                    && (authenticationDriver.getUserEmail().equals("asher307901520@gmail.com") ||
-                    authenticationDriver.getUserEmail().equals("natanginsberg@gmail.com") ||
-                    authenticationDriver.getUserEmail().equals("yossimordehay@gmail.com"))) {
-                clicked++;
-                if (clicked == 5) {
-                    mListener.openAdminSide();
-                    clicked = 0;
-                }
-            }
+            mListener.openPolicy();
         });
+
 
     }
 
@@ -561,8 +569,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void openAdminSide();
 
-        void sendEmailWithSongSuggestion(String songName, String artistName, String comments);
-
         void startRecordingsActivity(Genres genres);
 
         UserInfo getUser();
@@ -570,6 +576,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void signIn();
 
         void startCouponActivity();
+
+        void openPolicy();
     }
 
     private class GenreListener implements View.OnClickListener {

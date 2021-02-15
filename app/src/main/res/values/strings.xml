@@ -90,7 +90,7 @@
     <string name="no_pause_body_for_older_phones">Attention! Pausing song in the middle will not work, and the song will end.</string>
     <string name="no_pause_title_for_older_phones">Pause warning</string>
     <string name="video_loading">Video error</string>
-    <string name="video_loading_body_if_video_not_loaded">This video has been uploaded to our servers yet.\nSorry for the inconvinience</string>
+    <string name="video_loading_body_if_video_not_loaded">This video has not been uploaded to our servers yet.\nSorry for the inconvenience</string>
     <string name="option_for_sharing_after_video_was_saved">You\'re recording was saved, do you want to share it?</string>
     <string name="no_thank_you">No thank you</string>
     <!--    <string name="yearly_sub">Yearly 180</string>-->

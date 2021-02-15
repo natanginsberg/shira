@@ -50,6 +50,7 @@ public class KaraokeController implements Recorder.IToneListener {
     private LyricsView mLyrics;
     private LyricsView wordsToRead;
     private ConstraintLayout wordSpace;
+    private int lyricsSize;
 
 //    private ToneRender mToneRender;
 
@@ -60,7 +61,7 @@ public class KaraokeController implements Recorder.IToneListener {
                 if (mPlayer.getCurrentPosition() <= 0) {
                     mHandler.postDelayed(mUpdater, 5);
                 } else {
-                    timerStarted =  new Date().getTime();
+                    timerStarted = new Date().getTime();
                 }
 
             }
@@ -120,6 +121,7 @@ public class KaraokeController implements Recorder.IToneListener {
         this.wordSpace = view.findViewById(wordSpace);
         this.twoLinesAhead = view.findViewById(twoLinesAhead);
         this.threeLinesAhead = view.findViewById(threeLinesAhead);
+        lyricsSize = this.twoLinesAhead.getHeight();
     }
 
 
@@ -294,7 +296,7 @@ public class KaraokeController implements Recorder.IToneListener {
 
         LyricsView lyricsView = new LyricsView(context, null);
         lyricsView.setId(View.generateViewId());
-        lyricsView.setTextColor(context.getResources().getColor(R.color.unhighlight_words));
+
         setAttributes(lyricsView);
 
         wordSpace.addView(lyricsView);
@@ -302,7 +304,7 @@ public class KaraokeController implements Recorder.IToneListener {
 //        set.connect(lyricsView.getId(), ConstraintSet.TOP, bottomGuide.getId(), ConstraintSet.TOP, 0);
         set.connect(lyricsView.getId(), ConstraintSet.RIGHT, wordSpace.getId(), ConstraintSet.RIGHT, 0);
         set.connect(lyricsView.getId(), ConstraintSet.LEFT, wordSpace.getId(), ConstraintSet.LEFT, 0);
-        set.constrainHeight(lyricsView.getId(), lyricsHeight);
+        set.constrainHeight(lyricsView.getId(), lyricsSize);
         set.constrainedWidth(lyricsView.getId(), true);
         set.applyTo(wordSpace);
 //        linearLayout.addView(lyricsView);
@@ -310,8 +312,11 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     private void setAttributes(LyricsView lyricsView) {
-//        giveLyricsViewWeightOfOne(lyricsView);
-        lyricsView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
+//        giveLyricsViewWeightOfOne(lyricsView);\
+        lyricsView.setHeight(0);
+        lyricsView.setTextColor(context.getResources().getColor(R.color.unhighlight_words));
+        lyricsView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
+        ;
         lyricsView.setGravity(Gravity.CENTER);
         Typeface tf = Typeface.createFromAsset(context.getAssets(), "fonts/varela_round_regular.ttf");
         lyricsView.setTypeface(tf);

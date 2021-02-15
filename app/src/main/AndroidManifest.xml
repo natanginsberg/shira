@@ -32,7 +32,8 @@
         android:roundIcon="@mipmap/ic_video_camera"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CouponActivity"></activity>
+        <activity android:name=".PolicyActivity"></activity>
+        <activity android:name=".CouponActivity" />
         <activity
             android:name=".RecordingsActivity"
             android:screenOrientation="portrait"

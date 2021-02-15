@@ -255,8 +255,8 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             mLblTitle.setText(song.getTitle());
             String date = getDateAndTime(song.getDate());
             mDate.setText(date);
-            if (song.isLoading())
-                ((TextView) mView.findViewById(R.id.share_button)).setBackgroundColor(Color.GRAY);
+//            if (song.isLoading())
+//                ((TextView) mView.findViewById(R.id.share_button)).setBackgroundColor(Color.GRAY);
         }
 
         private String getDateAndTime(String date) {

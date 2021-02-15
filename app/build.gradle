@@ -8,8 +8,9 @@ android {
         applicationId "com.function.karaoke.hardware"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 185
-        versionName "1.215" +
+        versionCode 192
+        versionName "1.202" +
+                "" +
                 "" +
                 "" +
                 "" +
@@ -120,10 +121,10 @@ dependencies {
     androidTestImplementation "androidx.work:work-testing:$work_version"
 
 //    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Version.coroutines}"
-//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.coroutines}"
-    implementation 'com.github.AbedElazizShe:LightCompressor:0.7.7'
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:"
+////    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.coroutines}"
+//    implementation 'com.github.AbedElazizShe:LightCompressor:0.7.7'
+//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:"
+//    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:"
 }
 
 

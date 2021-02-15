@@ -30,8 +30,8 @@ public class EarphoneListener {
 
     private void createEarphoneReceivers() {
         createHeadphoneReceiver();
-        createBluetoothReceiver();
-        checkIfHeadsetIsPairedAlready();
+//        createBluetoothReceiver();
+//        checkIfHeadsetIsPairedAlready();
     }
 
     private void createBluetoothReceiver() {
@@ -89,10 +89,8 @@ public class EarphoneListener {
     }
 
     private void promptUserToConnectEarphones() {
-//        prompted = true;
-//        DialogBox attachEarphones = DialogBox.newInstance(this, EARPHONES);
-//        attachEarphones.show(getSupportFragmentManager(), "NoticeDialogFragment");
-        Toast toast = Toast.makeText(context, context.getResources().getString(R.string.attach_earphones), Toast.LENGTH_SHORT);
+
+        Toast toast = Toast.makeText(context, context.getResources().getString(R.string.attach_earphones), Toast.LENGTH_LONG);
         TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
         if (v != null) v.setGravity(Gravity.CENTER);
         toast.show();

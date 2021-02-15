@@ -208,6 +208,7 @@ public class PlaybackPlayer {
         player.seekTo(currentWindow, playbackPosition);
         player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
         player.setPlayWhenReady(true);
+
 //        addSpinnerListeners();
         if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
             @Override

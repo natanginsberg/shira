@@ -102,7 +102,7 @@ public class SongsActivity
                     if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                         Intent intent = result.getData();
                         if (intent.getExtras() != null) {
-                                if (intent.getExtras().containsKey(USER_INFO))
+                            if (intent.getExtras().containsKey(USER_INFO))
                                 user = (UserInfo) intent.getSerializableExtra(USER_INFO);
                             else if (intent.getExtras().containsKey("genre")) {
                                 SongsListFragment fragment = getFragment();
@@ -110,6 +110,8 @@ public class SongsActivity
                             } else if (intent.getExtras().containsKey("suggestion")) {
                                 SongsListFragment fragment = getFragment();
                                 fragment.showSongSuggestionBox();
+                            } else if (intent.getExtras().containsKey("open menu")) {
+                                getFragment().openSettingsPopup(findViewById(android.R.id.content).getRootView());
                             } else {
                                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
                                 handleSignInResult(task);
@@ -506,19 +508,6 @@ public class SongsActivity
     }
 
     @Override
-    public void sendEmailWithSongSuggestion(String songName, String artistName, String comments) {
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{SONG_SUGGEST_EMAIL});
-        intent.setData(Uri.parse("mailto:"));
-        String subject = songName + "  " + artistName;
-        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent.putExtra(Intent.EXTRA_TEXT, comments);
-        if (deviceHasGoogleAccount())
-            intent.setPackage("com.google.android.gm");
-        startActivity(intent);
-    }
-
-    @Override
     public void startRecordingsActivity(Genres genres) {
         Intent intent = new Intent(this, RecordingsActivity.class);
         intent.putExtra(USER_INFO, user);
@@ -547,6 +536,12 @@ public class SongsActivity
     public void startCouponActivity() {
         Intent intent = new Intent(this, CouponActivity.class);
         intent.putExtra(USER_INFO, user);
+        mGetContent.launch(intent);
+    }
+
+    @Override
+    public void openPolicy() {
+        Intent intent = new Intent(this, PolicyActivity.class);
         mGetContent.launch(intent);
     }
 
