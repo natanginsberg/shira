@@ -91,7 +91,9 @@ public class PlaybackPopupOpen {
     }
 
     public void dismissPopup() {
-        popup.dismiss();
+        if (popup != null)
+            popup.dismiss();
+        popup = null;
     }
 
     public interface PlaybackPopupListener {

@@ -6,6 +6,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,6 +24,7 @@ public class ShareOptionsUI {
     private boolean video = true;
     private final UserInfo user;
     private SingActivityUI.ShareListener mListener;
+
     public ShareOptionsUI(View view, UserInfo user) {
         this.view = view;
         this.user = user;
@@ -48,16 +50,6 @@ public class ShareOptionsUI {
         ((TextView) thirdPopupView.findViewById(R.id.no_video_send)).setText(context.getResources().getString(R.string.with_video_share));
     }
 
-//    private void setFreeShares(Context context) {
-//        TextView textView = (TextView) thirdPopupView.findViewById(R.id.remaining_free_shares);
-//        if (user.getFreeShares() > 0) {
-//            String textToDisplay = context.getResources().getString(R.string.share_left_label, user.getFreeShares());
-//            textView.setText(textToDisplay);
-//            textView.setPaintFlags(textView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-//        } else
-//            textView.setVisibility(View.GONE);
-//    }
-
     @SuppressLint("SetTextI18n")
     private void setThirdPopupOnClickListeners(Context context) {
         thirdPopupView.findViewById(R.id.open_share).setOnClickListener(view -> {
@@ -65,7 +57,7 @@ public class ShareOptionsUI {
             PopupWindow tempPopup = thirdPopup;
 //            thirdPopup.dismiss();
 
-            mListener.share(view, video);
+            mListener.share(view, video, null);
             tempPopup.dismiss();
         });
 
@@ -120,7 +112,8 @@ public class ShareOptionsUI {
 
     private void setShareListener() {
         thirdPopupView.findViewById(R.id.share_button).setOnClickListener(view -> {
-            mListener.share(view, video);
+            String password = (String) ((EditText) thirdPopupView.findViewById(R.id.password)).getText().toString();
+            mListener.share(view, video, password);
             clear = true;
             thirdPopup.dismiss();
         });

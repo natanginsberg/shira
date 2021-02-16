@@ -99,11 +99,11 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     }
 
     private void setSeekBarListener() {
-        SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar);
+        SeekBar seekBar = findViewById(R.id.seekBar);
         int midProgress = 5;
         int originalDelay = Integer.parseInt(String.valueOf(delay));
         Log.i("bug78", "these are the seconds in the middle" + midProgress);
-        seekBar.setMax((int) 2 * midProgress);
+        seekBar.setMax(2 * midProgress);
         seekBar.setProgress(midProgress);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
@@ -173,7 +173,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
                 uris.add(Uri.parse(getIntent().getStringExtra(AUDIO_FILE)));
 
-                String audioPath = (String) getIntent().getStringExtra(AUDIO_FILE);
+                String audioPath = getIntent().getStringExtra(AUDIO_FILE);
                 earphonesUsed = true;
             } else {
 //                findViewById(R.id.playback_spinner).setVisibility(View.INVISIBLE);
@@ -268,7 +268,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         popupView.findViewById(R.id.enter).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                validatePassword(popupView.findViewById(R.id.password) != null ? (String) ((EditText) popupView.findViewById(R.id.password)).getText().toString() : "");
+                validatePassword(popupView.findViewById(R.id.password) != null ? ((EditText) popupView.findViewById(R.id.password)).getText().toString() : "");
             }
         });
 
@@ -354,7 +354,19 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         if (externalView) {
             startPromo();
         } else {
+            Intent intent = new Intent(this, SingActivity.class);
+            intent.putExtra("delay", delay);
             finish();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (playbackPopupOpen.getPopup() != null) {
+            playbackPopupOpen.dismissPopup();
+        } else {
+            onStop();
+            endVideo();
         }
     }
 

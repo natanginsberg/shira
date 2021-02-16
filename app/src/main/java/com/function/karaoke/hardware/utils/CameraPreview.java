@@ -14,6 +14,9 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.media.audiofx.AutomaticGainControl;
+import android.media.audiofx.NoiseSuppressor;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -134,51 +137,6 @@ public class CameraPreview {
         }
     }
 
-    private void updateTextureMatrix(int width, int height, boolean swapRotation) {
-        boolean isPortrait = false;
-//
-        Display display = ((SingActivity) context).getWindowManager().getDefaultDisplay();
-        if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180)
-            isPortrait = true;
-        else if (display.getRotation() == Surface.ROTATION_90 || display.getRotation() == Surface.ROTATION_270)
-            isPortrait = false;
-
-        int previewWidth = mPreviewSize.getWidth();
-        int previewHeight = mPreviewSize.getHeight();
-
-        if (isPortrait) {
-            previewWidth = previewHeight;
-            previewHeight = previewWidth;
-        }
-
-        float ratioSurface = (float) width / height;
-        float ratioPreview = (float) previewWidth / previewHeight;
-
-        float scaleX;
-        float scaleY;
-
-        if (ratioSurface > ratioPreview) {
-            scaleX = (float) height / previewHeight;
-            scaleY = 1;
-        } else {
-            scaleX = 1;
-            scaleY = (float) width / previewWidth;
-        }
-
-        Matrix matrix = new Matrix();
-
-        matrix.setScale(scaleX, scaleY);
-        mTextureView.setTransform(matrix);
-
-        float scaledWidth = width * scaleX;
-        float scaledHeight = height * scaleY;
-
-        float dx = (width - scaledWidth) / 2;
-        float dy = (height - scaledHeight) / 2;
-        mTextureView.setTranslationX(dx);
-        mTextureView.setTranslationY(dy);
-    }
-
     public File getVideo() {
         return mVideoFile;
     }
@@ -217,7 +175,6 @@ public class CameraPreview {
                 }
                 mPreviewSize = chooseOptimalSize(map.getOutputSizes(SurfaceTexture.class), rotatedWidth, rotatedHeight);
                 mVideoSize = chooseOptimalSize(map.getOutputSizes(MediaRecorder.class), rotatedWidth, rotatedHeight);
-//                updateTextureMatrix(rotatedWidth, rotatedHeight, swapRotation);
                 cameraId = id;
                 return;
             }
@@ -327,7 +284,12 @@ public class CameraPreview {
         }
 
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || (AcousticEchoCanceler.isAvailable()
+                && AutomaticGainControl.isAvailable() && NoiseSuppressor.isAvailable()))
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+        else
+            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+
 
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
@@ -335,8 +297,6 @@ public class CameraPreview {
         if (mCamera != null) {
             mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
             mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
-            Log.i("bug77", "profile fr:" + profile.videoFrameRate);
-            Log.i("bug77", "profile br:" + profile.videoBitRate);
             mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
             mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         }

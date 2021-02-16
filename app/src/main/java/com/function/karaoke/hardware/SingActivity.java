@@ -197,7 +197,6 @@ public class SingActivity extends AppCompatActivity implements
     private SongService songService;
     private boolean songUpdated = false;
     private boolean userUpdated = false;
-    private String password;
     private File mVideoFolder;
     private String fileName;
     private String purchaseId;
@@ -208,6 +207,8 @@ public class SingActivity extends AppCompatActivity implements
                         saveAndShare(this.getCurrentFocus());
                     } else if (result.getResultCode() == WATCH_RECORDING) {
                         openWatchRecording(Uri.fromFile(postParseVideoFile));
+                    } else if (result.getData().getExtras().containsKey("delay")) {
+                        delay = result.getData().getIntExtra("delay", delay);
                     } else {
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         handleSignInResult(task);
@@ -1066,7 +1067,6 @@ public class SingActivity extends AppCompatActivity implements
                             saveSongToTempJsonFile(false);
                             jsonFile = renameJsonPendingFile();
                             save(jsonFile);
-                            activityUI.showShareItems();
                         }
 
                         @Override
@@ -1096,8 +1096,8 @@ public class SingActivity extends AppCompatActivity implements
 
 
     @Override
-    public void share(View view, boolean video) {
-        createShareLink(video);
+    public void share(View view, boolean video, String password) {
+        createShareLink(video, password);
 
 //        createLink(recording.getRecordingId(), recording.getRecorderId(), Integer.toString(recording.getDelay()));
     }
@@ -1287,10 +1287,6 @@ public class SingActivity extends AppCompatActivity implements
         }
     }
 
-    public void closeShareOptions(View view) {
-        activityUI.hideShareItems();
-    }
-
     public void returnToEndOptions(View view) {
         activityUI.hideSubscribeOptions();
     }
@@ -1367,8 +1363,9 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void songPrepared() {
-        activityUI.showPlayButton();
-        activityUI.hideLoadingIndicator();
+        activityUI.setPrepared();
+//        activityUI.showPlayButton();
+//        activityUI.hideLoadingIndicator();
     }
 
     @Override
@@ -1409,7 +1406,7 @@ public class SingActivity extends AppCompatActivity implements
         Toast.makeText(this, getResources().getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
     }
 
-    private void createShareLink(boolean video) {
+    private void createShareLink(boolean video, String password) {
         activityUI.showPopupLoadingIndicator();
         link1 = null;
         Task<ShortDynamicLink> link = ShareLink.createLink(recording, password, video);
@@ -1435,7 +1432,7 @@ public class SingActivity extends AppCompatActivity implements
     @Override
     public void setPassword(TextView viewById) {
         link1 = null;
-        password = GenerateRandomId.generateRandomPassword();
+        String password = GenerateRandomId.generateRandomPassword();
         viewById.setText(password);
     }
 

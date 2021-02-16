@@ -47,7 +47,7 @@ public class Parser {
                         }
                         String[] lineWordsAndTimes = line.split("<");
 
-                        if (lineWordsAndTimes.length > 6) {
+                        if (lineWordsAndTimes.length > 5) {
                             List<String[]> lines = breakLineIntoManyLines(lineWordsAndTimes);
                             for (int k = 0; k < 2; k++) {
                                 String[] l = lines.get(k);

@@ -104,8 +104,8 @@ public class Billing {
 
     private void getProducts() {
         List<String> skuList = new ArrayList<>();
-        skuList.add("yearly_s");
-        skuList.add("monthly_s");
+        skuList.add("yearly_1");
+        skuList.add("monthly_1");
         SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
         params.setSkusList(skuList).setType(BillingClient.SkuType.SUBS);
         billingClient.querySkuDetailsAsync(params.build(),

@@ -9,16 +9,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewOverlay;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -35,7 +30,6 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.hardware.activities.Model.Genres;
 import com.function.karaoke.hardware.activities.Model.Recording;
 import com.function.karaoke.hardware.activities.Model.RecordingDB;
@@ -54,8 +48,11 @@ import com.function.karaoke.hardware.ui.SingActivityUI;
 import com.function.karaoke.hardware.utils.static_classes.Converter;
 import com.function.karaoke.hardware.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.hardware.utils.static_classes.OnSwipeTouchListener;
+import com.function.karaoke.hardware.utils.static_classes.ShareLink;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -133,7 +130,6 @@ public class RecordingsActivity extends AppCompatActivity implements
     private GenresUI genresUI;
     private ShareOptionsUI sharingUI;
     private Recording recordingToShare;
-    private String password;
     private String link1;
     private Recording recordingsDisplayed;
     private View songUploadedView;
@@ -455,19 +451,37 @@ public class RecordingsActivity extends AppCompatActivity implements
         sharingUI.openShareOptions(this, new SingActivityUI.ShareListener() {
 
             @Override
-            public void share(View view, boolean video) {
-                if (link1 != null) {
-                    sendDataThroughIntent(link1);
-                }
+            public void share(View view, boolean video, String password) {
+                createShareLink(video, password);
             }
 
             @Override
             public void setPassword(TextView viewById) {
-                password = GenerateRandomId.generateRandomPassword();
+                String password = GenerateRandomId.generateRandomPassword();
                 viewById.setText(password);
             }
         });
 
+    }
+
+    private void createShareLink(boolean video, String password) {
+        link1 = null;
+        Task<ShortDynamicLink> link = ShareLink.createLink(recordingToShare, password, video);
+        link.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Short link created
+                Uri shortLink = task.getResult().getShortLink();
+                Uri flowchartLink = task.getResult().getPreviewLink();
+                link1 = shortLink.toString();
+                sendDataThroughIntent(link1);
+
+
+            } else {
+                showFailure();
+                // Error
+                // ...
+            }
+        });
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -632,24 +646,6 @@ public class RecordingsActivity extends AppCompatActivity implements
             }
 
         });
-        applyDim();
-
-    }
-
-    private void applyDim() {
-        View view = findViewById(R.id.recordings_activty);
-        ViewOverlay overlay = view.getOverlay();
-        Drawable colorDim = new ColorDrawable(Color.WHITE);
-        colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
-        colorDim.setAlpha((int) (255 * (float) 0.7));
-//
-        Drawable dim = new BitmapDrawable(getResources(), BlurBuilder.blur(view));
-        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
-        dim.setAlpha((int) (255 * (float) 0.7));
-//        ViewOverlay headerOverlay = headerView.getOverlay();
-//        headerOverlay.add(dim);
-        overlay.add(colorDim);
-        overlay.add(dim);
     }
 
     private void addPopupListeners() {

@@ -74,8 +74,9 @@ public class PolicyActivity extends AppCompatActivity {
 
     private void setPolicy() {
 
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getAssets().open("Policy")))) {
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("PrivacyPolicy")));
 
             // do reading, usually loop until end of file reading
             String mLine;
@@ -83,6 +84,15 @@ public class PolicyActivity extends AppCompatActivity {
                 text.append(mLine);
                 text.append('\n');
             }
+            text.append('\n');
+            text.append('\n');
+            reader = new BufferedReader(
+                    new InputStreamReader(getAssets().open("Contract")));
+            while ((mLine = reader.readLine()) != null) {
+                text.append(mLine);
+                text.append('\n');
+            }
+
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "Error reading file!", Toast.LENGTH_LONG).show();
             e.printStackTrace();

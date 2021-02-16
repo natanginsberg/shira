@@ -17,6 +17,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -52,6 +53,7 @@ public class SingActivityUI {
     private PopupWindow secondPopup;
     private Context context;
     private CountDownTimer cTimer;
+    private boolean prepared;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -291,7 +293,7 @@ public class SingActivityUI {
         undimBackground();
     }
 
-    public void hideLoadingIndicator() {
+    private void hideLoadingIndicator() {
         view.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
     }
 
@@ -343,18 +345,6 @@ public class SingActivityUI {
         if (sdkInt >= 24)
             view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
         hidePlayAndStop();
-    }
-
-    public void showShareItems() {
-//        popupView.findViewById(R.id.share_options_layout).setVisibility(View.VISIBLE);
-//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.GONE);
-//        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
-    }
-
-    public void hideShareItems() {
-//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
-//        popupView.findViewById(R.id.share_options_layout).setVisibility(View.GONE);
-//        popupView.findViewById(R.id.loading_amount_window).setVisibility(View.VISIBLE);
     }
 
     public void hideSubscribeOptions() {
@@ -513,7 +503,30 @@ public class SingActivityUI {
 
     public void showLoadingIcon() {
 //        startTimerForPercent();
-        view.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+        ProgressBar progressBar = view.findViewById(R.id.loading_indicator);
+        progressBar.setVisibility(View.VISIBLE);
+        if (cTimer == null) {
+            cTimer = new CountDownTimer(7000, 70) {
+                @SuppressLint("SetTextI18n")
+                public void onTick(long millisUntilFinished) {
+                    if (prepared) {
+                        cTimer.cancel();
+                        showPlayButton();
+                        hideLoadingIndicator();
+                        cTimer = null;
+                    }
+                    progressBar.setProgress((int) (100 - millisUntilFinished / 50));
+                }
+
+                public void onFinish() {
+                    cTimer.cancel();
+                    showPlayButton();
+                    hideLoadingIndicator();
+                    cTimer = null;
+                }
+            };
+            cTimer.start();
+        }
     }
 
     private void startTimerForPercent() {
@@ -533,6 +546,7 @@ public class SingActivityUI {
     }
 
     public void showPopupLoadingIndicator() {
+
         popupView.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
     }
 
@@ -572,6 +586,10 @@ public class SingActivityUI {
         }
     }
 
+    public void setPrepared() {
+        prepared = true;
+    }
+
     public interface SignInListener {
         void openSignIn();
     }
@@ -582,7 +600,7 @@ public class SingActivityUI {
 
     public interface ShareListener {
 
-        void share(View view, boolean video);
+        void share(View view, boolean video, String password);
 
         void setPassword(TextView viewById);
     }
