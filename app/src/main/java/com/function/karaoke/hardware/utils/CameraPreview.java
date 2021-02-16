@@ -34,6 +34,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.function.karaoke.hardware.SingActivity;
+import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -284,7 +285,7 @@ public class CameraPreview {
         }
 
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P || (AcousticEchoCanceler.isAvailable()
+        if (Util.SDK_INT < 29 || (AcousticEchoCanceler.isAvailable()
                 && AutomaticGainControl.isAvailable() && NoiseSuppressor.isAvailable()))
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
         else
@@ -311,32 +312,32 @@ public class CameraPreview {
 //        mMediaRecorder.setAudioSamplingRate(8000);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
-            final File f = new File(fileName);
-            f.delete();
-            final long milliseconds = new Date().getTime();
+//            final File f = new File(fileName);
+//            f.delete();
+//            final long milliseconds = new Date().getTime();
             mMediaRecorder.prepare();
             mMediaRecorder.start();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int counter = 0;
-                        while (!f.exists() && counter < 400) {
-                            counter++;
-                            Thread.sleep(1);
-                        }
-                        final long freeSpace = f.getFreeSpace();
-                        while (freeSpace == f.getFreeSpace() && counter < 400) {
-                            counter++;
-                            Thread.sleep(5);
-                        }
-                        timeCreated = new Date().getTime();
-                        Log.i("bug77", "milliseconds:" + (new Date().getTime() - milliseconds));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        int counter = 0;
+//                        while (!f.exists() && counter < 400) {
+//                            counter++;
+//                            Thread.sleep(1);
+//                        }
+//                        final long freeSpace = f.getFreeSpace();
+//                        while (freeSpace == f.getFreeSpace() && counter < 400) {
+//                            counter++;
+//                            Thread.sleep(5);
+//                        }
+//                        timeCreated = new Date().getTime();
+//                        Log.i("bug77", "milliseconds:" + (new Date().getTime() - milliseconds));
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //            audioRecorder.startRecorder();
@@ -412,24 +413,24 @@ public class CameraPreview {
         }
     }
 
-    public void start() {
-        PrintWriter writer;
-        try {
-            writer = new PrintWriter(mVideoFile);
-            writer.print("");
-            writer.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (mVideoFile.length() < 1000) {
-            mMediaRecorder.start();
-
-        } else
-            throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
-    }
+//    public void start() {
+//        PrintWriter writer;
+//        try {
+//            writer = new PrintWriter(mVideoFile);
+//            writer.print("");
+//            writer.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//        if (mVideoFile.length() < 1000) {
+//            mMediaRecorder.start();
+//
+//        } else
+//            throw new RuntimeException("there is a problem with the video file   " + mVideoFile.length());
+//    }
 
     public long getTimeCreated() {
-        return timeCreated;
+        return 0;
     }
 
     public void realeaseRecorder() {

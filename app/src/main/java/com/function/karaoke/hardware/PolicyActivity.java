@@ -92,6 +92,8 @@ public class PolicyActivity extends AppCompatActivity {
                 text.append(mLine);
                 text.append('\n');
             }
+            text.append('\n');
+            text.append('\n');
 
         } catch (IOException e) {
             Toast.makeText(getApplicationContext(), "Error reading file!", Toast.LENGTH_LONG).show();
