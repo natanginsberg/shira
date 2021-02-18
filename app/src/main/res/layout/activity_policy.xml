@@ -75,34 +75,34 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_marginHorizontal="45dp"
-        android:layout_height="@dimen/no_hardcode_dimension"
-        app:layout_constraintDimensionRatio="1:1"
-        app:layout_constraintTop_toBottomOf="@id/header"
         android:id="@+id/logo"
-        android:src="@drawable/ic_logo_with_mic"/>
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginHorizontal="45dp"
+        android:src="@drawable/ic_logo_with_mic"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintTop_toBottomOf="@id/header" />
 
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/logo"
-        android:layout_marginBottom="15dp">
+        app:layout_constraintTop_toBottomOf="@id/logo">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/policy_words"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="15dp"
+                android:fontFamily="@font/varela_round_regular"
+                android:lineSpacingExtra="2dp"
                 android:textColor="@android:color/white"
                 android:textSize="15sp"
-
-                android:layout_marginHorizontal="15dp"
-                android:lineSpacingExtra="2dp"/>
+                android:paddingBottom="5dp"/>
         </LinearLayout>
     </ScrollView>
 

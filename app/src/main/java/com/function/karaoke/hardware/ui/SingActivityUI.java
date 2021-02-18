@@ -515,14 +515,19 @@ public class SingActivityUI {
                         hideLoadingIndicator();
                         cTimer = null;
                     }
-                    progressBar.setProgress((int) (100 - millisUntilFinished / 50));
+                    progressBar.setProgress((int) (100 - millisUntilFinished / 70));
                 }
 
                 public void onFinish() {
                     cTimer.cancel();
-                    showPlayButton();
-                    hideLoadingIndicator();
                     cTimer = null;
+                    if (!prepared) {
+                        progressBar.setProgress(0);
+                        showLoadingIcon();
+                    } else {
+                        showPlayButton();
+                        hideLoadingIndicator();
+                    }
                 }
             };
             cTimer.start();

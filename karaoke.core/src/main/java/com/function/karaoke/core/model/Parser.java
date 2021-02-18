@@ -47,7 +47,9 @@ public class Parser {
                         }
                         String[] lineWordsAndTimes = line.split("<");
 
-                        if (lineWordsAndTimes.length > 5) {
+                        if ((lineContainsDollar(lineWordsAndTimes) && lineWordsAndTimes.length > 5) || (!lineContainsDollar(lineWordsAndTimes) && lineWordsAndTimes.length > 4)
+                                || (lineContainsDollar(lineWordsAndTimes) && lengthOfLineIsGreaterThan(lineWordsAndTimes, 55)) ||
+                                (!lineContainsDollar(lineWordsAndTimes) && lengthOfLineIsGreaterThan(lineWordsAndTimes, 48))) {
                             List<String[]> lines = breakLineIntoManyLines(lineWordsAndTimes);
                             for (int k = 0; k < 2; k++) {
                                 String[] l = lines.get(k);
@@ -85,9 +87,20 @@ public class Parser {
         return song;
     }
 
+    private static boolean lengthOfLineIsGreaterThan(String[] lineWordsAndTimes, int i) {
+        int counter = 0;
+        for (String word : lineWordsAndTimes)
+            counter += word.length();
+        return counter > i;
+    }
+
+    private static boolean lineContainsDollar(String[] lineWordsAndTimes) {
+        return lineWordsAndTimes[lineWordsAndTimes.length - 1].contains("$");
+    }
+
     private static List<String[]> breakLineIntoManyLines(String[] lineWordsAndTimes) {
         List<String[]> allLines = new ArrayList<>();
-        int lengthOfNewSentence = (lineWordsAndTimes.length - 1) > 6 ? 4 : 3;
+        int lengthOfNewSentence = (lineWordsAndTimes.length - 1) > 6 ? 4 : lineWordsAndTimes.length < 5 ? 2 : 3;
 
         for (int k = 0; k < 2; k++)
             allLines.add(parsePartOfLine(lineWordsAndTimes, lengthOfNewSentence, k * lengthOfNewSentence));
@@ -110,10 +123,18 @@ public class Parser {
                 nextLine[j] = lineWordsAndTimes[i + j];
         }
         i = Math.min(i + lengthOfSentence - 1, lineWordsAndTimes.length - 1);
-        if (lineWordsAndTimes[i].contains("$"))
-            nextLine[lengthOfSentence - 1] = lineWordsAndTimes[i];
-        else
-            nextLine[lengthOfSentence - 1] = swapWordForDollar(lineWordsAndTimes[i]);
+        if (lineContainsDollar(lineWordsAndTimes))
+            if (lineWordsAndTimes[i].contains("$"))
+                nextLine[lengthOfSentence - 1] = lineWordsAndTimes[i];
+            else
+                nextLine[lengthOfSentence - 1] = swapWordForDollar(lineWordsAndTimes[i]);
+        else {
+            if (i == lineWordsAndTimes.length - 1)
+                nextLine[lengthOfSentence - 1] = lineWordsAndTimes[i];
+            else
+                nextLine[lengthOfSentence - 1] = swapWordForDollar(lineWordsAndTimes[i - 1]);
+        }
+
 
         return nextLine;
     }
@@ -134,10 +155,6 @@ public class Parser {
 
     private static boolean lastWordIsUnproportionatelyLong(double parseTimeStamp, double to) {
         return parseTimeStamp != to;
-    }
-
-    private static boolean lastWordIsUnproportionatelyLong(Song.Syllable lastWord) {
-        return lastWord.to - lastWord.from > 5;
     }
 
     private static Song.Line addIntroIndication(double from, boolean beginning) {

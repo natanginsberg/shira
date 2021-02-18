@@ -308,22 +308,24 @@ public class RecordingsActivity extends AppCompatActivity implements
                 if (recordingState == RecordingsScreenState.SINGLE_SONG_RECORDINGS)
                     onBackPressed();
                 if (query.length() >= 1) {
-                    if (query.length() > previousQuery.length()) {
-                        addCopyOfSongsDBToList(currentDatabaseRecordings);
-                        getSongsSearchedFor(query.toLowerCase());
-                    } else {
-                        currentDatabaseRecordings.updateRecordings(previousRecordings.get(previousRecordings.size() - 1).getRecordings());
-                        previousRecordings.remove(previousRecordings.size() - 1);
-                    }
-                    recordingCategoryAdapter.setData(currentDatabaseRecordings.getRecordingsPerSong());
-                    recordingCategoryAdapter.notifyDataSetChanged();
-                    previousQuery = query;
-                } else {
-                    if (previousRecordings.size() != 0) {
-                        currentDatabaseRecordings.updateRecordings(previousRecordings.get(0).getRecordings());
+                    if (currentDatabaseRecordings != null) {
+                        if (query.length() > previousQuery.length()) {
+                            addCopyOfSongsDBToList(currentDatabaseRecordings);
+                            getSongsSearchedFor(query.toLowerCase());
+                        } else {
+                            currentDatabaseRecordings.updateRecordings(previousRecordings.get(previousRecordings.size() - 1).getRecordings());
+                            previousRecordings.remove(previousRecordings.size() - 1);
+                        }
+                        recordingCategoryAdapter.setData(currentDatabaseRecordings.getRecordingsPerSong());
                         recordingCategoryAdapter.notifyDataSetChanged();
-                        previousRecordings = new ArrayList<>();
-                        previousQuery = "";
+                        previousQuery = query;
+                    } else {
+                        if (previousRecordings.size() != 0) {
+                            currentDatabaseRecordings.updateRecordings(previousRecordings.get(0).getRecordings());
+                            recordingCategoryAdapter.notifyDataSetChanged();
+                            previousRecordings = new ArrayList<>();
+                            previousQuery = "";
+                        }
                     }
                 }
                 return false;

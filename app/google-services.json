@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "701925650903-nmem6bhdo7qfctske4bmpsr61g98q6cn.apps.googleusercontent.com",
+          "client_id": "701925650903-0jpaq3fn1unjf1la9jvcu9jcau7ouem7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.function.karaoke.hardware",
-            "certificate_hash": "646108ff1bf3d4ca5c7668207141ea81c0038650"
+            "certificate_hash": "42d020b0cc52fbb7061ec0e7a021e0bb1fe4790b"
+          }
+        },
+        {
+          "client_id": "701925650903-3mtohjje9lroe3bdj1dkni814hbh92h0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.function.karaoke.hardware",
+            "certificate_hash": "2c43b8c97cfa5df73b6284a041f2014fce0d5123"
           }
         },
         {
@@ -31,10 +39,55 @@
           }
         },
         {
-          "client_id": "701925650903-0jpaq3fn1unjf1la9jvcu9jcau7ouem7.apps.googleusercontent.com",
+          "client_id": "701925650903-mfmvbsdoa5013uoj3kjf46csmdd98ine.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.function.karaoke.hardware",
+            "certificate_hash": "000fcebf08ca62e96a54e2d279d3d88ff7daad4d"
+          }
+        },
+        {
+          "client_id": "701925650903-nmem6bhdo7qfctske4bmpsr61g98q6cn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.function.karaoke.hardware",
+            "certificate_hash": "646108ff1bf3d4ca5c7668207141ea81c0038650"
+          }
+        },
+        {
+          "client_id": "701925650903-cmh7htvq718jbea95a0ukbkmlttqb56b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBrGHMe5ujw0NPRaPOiRKhk9S_RsT623IA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701925650903-cmh7htvq718jbea95a0ukbkmlttqb56b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701925650903:android:d981e552b3017e87f39b92",
+        "android_client_info": {
+          "package_name": "com.function.karaoke.interaction"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701925650903-tlho9f4289uh6shibv803ipp2uh5ccec.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.function.karaoke.interaction",
             "certificate_hash": "42d020b0cc52fbb7061ec0e7a021e0bb1fe4790b"
           }
         },

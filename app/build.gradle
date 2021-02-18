@@ -5,11 +5,12 @@ apply plugin: 'com.google.firebase.crashlytics'
 android {
     compileSdkVersion 30
     defaultConfig {
-        applicationId "com.function.karaoke.hardware"
+        applicationId "com.function.karaoke.interaction"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 199
-        versionName "1.209" +
+        versionCode 3
+        versionName "1.002" +
+                "" +
                 "" +
                 "" +
                 "" +

@@ -7,11 +7,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -145,7 +146,13 @@ public class KaraokeController implements Recorder.IToneListener {
                     prepared = true;
                     mPlayer.seekTo(0);
                     listener.songPrepared();
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        Log.i("bug88", "song is prepared" + (System.currentTimeMillis() - timerStarted));
+                        mPlayer.start();
+                        mPlayer.pause();
+                    }
                 });
+                timerStarted = System.currentTimeMillis();
                 mPlayer.prepareAsync();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -278,16 +285,16 @@ public class KaraokeController implements Recorder.IToneListener {
         return animation.clone();
     }
 
-    private void giveLyricsViewWeightOfOne(LyricsView lyricsView) {
-        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-        param.height = 0;
-        lyricsView.setLayoutParams(param);
-    }
-
-    private void giveLyricsViewWeightOfZero(LyricsView lyricsView) {
-        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
-        lyricsView.setLayoutParams(param);
-    }
+//    private void giveLyricsViewWeightOfOne(LyricsView lyricsView) {
+//        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+//        param.height = 0;
+//        lyricsView.setLayoutParams(param);
+//    }
+//
+//    private void giveLyricsViewWeightOfZero(LyricsView lyricsView) {
+//        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
+//        lyricsView.setLayoutParams(param);
+//    }
 
     private LyricsView createNewLyricsView() {
         ConstraintSet set = new ConstraintSet();

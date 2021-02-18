@@ -75,7 +75,7 @@ public class PromoActivity extends AppCompatActivity {
     }
 
     private void setTimer() {
-        new CountDownTimer(500, 500) {
+        new CountDownTimer(1500, 500) {
 
             public void onTick(long millisUntilFinished) {
             }

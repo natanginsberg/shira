@@ -76,6 +76,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private RecordingService recordingService;
     private boolean validated = false;
     private PlaybackPlayer playbackPlayer;
+    private int originalDelay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +102,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private void setSeekBarListener() {
         SeekBar seekBar = findViewById(R.id.seekBar);
         int midProgress = 5;
-        int originalDelay = Integer.parseInt(String.valueOf(delay));
         Log.i("bug78", "these are the seconds in the middle" + midProgress);
         seekBar.setMax(2 * midProgress);
         seekBar.setProgress(midProgress);
@@ -111,7 +111,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 Log.i("bug78", "this is the old delay" + delay);
-                Log.i("bug78", "this is the progress" + i);
+                Log.i("bug78", "this is the progress" + (i - midProgress));
+                Log.i("bug78", "this is the original delay" + originalDelay);
                 delay = Math.max(0, originalDelay + (i - midProgress) * 100);
                 Log.i("bug78", "this is the new delay" + delay);
                 ((TextView) findViewById(R.id.sync)).setText((i > midProgress ? "+" : "-") + Math.abs(i - midProgress));
@@ -158,6 +159,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             earphonesUsed = true;
         }
         delay = recording.getDelay();
+        originalDelay = Integer.parseInt(String.valueOf(delay));
         if (recording.getLength() != 0)
             length = recording.getLength();
         playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
@@ -180,6 +182,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 //                findViewById(R.id.playback_word).setVisibility(View.INVISIBLE);
             }
             delay = getIntent().getIntExtra(DELAY, 0);
+            originalDelay = Integer.parseInt(String.valueOf(delay));
             length = getIntent().getLongExtra(LENGTH, 10000);
             playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
             playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
