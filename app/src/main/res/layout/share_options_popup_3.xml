@@ -19,7 +19,7 @@
         android:layout_weight="1.6"
         android:background="@drawable/menu_header"
         android:gravity="center"
-        android:text="@string/share_save"
+        android:text="@string/share"
         android:textColor="@android:color/white"
         android:textSize="36sp" />
 

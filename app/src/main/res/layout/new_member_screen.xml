@@ -38,26 +38,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="1"
+            android:layout_marginHorizontal="15dp"
+            android:layout_weight="0.4"
             android:gravity="center"
             android:text="@string/share_incentive"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
-        <TextView
-            android:id="@+id/prompt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/click_to_join"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="60dp"
             android:layout_marginHorizontal="25sp"
             android:layout_marginVertical="20dp"
             android:background="@drawable/member_background"
@@ -94,44 +84,49 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_marginHorizontal="25sp"
-            android:layout_marginVertical="20dp"
-            android:background="@drawable/member_background"
-            android:onClick="openYearlySubOption">
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginHorizontal="25sp"
+                android:layout_marginVertical="20dp"
+                android:background="@drawable/member_background"
+                android:onClick="openYearlySubOption">
 
 
-            <TextView
-                android:id="@+id/yearly_sub"
-                android:layout_width="@dimen/no_hardcode_dimension"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:fontFamily="@font/varela_round_regular"
-                android:gravity="center"
-                android:onClick="openYearlySubOption"
-                android:text="@string/yearly_membership"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="24sp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintWidth_percent="0.78" />
+                <TextView
+                    android:id="@+id/yearly_sub"
+                    android:layout_width="@dimen/no_hardcode_dimension"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/varela_round_regular"
+                    android:gravity="center"
+                    android:onClick="openYearlySubOption"
+                    android:text="@string/yearly_membership"
+                    android:textColor="@color/sing_up_hover"
+                    android:textSize="24sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintWidth_percent="0.78" />
 
-            <TextView
-                android:id="@+id/yearly_price"
-                android:layout_width="@dimen/no_hardcode_dimension"
-                android:layout_height="match_parent"
-                android:background="@drawable/member_price"
-                android:gravity="center"
-                android:onClick="openYearlySubOption"
-                android:text="170₪"
-                android:textColor="@android:color/white"
-                android:textSize="20sp"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintWidth_percent="0.22" />
+                <TextView
+                    android:id="@+id/yearly_price"
+                    android:layout_width="@dimen/no_hardcode_dimension"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/member_price"
+                    android:gravity="center"
+                    android:onClick="openYearlySubOption"
+                    android:text="170₪"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintWidth_percent="0.22" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

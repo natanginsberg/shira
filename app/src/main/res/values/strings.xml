@@ -124,19 +124,19 @@
     <string name="sign_up_for_free">Sign up for free</string>
     <string name="easy_and_free_sign_up">(Easy and free sign up)</string>
     <string name="acknowledge_of_sign_in">Thank you for signing up to Ashira. \n You have up to 3 saves and shares free</string>
-    <string name="share_incentive">Enjoyed? \\n Do you want to save and share all of your recordings?</string>
+    <string name="share_incentive">Enjoyed? \n Do you want to save and share all of your recordings?</string>
     <string name="subscribe">Subscribe</string>
     <string name="sub_pricing">36 shekel a month or 170 shekel a year</string>
     <string name="share_left_label">You have %1$d free shares left</string>
     <string name="don_t_send"><u>Don\'t send</u></string>
     <string name="backslash">" \\ "</string>
     <string name="send_without_video_click_option"><u>Send without video</u></string>
-    <string name="open_share">Everyone</string>
-    <string name="password_protected">Users with the password</string>
+    <string name="open_share">Share</string>
+    <string name="password_protected">Share with password</string>
     <!--    <string name="friends_i_tell">Friends I tell</string>-->
     <string name="share_options_question">Who can view your recording?</string>
     <string name="you_have_3_remaining_shares_hint"><u>You have 3 remaining shares</u></string>
-    <string name="alert_for_closing_app">Your recording is being saved in the background don\'t close tha app until it is finished</string>
+    <string name="alert_for_closing_app">Your recording is being saved, this may take a few minutes</string>
     <string name="link_prompt">We have a link for you\n this link is open to anyone who types it in</string>
     <string name="copy_the_link_to_clipboard">Copy the link to clipboard</string>
     <string name="share_with">Share with</string>
@@ -177,5 +177,16 @@
     <string name="click_to_join">Click to join</string>
     <string name="the_recording_is_finished">The recording is finished</string>
     <string name="success">Success</string>
+    <string name="recorded_without_video">Recording without video</string>
+    <string name="delete_confirmation">You are about to delete all highlighted recordings</string>
+    <string name="sync">Sync</string>
+    <string name="volume">Vol.</string>
+    <string name="save_in_progress">"The recording is being saved"</string>
+    <string name="unable_to_upload">We are unable to upload at this time</string>
+    <string name="camera_fail">Camera failed to open</string>
+    <string name="share_failed">sharing failed</string>
+    <string name="pitch_question">What is your pitch?</string>
+    <string name="high">High</string>
+    <string name="regular">Regular</string>
 
 </resources>

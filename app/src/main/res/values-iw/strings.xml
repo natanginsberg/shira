@@ -43,7 +43,7 @@
     <string name="recording_volume">עוצמת ההקלטה</string>
     <string name="default_value">ברירת מחדל</string>
     <string name="sign_in_error">ההרשמה נכשלה</string>
-    <string name="attach_earphones">יש לחבר אזניות חוטיות</string>
+    <string name="attach_earphones">לביצוע מטיבי יש לחבר אזניות חוטיות</string>
     <string name="feedback">Feedback</string>
     <string name="man_tone">גבר</string>
     <string name="kid">ילד/ה</string>
@@ -60,7 +60,7 @@
     <string name="no_pause_body_for_older_phones">שים לב! הפסקת ביצוע באמצע תביא לסיום ההקלטה</string>
     <string name="no_pause_title_for_older_phones">הפסקת השיר</string>
     <string name="video_loading">שגיאת וידאו</string>
-    <string name="video_loading_body_if_video_not_loaded">אנחנו מעלים ממש עכשיו את הביצוע שלך לשרתים שלנו.</string>
+    <string name="video_loading_body_if_video_not_loaded">הביצוע מועלה ברגעים אלו לשרתים שלנו.</string>
     <string name="option_for_sharing_after_video_was_saved">הביצוע שלך נשמר. תרצה לשתף אותו?</string>
     <string name="share_save">שמור ושתף</string>
     <string name="no_thank_you">לא תודה</string>
@@ -99,11 +99,11 @@
     <string name="don_t_send"><u>אל תשתף</u></string>
     <string name="backslash">" \/ "</string>
     <string name="send_without_video_click_option"><u>שתף בלי וידאו</u></string>
-    <string name="open_share">כל אחד</string>
-    <string name="password_protected">רק מי שיש לו סיסמה</string>
+    <string name="open_share">שתף</string>
+    <string name="password_protected">שתף עם סיסמה</string>
     <string name="share_options_question">מי יוכל לצפות בביצוע שלך?</string>
     <string name="you_have_3_remaining_shares_hint"><u>נותרו לך עוד 3 שיתופים בחינם</u></string>
-    <string name="alert_for_closing_app">הביצוע עולה ברקע לשרת. אל תסגור את האפליקציה עד שההעלאה תסתיים</string>
+    <string name="alert_for_closing_app">הביצוע נשמר.\n התהליך יקח כמה דקות</string>
     <string name="link_prompt">יש לנו קישור בשבילך\n הקישור פתוח לכל מי שיקליד אותו</string>
     <string name="copy_the_link_to_clipboard">העתק קישור ללוח</string>
     <string name="share_with">שתף באמצעות</string>
@@ -144,5 +144,16 @@
     <string name="click_to_join">בצעו ושתפו</string>
     <string name="the_recording_is_finished">סיימת לצפות בביצוע</string>
     <string name="success">בוצע בהצלחה</string>
+    <string name="recorded_without_video">הקלטה ללא וידיאו</string>
+    <string name="delete_confirmation">הביצועים המסומנים ימחקו</string>
+    <string name="sync">סנכרון</string>
+    <string name="volume">ווליום</string>
+    <string name="save_in_progress">"הביצוע שלך עולה לשרתים שלנו"</string>
+    <string name="unable_to_upload">כשהמון אנשים מבצעים ביחד, זה גורם לעומס על השרתים שלנו</string>
+    <string name="camera_fail">המצלמה לא נפתחה</string>
+    <string name="share_failed">שיתוף נכשל</string>
+    <string name="pitch_question">באיזה טון אתה שר?</string>
+    <string name="high">גבוה</string>
+    <string name="regular">רגיל</string>
 
 </resources>

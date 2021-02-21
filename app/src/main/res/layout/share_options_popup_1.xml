@@ -19,13 +19,14 @@
         android:layout_weight="1.6"
         android:background="@drawable/menu_header"
         android:gravity="center"
-        android:text="@string/share_save"
+        android:text="@string/share"
         android:layout_margin="5dp"
         android:textColor="@android:color/white"
         android:textSize="36sp" />
 
     <LinearLayout
         android:id="@+id/choices"
+        android:layout_marginHorizontal="5dp"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_gravity="center"
@@ -74,15 +75,17 @@
         <!--            android:textSize="15sp" />-->
 
         <TextView
-            android:id="@+id/question"
+            android:id="@+id/recording_being_saved"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="@font/varela_round_regular"
             android:gravity="center"
-            android:text="@string/share_options_question"
+            android:text="@string/alert_for_closing_app"
             android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:layout_marginHorizontal="15dp"
+            android:textSize="13sp" />
+
 
         <Button
             android:id="@+id/open_share"
@@ -107,7 +110,7 @@
         <Button
             android:id="@+id/password_share"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1.2"
             android:layout_margin="15dp"
             android:background="@android:color/transparent"

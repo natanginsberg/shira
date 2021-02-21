@@ -212,10 +212,10 @@
 
         <Button
             android:id="@+id/delete_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="60dp"
+            android:layout_height="35dp"
             android:layout_marginEnd="10dp"
-            android:background="@android:color/transparent"
+            android:background="@drawable/share_background"
             android:fontFamily="@font/varela_round_regular"
             android:onClick="deleteClicked"
             android:text="@string/delete"
