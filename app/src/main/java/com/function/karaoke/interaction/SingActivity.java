@@ -206,6 +206,7 @@ public class SingActivity extends AppCompatActivity implements
                         openWatchRecording(Uri.fromFile(postParseVideoFile));
                     } else if (result.getData().getExtras().containsKey("delay")) {
                         delay = result.getData().getIntExtra("delay", delay);
+                        activityUI.changeEndWordingToFinishedWatching();
                     } else {
                         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                         handleSignInResult(task);
@@ -357,11 +358,11 @@ public class SingActivity extends AppCompatActivity implements
 //        createEarphoneReceivers();
     }
 
-//    public void kidTone(View view) {
-//        songPlayed = song.getKidToneResourceFile();
-//        setAudioAndDismissPopup();
-////        createEarphoneReceivers();
-//    }
+    public void kidTone(View view) {
+        songPlayed = song.getKidToneResourceFile();
+        setAudioAndDismissPopup();
+//        createEarphoneReceivers();
+    }
 
 
     private void setKaraokeController() {
@@ -698,6 +699,11 @@ public class SingActivity extends AppCompatActivity implements
 //                customMediaPlayer.startSong();
                     mKaraokeKonroller.onResume();
                     earphonesUsed = earphonesListener.getEarphonesUsed();
+                    if (earphonesUsed)
+                        if (lowerVolume) {
+                            lowerVolume = false;
+                            mPlayer.setVolume(0.8f, 0.8f);
+                        }
                     isRunning = true;
                     setProgressBar();
                     isRecording = true;
@@ -823,7 +829,7 @@ public class SingActivity extends AppCompatActivity implements
         cTimer.start();
     }
 
-    // todo make sure song finishes when page is left
+
     private void finishSong() {
         cancelTimer();
         if (isRecording) {
@@ -1394,6 +1400,8 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void openSignIn() {
+        if (userSignedIn())
+            return;
         signIn = new SignIn(this, this, this, mGetContent);
         signIn.openSignIn();
     }

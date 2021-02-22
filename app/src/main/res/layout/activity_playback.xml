@@ -63,8 +63,8 @@
 
     <RelativeLayout
         android:id="@+id/sync_seek"
-        android:layout_width="152dp"
-        android:layout_height="152dp"
+        android:layout_width="154dp"
+        android:layout_height="154dp"
         android:layoutDirection="ltr"
         android:paddingBottom="90dp"
         android:rotation="270"
@@ -125,8 +125,8 @@
 
     <RelativeLayout
         android:id="@+id/volume_seek"
-        android:layout_width="152dp"
-        android:layout_height="152dp"
+        android:layout_width="154dp"
+        android:layout_height="154dp"
         android:layoutDirection="rtl"
         android:paddingBottom="90dp"
         android:rotation="90"

@@ -660,6 +660,10 @@ public class SingActivityUI {
         }
     }
 
+    public void changeEndWordingToFinishedWatching() {
+        ((TextView)popupView.findViewById(R.id.end_song_words)).setText(context.getResources().getString(R.string.finshed_watching_recording));
+    }
+
 
     public interface SignInListener {
         void openSignIn();

@@ -47,10 +47,7 @@
                 android:layout_weight="0.5"
                 android:fontFamily="@font/varela_round_regular"
                 android:textColor="@android:color/white" />
-
-
         </LinearLayout>
-
 
         <Button
             android:id="@+id/share_button"
@@ -64,7 +61,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="19:25"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_percent="0.4"
+            app:layout_constraintHeight_percent="0.5"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout

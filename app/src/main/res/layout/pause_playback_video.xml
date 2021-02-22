@@ -64,7 +64,7 @@
             android:id="@+id/top_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="30dp"
             android:background="@android:color/white" />
 
         <TextView
@@ -83,7 +83,7 @@
             android:id="@+id/bottom_line"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_marginHorizontal="20dp"
+            android:layout_marginHorizontal="30dp"
             android:background="@android:color/white" />
 
         <TextView

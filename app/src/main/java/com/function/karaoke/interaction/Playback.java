@@ -80,6 +80,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private int originalDelay;
     private boolean showing = false;
     private int volume;
+    private boolean recordingNow = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +114,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 volume = i;
                 ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(i));
+                playbackPlayer.setVolume(volume * 0.1);
             }
 
             @Override
@@ -121,9 +123,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (playbackPlayer.getPlayer() != null) {
-                    playbackPlayer.setVolume(volume * 0.1);
-                }
+                playbackPlayer.setVolume(volume * 0.1);
             }
         });
     }
@@ -198,13 +198,14 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
         ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 2 : 10);
         ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 2 : 10));
-        playbackPlayer.assignVolume(lowerVolume);
+        playbackPlayer.setVolume(lowerVolume ? 0.2 : 1);
         playbackPlayer.createPlayer(this);
 
     }
 
     private void getUrisFromIntent() {
         if (getIntent().getExtras().containsKey(PLAYBACK)) {
+            recordingNow = true;
             uris.add(Uri.parse(getIntent().getStringExtra(PLAYBACK)));
             cameraOn = getIntent().getExtras().getBoolean(CAMERA_ON);
             if (getIntent().getExtras().containsKey(AUDIO_FILE)) {
@@ -224,9 +225,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
             ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 2 : 10);
             ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 2 : 10));
-            playbackPlayer.assignVolume(lowerVolume);
+            playbackPlayer.setVolume(lowerVolume ? 0.2 : 1);
             playbackPlayer.createPlayer(this);
-//            downloadFile(audioPath);
         }
     }
 
@@ -363,18 +363,22 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     }
 
     public void showEndPopup() {
-        View popupView = playbackPopupOpen.openPopup(R.id.end_playback_video, R.layout.end_playback_video);
-        playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                if (playbackPlayer.getPlayer() == null)
-                    endVideo();
+        if (recordingNow)
+            endVideo();
+        else {
+            View popupView = playbackPopupOpen.openPopup(R.id.end_playback_video, R.layout.end_playback_video);
+            playbackPopupOpen.getPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    if (playbackPlayer.getPlayer() == null)
+                        endVideo();
+                }
+            });
+            if (!externalView) {
+                playbackPopupOpen.hideReportButton();
             }
-        });
-        if (!externalView) {
-            playbackPopupOpen.hideReportButton();
+            addEndPopupListeners(popupView);
         }
-        addEndPopupListeners(popupView);
     }
 
     private void addEndPopupListeners(View popupView) {
@@ -454,47 +458,6 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
 
         playbackPlayer.createPlayer(this);
     }
-
-    private void addSpinnerListeners() {
-//        Spinner recordingSpinner = findViewById(R.id.recording_spinner);
-//        recordingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                String volume = adapterView.getItemAtPosition(i).toString();
-//                if (!volume.equals(getResources().getString(R.string.default_value))) {
-//                    player.createMessage(renderers.get(1)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-//        Spinner playbackSpinner = findViewById(R.id.playback_spinner);
-//        playbackSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-//            @Override
-//            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-//                if (earphonesUsed) {
-//                    String volume = adapterView.getItemAtPosition(i).toString();
-//                    if (!volume.equals(getResources().getString(R.string.default_value))) {
-//                        player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(Float.parseFloat(volume)).send();
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onNothingSelected(AdapterView<?> adapterView) {
-//
-//            }
-//        });
-    }
-
-//    public void turnReverbOnOrOff(View view) {
-//        if (sessionId == -1)
-//            sessionId = player.getAudioSessionId();
-//        addReverb();
-//    }
 
 
     public void showOptions(View view) {

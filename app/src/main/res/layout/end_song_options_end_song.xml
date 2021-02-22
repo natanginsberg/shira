@@ -101,7 +101,7 @@
             android:layout_centerVertical="true"
             android:fontFamily="@font/varela_round_regular"
             android:onClick="share"
-            android:text="@string/share"
+            android:text="@string/share_save"
             android:textColor="@color/sing_up_hover"
             android:textSize="24sp" />
 

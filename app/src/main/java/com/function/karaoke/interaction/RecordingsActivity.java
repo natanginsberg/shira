@@ -404,14 +404,15 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     @Override
     public void onListFragmentInteractionPlay(List<Recording> recordings) {
-        recordingState = RecordingsScreenState.SINGLE_SONG_RECORDINGS;
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        currentRecordings = recordings;
-        recordAdapter = new RecordingRecycleViewAdapter(recordings, this, this);
-        recyclerView.setAdapter(recordAdapter);
-        setSongInfo(recordings.get(0).getArtist(), recordings.get(0).getTitle(), recordings.get(0).getImageResourceFile());
-        resetFields();
-
+        if (recordings.size() > 0) {
+            recordingState = RecordingsScreenState.SINGLE_SONG_RECORDINGS;
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            currentRecordings = recordings;
+            recordAdapter = new RecordingRecycleViewAdapter(recordings, this, this);
+            recyclerView.setAdapter(recordAdapter);
+            setSongInfo(recordings.get(0).getArtist(), recordings.get(0).getTitle(), recordings.get(0).getImageResourceFile());
+            resetFields();
+        }
     }
 
     private void resetFields() {

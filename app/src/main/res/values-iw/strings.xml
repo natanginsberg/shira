@@ -2,7 +2,6 @@
     <string name="app_name">Ashira</string>
     <string name="monthly_membership">מנוי חודשי</string>
     <string name="yearly_membership">מנוי שנתי</string>
-    <!--    <string name="footer">התשלום יחויב על ידי הPlay Store \n המנוי יתחדש כל עוד לא ביטלת את החידוש האוטומטי</string>-->
     <string name="play">נגן</string>
     <string name="good_job">ביצוע מעולה!</string>
     <string name="sing_again"> בצע מחדש </string>
@@ -14,7 +13,6 @@
     <string name="search">חיפוש שיר לביצוע</string>
     <string name="home">לעמוד הראשי</string>
     <string name="save_recording">שמור</string>
-
     <string name="back_to_home_dialog">אם תצא, תאבד את הביצוע.</string>
     <string name="yes">לצאת</string>
     <string name="no">להישאר</string>
@@ -26,10 +24,10 @@
     <string name="mic_access_title">הרשאת שימוש במיקרופון</string>
     <string name="mic_access_text">כדי ליהנות מ-Ashira יש לאשר הרשאת גישה למיקרופון</string>
     <string name="sign_in_language">הירשם כדי לצפות בביצועים שלך</string>
-    <string name="my_recordings">ביצועים שלי</string>
+    <string name="my_recordings">הביצועים שלי</string>
     <string name="sign_in">היכנס/הירשם</string>
     <string name="contact_us">צור קשר</string>
-    <string name="policy">מדיניות פרטיות ותקנון</string>
+    <string name="policy">תקנון ומדיניות פרטיות</string>
     <string name="sign_in_title">הצטרף עכשיו והתחל לבצע ולשתף</string>
     <string name="recording_sign_in_text">כדי ליהנות מ-Ashira עליך להירשם לאפליקציה. זה קל ומהיר!</string>
     <string name="no_recordings">אין לך ביצועים לשמוע</string>
@@ -37,13 +35,13 @@
     <string name="continue_as_guest">המשך כאורח</string>
     <string name="from_toker_fm">מבית טוקר FM</string>
     <string name="all_songs">שירים</string>
-    <string name="My_recordings">ביצועים שלי</string>
+    <string name="My_recordings">הביצועים שלי</string>
     <string name="share_question">רוצה לשתף עם חברים ומשפחה? לחץ שתף</string>
     <string name="playback_volume">עוצמת הפלייבק</string>
     <string name="recording_volume">עוצמת ההקלטה</string>
     <string name="default_value">ברירת מחדל</string>
     <string name="sign_in_error">ההרשמה נכשלה</string>
-    <string name="attach_earphones">לביצוע מטיבי יש לחבר אזניות חוטיות</string>
+    <string name="attach_earphones">לביצוע מיטבי יש לחבר אזניות חוטיות</string>
     <string name="feedback">Feedback</string>
     <string name="man_tone">גבר</string>
     <string name="kid">ילד/ה</string>
@@ -82,8 +80,8 @@
     <string name="stop">עצור</string>
     <string name="delete">מחק</string>
     <string name="close">סגור</string>
-    <string name="you_stopped_mid_recording_your_voice">עצרת באמצע ביצוע</string>
-    <string name="you_finished_the_recording_your_voice">השלמת את ביצוע!</string>
+    <string name="you_stopped_mid_recording_your_voice">עצרת באמצע הביצוע</string>
+    <string name="you_finished_the_recording_your_voice">השלמת את הביצוע!</string>
     <string name="recordings_activity_interaction">שתף ביצועים עם משפחה וחברים</string>
     <string name="comments">הערות</string>
     <string name="song_is_in_system">יש! השיר שביקשת כבר נמצא במאגר שלנו!</string>
@@ -147,7 +145,7 @@
     <string name="recorded_without_video">הקלטה ללא וידיאו</string>
     <string name="delete_confirmation">הביצועים המסומנים ימחקו</string>
     <string name="sync">סנכרון</string>
-    <string name="volume">ווליום</string>
+    <string name="volume">פלייבק</string>
     <string name="save_in_progress">"הביצוע שלך עולה לשרתים שלנו"</string>
     <string name="unable_to_upload">כשהמון אנשים מבצעים ביחד, זה גורם לעומס על השרתים שלנו</string>
     <string name="camera_fail">המצלמה לא נפתחה</string>
@@ -155,5 +153,6 @@
     <string name="pitch_question">באיזה טון אתה שר?</string>
     <string name="high">גבוה</string>
     <string name="regular">רגיל</string>
+    <string name="finshed_watching_recording">סיימת לצפות בביצוע!</string>
 
 </resources>

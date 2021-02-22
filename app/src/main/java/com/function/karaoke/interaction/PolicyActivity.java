@@ -76,7 +76,7 @@ public class PolicyActivity extends AppCompatActivity {
 
         try {
             BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("PrivacyPolicy")));
+                    new InputStreamReader(getAssets().open("Contract")));
 
             // do reading, usually loop until end of file reading
             String mLine;
@@ -87,7 +87,7 @@ public class PolicyActivity extends AppCompatActivity {
             text.append('\n');
             text.append('\n');
             reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("Contract")));
+                    new InputStreamReader(getAssets().open("Privacy Policy")));
             while ((mLine = reader.readLine()) != null) {
                 text.append(mLine);
                 text.append('\n');

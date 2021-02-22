@@ -179,59 +179,59 @@ public class PlaybackPlayer {
     }
 
     public void createPlayer(Playback playback) {
-        renderersFactory = new CustomRendererFactory(context);
-        player =
-                new SimpleExoPlayer.Builder(context, renderersFactory)
-                        .setTrackSelector(trackSelector)
-                        .build();
-        playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
-        playerView.setPlayer(player);
-        player.setMediaSource(mediaSource);
+        if (mediaSource != null) {
+            renderersFactory = new CustomRendererFactory(context);
+            player =
+                    new SimpleExoPlayer.Builder(context, renderersFactory)
+                            .setTrackSelector(trackSelector)
+                            .build();
+            playerView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+            playerView.setPlayer(player);
+            player.setMediaSource(mediaSource);
 //        playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
 //        player.setVideoScalingMode(Renderer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING);
-        view.findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
-        player.addListener(new Player.EventListener() {
+            view.findViewById(R.id.exo_pr_circle).setVisibility(View.INVISIBLE);
+            player.addListener(new Player.EventListener() {
 
-            @Override
-            public void onPlaybackStateChanged(int state) {
-                if (state == ExoPlayer.STATE_ENDED) {
-                    releasePlayer();
-                    playback.showEndPopup();
+                @Override
+                public void onPlaybackStateChanged(int state) {
+                    if (state == ExoPlayer.STATE_ENDED) {
+                        releasePlayer();
+                        playback.showEndPopup();
+                    }
+                    if (state == ExoPlayer.STATE_READY) {
+                        if (sessionId == -1)
+                            sessionId = player.getAudioSessionId();
+                        addReverb();
+                    }
                 }
-                if (state == ExoPlayer.STATE_READY) {
-                    if (sessionId == -1)
-                        sessionId = player.getAudioSessionId();
-                    addReverb();
-                }
-            }
-        });
-        player.prepare();
-        player.seekTo(currentWindow, playbackPosition);
-        player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
-        player.setPlayWhenReady(true);
+            });
+            player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(volume).send();
+            player.prepare();
+            player.seekTo(currentWindow, playbackPosition);
+            player.setSeekParameters(SeekParameters.EXACT); // accurate seeking
+            player.setPlayWhenReady(true);
 
-//        addSpinnerListeners();
-        if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
-            @Override
-            public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
-                sessionId = audioSessionId;
-            }
-        });
-        if (!cameraOn)
-            view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
+            if (earphonesUsed) player.addAnalyticsListener(new AnalyticsListener() {
+                @Override
+                public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
+                    sessionId = audioSessionId;
+                }
+            });
+            if (!cameraOn)
+                view.findViewById(R.id.logo).setVisibility(View.VISIBLE);
+        }
     }
 
     public void restart() {
         playbackPosition = 0;
     }
 
-    public void assignVolume(boolean lowerVolume) {
-        volume = lowerVolume ? 0.2f : 1f;
-    }
 
     public void setVolume(double v) {
         volume = (float) v;
-        player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(volume).send();
+        if (player != null)
+            player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(volume).send();
     }
 
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {

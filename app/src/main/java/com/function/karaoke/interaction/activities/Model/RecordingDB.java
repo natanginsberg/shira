@@ -45,8 +45,10 @@ public class RecordingDB {
     }
 
     public void changeSongsAfterDelete(List<Recording> currentRecordings) {
-        recordingsPerSong.put(currentRecordings.get(0), currentRecordings);
-        notifyUpdated();
+        if (currentRecordings.size() > 0) {
+            recordingsPerSong.put(currentRecordings.get(0), currentRecordings);
+            notifyUpdated();
+        }
     }
 
     public List<Recording> getRecordings() {

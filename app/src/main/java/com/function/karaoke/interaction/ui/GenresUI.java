@@ -1,5 +1,6 @@
 package com.function.karaoke.interaction.ui;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -46,10 +47,12 @@ public class GenresUI {
 //        return genreView;
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void placeGenresOnScreen(View genreView) {
         genrePopup = new PopupWindow(context);
         genrePopup.setContentView(genreView);
         genrePopup.setFocusable(true);
+        genrePopup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
         genrePopup.setWidth((int) (view.getWidth() * 0.3));
         genrePopup.showAtLocation(genreView, Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, 0);
     }

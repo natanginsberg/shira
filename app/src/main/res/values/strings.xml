@@ -10,7 +10,7 @@
     <string name="sing_again">Sing Again</string>
     <string name="playback">Playback</string>
     <string name="share">Share</string>
-    <string name="share_save">Save\\Share</string>
+    <string name="share_save">Save and Share</string>
     <string name="promo">Jewish Karoke App</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">Log In / Sign Up</string>
@@ -188,5 +188,6 @@
     <string name="pitch_question">What is your pitch?</string>
     <string name="high">High</string>
     <string name="regular">Regular</string>
+    <string name="finshed_watching_recording">You finished watching the recording!</string>
 
 </resources>
