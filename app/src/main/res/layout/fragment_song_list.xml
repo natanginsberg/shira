@@ -40,12 +40,11 @@
             android:id="@+id/genre_button"
             android:layout_width="15dp"
             android:layout_height="15dp"
-            android:layout_centerHorizontal="true"
             android:background="@drawable/ic_arrow_header"
-            android:gravity="bottom"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/genre"
-            app:layout_constraintRight_toRightOf="@id/genre" />
+            app:layout_constraintRight_toRightOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout

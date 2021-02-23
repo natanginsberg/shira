@@ -348,20 +348,17 @@ public class SingActivity extends AppCompatActivity implements
     public void manTone(View view) {
         songPlayed = song.getSongResourceFile();
         setAudioAndDismissPopup();
-//        createEarphoneReceivers();
     }
 
 
     public void womanTone(View view) {
         songPlayed = song.getWomanToneResourceFile();
         setAudioAndDismissPopup();
-//        createEarphoneReceivers();
     }
 
     public void kidTone(View view) {
         songPlayed = song.getKidToneResourceFile();
         setAudioAndDismissPopup();
-//        createEarphoneReceivers();
     }
 
 
@@ -558,7 +555,7 @@ public class SingActivity extends AppCompatActivity implements
         intent.putExtra(DELAY, delay);
         intent.putExtra(LENGTH, lengthOfAudioPlayed);
         intent.putExtra(LOWER_VOLUME, lowerVolume);
-        startActivity(intent);
+        mGetContent.launch(intent);
     }
 
     @Override

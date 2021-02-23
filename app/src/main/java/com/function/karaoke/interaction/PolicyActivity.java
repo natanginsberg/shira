@@ -87,7 +87,7 @@ public class PolicyActivity extends AppCompatActivity {
             text.append('\n');
             text.append('\n');
             reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("Privacy Policy")));
+                    new InputStreamReader(getAssets().open("PrivacyPolicy")));
             while ((mLine = reader.readLine()) != null) {
                 text.append(mLine);
                 text.append('\n');

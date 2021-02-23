@@ -41,6 +41,12 @@ public class SettingUI {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
         profilePic = popupView.findViewById(R.id.user_picture);
+//        Picasso.get()
+////                            .load(song.getImageResourceFile())
+//                .load("https://firebasestorage.googleapis.com/v0/b/shira-8ed6f.appspot.com/o/images%2FS_M_0.jpg?alt=media&token=a52f5222-e9e4-4e3d-b294-6f757ae2b5ea")
+//                .placeholder(R.drawable.plain_rec)
+//                .fit()
+//                .into((ImageView) popupView.findViewById(R.id.image));
         if (isUserSignedIn)
             showSignedInTheme(user);
         else

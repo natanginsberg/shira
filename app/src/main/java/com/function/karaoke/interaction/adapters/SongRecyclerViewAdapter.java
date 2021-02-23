@@ -153,6 +153,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                 if (!song.getImageResourceFile().equals("")) {
                     Picasso.get()
                             .load(song.getImageResourceFile())
+//                            .load("https://firebasestorage.googleapis.com/v0/b/shira-8ed6f.appspot.com/o/images%2FIMG_4196.JPG?alt=media&token=95a20ae9-19f3-45ad-b2b0-a183a41f969f")
                             .placeholder(R.drawable.plain_rec)
                             .fit()
                             .into(mCover);

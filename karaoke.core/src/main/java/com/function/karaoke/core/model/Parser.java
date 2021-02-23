@@ -178,7 +178,7 @@ public class Parser {
 
     private static String getIndexIndicators(int i) {
         char[] chars = new char[i];
-        Arrays.fill(chars, '*');
+        Arrays.fill(chars, '·');
         return new String(chars);
     }
 

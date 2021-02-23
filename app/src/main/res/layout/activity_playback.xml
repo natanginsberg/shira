@@ -82,13 +82,14 @@
                 android:id="@+id/sync"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
-                android:layout_toRightOf="@id/sync_word"
+                android:layout_marginRight="5dp"
                 android:rotation="90"
                 android:text="0"
                 android:textColor="@android:color/white"
-                android:textSize="10sp"/>
+                android:textSize="9sp" />
 
             <TextView
                 android:id="@+id/sync_word"
@@ -100,7 +101,7 @@
                 android:rotation="90"
                 android:text="@string/sync"
                 android:textColor="@android:color/white"
-                android:textSize="10sp" />
+                android:textSize="9sp" />
 
 
             <SeekBar
@@ -109,7 +110,7 @@
                 android:layout_height="125dp"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="7dp"
+                android:layout_marginLeft="5dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/seek_bar"
                 android:indeterminate="false"
@@ -144,12 +145,13 @@
                 android:id="@+id/sync1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@id/sync_word1"
+                android:layout_marginLeft="5dp"
                 android:rotation="270"
                 android:text="10"
                 android:textColor="@android:color/white"
-                android:textSize="10sp" />
+                android:textSize="9sp" />
 
             <TextView
                 android:id="@+id/sync_word1"
@@ -160,7 +162,7 @@
                 android:rotation="270"
                 android:text="@string/volume"
                 android:textColor="@android:color/white"
-                android:textSize="10sp" />
+                android:textSize="9sp" />
 
 
             <SeekBar
@@ -169,7 +171,7 @@
                 android:layout_height="125dp"
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="7dp"
+                android:layout_marginRight="5dp"
                 android:layout_marginBottom="20dp"
                 android:background="@drawable/seek_bar"
                 android:indeterminate="false"

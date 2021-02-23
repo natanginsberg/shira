@@ -405,6 +405,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         } else {
             Intent intent = new Intent(this, SingActivity.class);
             intent.putExtra("delay", delay);
+            setResult(RESULT_OK, intent);
             finish();
         }
     }

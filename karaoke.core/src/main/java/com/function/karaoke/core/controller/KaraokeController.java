@@ -223,6 +223,9 @@ public class KaraokeController implements Recorder.IToneListener {
         float bottomDelta = twoLinesAhead.getY() - threeLinesAhead.getOriginalPlace();
 
         tempViews.push(mLyrics);
+//        Log.i("bug88", threeLinesAhead.getY() + " " + twoLinesAhead.getY() + " " + wordsToRead.getY() + " " + mLyrics.getY());
+        Log.i("bug88", threeLinesAhead.getHeight() + " " + twoLinesAhead.getHeight() + " " + wordsToRead.getHeight() + " " + mLyrics.getHeight());
+//        Log.i("bug88", bottomDelta + " " + thirdDelta + " " + secondDelta + " " + topDelta);
 
         mLyrics.animate().translationY(topDelta).setDuration(500).start();
         wordsToRead.animate().translationY(secondDelta).setDuration(500).start();
