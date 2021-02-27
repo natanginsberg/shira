@@ -83,6 +83,8 @@ public class SongsActivity
 
     private static final int AUDIO_CODE = 101;
     private static final String JSON_DIRECTORY_NAME = "jsonFile";
+    private static final String PRIVACY_POLICY = "privacy policy";
+    private static final String TERMS_OF_USE = "terms of use";
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final String FEEDBACK_EMAIL = "ashira.jewishkaraoke@gmail.com";
     private static final String SONG_SUGGEST_EMAIL = "ashira.songs@gmail.com";
@@ -114,8 +116,10 @@ public class SongsActivity
                                 getFragment().openSettingsPopup(findViewById(android.R.id.content).getRootView());
                             } else if (intent.getExtras().containsKey("coupon")) {
                                 startCouponActivity();
-                            } else if (intent.getExtras().containsKey("policy")) {
-                                openPolicy();
+                            } else if (intent.getExtras().containsKey(PRIVACY_POLICY)) {
+                                openPolicy(PRIVACY_POLICY);
+                            } else if (intent.getExtras().containsKey(TERMS_OF_USE)) {
+                                openPolicy(TERMS_OF_USE);
                             } else {
                                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
                                 handleSignInResult(task);
@@ -544,8 +548,9 @@ public class SongsActivity
     }
 
     @Override
-    public void openPolicy() {
+    public void openPolicy(String policy) {
         Intent intent = new Intent(this, PolicyActivity.class);
+        intent.putExtra(policy, true);
         mGetContent.launch(intent);
     }
 
@@ -558,6 +563,7 @@ public class SongsActivity
     private void askForAudioRecordPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
 
+
             AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
             alertBuilder.setCancelable(true);
             alertBuilder.setTitle(R.string.mic_access_title);
@@ -566,9 +572,9 @@ public class SongsActivity
                     ActivityCompat.requestPermissions(SongsActivity.this,
                             new String[]{Manifest.permission.RECORD_AUDIO},
                             AUDIO_CODE));
-
             AlertDialog alert = alertBuilder.create();
             alert.show();
+
 
         } else
             openNewIntent();

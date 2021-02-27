@@ -57,6 +57,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private static final int GENRE = -1;
     private static final int CLOSE_POPUP = 1;
     private static final int HIDE_TEXT = 2;
+    private static final String PRIVACY_POLICY = "privacy policy";
+    private static final String TERMS_OF_USE = "terms of use";
     private final GenreListener genreListener = new GenreListener();
     private final boolean differentSongsDisplayed = true;
     private final int contentDisplayed = ALL_SONGS_DISPLAYED;
@@ -234,6 +236,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         super.onPause();
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -476,9 +479,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void policyListener() {
-        popupView.findViewById(R.id.policy).setOnClickListener(view -> {
-            mListener.openPolicy();
+        popupView.findViewById(R.id.privacy_policy).setOnClickListener(view -> {
+            mListener.openPolicy(PRIVACY_POLICY);
         });
+
+        popupView.findViewById(R.id.terms_of_use).setOnClickListener(view1 -> mListener.openPolicy(TERMS_OF_USE));
 
 
     }
@@ -577,7 +582,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
         void startCouponActivity();
 
-        void openPolicy();
+        void openPolicy(String policy);
     }
 
     private class GenreListener implements View.OnClickListener {

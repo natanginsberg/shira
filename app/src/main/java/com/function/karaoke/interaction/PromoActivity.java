@@ -1,6 +1,7 @@
 package com.function.karaoke.interaction;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -15,10 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.function.karaoke.interaction.activities.Model.SignInViewModel;
 import com.function.karaoke.interaction.storage.AuthenticationDriver;
+import com.function.karaoke.interaction.ui.ShowPrivacyPolicy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 
+import java.io.File;
 import java.util.Locale;
 
 public class PromoActivity extends AppCompatActivity {
@@ -35,6 +38,20 @@ public class PromoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         loadLocale();
         showPromo();
+    }
+
+    private boolean policyFileExists() {
+        File file = new File(this.getCacheDir(), "policy.txt");
+        return file.exists();
+    }
+
+    private void showPolicy() {
+        ShowPrivacyPolicy.showPolicy(this, findViewById(R.id.promo), new ShowPrivacyPolicy.AgreeListener() {
+            @Override
+            public void agreed(Context context) {
+                continueAsGuest();
+            }
+        });
     }
 
     @Override
@@ -81,7 +98,8 @@ public class PromoActivity extends AppCompatActivity {
             }
 
             public void onFinish() {
-                continueAsGuest();
+                if (policyFileExists()) continueAsGuest();
+                else showPolicy();
             }
         }.start();
     }

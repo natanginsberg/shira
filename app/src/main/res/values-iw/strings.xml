@@ -154,5 +154,13 @@
     <string name="high">גבוה</string>
     <string name="regular">רגיל</string>
     <string name="finshed_watching_recording">סיימת לצפות בביצוע!</string>
+    <string name="agreed">מאשר</string>
+    <string name="privacy_policy">מדיניות פרטיות</string>
+    <string name="ashira_privacy_policy">מדיניות פרטיות של אשירה</string>
+    <string name="ashira_terms_of_use">תנאי שימוש של אשירה</string>
+    <string name="privacy_policy_amp_terms_of_use"><![CDATA[Privacy Policy & Terms of Use]]></string>
+    <string name="ashira_agreement">הסכם עם אשירה
+    </string>
+    <string name="about">אודות</string>
 
 </resources>

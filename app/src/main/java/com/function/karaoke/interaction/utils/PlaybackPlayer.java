@@ -234,6 +234,10 @@ public class PlaybackPlayer {
             player.createMessage(renderers.get(2)).setType(Renderer.MSG_SET_VOLUME).setPayload(volume).send();
     }
 
+    public void resume() {
+
+    }
+
     private static final class AudioRendererWithoutClock extends MediaCodecAudioRenderer {
         public AudioRendererWithoutClock(Context context,
                                          MediaCodecSelector mediaCodecSelector) {

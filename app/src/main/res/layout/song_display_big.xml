@@ -56,12 +56,13 @@
             android:layout_width="@dimen/no_hardcode_dimension"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:layout_margin="2dp"
+            android:scaleType="fitXY"
             app:layout_constraintDimensionRatio="1.1"
             app:layout_constraintEnd_toEndOf="@id/song_placeholder"
             app:layout_constraintStart_toStartOf="@id/song_placeholder"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.97"
-            app:srcCompat="@drawable/image_holder" />
+            app:srcCompat="@drawable/ashira" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -77,9 +78,9 @@
                 android:id="@+id/lbl_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="start"
                 android:fontFamily="@font/varela_round_regular"
                 android:textColor="@color/singer_color"
-                android:layout_gravity="start"
                 tools:text="Artist" />
 
             <TextView

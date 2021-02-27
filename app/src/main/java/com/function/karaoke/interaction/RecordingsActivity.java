@@ -72,6 +72,8 @@ public class RecordingsActivity extends AppCompatActivity implements
     private static final int NUM_COLUMNS = 2;
     private static final String USER_INFO = "User";
     private static final String GENRES = "genres";
+    private static final String PRIVACY_POLICY = "privacy policy";
+    private static final String TERMS_OF_USE = "terms of use";
     private static final String COUPON_PAGE = "coupon";
     private static final String POLICY_PAGE = "policy";
     private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
@@ -276,6 +278,7 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     private void addProfilePic() {
         ImageView profilePic = findViewById(R.id.user_picture);
+        profilePic.setVisibility(View.VISIBLE);
         if (profilePic != null && user.getPicUrl() != null && !user.getPicUrl().equalsIgnoreCase(""))
             Picasso.get()
                     .load(user.getPicUrl())
@@ -357,10 +360,13 @@ public class RecordingsActivity extends AppCompatActivity implements
         final Observer<List<Recording>> personalRecordingObserver = personalRecordings -> {
             if (personalRecordings != null) {
                 if (currentDatabaseRecordings == null) {
-                    currentDatabaseRecordings = new RecordingDB(personalRecordings);
-                    currentDatabaseRecordings.subscribe(this);
-                    findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
-                    findViewById(R.id.no_recordings_text).setVisibility(View.INVISIBLE);
+                    if (personalRecordings.size() > 0) {
+                        currentDatabaseRecordings = new RecordingDB(personalRecordings);
+                        currentDatabaseRecordings.subscribe(this);
+                    } else {
+                        findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
+                        findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
+                    }
                 } else {
                     currentDatabaseRecordings.addRecordings(personalRecordings);
                 }
@@ -660,7 +666,7 @@ public class RecordingsActivity extends AppCompatActivity implements
     private void addPopupListeners() {
         languageChangeListener();
         myRecordingsToDisplayListener();
-        signInButtonListener();
+        signOutButtonListener();
         contactUsListener();
         policyListener();
         couponListener();
@@ -681,9 +687,10 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     private void policyListener() {
-        popupView.findViewById(R.id.policy).setOnClickListener(view -> {
-            openPage(POLICY_PAGE);
+        popupView.findViewById(R.id.privacy_policy).setOnClickListener(view -> {
+            openPage(PRIVACY_POLICY);
         });
+        popupView.findViewById(R.id.terms_of_use).setOnClickListener(view -> openPage(TERMS_OF_USE));
     }
 
     private void contactUsListener() {
@@ -699,7 +706,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         startActivity(intent);
     }
 
-    private void signInButtonListener() {
+    private void signOutButtonListener() {
         popupView.findViewById(R.id.sign_out_button).setOnClickListener(view -> {
             authenticationDriver.signOut();
             popup.dismiss();

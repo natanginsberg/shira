@@ -41,22 +41,11 @@ public class SettingUI {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
         profilePic = popupView.findViewById(R.id.user_picture);
-//        Picasso.get()
-////                            .load(song.getImageResourceFile())
-//                .load("https://firebasestorage.googleapis.com/v0/b/shira-8ed6f.appspot.com/o/images%2FS_M_0.jpg?alt=media&token=a52f5222-e9e4-4e3d-b294-6f757ae2b5ea")
-//                .placeholder(R.drawable.plain_rec)
-//                .fit()
-//                .into((ImageView) popupView.findViewById(R.id.image));
+
         if (isUserSignedIn)
             showSignedInTheme(user);
         else
             showNotSignedInTheme();
-//        if (contentDisplayed == PERSONAL_RECORDING_DISPLAYED) {
-////        if (((TextView) view.findViewById(R.id.display_text)).getText() == context.getResources().getString(R.string.my_recordings)) {
-//            ((TextView) popupView.findViewById(R.id.my_recordings)).setTextColor(context.getResources().getColor(R.color.gold));
-//        } else
-//            ((TextView) popupView.findViewById(R.id.home_button)).setTextColor(context.getResources().getColor(R.color.gold));
-
 
         placePopupOnScreen();
         applyDim();
@@ -95,6 +84,7 @@ public class SettingUI {
         setSignOutButton();
         setEmailAddressIfSignedIn(user != null ? user.getUserEmail() : "");
         popupView.findViewById(R.id.user_picture).setOnClickListener(null);
+        popupView.findViewById(R.id.email_or_sign_in_invite).setOnClickListener(null);
     }
 
 
@@ -146,7 +136,7 @@ public class SettingUI {
         popup.setContentView(layout);
         popup.setWidth(width);
         popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
-        popup.setHeight((int) (view.getHeight() * 0.8));
+        popup.setHeight((int) (view.getHeight() * 0.92));
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

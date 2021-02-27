@@ -21,6 +21,8 @@ import java.util.Locale;
 public class PolicyActivity extends AppCompatActivity {
 
     private static final String MENU = "open menu";
+    private static final String PRIVACY_POLICY = "privacy policy";
+    private static final String TERMS_OF_USE = "terms of use";
     private final StringBuilder text = new StringBuilder();
     private String language;
 
@@ -29,7 +31,7 @@ public class PolicyActivity extends AppCompatActivity {
         loadLocale();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_policy);
-        setPolicy();
+        setPolicy(getIntent().getExtras().containsKey(PRIVACY_POLICY) ? PRIVACY_POLICY : TERMS_OF_USE);
         setSettingsListener();
     }
 
@@ -72,11 +74,12 @@ public class PolicyActivity extends AppCompatActivity {
         res.updateConfiguration(conf, dm);
     }
 
-    private void setPolicy() {
+    private void setPolicy(String policy) {
+        ((TextView) findViewById(R.id.menu_words)).setText(policy.equals(PRIVACY_POLICY) ? getString(R.string.privacy_policy) : getString(R.string.ashira_terms_of_use));
 
         try {
             BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("Contract")));
+                    new InputStreamReader(getAssets().open(policy.equals(TERMS_OF_USE) ? "Contract" : "PrivacyPolicy")));
 
             // do reading, usually loop until end of file reading
             String mLine;
@@ -86,12 +89,12 @@ public class PolicyActivity extends AppCompatActivity {
             }
             text.append('\n');
             text.append('\n');
-            reader = new BufferedReader(
-                    new InputStreamReader(getAssets().open("PrivacyPolicy")));
-            while ((mLine = reader.readLine()) != null) {
-                text.append(mLine);
-                text.append('\n');
-            }
+//            reader = new BufferedReader(
+//                    new InputStreamReader(getAssets().open("PrivacyPolicy")));
+//            while ((mLine = reader.readLine()) != null) {
+//                text.append(mLine);
+//                text.append('\n');
+//            }
             text.append('\n');
             text.append('\n');
             text.append('\n');

@@ -189,5 +189,12 @@
     <string name="high">High</string>
     <string name="regular">Regular</string>
     <string name="finshed_watching_recording">You finished watching the recording!</string>
+    <string name="agreed">Agree</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="ashira_privacy_policy">Ashira Privacy policy</string>
+    <string name="ashira_terms_of_use">Ashira Terms of Use</string>
+    <string name="privacy_policy_amp_terms_of_use"><![CDATA[Privacy Policy & Terms of Use]]></string>
+    <string name="ashira_agreement">Ashira Agreement</string>
+    <string name="about">About</string>
 
 </resources>

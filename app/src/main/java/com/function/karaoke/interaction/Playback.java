@@ -199,6 +199,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 2 : 10);
         ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 2 : 10));
         playbackPlayer.setVolume(lowerVolume ? 0.2 : 1);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         playbackPlayer.createPlayer(this);
 
     }
@@ -226,6 +227,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 2 : 10);
             ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 2 : 10));
             playbackPlayer.setVolume(lowerVolume ? 0.2 : 1);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
             playbackPlayer.createPlayer(this);
         }
     }
@@ -363,6 +365,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     }
 
     public void showEndPopup() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+
         if (recordingNow)
             endVideo();
         else {
@@ -415,6 +419,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         if (playbackPopupOpen.getPopup() != null) {
             playbackPopupOpen.dismissPopup();
         } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
             onStop();
             endVideo();
         }
@@ -433,12 +438,20 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     public void onResume() {
         super.onResume();
         playbackPlayer.hideSystemUi();
+        if (playbackPlayer.getPlayer() == null) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
+            playbackPlayer.createPlayer(Playback.this);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         playbackPlayer.releasePlayer();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
@@ -446,6 +459,8 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         super.onStop();
         if (Util.SDK_INT >= 24) {
             playbackPlayer.releasePlayer();
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             if (mVideoFile != null)
                 mVideoFile.delete();
         }

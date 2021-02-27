@@ -46,7 +46,8 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="20dp"
-            android:src="@drawable/recordings_album_holder"
+            android:scaleType="fitXY"
+            android:src="@drawable/ashira"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintHeight_percent="0.9"
@@ -90,6 +91,8 @@
         android:id="@+id/initial_album_cover"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ashira"
         app:layout_constraintBottom_toTopOf="@id/progress_bar"
         app:layout_constraintTop_toBottomOf="@id/header" />
 
@@ -102,10 +105,10 @@
         android:background="@drawable/circle_shape"
         android:elevation="20dp"
         android:indeterminate="false"
+        android:layoutDirection="ltr"
         android:max="100"
         android:orientation="vertical"
         android:progress="0"
-        android:layoutDirection="ltr"
         android:progressDrawable="@drawable/loading_mic"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -416,9 +419,9 @@
         android:id="@+id/loading_percent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="10dp"
         android:orientation="vertical"
         android:textColor="@android:color/white"
-        android:elevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

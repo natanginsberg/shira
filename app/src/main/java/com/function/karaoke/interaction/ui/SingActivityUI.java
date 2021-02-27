@@ -608,13 +608,15 @@ public class SingActivityUI {
     }
 
     public void showAlbumInBackground() {
-        ImageView imageView = (ImageView) view.findViewById(R.id.initial_album_cover);
-        Picasso.get()
-                .load(song.getImageResourceFile())
+        if (!song.getImageResourceFile().equals("")) {
+            ImageView imageView = (ImageView) view.findViewById(R.id.initial_album_cover);
+            Picasso.get()
+                    .load(song.getImageResourceFile())
 //                .resize(450, 420)
-                .centerCrop()
-                .fit()
-                .into(imageView);
+                    .centerCrop()
+                    .fit()
+                    .into(imageView);
+        }
     }
 
     public void showGoodSuccessSignIn() {
@@ -635,6 +637,7 @@ public class SingActivityUI {
 
                 public void onFinish() {
                     cTimer.cancel();
+
                     popupWindow.dismiss();
                     cTimer = null;
                 }
@@ -661,7 +664,7 @@ public class SingActivityUI {
     }
 
     public void changeEndWordingToFinishedWatching() {
-        ((TextView)popupView.findViewById(R.id.end_song_words)).setText(context.getResources().getString(R.string.finshed_watching_recording));
+        ((TextView) popupView.findViewById(R.id.end_song_words)).setText(context.getResources().getString(R.string.finshed_watching_recording));
     }
 
 
