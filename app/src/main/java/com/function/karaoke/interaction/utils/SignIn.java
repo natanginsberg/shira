@@ -1,4 +1,4 @@
-package com.function.karaoke.interaction;
+package com.function.karaoke.interaction.utils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +10,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.function.karaoke.interaction.SuccessFailListener;
 import com.function.karaoke.interaction.activities.Model.SignInViewModel;
 import com.function.karaoke.interaction.activities.Model.UserInfo;
 import com.function.karaoke.interaction.activities.Model.enums.LoginState;

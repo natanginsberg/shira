@@ -377,6 +377,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         policyListener();
         adminListener();
         couponListener();
+        websiteListener();
+    }
+
+    private void websiteListener() {
+        popupView.findViewById(R.id.about).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.openWebsite();
+            }
+        });
     }
 
     private void adminListener() {
@@ -484,8 +494,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         });
 
         popupView.findViewById(R.id.terms_of_use).setOnClickListener(view1 -> mListener.openPolicy(TERMS_OF_USE));
-
-
     }
 
     private void contactUsListener() {
@@ -583,6 +591,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void startCouponActivity();
 
         void openPolicy(String policy);
+
+        void openWebsite();
     }
 
     private class GenreListener implements View.OnClickListener {

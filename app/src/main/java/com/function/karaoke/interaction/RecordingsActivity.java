@@ -76,6 +76,7 @@ public class RecordingsActivity extends AppCompatActivity implements
     private static final String TERMS_OF_USE = "terms of use";
     private static final String COUPON_PAGE = "coupon";
     private static final String POLICY_PAGE = "policy";
+    private static final String WEBSITE = "website";
     private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
@@ -670,7 +671,16 @@ public class RecordingsActivity extends AppCompatActivity implements
         contactUsListener();
         policyListener();
         couponListener();
+        openWebsiteListener();
+    }
 
+    private void openWebsiteListener() {
+        popupView.findViewById(R.id.about).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openPage(WEBSITE);
+            }
+        });
     }
 
     private void couponListener() {

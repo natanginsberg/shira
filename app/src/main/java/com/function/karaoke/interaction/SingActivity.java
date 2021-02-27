@@ -62,6 +62,7 @@ import com.function.karaoke.interaction.utils.CameraPreview;
 import com.function.karaoke.interaction.utils.Checks;
 import com.function.karaoke.interaction.utils.EarphoneListener;
 import com.function.karaoke.interaction.utils.JsonHandler;
+import com.function.karaoke.interaction.utils.SignIn;
 import com.function.karaoke.interaction.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.interaction.utils.static_classes.ShareLink;
 import com.function.karaoke.interaction.utils.static_classes.SyncFileData;

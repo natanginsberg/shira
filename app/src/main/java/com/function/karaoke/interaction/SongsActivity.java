@@ -58,6 +58,7 @@ import com.function.karaoke.interaction.tasks.NetworkTasks;
 import com.function.karaoke.interaction.utils.Billing;
 import com.function.karaoke.interaction.utils.Checks;
 import com.function.karaoke.interaction.utils.JsonHandler;
+import com.function.karaoke.interaction.utils.SignIn;
 import com.function.karaoke.interaction.utils.static_classes.Converter;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -90,6 +91,7 @@ public class SongsActivity
     private static final String SONG_SUGGEST_EMAIL = "ashira.songs@gmail.com";
     private static final String USER_INFO = "User";
     private static final String GENRES = "genres";
+    private static final String WEBSITE = "website";
     public String language;
     Locale myLocale;
     private Billing billingSession;
@@ -120,6 +122,8 @@ public class SongsActivity
                                 openPolicy(PRIVACY_POLICY);
                             } else if (intent.getExtras().containsKey(TERMS_OF_USE)) {
                                 openPolicy(TERMS_OF_USE);
+                            } else if (intent.getExtras().containsKey(WEBSITE)) {
+                                openWebsite();
                             } else {
                                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(intent);
                                 handleSignInResult(task);
@@ -129,13 +133,11 @@ public class SongsActivity
                     }
                 }
             });
-    private LayoutInflater inflater;
     private View songUploadedView;
     private final List<Recording> recordingsBeingUploaded = new ArrayList<>();
     private DatabaseSong songClicked;
     private LinearLayout loadingText;
     private CountDownTimer cTimer = null;
-    private RecordingDelete recordingDelete;
     private Recording recordingsDisplayed;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @SuppressLint("SetTextI18n")
@@ -670,6 +672,11 @@ public class SongsActivity
             intent.putExtra(USER_INFO, user);
         }
         mGetContent.launch(intent);
+    }
+
+    public void openWebsite() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://ashira-music.com"));
+        startActivity(browserIntent);
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
