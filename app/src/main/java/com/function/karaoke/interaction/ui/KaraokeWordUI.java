@@ -3,6 +3,7 @@ package com.function.karaoke.interaction.ui;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
@@ -13,35 +14,39 @@ import android.view.View;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 
+import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.core.model.Song;
 import com.function.karaoke.core.views.LyricsView;
+import com.function.karaoke.interaction.R;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayDeque;
 import java.util.List;
 
-public class KaraokeWordUI {
+public class KaraokeWordUI implements KaraokeController.CustomUIListener {
 
-    private final Context context;
+//    private final Context context;
     private LyricsView mLyrics;
     private LyricsView wordsToRead;
     private LyricsView twoLinesAhead;
     private LyricsView threeLinesAhead;
     private ConstraintLayout wordSpace;
+    private final WeakReference<Activity> activityWeakReference;
     private int lyricsSize;
     private int lyricsHeight;
     private ArrayDeque<LyricsView> tempViews = new ArrayDeque<>();
 
-    public KaraokeWordUI(Context context) {
-        this.context = context;
+    public KaraokeWordUI(Activity activity) {
+        this.activityWeakReference = new WeakReference<>(activity);
     }
 
-    public void addViews(View view, int lyrics, int wordsToRead, int twoLinesAhead, int wordSpace, int threeLinesAhead) {
-        mLyrics = view.findViewById(lyrics);
+    public void addViews(View view) {
+        mLyrics = view.findViewById(R.id.lyrics);
 //        this.wordsRead = view.findViewById(wordsRead);
-        this.wordsToRead = view.findViewById(wordsToRead);
-        this.wordSpace = view.findViewById(wordSpace);
-        this.twoLinesAhead = view.findViewById(twoLinesAhead);
-        this.threeLinesAhead = view.findViewById(threeLinesAhead);
+        this.wordsToRead = view.findViewById(R.id.words_to_read);
+        this.wordSpace = (ConstraintLayout)view;
+        this.twoLinesAhead = view.findViewById(R.id.words_to_read_2);
+        this.threeLinesAhead = view.findViewById(R.id.words_to_read_3);
         lyricsSize = this.twoLinesAhead.getHeight();
     }
 
@@ -159,7 +164,7 @@ public class KaraokeWordUI {
         set.clone(wordSpace);
 //        LinearLayout linearLayout = wordSpace;
 
-        LyricsView lyricsView = new LyricsView(context, null);
+        LyricsView lyricsView = new LyricsView(activityWeakReference.get(), null);
         lyricsView.setId(View.generateViewId());
 
         setAttributes(lyricsView);
@@ -179,11 +184,11 @@ public class KaraokeWordUI {
     private void setAttributes(LyricsView lyricsView) {
 //        giveLyricsViewWeightOfOne(lyricsView);\
         lyricsView.setHeight(0);
-        lyricsView.setTextColor(context.getResources().getColor(com.function.phone.core.R.color.unhighlight_words));
+        lyricsView.setTextColor(activityWeakReference.get().getResources().getColor(com.function.phone.core.R.color.unhighlight_words));
         lyricsView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 26);
         ;
         lyricsView.setGravity(Gravity.CENTER);
-        Typeface tf = Typeface.createFromAsset(context.getAssets(), "fonts/varela_round_regular.ttf");
+        Typeface tf = Typeface.createFromAsset(activityWeakReference.get().getAssets(), "fonts/varela_round_regular.ttf");
         lyricsView.setTypeface(tf);
     }
 

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -77,6 +78,8 @@ public class RecordingsActivity extends AppCompatActivity implements
     private static final String COUPON_PAGE = "coupon";
     private static final String POLICY_PAGE = "policy";
     private static final String WEBSITE = "website";
+    private static final int SHARING = 1;
+    private static final int DELETING = 2;
     private final List<Recording> deleteRecordingList = new ArrayList<Recording>() {
         @Override
         public boolean contains(@Nullable Object o) {
@@ -151,6 +154,7 @@ public class RecordingsActivity extends AppCompatActivity implements
 
         }
     };
+    private boolean okClicked;
 
     private void addRecordingToScreen(double content, Recording recording) {
         if (recordingsDisplayed == null) {
@@ -204,7 +208,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         ((TextView) view.findViewById(R.id.artist_name)).setText(recording.getArtist());
         ((TextView) view.findViewById(R.id.song_name)).setText(recording.getTitle());
         ShapeableImageView mCover = view.findViewById(R.id.recording_album_pic);
-        if (!recording.getImageResourceFile().equals("")) {
+        if (!recording.getImageResourceFile().equals("") && !recording.getImageResourceFile().equals("no image resource")) {
             Picasso.get()
                     .load(recording.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)
@@ -364,6 +368,7 @@ public class RecordingsActivity extends AppCompatActivity implements
                     if (personalRecordings.size() > 0) {
                         currentDatabaseRecordings = new RecordingDB(personalRecordings);
                         currentDatabaseRecordings.subscribe(this);
+                        findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
                     } else {
                         findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
                         findViewById(R.id.no_recordings_text).setVisibility(View.VISIBLE);
@@ -391,9 +396,17 @@ public class RecordingsActivity extends AppCompatActivity implements
         if (recordingState == RecordingsScreenState.RECORDING_SONGS_DISPLAYED)
             finish();
         else {
+            if (deleteOpen) {
+                changeMainIconBackToGray();
+                closeAllOpenGarbages();
+                hideDeleteButton();
+                deleteRecordingList.clear();
+                deleteOpen = false;
+            }
             recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
             recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
             displayRecordingSongs();
+
         }
     }
 
@@ -402,10 +415,18 @@ public class RecordingsActivity extends AppCompatActivity implements
         if (recordingState == RecordingsScreenState.RECORDING_SONGS_DISPLAYED)
             finish();
         else {
-            currentDatabaseRecordings.changeSongsAfterDelete(currentRecordings);
-            recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
-            recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
-            displayRecordingSongs();
+            if (deleteOpen) {
+                changeMainIconBackToGray();
+                closeAllOpenGarbages();
+                hideDeleteButton();
+                deleteRecordingList.clear();
+                deleteOpen = false;
+            } else {
+                currentDatabaseRecordings.changeSongsAfterDelete(currentRecordings);
+                recordingState = RecordingsScreenState.RECORDING_SONGS_DISPLAYED;
+                recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_COLUMNS));
+                displayRecordingSongs();
+            }
         }
     }
 
@@ -490,7 +511,7 @@ public class RecordingsActivity extends AppCompatActivity implements
 
 
             } else {
-                showFailure();
+                showFailure(SHARING);
                 // Error
                 // ...
             }
@@ -525,15 +546,19 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     @Override
     public void deletePressed(Recording mItem, View itemView) {
-        if (deleteRecordingList.contains(mItem)) {
-            deleteRecordingList.remove(mItem);
-            changeIconToWhite(itemView);
-        } else {
+        if (deleteRecordingList.size() == 0) {
             deleteRecordingList.add(mItem);
+//        if (deleteRecordingList.contains(mItem)) {
+//            deleteRecordingList.remove(mItem);
+//            changeIconToWhite(itemView);
+//        } else {
+//            deleteRecordingList.add(mItem);
             changeIconToGreen(itemView);
         }
+        deleteOpen = true;
         recordAdapter.updateDeleteList(deleteRecordingList);
         changeMainIconToColor();
+        deleteClicked(itemView);
     }
 
     private void deleteRecordings() {
@@ -543,12 +568,13 @@ public class RecordingsActivity extends AppCompatActivity implements
                 showSuccessToast();
                 deleteRecordingsFromList();
                 recordAdapter.removeDeletions();
-                trashClicked(findViewById(R.id.report));
+//                trashClicked(findViewById(R.id.report));
             }
 
             @Override
             public void onFail() {
-                trashClicked(findViewById(R.id.report));
+//                trashClicked(findViewById(R.id.report));
+                showFailure(DELETING);
             }
         });
     }
@@ -567,8 +593,16 @@ public class RecordingsActivity extends AppCompatActivity implements
         startActivity(sendIntent);
     }
 
-    private void showFailure() {
-        Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
+    private void showFailure(int action) {
+        switch (action) {
+            case SHARING:
+                Toast.makeText(this, getString(R.string.sharing_failed), Toast.LENGTH_SHORT).show();
+                break;
+            case DELETING:
+                Toast.makeText(this, getString(R.string.delete_failed), Toast.LENGTH_SHORT).show();
+                break;
+        }
+
     }
 
     public void trashClicked(View view) {
@@ -581,7 +615,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         } else {
             showAllGarbagesInChildren();
             changeMainIconToColor();
-            showDeleteButton();
+//            showDeleteButton();
         }
         deleteOpen = !deleteOpen;
 
@@ -798,21 +832,35 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     public void deleteClicked(View view) {
         if (deleteRecordingList.size() > 0) {
-            alertUserBeforeDeleting();
+            alertUserBeforeDeleting(view);
         }
 //        deleteAllClickedRecordings();
 
     }
 
-    private void alertUserBeforeDeleting() {
+    private void alertUserBeforeDeleting(View view) {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
         alertBuilder.setCancelable(true);
         alertBuilder.setMessage(R.string.delete_confirmation);
-        alertBuilder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+        alertBuilder.setPositiveButton(android.R.string.ok, (DialogInterface dialog, int which) -> {
+            okClicked = true;
             deleteAllClickedRecordings();
+        }).setNegativeButton(android.R.string.cancel, (DialogInterface dialog, int which) -> {
+            doNotDeleteItem(view);
+        }).setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (!okClicked)
+                    doNotDeleteItem(view);
+            }
         });
         AlertDialog alert = alertBuilder.create();
         alert.show();
+    }
+
+    private void doNotDeleteItem(View view) {
+        deleteRecordingList.clear();
+        changeIconToWhite(view);
     }
 
     @Override

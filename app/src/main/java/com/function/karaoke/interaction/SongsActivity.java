@@ -214,7 +214,7 @@ public class SongsActivity
         ((TextView) view.findViewById(R.id.artist_name)).setText(recording.getArtist());
         ((TextView) view.findViewById(R.id.song_name)).setText(recording.getTitle());
         ShapeableImageView mCover = view.findViewById(R.id.recording_album_pic);
-        if (!recording.getImageResourceFile().equals("")) {
+        if (!recording.getImageResourceFile().equals("") && !recording.getImageResourceFile().equals("no image resource")) {
             Picasso.get()
                     .load(recording.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)
@@ -675,7 +675,7 @@ public class SongsActivity
     }
 
     public void openWebsite() {
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://ashira-music.com"));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://ashira-music.com/"));
         startActivity(browserIntent);
     }
 

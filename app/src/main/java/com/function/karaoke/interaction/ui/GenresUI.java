@@ -1,6 +1,7 @@
 package com.function.karaoke.interaction.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -17,21 +18,25 @@ import com.function.karaoke.interaction.R;
 import com.function.karaoke.interaction.activities.Model.Genres;
 import com.function.karaoke.interaction.utils.static_classes.Converter;
 
+import java.lang.ref.WeakReference;
+
 public class GenresUI {
 
     private static final int GENRE = -1;
     private static final int MY_RECORDINGS = 101;
     private static final int SONG_SUGGESTION = 102;
     private final View view;
-    private final Context context;
+//    private final Context context;
     private final String currentLanguage;
     private final GenreUIListener gListener;
     private PopupWindow genrePopup;
     private String myRecording;
+    private final WeakReference<Activity> activityWeakReference;
 
-    public GenresUI(View view, Context context, String currentLanguage, GenreUIListener genreListener) {
+    public GenresUI(View view, Activity activity, String currentLanguage, GenreUIListener genreListener) {
         this.view = view;
-        this.context = context;
+//        this.context = context;
+        activityWeakReference = new WeakReference<>(activity);
         this.currentLanguage = currentLanguage;
         this.gListener = genreListener;
     }
@@ -39,7 +44,7 @@ public class GenresUI {
     public void addGenresToScreen(Genres genres, String currentGenre, int displayed) {
 
         ConstraintLayout viewGroup = view.findViewById(R.id.all_genres);
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View genreView = layoutInflater.inflate(R.layout.genre_dopdown_layout, viewGroup);
         addViewsToLinearLayout(genreView, genres, currentGenre, displayed);
         placeGenresOnScreen(genreView);
@@ -49,10 +54,10 @@ public class GenresUI {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private void placeGenresOnScreen(View genreView) {
-        genrePopup = new PopupWindow(context);
+        genrePopup = new PopupWindow(activityWeakReference.get());
         genrePopup.setContentView(genreView);
         genrePopup.setFocusable(true);
-        genrePopup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
+        genrePopup.setBackgroundDrawable(activityWeakReference.get().getResources().getDrawable(R.drawable.unclicked_recording_background));
         genrePopup.setWidth((int) (view.getWidth() * 0.3));
         genrePopup.showAtLocation(genreView, Gravity.CENTER_HORIZONTAL | Gravity.TOP, 0, 0);
     }
@@ -81,7 +86,7 @@ public class GenresUI {
     }
 
     private TextView createGenreTextView(String genre, int i) {
-        TextView textView = new TextView(context);
+        TextView textView = new TextView(activityWeakReference.get());
         textView.setTextColor(Color.WHITE);
 
         setTextViewAttributes(textView);
@@ -120,11 +125,11 @@ public class GenresUI {
     }
 
     private TextView addMyRecordingsOption() {
-        TextView textView = new TextView(context);
+        TextView textView = new TextView(activityWeakReference.get());
         textView.setTextColor(Color.WHITE);
 
         setTextViewAttributes(textView);
-        String textToDisplay = context.getResources().getString(R.string.my_recordings);
+        String textToDisplay = activityWeakReference.get().getResources().getString(R.string.my_recordings);
         textView.setText(textToDisplay);
 
         textView.setOnClickListener(view -> {
@@ -136,11 +141,11 @@ public class GenresUI {
     }
 
     private TextView addSongSuggestionOption() {
-        TextView textView = new TextView(context);
-        textView.setTextColor(context.getResources().getColor(R.color.pick_a_song_color));
+        TextView textView = new TextView(activityWeakReference.get());
+        textView.setTextColor(activityWeakReference.get().getResources().getColor(R.color.pick_a_song_color));
 
         setTextViewAttributes(textView);
-        String textToDisplay = context.getResources().getString(R.string.song_suggestion);
+        String textToDisplay = activityWeakReference.get().getResources().getString(R.string.song_suggestion);
         textView.setText(textToDisplay);
 
         textView.setOnClickListener(view -> {
@@ -167,10 +172,10 @@ public class GenresUI {
             genreToDisplay = genre;
         TextView display = (TextView) view.findViewById(R.id.genre);
         display.setText(genreToDisplay);
-        if (genreToDisplay.equalsIgnoreCase(context.getResources().getString(R.string.song_suggestion)))
-            display.setTextColor(context.getResources().getColor(R.color.pick_a_song_color));
+        if (genreToDisplay.equalsIgnoreCase(activityWeakReference.get().getResources().getString(R.string.song_suggestion)))
+            display.setTextColor(activityWeakReference.get().getResources().getColor(R.color.pick_a_song_color));
         else
-            display.setTextColor(context.getResources().getColor(R.color.default_text_color));
+            display.setTextColor(activityWeakReference.get().getResources().getColor(R.color.default_text_color));
     }
 
 

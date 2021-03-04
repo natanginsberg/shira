@@ -196,9 +196,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
         boolean lowerVolume = recording.isLowerVolume();
         playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
         playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
-        ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 2 : 10);
-        ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 2 : 10));
-        playbackPlayer.setVolume(lowerVolume ? 0.2 : 1);
+        ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 1 : 10);
+        ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 1 : 10));
+        playbackPlayer.setVolume(lowerVolume ? 0.1 : 1);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         playbackPlayer.createPlayer(this);
 
@@ -224,9 +224,9 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             boolean lowerVolume = getIntent().getBooleanExtra(LOWER_VOLUME, false);
             playbackPlayer.buildMediaSourceFromUris(uris, delay, length);
             playbackPlayer.assignEarphonesAndCamera(cameraOn, earphonesUsed);
-            ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 2 : 10);
-            ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 2 : 10));
-            playbackPlayer.setVolume(lowerVolume ? 0.2 : 1);
+            ((SeekBar) findViewById(R.id.volume_bar)).setProgress(lowerVolume ? 1 : 10);
+            ((TextView) findViewById(R.id.sync1)).setText(String.valueOf(lowerVolume ? 1 : 10));
+            playbackPlayer.setVolume(lowerVolume ? 0.1 : 1);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
             playbackPlayer.createPlayer(this);
         }
@@ -438,7 +438,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     public void onResume() {
         super.onResume();
         playbackPlayer.hideSystemUi();
-        if (playbackPlayer.getPlayer() == null) {
+        if (playbackPlayer.getPlayer() == null && uris.size() > 0) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             playbackPlayer.buildMediaSourceFromUris(uris, delay, length);

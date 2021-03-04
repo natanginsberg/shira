@@ -48,8 +48,8 @@ public class Parser {
                         String[] lineWordsAndTimes = line.split("<");
 
                         if ((lineContainsDollar(lineWordsAndTimes) && lineWordsAndTimes.length > 5) || (!lineContainsDollar(lineWordsAndTimes) && lineWordsAndTimes.length > 4)
-                                || (lineContainsDollar(lineWordsAndTimes) && lengthOfLineIsGreaterThan(lineWordsAndTimes, 55)) ||
-                                (!lineContainsDollar(lineWordsAndTimes) && lengthOfLineIsGreaterThan(lineWordsAndTimes, 48))) {
+                                || (lineContainsDollar(lineWordsAndTimes) && lengthOfLineIsGreaterThan(lineWordsAndTimes, 65)) ||
+                                (!lineContainsDollar(lineWordsAndTimes) && lengthOfLineIsGreaterThan(lineWordsAndTimes, 55)) && lineWordsAndTimes.length > 2) {
                             List<String[]> lines = breakLineIntoManyLines(lineWordsAndTimes);
                             for (int k = 0; k < 2; k++) {
                                 String[] l = lines.get(k);
@@ -129,8 +129,11 @@ public class Parser {
             else
                 nextLine[lengthOfSentence - 1] = swapWordForDollar(lineWordsAndTimes[i]);
         else {
-            if (i == lineWordsAndTimes.length - 1)
-                nextLine[lengthOfSentence - 1] = lineWordsAndTimes[i];
+            if (i == lineWordsAndTimes.length - 1 && !(lengthOfSentence == lineWordsAndTimes.length))
+                if (lengthOfSentence == 1 && !lineWordsAndTimes[i].contains("]"))
+                    nextLine[lengthOfSentence - 1] = addFrontBracketToSentence(lineWordsAndTimes[i]);
+                else
+                    nextLine[lengthOfSentence - 1] = lineWordsAndTimes[i];
             else
                 nextLine[lengthOfSentence - 1] = swapWordForDollar(lineWordsAndTimes[i - 1]);
         }
@@ -293,8 +296,8 @@ public class Parser {
     private static double getLineTimeStamp(String line) {
         if (line.contains("[")) {
             return parseTimeStamp(line.substring(line.indexOf("[") + 1, line.indexOf("]")));
-        }
-        return 0;
+        } else
+            return parseTimeStamp(line.substring(line.indexOf("<") + 1, line.indexOf("]")));
     }
 
     private static double parseTimeStamp(String timeStamp) {

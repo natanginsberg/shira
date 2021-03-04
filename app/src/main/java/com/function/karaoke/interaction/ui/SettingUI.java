@@ -1,6 +1,7 @@
 package com.function.karaoke.interaction.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -20,25 +21,28 @@ import com.function.karaoke.interaction.R;
 import com.function.karaoke.interaction.activities.Model.UserInfo;
 import com.squareup.picasso.Picasso;
 
+import java.lang.ref.WeakReference;
+
 import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 
 public class SettingUI {
 
     private final View view;
-    private final Context context;
+//    private final Context context;
+    private final WeakReference<Activity> activityWeakReference;
     private final ClosePopListener closePopListener = new ClosePopListener();
     private View popupView;
     private PopupWindow popup;
     private ImageView profilePic;
 
-    public SettingUI(View view, Context c) {
+    public SettingUI(View view, Activity activity) {
         this.view = view;
-        this.context = c;
+        this.activityWeakReference = new WeakReference<>(activity);
     }
 
     public void openSettingsPopup(boolean isUserSignedIn, UserInfo user) {
         RelativeLayout viewGroup = view.findViewById(R.id.settings_popup);
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.settings_popup, viewGroup);
         profilePic = popupView.findViewById(R.id.user_picture);
 
@@ -108,7 +112,7 @@ public class SettingUI {
     }
 
     private void placePopupOnScreen() {
-        popup = new PopupWindow(context);
+        popup = new PopupWindow(activityWeakReference.get());
         popup.setFocusable(true);
         popup.setOnDismissListener(() -> view.getOverlay().clear());
         setPopupAttributes(popup, popupView);
@@ -121,7 +125,7 @@ public class SettingUI {
         colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
         colorDim.setAlpha((int) (255 * (float) 0.7));
 //
-        Drawable dim = new BitmapDrawable(context.getResources(), BlurBuilder.blur(view));
+        Drawable dim = new BitmapDrawable(activityWeakReference.get().getResources(), BlurBuilder.blur(view));
         dim.setBounds(0, 0, view.getWidth(), view.getHeight());
         dim.setAlpha((int) (255 * (float) 0.7));
 //        ViewOverlay headerOverlay = headerView.getOverlay();
@@ -135,7 +139,7 @@ public class SettingUI {
         int width = (int) (view.getWidth());
         popup.setContentView(layout);
         popup.setWidth(width);
-        popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
+        popup.setBackgroundDrawable(activityWeakReference.get().getResources().getDrawable(R.drawable.unclicked_recording_background));
         popup.setHeight((int) (view.getHeight() * 0.92));
     }
 
@@ -144,7 +148,7 @@ public class SettingUI {
         if (profilePic != null && !(picUrl == null || picUrl.equalsIgnoreCase(" ")))
             Picasso.get()
                     .load(picUrl)
-                    .placeholder(context.getResources().getDrawable(R.mipmap.ic_gmail_open))
+                    .placeholder(activityWeakReference.get().getResources().getDrawable(R.mipmap.ic_gmail_open))
                     .fit()
                     .transform(new CropCircleTransformation())
                     .into(profilePic);
@@ -154,8 +158,8 @@ public class SettingUI {
     @SuppressLint("UseCompatLoadingForDrawables")
     private void setGmailPic() {
         Picasso.get()
-                .load(String.valueOf(context.getResources().getDrawable(R.mipmap.ic_gmail_open)))
-                .placeholder(context.getResources().getDrawable(R.mipmap.ic_gmail_open))
+                .load(String.valueOf(activityWeakReference.get().getResources().getDrawable(R.mipmap.ic_gmail_open)))
+                .placeholder(activityWeakReference.get().getResources().getDrawable(R.mipmap.ic_gmail_open))
                 .fit()
                 .transform(new CropCircleTransformation())
                 .into(profilePic);

@@ -186,10 +186,10 @@ public class RecordingCategoryAdapter extends RecyclerView.Adapter<RecordingCate
             String numberOfSongs = (reocordingListMap.get(song) == null ? 0 : reocordingListMap.get(song).size()) + recordingsWord;
             mRecordingAmount.setText(numberOfSongs);
 //            if (!language.equals("English")) {
-            if (!song.getImageResourceFile().equals("")) {
+            if (!song.getImageResourceFile().equals("") && !song.getImageResourceFile().equals("no image resource")) {
                 Picasso.get()
                         .load(song.getImageResourceFile())
-                        .placeholder(R.drawable.plain_rec)
+                        .placeholder(R.drawable.ashira)
                         .fit()
                         .into(mCover);
             }

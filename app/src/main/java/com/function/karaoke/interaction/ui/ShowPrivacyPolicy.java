@@ -44,6 +44,9 @@ public class ShowPrivacyPolicy {
     private static void addWordsToPopup(TextView view, Context context) {
 
         StringBuilder text = new StringBuilder();
+        text.append('\n');
+        text.append('\n');
+        text.append('\n');
         try {
             BufferedReader
                     reader = new BufferedReader(
@@ -110,7 +113,7 @@ public class ShowPrivacyPolicy {
 
 
     private static void createEmptyFileForPolicy(File folder) throws IOException {
-        File artistFile = new File(folder, "policy.txt");
+        File artistFile = new File(folder, "policy1.txt");
         FileWriter writer = new FileWriter(artistFile);
         writer.write("32");
         writer.close();

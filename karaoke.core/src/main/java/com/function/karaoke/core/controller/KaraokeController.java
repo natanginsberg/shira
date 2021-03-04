@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
+
 import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.core.model.Song;
 import com.function.karaoke.core.model.Tone;
@@ -76,9 +78,10 @@ public class KaraokeController implements Recorder.IToneListener {
 //    private LyricsView threeLinesAhead;
 //    private int lyricsHeight = 0;
     private long timerStarted;
+    private CustomUIListener uiListener;
 
 
-    public KaraokeController() {
+    public KaraokeController(Context context) {
         mHandler = new Handler();
         mPlayer = new MediaPlayer();
 //        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -91,6 +94,11 @@ public class KaraokeController implements Recorder.IToneListener {
 //        });
 //        mRecorder = new MediaRecorder();
         this.listener = null;
+        this.context = context;
+    }
+
+    public void addUIListener(CustomUIListener customUIListener){
+        this.uiListener = customUIListener;
     }
 
     public void finishPlaying() {
@@ -164,7 +172,7 @@ public class KaraokeController implements Recorder.IToneListener {
                     Song.Line line = mSong.lines.get(i);
                     if (line.isIn(position)) {
 //                        if (mLyrics.getmLine() != null)
-                        listener.updateUI(mSong.lines, i);
+                        uiListener.updateUI(mSong.lines, i);
 //                        else {
 //                            listener.setLines(mSong.lines, i);
 //                            mLyrics.setLine(line);
@@ -391,9 +399,11 @@ public class KaraokeController implements Recorder.IToneListener {
 
         void songPrepared();
 
-        void updateUI(List<Song.Line> lines, int i);
-
         void setPosition(double position);
+    }
+
+    public interface CustomUIListener{
+        void updateUI(List<Song.Line> lines, int i);
     }
 
 }

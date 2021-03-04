@@ -30,6 +30,7 @@
             android:layout_height="@dimen/no_hardcode_dimension"
             android:background="@drawable/ic_genre_display"
             android:gravity="center"
+            android:fontFamily="@font/varela_round_regular"
             android:textColor="@android:color/white"
             app:layout_constraintDimensionRatio="2.7"
             app:layout_constraintLeft_toLeftOf="parent"

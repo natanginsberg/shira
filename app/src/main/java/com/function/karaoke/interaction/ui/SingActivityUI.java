@@ -1,6 +1,7 @@
 package com.function.karaoke.interaction.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -37,6 +38,7 @@ import com.squareup.picasso.Picasso;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 
 public class SingActivityUI {
@@ -52,7 +54,8 @@ public class SingActivityUI {
     private boolean songEnded;
     private View secondPopupView;
     private PopupWindow secondPopup;
-    private Context context;
+    //    private Context context;
+    private WeakReference<Activity> activityWeakReference;
     private CountDownTimer cTimer;
     private boolean prepared;
     private View songUploadedView;
@@ -98,7 +101,7 @@ public class SingActivityUI {
         BufferedReader br = null;
         StringBuilder stringBuilder = new StringBuilder();
         try {
-            br = new BufferedReader(new InputStreamReader(context.getAssets().open(s), StandardCharsets.UTF_8));
+            br = new BufferedReader(new InputStreamReader(activityWeakReference.get().getAssets().open(s), StandardCharsets.UTF_8));
             String myLine;
             while ((myLine = br.readLine()) != null) {
                 stringBuilder.append(myLine);
@@ -133,10 +136,10 @@ public class SingActivityUI {
     public void setScreenForPlayingAfterTimerExpires() {
 //        view.findViewById(R.id.open_end_options).setVisibility(View.VISIBLE);
         view.findViewById(R.id.countdown).setVisibility(View.INVISIBLE);
-        if (sdkInt >= 24)
-            view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
-        else
-            moveStopButtonToMiddle();
+//        if (sdkInt >= 24)
+        view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
+//        else
+//            moveStopButtonToMiddle();
         hidePlayAndStop();
     }
 
@@ -263,13 +266,13 @@ public class SingActivityUI {
 
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    public void openTonePopup(DatabaseSong song, Context context) {
+    public void openTonePopup(DatabaseSong song, Activity activity) {
         popupOpened = true;
-        this.context = context;
+        this.activityWeakReference = new WeakReference<>(activity);
         RelativeLayout viewGroup = view.findViewById(R.id.tone_picker);
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         popupView = layoutInflater.inflate(R.layout.tone_picker_popup, viewGroup);
-        placePopupOnScreen(context);
+        placePopupOnScreen(activityWeakReference.get());
         popup.setFocusable(false);
         setArtistAndSongNames(song);
         view.findViewById(R.id.play_button).setVisibility(View.INVISIBLE);
@@ -330,7 +333,7 @@ public class SingActivityUI {
     }
 
     private View createViewForLoading(double content, Recording recording) {
-        View to_add = LayoutInflater.from(context).inflate(R.layout.recording_upload, null);
+        View to_add = LayoutInflater.from(activityWeakReference.get()).inflate(R.layout.recording_upload, null);
         addValuesToView(to_add, content, recording);
         return to_add;
     }
@@ -339,7 +342,7 @@ public class SingActivityUI {
         ((TextView) loadingView.findViewById(R.id.artist_name)).setText(recording.getArtist());
         ((TextView) loadingView.findViewById(R.id.song_name)).setText(recording.getTitle());
         ShapeableImageView mCover = loadingView.findViewById(R.id.recording_album_pic);
-        if (!recording.getImageResourceFile().equals("")) {
+        if (!recording.getImageResourceFile().equals("")&& !recording.getImageResourceFile().equals("no image resource")) {
             Picasso.get()
                     .load(recording.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)
@@ -386,8 +389,8 @@ public class SingActivityUI {
 
     public void setScreenForPlayingAfterRestartTimerExpires() {
         view.findViewById(R.id.restart_countdown).setVisibility(View.INVISIBLE);
-        if (sdkInt >= 24)
-            view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
+//        if (sdkInt >= 24)
+        view.findViewById(R.id.pause).setVisibility(View.VISIBLE);
         hidePlayAndStop();
     }
 
@@ -424,11 +427,11 @@ public class SingActivityUI {
         if (cameraOn) {
             popupView.findViewById(R.id.check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.no_check).setVisibility(View.INVISIBLE);
-            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.with_video_when_chosing));
+            ((TextView) popupView.findViewById(R.id.check_label)).setText(activityWeakReference.get().getResources().getString(R.string.with_video_when_chosing));
         } else {
             popupView.findViewById(R.id.no_check).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.check).setVisibility(View.INVISIBLE);
-            ((TextView) popupView.findViewById(R.id.check_label)).setText(context.getResources().getString(R.string.without_video_when_chosing));
+            ((TextView) popupView.findViewById(R.id.check_label)).setText(activityWeakReference.get().getResources().getString(R.string.without_video_when_chosing));
         }
     }
 
@@ -439,7 +442,7 @@ public class SingActivityUI {
     public void setSongInfo() {
         view.findViewById(R.id.song_info).setVisibility(View.VISIBLE);
         ShapeableImageView mCover = view.findViewById(R.id.recording_album_pic);
-        if (!song.getImageResourceFile().equals("")) {
+        if (!song.getImageResourceFile().equals("") && !song.getImageResourceFile().equals("no image resource")) {
             Picasso.get()
                     .load(song.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)
@@ -608,7 +611,7 @@ public class SingActivityUI {
     }
 
     public void showAlbumInBackground() {
-        if (!song.getImageResourceFile().equals("")) {
+        if (!song.getImageResourceFile().equals("") && !song.getImageResourceFile().equals("no image resource")) {
             ImageView imageView = (ImageView) view.findViewById(R.id.initial_album_cover);
             Picasso.get()
                     .load(song.getImageResourceFile())
@@ -620,7 +623,7 @@ public class SingActivityUI {
     }
 
     public void showGoodSuccessSignIn() {
-        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().getString(R.string.cuccessfull_sign_in));
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.cuccessfull_sign_in));
         showPopupForOneSecond(popupWindow);
     }
 
@@ -651,20 +654,20 @@ public class SingActivityUI {
     }
 
     public void showSaveStart() {
-        ((TextView) popupView.findViewById(R.id.save)).setTextColor(context.getResources().getColor(R.color.pressed_text_color));
-        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().getString(R.string.save_in_progress));
+        ((TextView) popupView.findViewById(R.id.save)).setTextColor(activityWeakReference.get().getResources().getColor(R.color.pressed_text_color));
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.save_in_progress));
         showPopupForOneSecond(popupWindow);
     }
 
     public void showSaveFail() {
         if (view != null) {
-            PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().getString(R.string.unable_to_upload));
+            PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
             showPopupForOneSecond(popupWindow);
         }
     }
 
     public void changeEndWordingToFinishedWatching() {
-        ((TextView) popupView.findViewById(R.id.end_song_words)).setText(context.getResources().getString(R.string.finshed_watching_recording));
+        ((TextView) popupView.findViewById(R.id.end_song_words)).setText(activityWeakReference.get().getResources().getString(R.string.finshed_watching_recording));
     }
 
 

@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,9 +31,8 @@ public class PromoActivity extends AppCompatActivity {
 
     private AuthenticationDriver authenticationDriver;
     private SignInViewModel signInViewModel;
-    private final int code = -1;
-    private Locale myLocale;
     private boolean appStarted = false;
+    private boolean websiteOpened;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +42,7 @@ public class PromoActivity extends AppCompatActivity {
     }
 
     private boolean policyFileExists() {
-        File file = new File(this.getCacheDir(), "policy.txt");
+        File file = new File(this.getCacheDir(), "policy1.txt");
         return file.exists();
     }
 
@@ -56,7 +57,10 @@ public class PromoActivity extends AppCompatActivity {
 
     @Override
     public void onResume() {
-        if (appStarted)
+        if (websiteOpened) {
+            websiteOpened = false;
+            setTimer();
+        } else if (appStarted)
             finish();
         else
             appStarted = true;
@@ -87,8 +91,20 @@ public class PromoActivity extends AppCompatActivity {
 
     private void showPromo() {
         setContentView(R.layout.promo);
+        findViewById(R.id.acum_sign).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                websiteOpened = true;
+                openAcumWebsite();
+            }
+        });
         authenticationDriver = new AuthenticationDriver();
         setTimer();
+    }
+
+    private void openAcumWebsite() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://acum.org.il/"));
+        startActivity(browserIntent);
     }
 
     private void setTimer() {
@@ -98,8 +114,10 @@ public class PromoActivity extends AppCompatActivity {
             }
 
             public void onFinish() {
-                if (policyFileExists()) continueAsGuest();
-                else showPolicy();
+                if (!websiteOpened) {
+                    if (policyFileExists()) continueAsGuest();
+                    else showPolicy();
+                }
             }
         }.start();
     }

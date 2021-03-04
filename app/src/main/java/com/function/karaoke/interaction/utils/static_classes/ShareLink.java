@@ -18,7 +18,7 @@ public class ShareLink {
             passwordText = "&password=" + password;
         return FirebaseDynamicLinks.getInstance().createDynamicLink()
 //                setLongLink(Uri.parse("https://singJewish.page.link/?link=https://www.example.com/&recId=" + recordingId + "&uid=" + authenticationDriver.getUserUid() + "&delay=" + delay))
-                .setLink(Uri.parse("https://ashira2020.wixsite.com/website/?recId=" + recording.getRecordingId() +
+                .setLink(Uri.parse("https://ashira-music.com/?recId=" + recording.getRecordingId() +
                         "&uid=" + recording.getRecorderId() +
                         "&delay=" + recording.getDelay() + "&cameraOn=" + (recording.isCameraOn() && video) +
                         "&length=" + recording.getLength() + passwordText + "&isi=com.function.karaoke.interaction"))

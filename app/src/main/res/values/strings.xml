@@ -22,16 +22,16 @@
     <string name="yes">YES</string>
     <string name="no">NO</string>
     <string name="start">Start!</string>
-    <string name="title_activity_video_player">VideoPlayer</string>
+    <string name="title_activity_video_player" translatable="false">VideoPlayer</string>
     <!--
     This string is used for square devices and overridden by hello_world in
     values-round/strings.xml for round devices.
     -->
-    <string name="hello_world">Hello Square World!</string>
-    <string name="title_activity_playback">Playback</string>
+    <string name="hello_world" translatable="false">Hello Square World!</string>
+    <string name="title_activity_playback" translatable="false">Playback</string>
     <string name="ok">OK</string>
     <string name="no_internet_alert">\There is no internet connection.</string>
-    <string name="title_activity_sign_in">SignInActivity</string>
+    <string name="title_activity_sign_in" translatable="false">SignInActivity</string>
     <string name="sign_out">Sign Out</string>
     <string name="no_audio_code">You must allow access to your microphone to use Ashira app karaoke</string>
     <string name="mic_access_title">Microphone permission necessary</string>
@@ -178,9 +178,9 @@
     <string name="the_recording_is_finished">The recording is finished</string>
     <string name="success">Success</string>
     <string name="recorded_without_video">Recording without video</string>
-    <string name="delete_confirmation">You are about to delete all highlighted recordings</string>
+    <string name="delete_confirmation">You are about to delete this recording</string>
     <string name="sync">Sync</string>
-    <string name="volume">Vol.</string>
+    <string name="volume">Music</string>
     <string name="save_in_progress">"The recording is being saved"</string>
     <string name="unable_to_upload">We are unable to upload at this time</string>
     <string name="camera_fail">Camera failed to open</string>
@@ -194,7 +194,10 @@
     <string name="ashira_privacy_policy">Ashira Privacy policy</string>
     <string name="ashira_terms_of_use">Ashira Terms of Use</string>
     <string name="privacy_policy_amp_terms_of_use"><![CDATA[Privacy Policy & Terms of Use]]></string>
-    <string name="ashira_agreement">Ashira Agreement</string>
-    <string name="about">About</string>
+    <string name="ashira_agreement">By clicking \"Agree\" you confirm that you have read and you agree to the terms of use and privacy policy of the service.
+Use of the Service is subject to them and indicates that you have read them in full and you agree to them</string>
+    <string name="about">About Us</string>
+    <string name="email_sent">E-Mail sent successfully</string>
+    <string name="delete_failed">Failed</string>
 
 </resources>

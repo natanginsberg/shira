@@ -1,6 +1,7 @@
 package com.function.karaoke.interaction.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.os.CountDownTimer;
 import android.view.Gravity;
@@ -12,19 +13,23 @@ import android.widget.RelativeLayout;
 import com.function.karaoke.interaction.R;
 import com.function.karaoke.interaction.activities.Model.Genres;
 
+import java.lang.ref.WeakReference;
+
 public class SongsActivityUI {
 
     private final View view;
-    private final Context context;
+//    private final Context context;
+    private final WeakReference<Activity> activityWeakReference;
     private final GenresUI genreUI;
     private PopupWindow suggestPopup;
     private View suggestionView;
     private CountDownTimer cTimer;
 
-    public SongsActivityUI(View songsActivity, GenresUI.GenreUIListener listener, String currentLanguage, Context context) {
+    public SongsActivityUI(View songsActivity, GenresUI.GenreUIListener listener, String currentLanguage, Context context, Activity activity) {
         this.view = songsActivity;
-        this.context = context;
-        genreUI = new GenresUI(songsActivity, context, currentLanguage, listener);
+//        this.context = context;
+        activityWeakReference = new WeakReference<>(activity);
+        genreUI = new GenresUI(songsActivity, activity, currentLanguage, listener);
     }
 
     public void addGenresToScreen(Genres genres, String currentGenre, int displayed) {
@@ -33,7 +38,7 @@ public class SongsActivityUI {
 
     public View openSongSuggestionsPopup() {
         RelativeLayout viewGroup = view.findViewById(R.id.song_suggestion);
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         suggestionView = layoutInflater.inflate(R.layout.song_suggestion, viewGroup);
         placeSuggestionOnScreen(suggestionView);
         return suggestionView;
@@ -41,7 +46,7 @@ public class SongsActivityUI {
 
 
     private void placeSuggestionOnScreen(View suggestionView) {
-        suggestPopup = new PopupWindow(context);
+        suggestPopup = new PopupWindow(activityWeakReference.get());
         suggestPopup.setContentView(suggestionView);
         suggestPopup.setHeight((int) (view.getHeight() * 0.92));
         suggestPopup.setWidth(view.getWidth());
@@ -77,14 +82,14 @@ public class SongsActivityUI {
     }
 
     public void showRequestAccepted() {
-        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().
                 getString(R.string.request_received));
         showPopupForOneSecond(popupWindow);
 
     }
 
     public void showRequestDenied() {
-        PopupWindow popupWindow = IndicationPopups.openXIndication(context, view, context.getResources().
+        PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().
                 getString(R.string.server_is_down));
         showPopupForOneSecond(popupWindow);
     }
@@ -107,7 +112,7 @@ public class SongsActivityUI {
     }
 
     public void showSuccessSignIn() {
-        PopupWindow popupWindow = IndicationPopups.openCheckIndication(context, view, context.getResources().getString(R.string.cuccessfull_sign_in));
+        PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.cuccessfull_sign_in));
         showPopupForOneSecond(popupWindow);
     }
 }

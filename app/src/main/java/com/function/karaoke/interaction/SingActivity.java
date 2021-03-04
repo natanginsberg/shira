@@ -365,13 +365,11 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void setKaraokeController() {
-        mKaraokeKonroller = new KaraokeController();
-        mKaraokeKonroller.init(this);
-//        mKaraokeKonroller.addViews(findViewById(R.id.word_space), R.id.lyrics, R.id.words_to_read,
-//                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
+        mKaraokeKonroller = new KaraokeController(this);
+//        mKaraokeKonroller.init(this);
         this.karaokeLyricsUI = new KaraokeWordUI(this);
-        karaokeLyricsUI.addViews(findViewById(R.id.word_space), R.id.lyrics, R.id.words_to_read,
-                R.id.words_to_read_2, R.id.word_space, R.id.words_to_read_3);
+        karaokeLyricsUI.addViews(findViewById(R.id.word_space));
+        mKaraokeKonroller.addUIListener(karaokeLyricsUI);
         mPlayer = mKaraokeKonroller.getmPlayer();
         if (!(Util.SDK_INT < 29 || (AcousticEchoCanceler.isAvailable()
                 && AutomaticGainControl.isAvailable() && NoiseSuppressor.isAvailable()))) {
@@ -544,7 +542,6 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void openWatchRecording(Uri uriFromFile) {
-
         Intent intent = new Intent(this, Playback.class);
         intent.putExtra(PLAYBACK, uriFromFile.toString());
         intent.putExtra(AUDIO_FILE, songPlayed);
@@ -554,6 +551,7 @@ public class SingActivity extends AppCompatActivity implements
         intent.putExtra(LOWER_VOLUME, lowerVolume);
         mGetContent.launch(intent);
     }
+
 
     @Override
     protected void onResume() {
@@ -693,7 +691,7 @@ public class SingActivity extends AppCompatActivity implements
                     if (earphonesUsed)
                         if (lowerVolume) {
                             lowerVolume = false;
-                            mPlayer.setVolume(0.8f, 0.8f);
+                            mPlayer.setVolume(1f, 1f);
                         }
                     isRunning = true;
                     setProgressBar();
@@ -1256,7 +1254,7 @@ public class SingActivity extends AppCompatActivity implements
         if (requestCode == MESSAGE_RESULT) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                Toast.makeText(getApplicationContext(), "E-Mail sent successfully", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.email_sent), Toast.LENGTH_SHORT).show();
             } else {
                 Toast toast = Toast.makeText(this, "Email failed to send", Toast.LENGTH_SHORT);
                 toast.show();
@@ -1515,10 +1513,6 @@ public class SingActivity extends AppCompatActivity implements
         continueWithSaveProcess(false);
     }
 
-    @Override
-    public void updateUI(List<Song.Line> lines, int i) {
-        karaokeLyricsUI.updateUI(lines, i);
-    }
 
     @Override
     public void setPosition(double position) {

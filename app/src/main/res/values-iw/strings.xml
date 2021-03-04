@@ -143,7 +143,7 @@
     <string name="the_recording_is_finished">סיימת לצפות בביצוע</string>
     <string name="success">בוצע בהצלחה</string>
     <string name="recorded_without_video">הקלטה ללא וידיאו</string>
-    <string name="delete_confirmation">הביצועים המסומנים ימחקו</string>
+    <string name="delete_confirmation">הביצוע הנבחר ימחק</string>
     <string name="sync">סנכרון</string>
     <string name="volume">פלייבק</string>
     <string name="save_in_progress">"הביצוע שלך עולה לשרתים שלנו"</string>
@@ -159,8 +159,11 @@
     <string name="ashira_privacy_policy">מדיניות פרטיות של אשירה</string>
     <string name="ashira_terms_of_use">תנאי שימוש של אשירה</string>
     <string name="privacy_policy_amp_terms_of_use"><![CDATA[Privacy Policy & Terms of Use]]></string>
-    <string name="ashira_agreement">הסכם עם אשירה
+    <string name="ashira_agreement">בלחיצה על אשר הנך מאשר כי קראת והנך מסכים לתנאי השימוש ומדיניות הפרטיות בשירות.
+השימוש בשירות כפוף להם ומעיד שקראת אותם במלאום ואתה מסכים להם
     </string>
     <string name="about">אודות</string>
+    <string name="email_sent">האימייל נשלח בהצלחה</string>
+    <string name="delete_failed">המחיקה נכשלה</string>
 
 </resources>

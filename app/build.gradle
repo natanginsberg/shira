@@ -8,8 +8,8 @@ android {
         applicationId "com.function.karaoke.interaction"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 20
-        versionName "1.019"
+        versionCode 31
+        versionName "1.030"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         repositories {
             mavenCentral()
@@ -36,8 +36,12 @@ android {
     }
 
     configurations {
+        all {
+            exclude module: 'httpclient'
+        }
         cleanedAnnotations
         compile.exclude group: 'org.jetbrains', module: 'annotations'
+
     }
 }
 

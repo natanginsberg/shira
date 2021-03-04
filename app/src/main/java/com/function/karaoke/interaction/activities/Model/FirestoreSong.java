@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class FirestoreSong implements Serializable {
 
     private String artist;
-    private String imageResourceFile = "";
+    private String imageResourceFile = "no image resource";
     private String songResourceFile = "";
     private String textResourceFile = "";
     private String womanToneResourceFile = "";

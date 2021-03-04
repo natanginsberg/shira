@@ -65,12 +65,9 @@ public class PlaybackPlayer {
                     configs[i] = RendererConfiguration.DEFAULT;
                 } else if (rendererCapabilities[i].getTrackType() == C.TRACK_TYPE_VIDEO) {
                     if (cameraOn) {
-
                         audioRenderers.add(i);
-
                         configs[i] = RendererConfiguration.DEFAULT;
                     }
-
                 }
             }
 

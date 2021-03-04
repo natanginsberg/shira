@@ -122,7 +122,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         this.recordingService = new RecordingService();
         setClickListeners(songsView);
         view = songsView;
-        songsActivityUI = new SongsActivityUI(view, this, loadLocale(), getContext());
+        songsActivityUI = new SongsActivityUI(view, this, loadLocale(), getContext(), getActivity());
         addGenres();
         view.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()));
         addGenreListeners();
@@ -335,7 +335,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void openSettingsPopup(View view) {
 
-        SettingUI settingUI = new SettingUI(this.view, getContext());
+        SettingUI settingUI = new SettingUI(this.view, getActivity());
         boolean userIsSignedIn = authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
         settingUI.openSettingsPopup(userIsSignedIn, mListener.getUser()

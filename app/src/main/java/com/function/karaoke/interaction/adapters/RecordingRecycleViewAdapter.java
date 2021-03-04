@@ -124,16 +124,16 @@ public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingR
             holder.mView.findViewById(R.id.delete_button).setVisibility(View.GONE);
             changeIconToWhite(holder.mView);
         }
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                mListener.showAllGarbagesInChildren();
-                mListener.deletePressed(holder.mItem, holder.itemView);
-//                mListener.changeIconToGreen(holder.itemView);
-//                itemsToDelete.add(position);
-                return false;
-            }
-        });
+//        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//                mListener.showAllGarbagesInChildren();
+//                mListener.deletePressed(holder.mItem, holder.mView);
+////                mListener.changeIconToGreen(holder.itemView);
+////                itemsToDelete.add(position);
+//                return false;
+//            }
+//        });
 
         // making the click only on the button and not on the whole icon
 
