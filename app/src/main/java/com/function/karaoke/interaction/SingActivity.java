@@ -42,7 +42,6 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.core.controller.KaraokeController;
-import com.function.karaoke.core.model.Song;
 import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.Recording;
 import com.function.karaoke.interaction.activities.Model.SaveItems;
@@ -82,9 +81,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class SingActivity extends AppCompatActivity implements
@@ -538,7 +535,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private boolean userSignedIn() {
         return authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null &&
-                !authenticationDriver.getUserEmail().equals("");
+                !authenticationDriver.getUserEmail().equals("") && user != null;
     }
 
     private void openWatchRecording(Uri uriFromFile) {
@@ -688,6 +685,7 @@ public class SingActivity extends AppCompatActivity implements
 //                customMediaPlayer.startSong();
                     mKaraokeKonroller.onResume();
                     earphonesUsed = earphonesListener.getEarphonesUsed();
+//                    cameraPreview.setUpAudioManager();
                     if (earphonesUsed)
                         if (lowerVolume) {
                             lowerVolume = false;
@@ -1006,7 +1004,7 @@ public class SingActivity extends AppCompatActivity implements
                     //todo check if user has room only if he is a subcscribed user
                     String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
                             Locale.getDefault()).format(new Date());
-                    if (date.compareTo(user.getExpirationDate()) > 0)
+                    if (date.compareTo(user.getExpirationDate()) > 0 && date.compareTo("20210403_111111") > 0)
                         startBilling();
                     else
                         startSaveProcess(false);
@@ -1202,7 +1200,7 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void startSubscriptionPath() {
-        activityUI.openInitialShareOptions(this, user, this);
+        activityUI.openInitialShareOptions(this, user, this, funcToCall);
     }
 
     private void addOneToSongsDownload() {
@@ -1335,31 +1333,31 @@ public class SingActivity extends AppCompatActivity implements
 
     //todo called to see if user is out of storage
     public void deleteRecording(Recording mItem) {
-        List<Recording> deleting = new ArrayList<>();
-        deleting.add(mItem);
-        recordingDelete = new RecordingDelete(this::deleteRecording, deleting);
+//        List<Recording> deleting = new ArrayList<>();
+//        deleting.add(mItem);
+//        recordingDelete = new RecordingDelete(this::deleteRecording, deleting);
     }
 
     private void deleteRecording() {
-        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
-            @Override
-            public void onSuccess() {
-                showSuccessToast();
-                activityUI.dismissRecordings();
-                checkIfUserHasFreeAcquisition();
-
-            }
-
-            @Override
-            public void onFail() {
-
-            }
-        });
+//        NetworkTasks.deleteFromWasabi(recordingDelete, new NetworkTasks.DeleteListener() {
+//            @Override
+//            public void onSuccess() {
+//                showSuccessToast();
+//                activityUI.dismissRecordings();
+//                checkIfUserHasFreeAcquisition();
+//
+//            }
+//
+//            @Override
+//            public void onFail() {
+//
+//            }
+//        });
 
     }
 
     private void showSuccessToast() {
-        Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, getString(R.string.success), Toast.LENGTH_SHORT).show();
     }
 
     public void changeCameraFeature(View view) {

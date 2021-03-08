@@ -51,7 +51,6 @@ import com.function.karaoke.interaction.activities.Model.UserInfo;
 import com.function.karaoke.interaction.fragments.SongsListFragment;
 import com.function.karaoke.interaction.storage.AuthenticationDriver;
 import com.function.karaoke.interaction.storage.DatabaseDriver;
-import com.function.karaoke.interaction.storage.RecordingDelete;
 import com.function.karaoke.interaction.storage.StorageAdder;
 import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
@@ -73,7 +72,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -243,7 +244,10 @@ public class SongsActivity
         checkForSignedInUser();
         setContentView(R.layout.activity_songs);
         loadingText = (LinearLayout) (findViewById(R.id.loading_percent));
-        findViewById(android.R.id.content).getRootView().post(this::checkForBillingPurposes);
+        String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        if (date.compareTo("20210403_111111") > 0)
+            findViewById(android.R.id.content).getRootView().post(this::checkForBillingPurposes);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
 //        inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -344,34 +348,35 @@ public class SongsActivity
     }
 
     private void uploadRecording(StorageAdder storageAdder, SaveItems saveItems, File folder) {
-        storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
-            @Override
-            public void onSuccess() {
-                NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
-                    @Override
-                    public void onSuccess() {
-                        storageAdder.updateRecordingUrl(saveItems.getRecording(), new StorageAdder.UploadListener() {
-                            @Override
-                            public void onSuccess() {
-                                File recordingFile = (new File(saveItems.getFile()));
-                                recordingFile.delete();
-                                deleteJsonFile(folder, recordingFile.getName());
+        if (Checks.checkForInternetConnection(findViewById(android.R.id.content).getRootView(), this)) {
+            storageAdder.uploadRecording(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                @Override
+                public void onSuccess() {
+                    NetworkTasks.uploadToWasabi(storageAdder, new NetworkTasks.UploadToWasabiListener() {
+                        @Override
+                        public void onSuccess() {
+                            storageAdder.updateRecordingUrl(saveItems.getRecording(), new StorageAdder.UploadListener() {
+                                @Override
+                                public void onSuccess() {
+                                    File recordingFile = (new File(saveItems.getFile()));
+                                    recordingFile.delete();
+                                    deleteJsonFile(folder, recordingFile.getName());
 //                        deleteJsonFolder(folder);
 //                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
-                            }
+                                }
 
-                            @Override
-                            public void onFailure() {
+                                @Override
+                                public void onFailure() {
 //                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
-                            }
+                                }
 
-                            @Override
-                            public void progressUpdate(double progress) {
-                                Intent intent = new Intent();
-                                intent.setAction("changed");
-                                intent.putExtra("content", progress);
-                                intent.putExtra("recording", saveItems.getRecording());
-                                LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
+                                @Override
+                                public void progressUpdate(double progress) {
+                                    Intent intent = new Intent();
+                                    intent.setAction("changed");
+                                    intent.putExtra("content", progress);
+                                    intent.putExtra("recording", saveItems.getRecording());
+                                    LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
 //                                if (findViewById(R.id.loading_percent) != null) {
 //                                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
 //                                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
@@ -379,44 +384,45 @@ public class SongsActivity
 //                                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
 //                                    }
 //                                }
-                            }
-                        });
-                    }
+                                }
+                            });
+                        }
 
-                    //
-                    @Override
-                    public void onFail() {
-                        int k = 0;
-                    }
+                        //
+                        @Override
+                        public void onFail() {
+                            int k = 0;
+                        }
 
-                    @SuppressLint("SetTextI18n")
-                    @Override
-                    public void onProgress(int percent) {
+                        @SuppressLint("SetTextI18n")
+                        @Override
+                        public void onProgress(int percent) {
 //                        if (findViewById(R.id.loading_percent) != null)
 //                            loadingText.setText(percent + "%");
 //                        if (percent >= 100) {
 //                            startTimerForThreeSecondsToShow();
 //                        }
-                        Intent intent = new Intent();
-                        intent.setAction("changed");
-                        intent.putExtra("content", (double) percent);
-                        intent.putExtra("recording", saveItems.getRecording());
-                        LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
+                            Intent intent = new Intent();
+                            intent.setAction("changed");
+                            intent.putExtra("content", (double) percent);
+                            intent.putExtra("recording", saveItems.getRecording());
+                            LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
 //                        addRecordingToScreen(percent, saveItems.getRecording());
 //                        loadingText.addView(createViewForLoading(percent, saveItems.getRecording()));
-                    }
-                });
-            }
+                        }
+                    });
+                }
 
-            @Override
-            public void onFailure() {
-            }
+                @Override
+                public void onFailure() {
+                }
 
-            @Override
-            public void progressUpdate(double progress) {
+                @Override
+                public void progressUpdate(double progress) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void startTimerForThreeSecondsToShow() {

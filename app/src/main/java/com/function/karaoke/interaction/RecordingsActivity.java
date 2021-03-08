@@ -284,7 +284,7 @@ public class RecordingsActivity extends AppCompatActivity implements
     private void addProfilePic() {
         ImageView profilePic = findViewById(R.id.user_picture);
         profilePic.setVisibility(View.VISIBLE);
-        if (profilePic != null && user.getPicUrl() != null && !user.getPicUrl().equalsIgnoreCase(""))
+        if (user != null && profilePic != null && user.getPicUrl() != null && !user.getPicUrl().equalsIgnoreCase(""))
             Picasso.get()
                     .load(user.getPicUrl())
                     .placeholder(R.drawable.circle)

@@ -3,6 +3,7 @@ package com.function.karaoke.interaction.storage;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.Genres;
 import com.function.karaoke.interaction.activities.Model.Keys;
 import com.google.firebase.firestore.CollectionReference;
@@ -11,6 +12,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -38,24 +40,41 @@ public class DatabaseDriver {
         return this.db.collection(name);
     }
 
-    public <T> LiveData<List<T>> getAllSongsInCollection(final Class<T> typeParameterClass) {
-        final List<T> documentsList = new LinkedList<>();
-        final MutableLiveData<List<T>> resultsLiveData = new MutableLiveData<>();
+//    public <T> LiveData<List<T>> getAllSongsInCollection(final Class<T> typeParameterClass) {
+//        final List<T> documentsList = new LinkedList<>();
+//        final MutableLiveData<List<T>> resultsLiveData = new MutableLiveData<>();
+//        getCollectionReferenceByName("songs")
+//                .get()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+//                            documentsList.add(document.toObject(typeParameterClass));
+//                        }
+//                        if (!documentsList.isEmpty()) {
+//                            resultsLiveData.setValue(documentsList);
+//                        }
+//                    }
+//                }).addOnFailureListener(e -> {
+//            int k = 0;
+//        });
+//        return resultsLiveData;
+//    }
+
+    public void getAllSongsInCollection(SongListener songListener) {
+        final List<DatabaseSong> documentsList = new ArrayList<>();
         getCollectionReferenceByName("songs")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-                            documentsList.add(document.toObject(typeParameterClass));
+                            documentsList.add(document.toObject(DatabaseSong.class));
                         }
-                        if (!documentsList.isEmpty()) {
-                            resultsLiveData.setValue(documentsList);
-                        }
+                        songListener.onSuccess(documentsList);
                     }
                 }).addOnFailureListener(e -> {
-            int k = 0;
+            songListener.onFail();
         });
-        return resultsLiveData;
+
     }
 
 
@@ -101,6 +120,12 @@ public class DatabaseDriver {
 
     public interface KeyListener {
         void onSuccess(String id, String secretKey);
+    }
+
+    public interface SongListener{
+        void onSuccess(List<DatabaseSong> songs);
+
+        void onFail();
     }
 
 }

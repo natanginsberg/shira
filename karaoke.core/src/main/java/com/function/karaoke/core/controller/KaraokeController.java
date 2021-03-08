@@ -6,9 +6,6 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-
-import androidx.core.content.ContextCompat;
 
 import com.function.karaoke.core.model.Parser;
 import com.function.karaoke.core.model.Song;
@@ -97,7 +94,7 @@ public class KaraokeController implements Recorder.IToneListener {
         this.context = context;
     }
 
-    public void addUIListener(CustomUIListener customUIListener){
+    public void addUIListener(CustomUIListener customUIListener) {
         this.uiListener = customUIListener;
     }
 
@@ -169,10 +166,11 @@ public class KaraokeController implements Recorder.IToneListener {
             } else {
 
                 for (int i = 0; i < mSong.lines.size(); i++) {
-                    Song.Line line = mSong.lines.get(i);
-                    if (line.isIn(position)) {
+                    if (mSong.lines != null) {
+                        Song.Line line = mSong.lines.get(i);
+                        if (line.isIn(position)) {
 //                        if (mLyrics.getmLine() != null)
-                        uiListener.updateUI(mSong.lines, i);
+                            uiListener.updateUI(mSong.lines, i);
 //                        else {
 //                            listener.setLines(mSong.lines, i);
 //                            mLyrics.setLine(line);
@@ -193,17 +191,18 @@ public class KaraokeController implements Recorder.IToneListener {
 //                            threeLinesAhead.setText(" ");
 //                        }
 
-                        mCurrentLine = line;
+                            mCurrentLine = line;
 //                        mLyrics.setLine(mCurrentLine);
 //                        mLyrics.setPosition(position);
-                        listener.setPosition(position);
+                            listener.setPosition(position);
 //                    mToneRender.setLine(mCurrentLine);
 //                    mToneRender.setPosition(position);
-                        mTones.clear();
-                        mLastUpdate = System.currentTimeMillis();
-                        mLineStart = mLastUpdate;
+                            mTones.clear();
+                            mLastUpdate = System.currentTimeMillis();
+                            mLineStart = mLastUpdate;
 
-                        return;
+                            return;
+                        }
                     }
                 }
                 mCurrentLine = null;
@@ -402,7 +401,7 @@ public class KaraokeController implements Recorder.IToneListener {
         void setPosition(double position);
     }
 
-    public interface CustomUIListener{
+    public interface CustomUIListener {
         void updateUI(List<Song.Line> lines, int i);
     }
 

@@ -6,6 +6,7 @@ import com.function.karaoke.interaction.activities.Model.SongRequest;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 
 public class SongRequestAdder {
 
@@ -15,14 +16,14 @@ public class SongRequestAdder {
 
     public static void addSongToDatabase(DatabaseDriver databaseDriver, SongRequest song, RequestListener requestListener) {
         requestCollectionRef = databaseDriver.getCollectionReferenceByName(REQUEST);
-        requestCollectionRef.document(song.getTitle()).set(song).addOnFailureListener(new OnFailureListener() {
+        requestCollectionRef.add(song).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 requestListener.onFailure();
             }
-        }).addOnSuccessListener(new OnSuccessListener<Void>() {
+        }).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
-            public void onSuccess(Void aVoid) {
+            public void onSuccess(DocumentReference documentReference) {
                 requestListener.onSuccess();
             }
         });

@@ -165,5 +165,6 @@
     <string name="about">אודות</string>
     <string name="email_sent">האימייל נשלח בהצלחה</string>
     <string name="delete_failed">המחיקה נכשלה</string>
+    <string name="sale_promo">לרגל ההשקה! \n שמירות ושיתופים חינם ללא הגבלה</string>
 
 </resources>

@@ -24,11 +24,13 @@ public class SyncFileData {
         IsoFile isoFile = new IsoFile(channel);
         List<TrackBox> trackBoxes = isoFile.getMovieBox().getBoxes(TrackBox.class);
         for (TrackBox trackBox : trackBoxes) {
-            TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(1);
-            if (firstEntry.getDelta() > 5000) {
-                isError = true;
-                firstEntry.setDelta(3000);
-            }
+            if (trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().size() > 1) {
+                TimeToSampleBox.Entry firstEntry = trackBox.getMediaBox().getMediaInformationBox().getSampleTableBox().getTimeToSampleBox().getEntries().get(1);
+                if (firstEntry.getDelta() > 5000) {
+                    isError = true;
+                    firstEntry.setDelta(3000);
+                }
+            } else return mFilePath;
         }
         if (file != null) {
             String filePath = file.getAbsolutePath();

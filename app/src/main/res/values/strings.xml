@@ -11,7 +11,7 @@
     <string name="playback">Watch</string>
     <string name="share">Share</string>
     <string name="share_save">Save and Share</string>
-    <string name="promo">Jewish Karoke App</string>
+    <string name="promo">Jewish Karaoke App</string>
     <string name="app_logo">SHIRA</string>
     <string name="log_in_sign_up">Log In / Sign Up</string>
     <string name="search">Search</string>
@@ -199,5 +199,6 @@ Use of the Service is subject to them and indicates that you have read them in f
     <string name="about">About Us</string>
     <string name="email_sent">E-Mail sent successfully</string>
     <string name="delete_failed">Failed</string>
+    <string name="sale_promo">Special in honor of our launch! \n Free unlimited Saves and Shares</string>
 
 </resources>

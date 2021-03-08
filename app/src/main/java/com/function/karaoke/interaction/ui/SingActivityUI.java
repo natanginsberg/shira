@@ -16,6 +16,7 @@ import android.view.ViewOverlay;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -43,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 
 public class SingActivityUI {
 
+    private static final String SHARE_FUNC = "share";
     private final View view;
     private final DatabaseSong song;
     private final int sdkInt;
@@ -211,12 +213,12 @@ public class SingActivityUI {
         int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.77);
         int height;
         if (songEnded) {
-            height = (int) (width * 1.5);
+            height = Math.min((int) (width * 1.65), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.8));
             ImageView imageView = layout.findViewById(R.id.check);
             imageView.getLayoutParams().height = ((int) (width * .25));
             imageView.getLayoutParams().width = ((int) (width * .25));
         } else
-            height = Math.min((int) (width * 1.3), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558));
+            height = Math.min((int) (width * 1.57), (int) (context.getResources().getDisplayMetrics().heightPixels * 0.65));
 //        height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.558);
         popup.setContentView(layout);
         popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
@@ -342,7 +344,7 @@ public class SingActivityUI {
         ((TextView) loadingView.findViewById(R.id.artist_name)).setText(recording.getArtist());
         ((TextView) loadingView.findViewById(R.id.song_name)).setText(recording.getTitle());
         ShapeableImageView mCover = loadingView.findViewById(R.id.recording_album_pic);
-        if (!recording.getImageResourceFile().equals("")&& !recording.getImageResourceFile().equals("no image resource")) {
+        if (!recording.getImageResourceFile().equals("") && !recording.getImageResourceFile().equals("no image resource")) {
             Picasso.get()
                     .load(recording.getImageResourceFile())
                     .placeholder(R.drawable.plain_rec)
@@ -462,18 +464,27 @@ public class SingActivityUI {
         ((TextView) view.findViewById(R.id.all_time)).setText(text);
     }
 
-    public void openInitialShareOptions(Context context, UserInfo user, FreeShareListener freeShareListener) {
+    public void openInitialShareOptions(Context context, UserInfo user, FreeShareListener freeShareListener, String funcToCall) {
         popupView.setVisibility(View.INVISIBLE);
         if (user != null && user.getFreeShares() > 0) {
             openSharePopup(context, R.id.new_user_share, R.layout.free_share_screen);
         } else {
             openSharePopup(context, R.id.new_member_screen, R.layout.new_member_screen);
         }
-        if (user != null && user.getFreeShares() > 0)
+        if (user != null && user.getFreeShares() > 0) {
             setRecordingsLeftNumber(context, user, freeShareListener);
+            setAppropriateWord(context, funcToCall);
+        }
         placeSignUpOptionsOnScreen(context);
         secondPopup.setFocusable(true);
         secondPopup.setOnDismissListener(() -> popupView.setVisibility(View.VISIBLE));
+    }
+
+    private void setAppropriateWord(Context context, String funcToCall) {
+        String buttonText = funcToCall.equals(SHARE_FUNC) ? context.getResources().getString(R.string.share_save) : context.getResources().getString(R.string.save_recording);
+        String titleText = funcToCall.equals(SHARE_FUNC) ? context.getResources().getString(R.string.share) : context.getResources().getString(R.string.save_recording);
+        ((Button) secondPopupView.findViewById(R.id.save_free_recordings)).setText(buttonText);
+        ((TextView) secondPopupView.findViewById(R.id.share_title)).setText(titleText);
     }
 
     private void openSharePopup(Context context, int id, int laoyout) {

@@ -11,6 +11,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
@@ -19,6 +20,7 @@ import android.media.audiofx.NoiseSuppressor;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -99,6 +101,8 @@ public class CameraPreview {
     private int mTotalRotation;
     private MediaRecorder mMediaRecorder;
     private long timeCreated;
+    private NoiseSuppressor noiseSuppressor;
+    private AcousticEchoCanceler acousticEchoCanceler;
 
     public CameraPreview(AppCompatActivity activity, Context context) {
 //        if (hasCamera)
@@ -282,10 +286,10 @@ public class CameraPreview {
         if (Util.SDK_INT < 29 || (AcousticEchoCanceler.isAvailable()
                 && AutomaticGainControl.isAvailable() && NoiseSuppressor.isAvailable()))
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-        else
+        else {
             mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
-
-
+//            setUpAudioManager();
+        }
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setOutputFile(fileName);
 //        mMediaRecorder.setProfile(profile);
@@ -306,37 +310,35 @@ public class CameraPreview {
 //        mMediaRecorder.setAudioSamplingRate(8000);
         mMediaRecorder.setOrientationHint(mTotalRotation);
         try {
-//            final File f = new File(fileName);
-//            f.delete();
-//            final long milliseconds = new Date().getTime();
             mMediaRecorder.prepare();
             mMediaRecorder.start();
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        int counter = 0;
-//                        while (!f.exists() && counter < 400) {
-//                            counter++;
-//                            Thread.sleep(1);
-//                        }
-//                        final long freeSpace = f.getFreeSpace();
-//                        while (freeSpace == f.getFreeSpace() && counter < 400) {
-//                            counter++;
-//                            Thread.sleep(5);
-//                        }
-//                        timeCreated = new Date().getTime();
-//                        Log.i("bug77", "milliseconds:" + (new Date().getTime() - milliseconds));
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }).start();
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-//            audioRecorder.startRecorder();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void setUpAudioManager() {
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setMode(AudioManager.MODE_NORMAL);
+        audioManager.setParameters("noise_suppression=on");
+        //            Log.i("Trying to clean up audio because running on SDK " + Build.VERSION.SDK_INT);
+
+        if (NoiseSuppressor.create(0) == null) {
+            Log.i("Bug88", "NoiseSuppressor not present :(");
+        } else {
+            Log.i("Bug88", "NoiseSuppressor present :(");
+        }
+
+        if (AutomaticGainControl.create(0) == null) {
+            Log.i("Bug88", "gain not present :(");
+        } else {
+            Log.i("Bug88", "gain present :(");
+        }
+
+        if (AcousticEchoCanceler.create(0) == null) {
+            Log.i("Bug88", "echo not present :(");
+        } else {
+            Log.i("Bug88", "echo present :(");
         }
     }
 

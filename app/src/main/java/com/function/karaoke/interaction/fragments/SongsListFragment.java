@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -221,14 +222,21 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void getAllSongs() {
-        final Observer<List<DatabaseSong>> searchObserver = products -> {
-            view.findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
-            currentDatabaseSongs.updateSongs(products);
-            allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
-            allSongsDatabase.updateSongs(currentDatabaseSongs.getSongs());
-//            addTouchForGenrePicking();
-        };
-        this.databaseDriver.getAllSongsInCollection(DatabaseSong.class).observe(this, searchObserver);
+        this.databaseDriver.getAllSongsInCollection(new DatabaseDriver.SongListener() {
+            @Override
+            public void onSuccess(List<DatabaseSong> songs) {
+                view.findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
+                currentDatabaseSongs.updateSongs(songs);
+                allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
+                allSongsDatabase.updateSongs(currentDatabaseSongs.getSongs());
+            }
+
+            @Override
+            public void onFail() {
+                songsActivityUI.showRequestDenied();
+                view.findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     @Override
@@ -293,7 +301,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                     if (query.length() > previousQuery.length()) {
                         addCopyOfSongsDBToList(currentDatabaseSongs);
                         getSongsSearchedFor(query.toLowerCase());
+                        Log.i("Bug88", String.valueOf(previousSongs.size()));
                     } else {
+                        Log.i("Bug88", String.valueOf(previousSongs.size()));
                         currentDatabaseSongs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
                         previousSongs.remove(previousSongs.size() - 1);
                     }
@@ -306,9 +316,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                         currentDatabaseSongs.updateSongs(previousSongs.get(0).getSongs());
                         mAdapter.notifyDataSetChanged();
 //                        gAdapter.notifyDataSetChanged();
-                        previousSongs = new ArrayList<>();
-                        previousQuery = "";
                     }
+                    previousSongs = new ArrayList<>();
+                    previousQuery = "";
                 }
                 return false;
             }

@@ -71,9 +71,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.function.karaoke.interaction.ToneActivity"
-            android:exported="true" />
-        <activity
             android:name="com.function.karaoke.interaction.SingActivity"
             android:screenOrientation="portrait" />
         <activity
