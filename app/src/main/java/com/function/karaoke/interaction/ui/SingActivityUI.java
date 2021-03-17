@@ -176,7 +176,17 @@ public class SingActivityUI {
         this.songEnded = songEnded;
         placePopupOnScreen(context);
         popup.setFocusable(true);
+        if (sdkInt < 24) {
+            setScreenWithoutSaveOption();
+        }
         applyDim(view.findViewById(R.id.sing_song).getOverlay(), context);
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void setScreenWithoutSaveOption() {
+        popupView.findViewById(R.id.share).setBackground(activityWeakReference.get().getDrawable(R.drawable.no_share_background));
+        popupView.findViewById(R.id.save).setVisibility(View.GONE);
+        ((TextView) popupView.findViewById(R.id.sale_promo)).setText(activityWeakReference.get().getString(R.string.no_save_text));
     }
 
     private void placePopupOnScreen(Context context) {
@@ -195,7 +205,6 @@ public class SingActivityUI {
         Drawable colorDim = new ColorDrawable(Color.WHITE);
         colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
         colorDim.setAlpha((int) (255 * (float) 0.7));
-//
         Drawable dim = new BitmapDrawable(context.getResources(), BlurBuilder.blur(view));
         dim.setBounds(0, 0, view.getWidth(), view.getHeight());
         dim.setAlpha((int) (255 * (float) 0.7));
@@ -678,7 +687,13 @@ public class SingActivityUI {
     }
 
     public void changeEndWordingToFinishedWatching() {
-        ((TextView) popupView.findViewById(R.id.end_song_words)).setText(activityWeakReference.get().getResources().getString(R.string.finshed_watching_recording));
+        if (popupView != null)
+            ((TextView) popupView.findViewById(R.id.end_song_words)).setText(activityWeakReference.get().getResources().getString(R.string.finshed_watching_recording));
+    }
+
+    public void showSlowInternetError() {
+        PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getString(R.string.slow_internet));
+        showPopupForOneSecond(popupWindow);
     }
 
 

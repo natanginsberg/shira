@@ -1,6 +1,7 @@
 package com.function.karaoke.interaction.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
@@ -66,7 +67,6 @@ public class CameraPreview {
     private TextureView mTextureView;
     private CameraDevice mCamera;
     private CaptureRequest.Builder mCaptureRequestBuilder;
-    private CameraManager mCameraManager;
     private String cameraId;
     private HandlerThread mBackgroundHandlerThread;
     private Handler mBackgroundHandler;
@@ -100,9 +100,7 @@ public class CameraPreview {
     private File mVideoFile;
     private int mTotalRotation;
     private MediaRecorder mMediaRecorder;
-    private long timeCreated;
-    private NoiseSuppressor noiseSuppressor;
-    private AcousticEchoCanceler acousticEchoCanceler;
+    private boolean isRecording = false;
 
     public CameraPreview(AppCompatActivity activity, Context context) {
 //        if (hasCamera)
@@ -258,8 +256,8 @@ public class CameraPreview {
         }
     }
 
-    private void createVideoFileName() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMM_HHmmss").format(new Date());
+    private void createVideoFileName() {
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMM_HHmmss").format(new Date());
         String prepend = "VIDEO" + timeStamp + "_";
         File videoFile = new File(mVideoFolder, prepend + ".mp4");
         fileName = videoFile.getAbsolutePath();
@@ -267,11 +265,7 @@ public class CameraPreview {
     }
 
     public void prepareMediaRecorder() {
-        try {
-            createVideoFileName();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        createVideoFileName();
         setMediaRecorder();
     }
 
@@ -312,6 +306,7 @@ public class CameraPreview {
         try {
             mMediaRecorder.prepare();
             mMediaRecorder.start();
+            isRecording = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -379,10 +374,12 @@ public class CameraPreview {
 
     public void stopRecording() {
         if (mMediaRecorder != null) {
-            mMediaRecorder.stop();
+            if (isRecording)
+                mMediaRecorder.stop();
             mMediaRecorder.reset();
             mMediaRecorder.release();
             mMediaRecorder = null;
+            isRecording = false;
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 //                audioRecorder.stopRecording();
 //                audioRecorder.deleteFile();

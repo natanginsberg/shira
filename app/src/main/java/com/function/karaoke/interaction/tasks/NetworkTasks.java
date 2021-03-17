@@ -25,7 +25,7 @@ public class NetworkTasks extends Fragment {
      * from.
      */
     public static UploadToWasabi uploadToWasabi(StorageAdder driver, UploadToWasabiListener listener) {
-        UploadToWasabi uploadToWasabi = new UploadToWasabi(listener);
+        UploadToWasabi uploadToWasabi = new UploadToWasabi(listener, driver);
         uploadToWasabi.execute(driver);
         return uploadToWasabi;
     }
@@ -53,6 +53,8 @@ public class NetworkTasks extends Fragment {
         void onFail();
 
         void onProgress(int progress);
+
+        void error();
     }
 
     public interface DeleteListener {
@@ -144,9 +146,11 @@ public class NetworkTasks extends Fragment {
     private static class UploadToWasabi extends AsyncTask<StorageAdder, Integer, UploadToWasabi.Result> {
 
         private UploadToWasabiListener listener;
+        private final StorageAdder storageAdder;
 
-        UploadToWasabi(UploadToWasabiListener listener) {
+        UploadToWasabi(UploadToWasabiListener listener, StorageAdder storageAdder) {
             setListener(listener);
+            this.storageAdder = storageAdder;
         }
 
         void setListener(UploadToWasabiListener listener) {
@@ -158,13 +162,18 @@ public class NetworkTasks extends Fragment {
             UploadToWasabi.Result result = null;
             if (!isCancelled() && drivers != null) {
                 //todo catch internet failure so not to crash app
-                drivers[0].uploadFile(new StorageAdder.UploadProgressListener() {
-                    @Override
-                    public void progressUpdate(double progress) {
-                        publishProgress((int) (100 * progress));
-                    }
-                });
-                result = new UploadToWasabi.Result("Success");
+                try {
+                    storageAdder.uploadFile(new StorageAdder.UploadProgressListener() {
+                        @Override
+                        public void progressUpdate(double progress) {
+                            publishProgress((int) (100 * progress));
+                        }
+                    });
+                    result = new UploadToWasabi.Result("Success");
+                }
+                catch (Exception e){
+                    result = new UploadToWasabi.Result(e);
+                }
 
             }
             return result;
@@ -180,7 +189,10 @@ public class NetworkTasks extends Fragment {
 
         @Override
         protected void onProgressUpdate(Integer... percent) {
-            listener.onProgress(percent[0]);
+            if (percent[0] == -10) {
+                listener.error();
+            } else
+                listener.onProgress(percent[0]);
 
         }
 

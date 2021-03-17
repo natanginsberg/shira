@@ -171,10 +171,11 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                 mView.findViewById(R.id.new_song_tag).setVisibility(View.INVISIBLE);
                 return;
             }
+
             Date today = new Date();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(today);
-            calendar.add(Calendar.MONTH, 1);
+            calendar.add(Calendar.DAY_OF_MONTH, 7);
             String lastNewDate = String.valueOf(new SimpleDateFormat("yyyy-MM-dd",
                     Locale.getDefault()).format(calendar.getTime().getTime()));
             if (song.getDate().compareTo(lastNewDate) < 0) {

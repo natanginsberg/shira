@@ -54,6 +54,7 @@ import com.function.karaoke.interaction.storage.SongService;
 import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
 import com.function.karaoke.interaction.tasks.OpenCameraAsync;
+import com.function.karaoke.interaction.ui.IndicationPopups;
 import com.function.karaoke.interaction.ui.KaraokeWordUI;
 import com.function.karaoke.interaction.ui.SingActivityUI;
 import com.function.karaoke.interaction.utils.Billing;
@@ -793,14 +794,18 @@ public class SingActivity extends AppCompatActivity implements
         if (isRunning)
             activityUI.songPaused();
         isRunning = false;
+        boolean errorOccurred = false;
         if (mKaraokeKonroller != null)
-            mKaraokeKonroller.onPause();
+            errorOccurred = mKaraokeKonroller.onPause();
         if (Util.SDK_INT >= 24) {
             if (isRecording) {
                 cameraPreview.pauseRecording();
             }
             if (postParseVideoFile == null && cameraPreview.getVideo() != null)
-                startPauseTimerToSaveBattery();
+                if (errorOccurred) {
+                    finishSong();
+                } else
+                    startPauseTimerToSaveBattery();
         } else {
             finishSong();
         }
@@ -984,8 +989,10 @@ public class SingActivity extends AppCompatActivity implements
 //    }
 
     public void share(View view) {
-        funcToCall = SHARE_FUNC;
-        startProcess();
+        if (Util.SDK_INT >= 24) {
+            funcToCall = SHARE_FUNC;
+            startProcess();
+        }
     }
 
     public void save(View view) {
@@ -1298,6 +1305,12 @@ public class SingActivity extends AppCompatActivity implements
                 @Override
                 public void onProgress(int progress) {
                     activityUI.showProgress(progress, getBaseContext(), saveItems.getRecording());
+                }
+
+                @Override
+                public void noConnection() {
+                    activityUI.showSlowInternetError();
+
                 }
             });
             cloudUpload.saveToCloud(new File(saveItems.getFile()));

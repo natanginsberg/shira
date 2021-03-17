@@ -11,6 +11,7 @@ import com.function.karaoke.interaction.storage.DatabaseDriver;
 import com.function.karaoke.interaction.storage.SongAdder;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -27,9 +28,10 @@ public class Admin extends AppCompatActivity {
     }
 
     public void enterSong(View view) {
-        String songName = (String) ((EditText) findViewById(R.id.song_name)).getText().toString();
-        String genres = (String) ((EditText) findViewById(R.id.genre)).getText().toString();
-        String artistName = (String) ((EditText) findViewById(R.id.artist_name)).getText().toString();
+        String songName = ((EditText) findViewById(R.id.song_name)).getText().toString();
+        String genres = ((EditText) findViewById(R.id.genre)).getText().toString();
+        String artistName = ((EditText) findViewById(R.id.artist_name)).getText().toString();
+
 
         FirestoreSong firestoreSong = new FirestoreSong(songName, artistName, genres, new SimpleDateFormat("yyyy-MM-dd",
                 Locale.getDefault()).format(new Date()));

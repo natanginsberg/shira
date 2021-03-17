@@ -200,5 +200,7 @@ Use of the Service is subject to them and indicates that you have read them in f
     <string name="email_sent">E-Mail sent successfully</string>
     <string name="delete_failed">Failed</string>
     <string name="sale_promo">Special in honor of our launch! \n Free unlimited Saves and Shares</string>
+    <string name="no_save_text">Due to the version of this phone, there is no option to save or share at this time. We are sorry for the inconvenience.</string>
+    <string name="slow_internet">We are having trouble connecting to our servers, please try again later.</string>
 
 </resources>

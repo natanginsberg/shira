@@ -48,14 +48,8 @@ public class CloudUpload {
 
                             @Override
                             public void onFailure() {
-
+                                uploadListener.noConnection();
                             }
-
-                            @Override
-                            public void progressUpdate(double progress) {
-                                uploadListener.onProgress((int) progress);
-                            }
-
                         });
                     }
 
@@ -69,6 +63,11 @@ public class CloudUpload {
                         uploadListener.onProgress(percent);
                     }
 
+                    @Override
+                    public void error() {
+                        uploadListener.noConnection();
+                    }
+
                 });
             }
 
@@ -77,10 +76,6 @@ public class CloudUpload {
 
             }
 
-            @Override
-            public void progressUpdate(double progress) {
-
-            }
         });
     }
 
@@ -98,6 +93,8 @@ public class CloudUpload {
         void onFailure();
 
         void onProgress(int progress);
+
+        void noConnection();
     }
 
 }

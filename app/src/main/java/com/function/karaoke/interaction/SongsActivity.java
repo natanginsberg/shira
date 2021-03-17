@@ -21,6 +21,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,11 +55,13 @@ import com.function.karaoke.interaction.storage.DatabaseDriver;
 import com.function.karaoke.interaction.storage.StorageAdder;
 import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
+import com.function.karaoke.interaction.ui.IndicationPopups;
 import com.function.karaoke.interaction.utils.Billing;
 import com.function.karaoke.interaction.utils.Checks;
 import com.function.karaoke.interaction.utils.JsonHandler;
 import com.function.karaoke.interaction.utils.SignIn;
 import com.function.karaoke.interaction.utils.static_classes.Converter;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
@@ -239,7 +242,8 @@ public class SongsActivity
     protected void onCreate(Bundle savedInstanceState) {
         loadLocale();
         super.onCreate(savedInstanceState);
-        checkForFilesToUpload();
+        if (Util.SDK_INT >= 24)
+            checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
         checkForSignedInUser();
         setContentView(R.layout.activity_songs);
@@ -280,8 +284,8 @@ public class SongsActivity
                 if (billingSession.isSubscribed()) {
                     File file = renamePendingFiles();
                     if (file != null)
-
-                        checkForFilesToUpload();
+                        if (Util.SDK_INT >= 24)
+                            checkForFilesToUpload();
                 }
             });
             billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
@@ -289,7 +293,8 @@ public class SongsActivity
                 public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
                     File file = renamePendingFiles();
                     if (file != null)
-                        checkForFilesToUpload();
+                        if (Util.SDK_INT >= 24)
+                            checkForFilesToUpload();
                 }
             });
         }
@@ -367,24 +372,10 @@ public class SongsActivity
 
                                 @Override
                                 public void onFailure() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                                    PopupWindow popupWindow = IndicationPopups.openXIndication(getBaseContext(), findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
+                                    showPopupForOneSecond(popupWindow);
                                 }
 
-                                @Override
-                                public void progressUpdate(double progress) {
-                                    Intent intent = new Intent();
-                                    intent.setAction("changed");
-                                    intent.putExtra("content", progress);
-                                    intent.putExtra("recording", saveItems.getRecording());
-                                    LocalBroadcastManager.getInstance(getBaseContext()).sendBroadcast(intent);
-//                                if (findViewById(R.id.loading_percent) != null) {
-//                                    findViewById(R.id.loading_percent).setVisibility(View.VISIBLE);
-//                                    ((TextView) (findViewById(R.id.loading_percent))).setText((int) progress + "%");
-//                                    if (progress == 100.0) {
-//                                        findViewById(R.id.loading_percent).setVisibility(View.INVISIBLE);
-//                                    }
-//                                }
-                                }
                             });
                         }
 
@@ -410,6 +401,12 @@ public class SongsActivity
 //                        addRecordingToScreen(percent, saveItems.getRecording());
 //                        loadingText.addView(createViewForLoading(percent, saveItems.getRecording()));
                         }
+
+                        @Override
+                        public void error() {
+                            PopupWindow popupWindow = IndicationPopups.openXIndication(getBaseContext(), findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
+                            showPopupForOneSecond(popupWindow);
+                        }
                     });
                 }
 
@@ -417,11 +414,24 @@ public class SongsActivity
                 public void onFailure() {
                 }
 
-                @Override
-                public void progressUpdate(double progress) {
-
-                }
             });
+        }
+    }
+
+    private void showPopupForOneSecond(PopupWindow popupWindow) {
+        if (cTimer == null) {
+            cTimer = new CountDownTimer(1500, 500) {
+                @SuppressLint("SetTextI18n")
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    cTimer.cancel();
+                    popupWindow.dismiss();
+                    cTimer = null;
+                }
+            };
+            cTimer.start();
         }
     }
 

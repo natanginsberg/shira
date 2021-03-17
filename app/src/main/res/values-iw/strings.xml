@@ -166,5 +166,7 @@
     <string name="email_sent">האימייל נשלח בהצלחה</string>
     <string name="delete_failed">המחיקה נכשלה</string>
     <string name="sale_promo">לרגל ההשקה! \n שמירות ושיתופים חינם ללא הגבלה</string>
+    <string name="no_save_text">בגלל גרסת הפלאפון, לא ניתן לשמור או לשתף את הביצוע כעת. אנו מצטערים על האי נוחות.</string>
+    <string name="slow_internet">יש לנו בעיה להתחבר לשרתים, אנא תנסו יותר מאוחר.</string>
 
 </resources>

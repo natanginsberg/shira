@@ -127,8 +127,10 @@ public class StorageAdder extends ViewModel implements Serializable {
         long start = System.currentTimeMillis();
         while (!setUp) {
             long end = System.currentTimeMillis();
-            if (end - start > 10000)
-                throw new IndexOutOfBoundsException("the wasabi connection is not set up");
+            if (end - start > 10000) {
+                listener.progressUpdate(-10);
+                return null;
+            }
         }
         PutObjectRequest por = new PutObjectRequest(BUCKET_NAME, file.getName(), file).withCannedAcl(CannedAccessControlList.PublicRead);
         por.setGeneralProgressListener(new ProgressListener() {
@@ -158,7 +160,6 @@ public class StorageAdder extends ViewModel implements Serializable {
 
         void onFailure();
 
-        void progressUpdate(double progress);
     }
 
     public interface UploadProgressListener {

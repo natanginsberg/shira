@@ -165,12 +165,13 @@ public class KaraokeController implements Recorder.IToneListener {
 //            mToneRender.setPosition(position);
             } else {
 
-                for (int i = 0; i < mSong.lines.size(); i++) {
-                    if (mSong.lines != null) {
-                        Song.Line line = mSong.lines.get(i);
-                        if (line.isIn(position)) {
+                if (mSong != null)
+                    for (int i = 0; i < mSong.lines.size(); i++) {
+                        if (mSong.lines != null) {
+                            Song.Line line = mSong.lines.get(i);
+                            if (line.isIn(position)) {
 //                        if (mLyrics.getmLine() != null)
-                            uiListener.updateUI(mSong.lines, i);
+                                uiListener.updateUI(mSong.lines, i);
 //                        else {
 //                            listener.setLines(mSong.lines, i);
 //                            mLyrics.setLine(line);
@@ -191,20 +192,20 @@ public class KaraokeController implements Recorder.IToneListener {
 //                            threeLinesAhead.setText(" ");
 //                        }
 
-                            mCurrentLine = line;
+                                mCurrentLine = line;
 //                        mLyrics.setLine(mCurrentLine);
 //                        mLyrics.setPosition(position);
-                            listener.setPosition(position);
+                                listener.setPosition(position);
 //                    mToneRender.setLine(mCurrentLine);
 //                    mToneRender.setPosition(position);
-                            mTones.clear();
-                            mLastUpdate = System.currentTimeMillis();
-                            mLineStart = mLastUpdate;
+                                mTones.clear();
+                                mLastUpdate = System.currentTimeMillis();
+                                mLineStart = mLastUpdate;
 
-                            return;
+                                return;
+                            }
                         }
                     }
-                }
                 mCurrentLine = null;
 //            mToneRender.setLine(null);
                 mLineStart = -1;
@@ -332,14 +333,20 @@ public class KaraokeController implements Recorder.IToneListener {
 //    }
 
 
-    public void onPause() {
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            mPlayer.pause();
+    public boolean onPause() {
+        try {
+            if (mPlayer != null && mPlayer.isPlaying()) {
+                mPlayer.pause();
+            }
+            mHandler.removeCallbacks(mUpdater);
+            return false;
+        } catch (Exception e) {
+            return true;
         }
-        mHandler.removeCallbacks(mUpdater);
     }
 
     public void onStop() {
+        mPlayer.reset();
         mPlayer.release();
         playing = false;
         mHandler.removeCallbacks(mUpdater);

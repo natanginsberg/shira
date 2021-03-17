@@ -334,9 +334,9 @@ public class RecordingsActivity extends AppCompatActivity implements
                         if (previousRecordings.size() != 0) {
                             currentDatabaseRecordings.updateRecordings(previousRecordings.get(0).getRecordings());
                             recordingCategoryAdapter.notifyDataSetChanged();
-                            previousRecordings = new ArrayList<>();
-                            previousQuery = "";
                         }
+                        previousRecordings = new ArrayList<>();
+                        previousQuery = "";
                     }
                 }
                 return false;
