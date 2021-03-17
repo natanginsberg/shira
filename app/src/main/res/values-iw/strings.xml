@@ -168,5 +168,6 @@
     <string name="sale_promo">לרגל ההשקה! \n שמירות ושיתופים חינם ללא הגבלה</string>
     <string name="no_save_text">בגלל גרסת הפלאפון, לא ניתן לשמור או לשתף את הביצוע כעת. אנו מצטערים על האי נוחות.</string>
     <string name="slow_internet">יש לנו בעיה להתחבר לשרתים, אנא תנסו יותר מאוחר.</string>
+    <string name="recorder_error">קרתה שגיאה בהקלטה. אנא צור איתנו קשר על מנת שנוכל לטפל בבעיה</string>
 
 </resources>

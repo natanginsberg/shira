@@ -346,7 +346,6 @@ public class KaraokeController implements Recorder.IToneListener {
     }
 
     public void onStop() {
-        mPlayer.reset();
         mPlayer.release();
         playing = false;
         mHandler.removeCallbacks(mUpdater);

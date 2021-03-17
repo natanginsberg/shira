@@ -642,12 +642,12 @@ public class SingActivityUI {
         }
     }
 
-    public void showGoodSuccessSignIn() {
+    public void showGoodSuccessSignIn(TimerListener timerListener) {
         PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.cuccessfull_sign_in));
-        showPopupForOneSecond(popupWindow);
+        showPopupForOneSecond(popupWindow, timerListener);
     }
 
-    private void showPopupForOneSecond(PopupWindow popupWindow) {
+    private void showPopupForOneSecond(PopupWindow popupWindow, TimerListener timerListener) {
         if (cTimer != null) {
             cTimer.cancel();
             cTimer = null;
@@ -662,6 +662,7 @@ public class SingActivityUI {
                     cTimer.cancel();
 
                     popupWindow.dismiss();
+                    timerListener.timerOver();
                     cTimer = null;
                 }
             };
@@ -673,16 +674,16 @@ public class SingActivityUI {
         prepared = true;
     }
 
-    public void showSaveStart() {
+    public void showSaveStart(TimerListener timerListener) {
         ((TextView) popupView.findViewById(R.id.save)).setTextColor(activityWeakReference.get().getResources().getColor(R.color.pressed_text_color));
         PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.save_in_progress));
-        showPopupForOneSecond(popupWindow);
+        showPopupForOneSecond(popupWindow, timerListener);
     }
 
-    public void showSaveFail() {
+    public void showSaveFail(TimerListener timerListener) {
         if (view != null) {
             PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
-            showPopupForOneSecond(popupWindow);
+            showPopupForOneSecond(popupWindow, timerListener);
         }
     }
 
@@ -691,9 +692,18 @@ public class SingActivityUI {
             ((TextView) popupView.findViewById(R.id.end_song_words)).setText(activityWeakReference.get().getResources().getString(R.string.finshed_watching_recording));
     }
 
-    public void showSlowInternetError() {
+    public void showSlowInternetError(TimerListener timerListener) {
         PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getString(R.string.slow_internet));
-        showPopupForOneSecond(popupWindow);
+        showPopupForOneSecond(popupWindow, timerListener);
+    }
+
+    public void showErrorPausingVideo() {
+
+    }
+
+    public void showRecordingError(TimerListener timerListener) {
+        PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getString(R.string.recorder_error));
+        showPopupForOneSecond(popupWindow, timerListener);
     }
 
 
@@ -710,5 +720,9 @@ public class SingActivityUI {
         void share(View view, boolean video, String password);
 
         void setPassword(TextView viewById);
+    }
+
+    public interface TimerListener{
+        void timerOver();
     }
 }

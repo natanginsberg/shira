@@ -15,13 +15,11 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
@@ -54,7 +52,6 @@ import com.function.karaoke.interaction.storage.SongService;
 import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
 import com.function.karaoke.interaction.tasks.OpenCameraAsync;
-import com.function.karaoke.interaction.ui.IndicationPopups;
 import com.function.karaoke.interaction.ui.KaraokeWordUI;
 import com.function.karaoke.interaction.ui.SingActivityUI;
 import com.function.karaoke.interaction.utils.Billing;
@@ -72,22 +69,17 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 public class SingActivity extends AppCompatActivity implements
         DialogBox.CallbackListener, KaraokeController.MyCustomObjectListener,
-        SingActivityUI.SignInListener, SingActivityUI.FreeShareListener, SingActivityUI.ShareListener {
+        SingActivityUI.SignInListener, SingActivityUI.FreeShareListener, SingActivityUI.ShareListener, CameraPreview.CameraErrorListener {
 
     public static final String EXTRA_SONG = "EXTRA_SONG";
     public static final String RECORDING = "recording";
@@ -430,6 +422,7 @@ public class SingActivity extends AppCompatActivity implements
 
     private void createCameraAndRecorderInstance() {
         cameraPreview = new CameraPreview(SingActivity.this, this);
+        cameraPreview.subscribeErrorListener(this);
     }
 
     private void loadSong() {
@@ -504,12 +497,19 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     private void endSong() {
-        if (isRecording) {
-            cameraPreview.stopRecording();
-        }
         if (mKaraokeKonroller.isPlaying()) {
             mKaraokeKonroller.onStop();
 //                customMediaPlayer.onStop();
+        }
+        if (isRecording) {
+            if (!cameraPreview.stopRecording()) {
+                activityUI.showRecordingError(new SingActivityUI.TimerListener() {
+                    @Override
+                    public void timerOver() {
+                        finishActivity();
+                    }
+                });
+            }
         }
         if (!keepVideo)
             deleteVideo();
@@ -721,7 +721,7 @@ public class SingActivity extends AppCompatActivity implements
             startTimerStarted = false;
             activityUI.resetScreenForTimer();
             deleteVideo();
-            cameraPreview.realeaseRecorder();
+            cameraPreview.releaseRecorder();
         } else if (resumeTimer) {
             resumeTimer = false;
             activityUI.resetResumeTimer();
@@ -953,6 +953,7 @@ public class SingActivity extends AppCompatActivity implements
     private void deleteVideo() {
         if (cameraPreview.getVideo() != null)
             cameraPreview.getVideo().delete();
+
     }
 
 
@@ -1299,7 +1300,12 @@ public class SingActivity extends AppCompatActivity implements
 
                 @Override
                 public void onFailure() {
-                    activityUI.showSaveFail();
+                    activityUI.showSaveFail(new SingActivityUI.TimerListener() {
+                        @Override
+                        public void timerOver() {
+
+                        }
+                    });
                 }
 
                 @Override
@@ -1309,13 +1315,23 @@ public class SingActivity extends AppCompatActivity implements
 
                 @Override
                 public void noConnection() {
-                    activityUI.showSlowInternetError();
+                    activityUI.showSlowInternetError(new SingActivityUI.TimerListener() {
+                        @Override
+                        public void timerOver() {
+
+                        }
+                    });
 
                 }
             });
             cloudUpload.saveToCloud(new File(saveItems.getFile()));
             if (funcToCall.equals(SAVE_FUNC))
-                activityUI.showSaveStart();
+                activityUI.showSaveStart(new SingActivityUI.TimerListener() {
+                    @Override
+                    public void timerOver() {
+
+                    }
+                });
 
         }
     }
@@ -1415,11 +1431,9 @@ public class SingActivity extends AppCompatActivity implements
         signIn.handleSignInResult(completedTask, findViewById(android.R.id.content).getRootView(), new SuccessFailListener() {
             @Override
             public void onSuccess() {
-                activityUI.showGoodSuccessSignIn();
-                findViewById(R.id.sing_song).postDelayed(new Runnable() {
+                activityUI.showGoodSuccessSignIn(new SingActivityUI.TimerListener() {
                     @Override
-                    public void run() {
-                        // Do something after 5s = 5000ms
+                    public void timerOver() {
                         user = signIn.getUser();
                         if (user != null)
                             if (funcToCall.equals(PLAYBACK))
@@ -1429,9 +1443,8 @@ public class SingActivity extends AppCompatActivity implements
                             else
                                 save(findViewById(R.id.sing_song));
                     }
-                }, 1000);
 
-
+                });
             }
 
             @Override
@@ -1531,97 +1544,16 @@ public class SingActivity extends AppCompatActivity implements
     }
 
 
-    //////////
-    // attempting to download the file before playing it
-    //////////
-
-    private void downloadFile(String audioPath) {
-        createVideoFolder();
-        try {
-            createVideoFileName();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        new DownloadFileAsync().execute(audioPath);
-    }
-
-    private void createVideoFolder() {
-//        File movieFile = activity.getCacheDir();
-//        File movieFile = context.getFilesDir();
-        mVideoFolder = new File(getFilesDir(), DIRECTORY_NAME);
-        if (!mVideoFolder.exists()) {
-            mVideoFolder.mkdirs();
-        }
-    }
-
-    private void createVideoFileName() throws IOException {
-        String prepend = "exoplayer";
-        File videoFile = new File(mVideoFolder, prepend + ".mp3");
-        fileName = videoFile.getAbsolutePath();
-//        mVideoFile = videoFile;
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void showProgress(String progress) {
-        findViewById(R.id.loading_progress).setVisibility(View.VISIBLE);
-        ((TextView) findViewById(R.id.loading_progress)).setText(progress + "%");
-    }
-
-    public interface DeleteRecordingListener {
-        void play(Recording mItem);
-
-        void delete(Recording mItem);
-    }
-
-    class DownloadFileAsync extends AsyncTask<String, String, String> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-//            showDialog(DIALOG_DOWNLOAD_PROGRESS);
-        }
-
-        @Override
-        protected String doInBackground(String... aurl) {
-            int count;
-            try {
-                URL url = new URL(aurl[0]);
-                URLConnection conexion = url.openConnection();
-                conexion.connect();
-                int lenghtOfFile = conexion.getContentLength();
-                Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
-                InputStream input = new BufferedInputStream(url.openStream());
-                OutputStream output = new FileOutputStream(fileName);
-                byte[] data = new byte[1024];
-                long total = 0;
-                while ((count = input.read(data)) != -1) {
-                    total += count;
-                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
-                    output.write(data, 0, count);
-                }
-
-                output.flush();
-                output.close();
-                input.close();
-            } catch (Exception e) {
-            }
-            return null;
-        }
-
-        protected void onProgressUpdate(String... progress) {
-            Log.d("ANDRO_ASYNC", progress[0]);
-            showProgress(progress[0]);
-//            mProgressDialog.setProgress(Integer.parseInt(progress[0]));
-        }
-
-        @Override
-        protected void onPostExecute(String unused) {
-            startBuild();
-//            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
-        }
-
+    @Override
+    public void cameraError() {
 
     }
+
+    @Override
+    public void recorderError() {
+
+    }
+
 }
 
 

@@ -12,7 +12,6 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
-import android.media.AudioManager;
 import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
@@ -21,7 +20,6 @@ import android.media.audiofx.NoiseSuppressor;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
 import android.view.Surface;
@@ -36,7 +34,6 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.exoplayer2.util.Util;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,6 +98,7 @@ public class CameraPreview {
     private int mTotalRotation;
     private MediaRecorder mMediaRecorder;
     private boolean isRecording = false;
+    private CameraErrorListener cameraErrorListener;
 
     public CameraPreview(AppCompatActivity activity, Context context) {
 //        if (hasCamera)
@@ -244,7 +242,7 @@ public class CameraPreview {
     public void initiateRecorder() {
         //            createVideoFolder();
 //            createVideoFileName();
-        setupMediaRecorder();
+        setupMediaRecorder(false);
     }
 
     private void createVideoFolder() {
@@ -269,78 +267,55 @@ public class CameraPreview {
         setMediaRecorder();
     }
 
-    private void setupMediaRecorder() {
-        mMediaRecorder = new MediaRecorder();
-        CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
-        if (mCamera != null) {
-            mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        }
+    private void setupMediaRecorder(boolean retry) {
+        try {
+            mMediaRecorder = new MediaRecorder();
+            CamcorderProfile profile = CamcorderProfile.get(CamcorderProfile.QUALITY_480P);
+            if (mCamera != null) {
+                mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            }
 
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
-        if (Util.SDK_INT < 29 || (AcousticEchoCanceler.isAvailable()
-                && AutomaticGainControl.isAvailable() && NoiseSuppressor.isAvailable()))
-            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-        else {
-            mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
-//            setUpAudioManager();
-        }
-        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mMediaRecorder.setOutputFile(fileName);
+            if (!retry && (Util.SDK_INT < 29 || (AcousticEchoCanceler.isAvailable()
+                    && AutomaticGainControl.isAvailable() && NoiseSuppressor.isAvailable())))
+                mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
+            else {
+                mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION);
+            }
+            mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mMediaRecorder.setOutputFile(fileName);
 //        mMediaRecorder.setProfile(profile);
-        if (mCamera != null) {
-            mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
-            mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
-            mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
-            mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        }
+            if (mCamera != null) {
+                mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
+                mMediaRecorder.setVideoFrameRate(profile.videoFrameRate);
+                mMediaRecorder.setVideoEncodingBitRate(profile.videoBitRate);
+                mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+            }
 //        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB); // balanced quality and speed encoder
-        mMediaRecorder.setAudioEncodingBitRate(256000); // maximum encoding bitrate
+            mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB); // balanced quality and speed encoder
+            mMediaRecorder.setAudioEncodingBitRate(256000); // maximum encoding bitrate
 
-        mMediaRecorder.setAudioChannels(1);
-//        mMediaRecorder.setAudioEncodingBitRate(12200);
-//        mMediaRecorder.setAudioEncodingBitRate(profile.audioBitRate);
-        mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
-//        mMediaRecorder.setAudioSamplingRate(8000);
-        mMediaRecorder.setOrientationHint(mTotalRotation);
-        try {
+            mMediaRecorder.setAudioChannels(1);
+            mMediaRecorder.setAudioSamplingRate(profile.audioSampleRate);
+            mMediaRecorder.setOrientationHint(mTotalRotation);
+
+
             mMediaRecorder.prepare();
             mMediaRecorder.start();
             isRecording = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setUpAudioManager() {
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setMode(AudioManager.MODE_NORMAL);
-        audioManager.setParameters("noise_suppression=on");
-        //            Log.i("Trying to clean up audio because running on SDK " + Build.VERSION.SDK_INT);
-
-        if (NoiseSuppressor.create(0) == null) {
-            Log.i("Bug88", "NoiseSuppressor not present :(");
-        } else {
-            Log.i("Bug88", "NoiseSuppressor present :(");
+        } catch (Exception e) {
+            if (retry) {
+                cameraErrorListener.recorderError();
+            } else
+                setupMediaRecorder(true);
         }
 
-        if (AutomaticGainControl.create(0) == null) {
-            Log.i("Bug88", "gain not present :(");
-        } else {
-            Log.i("Bug88", "gain present :(");
-        }
-
-        if (AcousticEchoCanceler.create(0) == null) {
-            Log.i("Bug88", "echo not present :(");
-        } else {
-            Log.i("Bug88", "echo present :(");
-        }
     }
 
 
     private void setMediaRecorder() {
         try {
-            setupMediaRecorder();
+            setupMediaRecorder(false);
             if (mCamera != null) {
                 SurfaceTexture surfaceTexture = mTextureView.getSurfaceTexture();
                 surfaceTexture.setDefaultBufferSize(mPreviewSize.getWidth(), mPreviewSize.getHeight());
@@ -367,12 +342,12 @@ public class CameraPreview {
                 }, null);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            cameraErrorListener.cameraError();
         }
 
     }
 
-    public void stopRecording() {
+    public boolean stopRecording() {
         if (mMediaRecorder != null) {
             if (isRecording)
                 mMediaRecorder.stop();
@@ -385,22 +360,29 @@ public class CameraPreview {
 //                audioRecorder.deleteFile();
 //            }
         }
+        return isRecording;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void pauseRecording() {
+    public boolean pauseRecording() {
         if (mMediaRecorder != null) {
-            mMediaRecorder.pause();
+            if (isRecording) {
+                mMediaRecorder.pause();
+                return true;
+            } else
+                return false;
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //                audioRecorder.pauseRecorder();
 
         }
+        return false;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void resumeRecording() {
         if (mMediaRecorder != null) {
-            mMediaRecorder.resume();
+            if (isRecording)
+                mMediaRecorder.resume();
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //                audioRecorder.resumeRecording();
         }
@@ -426,11 +408,19 @@ public class CameraPreview {
         return 0;
     }
 
-    public void realeaseRecorder() {
+    public void releaseRecorder() {
         if (mMediaRecorder != null) {
             mMediaRecorder.release();
             mMediaRecorder = null;
         }
+    }
+
+    public boolean isRecording() {
+        return isRecording;
+    }
+
+    public void subscribeErrorListener(CameraErrorListener cameraErrorListener) {
+        this.cameraErrorListener = cameraErrorListener;
     }
 
     private static class CompareSizeByArea implements Comparator<Size> {
@@ -439,6 +429,12 @@ public class CameraPreview {
         public int compare(Size lhs, Size rhs) {
             return Long.signum((long) lhs.getWidth() * lhs.getHeight() / (long) rhs.getWidth() * rhs.getHeight());
         }
+    }
+
+    public interface CameraErrorListener {
+        void cameraError();
+
+        void recorderError();
     }
 
 }
