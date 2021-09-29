@@ -14,7 +14,7 @@ import com.function.karaoke.interaction.SuccessFailListener;
 import com.function.karaoke.interaction.activities.Model.SignInViewModel;
 import com.function.karaoke.interaction.activities.Model.UserInfo;
 import com.function.karaoke.interaction.activities.Model.enums.LoginState;
-import com.function.karaoke.interaction.utils.Checks;
+import com.function.karaoke.interaction.utils.static_classes.Checks;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

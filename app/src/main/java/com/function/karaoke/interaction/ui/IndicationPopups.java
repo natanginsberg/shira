@@ -15,6 +15,8 @@ import com.function.karaoke.interaction.utils.static_classes.Converter;
 public class IndicationPopups {
 
     public static PopupWindow openCheckIndication(Context context, View view, String words) {
+        if (view == null)
+            return null;
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout viewGroup = view.findViewById(R.id.check_popup);
         View popupView = layoutInflater.inflate(R.layout.check_popup, viewGroup);
@@ -23,6 +25,8 @@ public class IndicationPopups {
     }
 
     public static PopupWindow openXIndication(Context context, View view, String words) {
+        if (view == null)
+            return null;
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         RelativeLayout viewGroup = view.findViewById(R.id.x_popup);
         View popupView = layoutInflater.inflate(R.layout.x_popup, viewGroup);
@@ -32,10 +36,13 @@ public class IndicationPopups {
     }
 
     private static PopupWindow placeIndicationOnScreen(Context context, View popupView) {
-        PopupWindow popup = new PopupWindow(context);
-        setSharePopupAttributes(context, popup, popupView);
-        popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-        return popup;
+        if (popupView != null ) {
+            PopupWindow popup = new PopupWindow(context);
+            setSharePopupAttributes(context, popup, popupView);
+            popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            return popup;
+        }
+        return null;
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

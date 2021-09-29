@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference;
 public class SongsActivityUI {
 
     private final View view;
-//    private final Context context;
+    //    private final Context context;
     private final WeakReference<Activity> activityWeakReference;
     private final GenresUI genreUI;
     private PopupWindow suggestPopup;
@@ -96,14 +96,15 @@ public class SongsActivityUI {
 
     private void showPopupForOneSecond(PopupWindow popupWindow) {
         if (cTimer == null) {
-            cTimer = new CountDownTimer(1500, 500) {
+            cTimer = new CountDownTimer(2500, 500) {
                 @SuppressLint("SetTextI18n")
                 public void onTick(long millisUntilFinished) {
                 }
 
                 public void onFinish() {
                     cTimer.cancel();
-                    popupWindow.dismiss();
+                    if (popupWindow != null)
+                        popupWindow.dismiss();
                     cTimer = null;
                 }
             };

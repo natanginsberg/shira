@@ -28,6 +28,15 @@ public class SongService {
         }
     }
 
+    public void addSongTime(String title, long time){
+        DatabaseDriver databaseDriver = new DatabaseDriver();
+        songsCollectionRef = databaseDriver.getCollectionReferenceByName(COLLECTION_SONGS_NAME);
+        DocumentReference document = songsCollectionRef.document(title);
+        Map<String, Object> data = new HashMap<>();
+        data.put("length", time);
+        document.update(data);
+    }
+
     private void addOneMoreDownload(DocumentReference document) {
         document.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {

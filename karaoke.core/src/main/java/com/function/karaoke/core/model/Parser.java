@@ -98,7 +98,7 @@ public class Parser {
         return lineWordsAndTimes[lineWordsAndTimes.length - 1].contains("$");
     }
 
-    private static List<String[]> breakLineIntoManyLines(String[] lineWordsAndTimes) {
+    private static List<String[]>   breakLineIntoManyLines(String[] lineWordsAndTimes) {
         List<String[]> allLines = new ArrayList<>();
         int lengthOfNewSentence = (lineWordsAndTimes.length - 1) > 6 ? 4 : lineWordsAndTimes.length < 5 ? 2 : 3;
 
@@ -308,38 +308,6 @@ public class Parser {
         return seconds + (double) hundredthOfSeconds / (double) 100;
     }
 
-    private static double getTimestamp(Song song, int beat) {
-        return song.gap + beat * 60 / song.BPM;
-    }
-
-    private static int[] parseInts(String line) {
-        String[] parts = line.substring(2).split(" ");
-        int[] res = new int[parts.length];
-        for (int p = 0; parts.length != p; ++p)
-            res[p] = Integer.parseInt(parts[p]);
-        return res;
-    }
-
-    private static Song.Syllable parseSyllable(Song song, String line) {
-        Song.Syllable s = new Song.Syllable();
-        String[] split = line.split(" ", 5);
-        String type = split[0];
-        int pos = Integer.parseInt(split[1]);
-        int len = Integer.parseInt(split[2]);
-        s.tone = Integer.parseInt(split[3]);
-        if (split.length > 4)
-            s.text = split[4];
-        else
-            s.text = "~";
-        s.from = getTimestamp(song, pos);
-        s.to = s.from + len * 60 / song.BPM;
-        return s;
-    }
-
-//    private static float getFloatValue(String line, String tag) {
-//        String valueStr = getStringValue(line, tag).replace(',', '.');
-//        return Float.valueOf(valueStr);
-//    }
 
     private static String getStringValueOfLine(String line) {
         return line.substring(1, line.length() - 1).split(":")[1];

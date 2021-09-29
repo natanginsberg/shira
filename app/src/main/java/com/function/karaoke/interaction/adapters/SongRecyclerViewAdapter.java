@@ -41,6 +41,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
             return a.getTitle().compareToIgnoreCase(b.getTitle());
         return a.getArtist().compareToIgnoreCase(b.getArtist());
     };
+    private static final int restricted_rectangle = R.drawable.restricted_song_rec;
     private static final int[] rectangles = new int[]{R.drawable.custom_song_rec_1,
             R.drawable.custom_song_rec_2, R.drawable.custom_song_rec_3, R.drawable.custom_song_rec_4};
     private static final int[] transparentRectangles = new int[]{R.drawable.custom_song_rec_1_t,
@@ -51,6 +52,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private List<DatabaseSong> mValues;
     private List<Recording> mRecordings;
     private double averageSongsPlayed;
+    private List<String> demoSongs = new ArrayList<>();
 
     public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener) {
         setData(items);
@@ -59,6 +61,10 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 
     public void setAverage(double averageSongsPlayed) {
         this.averageSongsPlayed = averageSongsPlayed;
+    }
+
+    public void addDemoSongs(List<String> demoSongs) {
+        this.demoSongs = demoSongs;
     }
 
 
@@ -146,6 +152,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                 ShapeableImageView mCover = mView.findViewById(R.id.img_cover);
                 setPopularTag(song);
                 setNewTag(song);
+                setDemoAttributes(song);
                 mItem = song;
                 mLblTitle.setText(song.getTitle());
                 mLblArtist.setText(song.getArtist());
@@ -168,27 +175,46 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 
         private void setNewTag(DatabaseSong song) {
             if (song.getDate().equals("")) {
-                mView.findViewById(R.id.new_song_tag).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.new_song_tag).setVisibility(View.GONE);
                 return;
             }
 
             Date today = new Date();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(today);
-            calendar.add(Calendar.DAY_OF_MONTH, 7);
+            calendar.add(Calendar.DAY_OF_MONTH, 14);
             String lastNewDate = String.valueOf(new SimpleDateFormat("yyyy-MM-dd",
                     Locale.getDefault()).format(calendar.getTime().getTime()));
-            if (song.getDate().compareTo(lastNewDate) < 0) {
+            if (song.getDate().compareTo(lastNewDate) > 0) {
                 mView.findViewById(R.id.new_song_tag).setVisibility(View.VISIBLE);
             } else
-                mView.findViewById(R.id.new_song_tag).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.new_song_tag).setVisibility(View.GONE);
         }
 
         private void setPopularTag(DatabaseSong song) {
             if (song.getTimesPlayed() > 2 * averageSongsPlayed)
                 mView.findViewById(R.id.popular_song_tag).setVisibility(View.VISIBLE);
             else
-                mView.findViewById(R.id.popular_song_tag).setVisibility(View.INVISIBLE);
+                mView.findViewById(R.id.popular_song_tag).setVisibility(View.GONE);
+        }
+
+        @SuppressLint("UseCompatLoadingForDrawables")
+        private void setDemoAttributes(DatabaseSong song) {
+            int randomColor = Math.random() < 0.5 ? 0 : 1;
+            if (!demoSongs.contains(song.getTitle())) {
+                mView.findViewById(R.id.song_placeholder).setBackground(mView.getContext().getResources().getDrawable(restricted_rectangle, null));
+                mView.findViewById(R.id.member_tag).setVisibility(View.VISIBLE);
+            } else {
+                mView.findViewById(R.id.member_tag).setVisibility(View.GONE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    mView.findViewById(R.id.song_placeholder).setBackground(mView.getContext().getResources().getDrawable(rectangles[1 + randomColor], null));
+                    mView.findViewById(R.id.song_placeholder).setBackgroundTintBlendMode(BlendMode.COLOR_DODGE);
+                } else {
+                    mView.findViewById(R.id.song_placeholder).setBackground(mView.getContext().getResources().getDrawable(transparentRectangles[1 + randomColor]));
+                }
+            }
+//                mView.findViewById(R.id.song_placeholder).setBackgroundColor(Color.BLUE);
         }
     }
 }

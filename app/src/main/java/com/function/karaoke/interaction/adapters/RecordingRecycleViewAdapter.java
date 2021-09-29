@@ -28,16 +28,6 @@ import java.util.List;
  */
 public class RecordingRecycleViewAdapter extends RecyclerView.Adapter<RecordingRecycleViewAdapter.ViewHolder> {
 
-    // there can be other sort strategies and filters
-//    private static final Comparator<Song> mComparator = new Comparator<Song>() {
-//        @Override
-//        public int compare(Song a, Song b) {
-//            if (!a.artist.equalsIgnoreCase(b.artist))
-//                return a.artist.compareToIgnoreCase(b.artist);
-//            return a.title.compareToIgnoreCase(b.title);
-//        }
-//    };
-
     private static final Comparator<Recording> mComparator = new Comparator<Recording>() {
         @Override
         public int compare(Recording a, Recording b) {

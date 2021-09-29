@@ -140,8 +140,6 @@ public class StorageAdder extends ViewModel implements Serializable {
                 double progress = Math.min(1.0, (double) bytesRead / (double) file.length());
                 System.out.println("this is the progress of the upload " + progress);
                 listener.progressUpdate((progress));
-
-
             }
         });
         s3Client.putObject(por);

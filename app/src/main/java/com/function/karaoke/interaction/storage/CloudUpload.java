@@ -55,7 +55,7 @@ public class CloudUpload {
 
                     @Override
                     public void onFail() {
-//                    ((ProgressBar) parentView.findViewById(R.id.upload_progress_wheel)).setBackgroundColor(Color.BLACK);
+                        uploadListener.onFailure();
                     }
 
                     @Override

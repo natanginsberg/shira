@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class FirestoreSong implements Serializable {
 
     private String artist;
-    private String imageResourceFile = "no image resource";
+    private String imageResourceFile = "https://s3.wasabisys.com/playbacks/%D7%A2%D7%9E%D7%9E%D7%99/%D7%94%D7%A0%D7%A9%D7%9E%D7%94%20%D7%9C%D7%9A/Play.jpg";
     private String songResourceFile = "";
     private String textResourceFile = "";
     private String womanToneResourceFile = "";
@@ -15,6 +15,7 @@ public class FirestoreSong implements Serializable {
     private String title;
     private String genre;
     private String date;
+    private int length = 0;
 
     public FirestoreSong() {
 
@@ -113,5 +114,13 @@ public class FirestoreSong implements Serializable {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
     }
 }

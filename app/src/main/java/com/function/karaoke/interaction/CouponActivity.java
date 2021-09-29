@@ -112,6 +112,7 @@ public class CouponActivity extends AppCompatActivity {
     }
 
     private void showPopupForOneSecond(PopupWindow popupWindow, boolean closeWindow) {
+
         clickAllowed = false;
         if (cTimer == null) {
             cTimer = new CountDownTimer(1500, 500) {
@@ -121,7 +122,8 @@ public class CouponActivity extends AppCompatActivity {
 
                 public void onFinish() {
                     cTimer.cancel();
-                    popupWindow.dismiss();
+                    if (popupWindow != null)
+                        popupWindow.dismiss();
                     cTimer = null;
                     clickAllowed = true;
                     if (closeWindow)

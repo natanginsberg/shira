@@ -15,11 +15,14 @@ import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
@@ -39,6 +42,8 @@ import androidx.core.content.ContextCompat;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
+import com.arthenica.mobileffmpeg.ExecuteCallback;
+import com.arthenica.mobileffmpeg.FFmpeg;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.Recording;
@@ -52,14 +57,15 @@ import com.function.karaoke.interaction.storage.SongService;
 import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
 import com.function.karaoke.interaction.tasks.OpenCameraAsync;
+import com.function.karaoke.interaction.ui.IndicationPopups;
 import com.function.karaoke.interaction.ui.KaraokeWordUI;
 import com.function.karaoke.interaction.ui.SingActivityUI;
 import com.function.karaoke.interaction.utils.Billing;
 import com.function.karaoke.interaction.utils.CameraPreview;
-import com.function.karaoke.interaction.utils.Checks;
 import com.function.karaoke.interaction.utils.EarphoneListener;
 import com.function.karaoke.interaction.utils.JsonHandler;
 import com.function.karaoke.interaction.utils.SignIn;
+import com.function.karaoke.interaction.utils.static_classes.Checks;
 import com.function.karaoke.interaction.utils.static_classes.GenerateRandomId;
 import com.function.karaoke.interaction.utils.static_classes.ShareLink;
 import com.function.karaoke.interaction.utils.static_classes.SyncFileData;
@@ -69,13 +75,20 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
 
 public class SingActivity extends AppCompatActivity implements
         DialogBox.CallbackListener, KaraokeController.MyCustomObjectListener,
@@ -208,11 +221,18 @@ public class SingActivity extends AppCompatActivity implements
     private boolean lowerVolume = false;
     private KaraokeWordUI karaokeLyricsUI;
 
+    private String downloadFilePath;
+    private File outputFile;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         loadLocale();
         super.onCreate(savedInstanceState);
         authenticationDriver = new AuthenticationDriver();
+        downloadFilePath = getCacheDir() + DIRECTORY_NAME + "test.mp3";
+        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
+        outputFile = new File(dir, "test" + new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date()) + ".mp4");
         createServices();
         getUser();
         getAudioFile();
@@ -325,16 +345,18 @@ public class SingActivity extends AppCompatActivity implements
 //        createEarphoneReceivers();
 //        if (fileName == null)
 //            downloadFile(songPlayed);
+        new DownloadFileAsync().execute(songPlayed);
         // todo this is what I added download file it is at the end of the class
 //        else
-        startBuild();
+//        startBuild();
 
     }
 
     private void startBuild() {
 //        findViewById(R.id.loading_progress).setVisibility(View.INVISIBLE);
 //        activityUI.showPlayButton();
-        mKaraokeKonroller.loadAudio(songPlayed);
+        mKaraokeKonroller.loadAudio(downloadFilePath);
+
     }
 
     public void manTone(View view) {
@@ -860,14 +882,30 @@ public class SingActivity extends AppCompatActivity implements
         try {
             stopRecordingAndSong();
             File file = cameraPreview.getVideo();
-            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile());
+            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile(), new File(downloadFilePath), outputFile);
             setDelay(Uri.fromFile(newlyParsedFile));
+            downloadVideo(newlyParsedFile);
             return newlyParsedFile;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void downloadVideo(File newlyParsedFile) {
+        String offset = "00:00:0" + (double) delay / (double) 1000;
+        System.out.println("this is the delay " + delay + " this is the offset " + offset);
+        String volume = earphonesUsed ? "1" : "0.2";
+        FFmpeg.executeAsync("-ss " + offset + " -i " + newlyParsedFile + " -i " + downloadFilePath + " -filter_complex \"[1:a]volume=" + volume + "[a1];[0:a][a1]amerge=inputs=2[a]\" -map 0:v -map \"[a]\" -c:v copy -ac 2 -shortest " + outputFile, new ExecuteCallback() {
+            @Override
+            public void apply(long executionId, int returnCode) {
+                if (returnCode == RETURN_CODE_SUCCESS) {
+                    IndicationPopups.openCheckIndication(getApplicationContext(), getCurrentFocus(), "worked");
+                } else
+                    IndicationPopups.openXIndication(getApplicationContext(), getCurrentFocus(), "failed");
+            }
+        });
     }
 
     private void setDelay(Uri uriFromFile) {
@@ -1012,10 +1050,10 @@ public class SingActivity extends AppCompatActivity implements
                     //todo check if user has room only if he is a subcscribed user
                     String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
                             Locale.getDefault()).format(new Date());
-                    if (date.compareTo(user.getExpirationDate()) > 0 && date.compareTo("20210403_111111") > 0)
-                        startBilling();
-                    else
-                        startSaveProcess(false);
+//                    if (date.compareTo(user.getExpirationDate()) > 0 && date.compareTo("20210601_111111") > 0)
+//                        startBilling();
+//                    else
+                    startSaveProcess(false);
                 } else {
                     if (funcToCall.equals(SHARE_FUNC))
                         activityUI.openShareOptions(this, user, this, cameraOn);
@@ -1179,7 +1217,7 @@ public class SingActivity extends AppCompatActivity implements
         save(jsonFile);
         if (funcToCall.equals(SHARE_FUNC))
             activityUI.openShareOptions(this, user, this, cameraOn);
-//        else
+////        else
 //            activityUI.
     }
 
@@ -1554,6 +1592,59 @@ public class SingActivity extends AppCompatActivity implements
 
     }
 
+
+//    private void startDownload() {
+//        String url = "http://farm1.static.flickr.com/114/298125983_0e4bf66782_b.jpg";
+//        new DownloadFileAsync().execute(url);
+//    }
+
+    class DownloadFileAsync extends AsyncTask<String, String, String> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+//        showDialog(DIALOG_DOWNLOAD_PROGRESS);
+        }
+
+        @Override
+        protected String doInBackground(String... aurl) {
+            int count;
+            try {
+                URL url = new URL(aurl[0]);
+                URLConnection conexion = url.openConnection();
+                conexion.connect();
+                int lenghtOfFile = conexion.getContentLength();
+                Log.d("ANDRO_ASYNC", "Lenght of file: " + lenghtOfFile);
+                InputStream input = new BufferedInputStream(url.openStream());
+                OutputStream output = new FileOutputStream(downloadFilePath);
+                byte data[] = new byte[1024];
+                long total = 0;
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+                    output.write(data, 0, count);
+                }
+
+                output.flush();
+                output.close();
+                input.close();
+            } catch (Exception e) {
+            }
+            return null;
+        }
+
+        protected void onProgressUpdate(String... progress) {
+            Log.d("ANDRO_ASYNC", progress[0]);
+//        mProgressDialog.setProgress(Integer.parseInt(progress[0]));
+        }
+
+        @Override
+        protected void onPostExecute(String unused) {
+
+//            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
+            startBuild();
+        }
+    }
 }
 
 

@@ -7,8 +7,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-public class SongRequestAdder {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+public class SongRequests {
 
     private static final String REQUEST = "songRequests";
     private static CollectionReference requestCollectionRef;
@@ -29,9 +34,27 @@ public class SongRequestAdder {
         });
     }
 
+    public static void getAllRequestedSongs(DatabaseDriver databaseDriver, RequestGetter requestGetter) {
+        requestCollectionRef = databaseDriver.getCollectionReferenceByName(REQUEST);
+        List<SongRequest> documentsList = new ArrayList<>();
+        requestCollectionRef.get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            documentsList.add(document.toObject(SongRequest.class));
+                        }
+                        requestGetter.getSongs(documentsList);
+                    }
+                });
+    }
+
     public interface RequestListener {
         void onSuccess();
 
         void onFailure();
+    }
+
+    public interface RequestGetter {
+        void getSongs(List<SongRequest> songs);
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.Genres;
 import com.function.karaoke.interaction.activities.Model.Keys;
+import com.function.karaoke.interaction.activities.Model.Recording;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -40,26 +41,6 @@ public class DatabaseDriver {
         return this.db.collection(name);
     }
 
-//    public <T> LiveData<List<T>> getAllSongsInCollection(final Class<T> typeParameterClass) {
-//        final List<T> documentsList = new LinkedList<>();
-//        final MutableLiveData<List<T>> resultsLiveData = new MutableLiveData<>();
-//        getCollectionReferenceByName("songs")
-//                .get()
-//                .addOnCompleteListener(task -> {
-//                    if (task.isSuccessful()) {
-//                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-//                            documentsList.add(document.toObject(typeParameterClass));
-//                        }
-//                        if (!documentsList.isEmpty()) {
-//                            resultsLiveData.setValue(documentsList);
-//                        }
-//                    }
-//                }).addOnFailureListener(e -> {
-//            int k = 0;
-//        });
-//        return resultsLiveData;
-//    }
-
     public void getAllSongsInCollection(SongListener songListener) {
         final List<DatabaseSong> documentsList = new ArrayList<>();
         getCollectionReferenceByName("songs")
@@ -74,7 +55,38 @@ public class DatabaseDriver {
                 }).addOnFailureListener(e -> {
             songListener.onFail();
         });
+    }
 
+    public void getAllRecordings(RecordingL recordingListener) {
+        final List<Recording> documentsList = new ArrayList<>();
+        getCollectionReferenceByName("recordings")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            documentsList.add(document.toObject(Recording.class));
+                        }
+                        recordingListener.onSuccess(documentsList);
+                    }
+                }).addOnFailureListener(e -> {
+        });
+    }
+
+    public void getSong(String title, SongListener songListener) {
+        final List<DatabaseSong> documentsList = new ArrayList<>();
+        getCollectionReferenceByName("songs")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                            if (((String) document.get("title")).equals(title))
+                                documentsList.add(document.toObject(DatabaseSong.class));
+                        }
+                        songListener.onSuccess(documentsList);
+                    }
+                }).addOnFailureListener(e -> {
+            songListener.onFail();
+        });
     }
 
 
@@ -96,6 +108,18 @@ public class DatabaseDriver {
             int k = 0;
         });
         return resultsLiveData;
+    }
+
+    public void getAllDemoSongsInCollection(DemoSongListener demoSongListener) {
+        final List<String> songsList = new LinkedList<>();
+        getCollectionReferenceByName("randomFields").document("phoneDemoSongs")
+                .get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                demoSongListener.onSuccess((List<String>) task.getResult().get("songs"));
+            }
+        }).addOnFailureListener(e -> {
+            int k = 0;
+        });
     }
 
     public void getKeys(KeyListener keyListener) {
@@ -122,10 +146,18 @@ public class DatabaseDriver {
         void onSuccess(String id, String secretKey);
     }
 
-    public interface SongListener{
+    public interface SongListener {
         void onSuccess(List<DatabaseSong> songs);
 
         void onFail();
+    }
+
+    public interface RecordingL {
+        void onSuccess(List<Recording> recordings);
+    }
+
+    public interface DemoSongListener {
+        void onSuccess(List<String> songs);
     }
 
 }

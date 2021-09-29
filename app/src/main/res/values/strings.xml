@@ -90,7 +90,7 @@
     <string name="no_pause_body_for_older_phones">Attention! Pausing song in the middle will not work, and the song will end.</string>
     <string name="no_pause_title_for_older_phones">Pause warning</string>
     <string name="video_loading">Video error</string>
-    <string name="video_loading_body_if_video_not_loaded">This video has not been uploaded to our servers yet.\nSorry for the inconvenience</string>
+    <string name="video_loading_body_if_video_not_loaded">This video has not been uploaded yet.\nSorry for the inconvenience</string>
     <string name="option_for_sharing_after_video_was_saved">You\'re recording was saved, do you want to share it?</string>
     <string name="no_thank_you">No thank you</string>
     <!--    <string name="yearly_sub">Yearly 180</string>-->
@@ -124,7 +124,7 @@
     <string name="sign_up_for_free">Sign up for free</string>
     <string name="easy_and_free_sign_up">(Easy and free sign up)</string>
     <string name="acknowledge_of_sign_in">Thank you for signing up to Ashira. \n You have up to 3 saves and shares free</string>
-    <string name="share_incentive">Enjoyed? \n Do you want to save and share all of your recordings?</string>
+    <string name="member_invite">Access all of the songs!</string>
     <string name="subscribe">Subscribe</string>
     <string name="sub_pricing">36 shekel a month or 170 shekel a year</string>
     <string name="share_left_label">You have %1$d free shares left</string>
@@ -184,6 +184,7 @@
     <string name="save_in_progress">"The recording is being saved"</string>
     <string name="unable_to_upload">We are unable to upload at this time</string>
     <string name="camera_fail">Camera failed to open</string>
+    <string name="failed">Failed</string>
     <string name="share_failed">sharing failed</string>
     <string name="pitch_question">What is your pitch?</string>
     <string name="high">High</string>
@@ -203,5 +204,18 @@ Use of the Service is subject to them and indicates that you have read them in f
     <string name="no_save_text">Due to the version of this phone, there is no option to save or share at this time. We are sorry for the inconvenience.</string>
     <string name="slow_internet">We are having trouble connecting to our servers, please try again later.</string>
     <string name="recorder_error">We have experienced a problem with the recording. Contact us for support</string>
+    <string name="download_song_requests">Download Song Requests</string>
+    <string name="add_song_length">Add Song Length</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="add">Add</string>
+    <string name="change_email">Change Email</string>
+    <string name="add_song">Add Song</string>
+    <string name="add_internet_user">Add Internet User</string>
+    <string name="date">Date</string>
+    <string name="name_exists">The name already exists\n please change the name</string>
+    <string name="get_all_users">Get all users</string>
+    <string name="members_onlu">Members</string>
+    <string name="daily_membership">Daily Membership</string>
 
 </resources>

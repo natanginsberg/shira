@@ -57,9 +57,9 @@ import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
 import com.function.karaoke.interaction.ui.IndicationPopups;
 import com.function.karaoke.interaction.utils.Billing;
-import com.function.karaoke.interaction.utils.Checks;
 import com.function.karaoke.interaction.utils.JsonHandler;
 import com.function.karaoke.interaction.utils.SignIn;
+import com.function.karaoke.interaction.utils.static_classes.Checks;
 import com.function.karaoke.interaction.utils.static_classes.Converter;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -242,14 +242,14 @@ public class SongsActivity
     protected void onCreate(Bundle savedInstanceState) {
         loadLocale();
         super.onCreate(savedInstanceState);
-        if (Util.SDK_INT >= 24)
-            checkForFilesToUpload();
         dbSongs = new DatabaseSongsDB();
         checkForSignedInUser();
         setContentView(R.layout.activity_songs);
         loadingText = (LinearLayout) (findViewById(R.id.loading_percent));
         String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
                 Locale.getDefault()).format(new Date());
+        if (Util.SDK_INT >= 24)
+            checkForFilesToUpload();
         if (date.compareTo("20210403_111111") > 0)
             findViewById(android.R.id.content).getRootView().post(this::checkForBillingPurposes);
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("changed"));
@@ -269,15 +269,15 @@ public class SongsActivity
                         // the credit card is taking time
                     }
                 } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
-                    Toast.makeText(getBaseContext(), "Purchase was cancelled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SongsActivity.this, "Purchase was cancelled", Toast.LENGTH_SHORT).show();
                     // the user pressed back
                     // Handle an error caused by a user cancelling the purchase flow.
                 } else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.SERVICE_TIMEOUT) {
-                    Toast.makeText(getBaseContext(), "Service Timed out", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SongsActivity.this, "Service Timed out", Toast.LENGTH_SHORT).show();
                     // if the credit card was cancelled
                     // Handle any other error codes.
                 } else {
-                    Toast.makeText(getBaseContext(), "Credit card was declined", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SongsActivity.this, "Credit card was declined", Toast.LENGTH_SHORT).show();
                     int k = 0;
                 }
             }, false, () -> {
@@ -372,7 +372,7 @@ public class SongsActivity
 
                                 @Override
                                 public void onFailure() {
-                                    PopupWindow popupWindow = IndicationPopups.openXIndication(getBaseContext(), findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
+                                    PopupWindow popupWindow = IndicationPopups.openXIndication(SongsActivity.this, findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
                                     showPopupForOneSecond(popupWindow);
                                 }
 
@@ -382,7 +382,8 @@ public class SongsActivity
                         //
                         @Override
                         public void onFail() {
-                            int k = 0;
+                            PopupWindow popupWindow = IndicationPopups.openXIndication(SongsActivity.this, findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
+                            showPopupForOneSecond(popupWindow);
                         }
 
                         @SuppressLint("SetTextI18n")
@@ -404,7 +405,7 @@ public class SongsActivity
 
                         @Override
                         public void error() {
-                            PopupWindow popupWindow = IndicationPopups.openXIndication(getBaseContext(), findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
+                            PopupWindow popupWindow = IndicationPopups.openXIndication(SongsActivity.this, findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
                             showPopupForOneSecond(popupWindow);
                         }
                     });
@@ -412,6 +413,8 @@ public class SongsActivity
 
                 @Override
                 public void onFailure() {
+                    PopupWindow popupWindow = IndicationPopups.openXIndication(SongsActivity.this, findViewById(android.R.id.content).getRootView(), getString(R.string.slow_internet));
+                    showPopupForOneSecond(popupWindow);
                 }
 
             });
@@ -427,7 +430,8 @@ public class SongsActivity
 
                 public void onFinish() {
                     cTimer.cancel();
-                    popupWindow.dismiss();
+                    if (popupWindow != null)
+                        popupWindow.dismiss();
                     cTimer = null;
                 }
             };

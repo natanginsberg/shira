@@ -1,4 +1,4 @@
-package com.function.karaoke.interaction.utils;
+package com.function.karaoke.interaction.utils.static_classes;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -33,8 +33,13 @@ public class Checks {
             // If no connectivity, cancel task and update Callback with null data.
 //            DialogBox dialogBox = DialogBox.newInstance(activity, INTERNET_CODE);
 //            dialogBox.show(supportFragmentManager, "NoticeDialogFragment");
-            PopupWindow popupWindow = IndicationPopups.openXIndication(applicationContext, view, applicationContext.getResources().getString(R.string.no_internet_alert));
-            showPopupForOneSecond(popupWindow);
+            view.post(new Runnable() {
+                @Override
+                public void run() {
+                    PopupWindow popupWindow = IndicationPopups.openXIndication(applicationContext, view, applicationContext.getResources().getString(R.string.no_internet_alert));
+                    showPopupForOneSecond(popupWindow);
+                }
+            });
             return false;
         }
         return true;

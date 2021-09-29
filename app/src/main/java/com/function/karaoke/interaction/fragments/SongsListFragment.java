@@ -33,7 +33,8 @@ import com.function.karaoke.interaction.adapters.SongRecyclerViewAdapter;
 import com.function.karaoke.interaction.storage.AuthenticationDriver;
 import com.function.karaoke.interaction.storage.DatabaseDriver;
 import com.function.karaoke.interaction.storage.RecordingService;
-import com.function.karaoke.interaction.storage.SongRequestAdder;
+import com.function.karaoke.interaction.storage.SongRequests;
+import com.function.karaoke.interaction.storage.SongService;
 import com.function.karaoke.interaction.ui.GenresUI;
 import com.function.karaoke.interaction.ui.SettingUI;
 import com.function.karaoke.interaction.ui.SongsActivityUI;
@@ -87,6 +88,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private final OpenSignUp openSignUpListener = new OpenSignUp();
     private String currentGenre;
     private CountDownTimer cTimer;
+    SongService songService = new SongService();
 
 
     /**
@@ -125,6 +127,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         view = songsView;
         songsActivityUI = new SongsActivityUI(view, this, loadLocale(), getContext(), getActivity());
         addGenres();
+        getDemoSongs();
         view.setOnTouchListener(new OnSwipeTouchListener(this.getActivity()));
         addGenreListeners();
         return songsView;
@@ -259,6 +262,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 //        gAdapter = new GridAdapter(getContext(), currentDatabaseSongs.getSongs(), mListener);
     }
 
+    private void getDemoSongs() {
+        databaseDriver.getAllDemoSongsInCollection(new DatabaseDriver.DemoSongListener() {
+            @Override
+            public void onSuccess(List<String> songs) {
+                mAdapter.addDemoSongs(songs);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -269,8 +282,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     @Override
     public void onListUpdated() {
         songsDb = mListener.getSongs();
+
         displayAllSongs();
     }
+
 
     private void displayAllSongs() {
         if (differentSongsDisplayed) {
@@ -455,7 +470,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private void sendSuggestion(SongRequest songRequest) {
-        SongRequestAdder.addSongToDatabase(databaseDriver, songRequest, new SongRequestAdder.RequestListener() {
+        SongRequests.addSongToDatabase(databaseDriver, songRequest, new SongRequests.RequestListener() {
             @Override
             public void onSuccess() {
                 songsActivityUI.showRequestAccepted();

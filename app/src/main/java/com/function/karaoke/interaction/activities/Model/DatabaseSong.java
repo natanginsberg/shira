@@ -25,6 +25,7 @@ public class DatabaseSong implements Serializable, Reocording {
     private String genre;
     private String songReference;
     private String date = "";
+//    private int length = 0;
 
     public DatabaseSong() {
 
@@ -41,6 +42,7 @@ public class DatabaseSong implements Serializable, Reocording {
         this.title = title;
         this.genre = genre;
         this.songReference = songReference;
+//        this.length = length;
     }
 
     public DatabaseSong(String artist, String imageResourceFile, String songResourceFile, String textResourceFile, int timesDownloaded,

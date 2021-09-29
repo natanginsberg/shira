@@ -58,7 +58,7 @@
     <string name="no_pause_body_for_older_phones">שים לב! הפסקת ביצוע באמצע תביא לסיום ההקלטה</string>
     <string name="no_pause_title_for_older_phones">הפסקת השיר</string>
     <string name="video_loading">שגיאת וידאו</string>
-    <string name="video_loading_body_if_video_not_loaded">הביצוע מועלה ברגעים אלו לשרתים שלנו.</string>
+    <string name="video_loading_body_if_video_not_loaded">הביצוע מועלה ברגעים אלו.</string>
     <string name="option_for_sharing_after_video_was_saved">הביצוע שלך נשמר. תרצה לשתף אותו?</string>
     <string name="share_save">שמור ושתף</string>
     <string name="no_thank_you">לא תודה</string>
@@ -90,7 +90,7 @@
     <string name="sign_up_for_free">הירשם עכשיו בחינם</string>
     <string name="easy_and_free_sign_up">(ההרשמה מהירה וללא עלות)</string>
     <string name="acknowledge_of_sign_in">נרשמת ל-Ashira! \n כעת תוכל/י לשמור ולשתף עד 3 ביצועים בחינם</string>
-    <string name="share_incentive">ניצלת את מכסת השיתופים שלך. רוצה לשמור ולשתף ביצועים ללא הגבלה?</string>
+    <string name="member_invite">גישה לכל השירים באפלקציה!</string>
     <string name="subscribe">הירשם כמנוי</string>
     <string name="sub_pricing">עלות השירות: 36 ₪ לחודש / 170 ₪ לשנה</string>
     <string name="share_left_label">נותרו לך עוד %1$d שיתופים בחינם</string>
@@ -146,7 +146,7 @@
     <string name="delete_confirmation">הביצוע הנבחר ימחק</string>
     <string name="sync">סנכרון</string>
     <string name="volume">פלייבק</string>
-    <string name="save_in_progress">"הביצוע שלך עולה לשרתים שלנו"</string>
+    <string name="save_in_progress">"הביצוע שלך עולה"</string>
     <string name="unable_to_upload">כשהמון אנשים מבצעים ביחד, זה גורם לעומס על השרתים שלנו</string>
     <string name="camera_fail">המצלמה לא נפתחה</string>
     <string name="share_failed">שיתוף נכשל</string>
@@ -169,5 +169,19 @@
     <string name="no_save_text">בגלל גרסת הפלאפון, לא ניתן לשמור או לשתף את הביצוע כעת. אנו מצטערים על האי נוחות.</string>
     <string name="slow_internet">יש לנו בעיה להתחבר לשרתים, אנא תנסו יותר מאוחר.</string>
     <string name="recorder_error">קרתה שגיאה בהקלטה. אנא צור איתנו קשר על מנת שנוכל לטפל בבעיה</string>
+    <string name="download_song_requests">הורד את כל הבקשות</string>
+    <string name="add_song_length">הוסף את אורך השיר</string>
+    <string name="name">שם</string>
+    <string name="email">אימייל</string>
+    <string name="add">הוסף</string>
+    <string name="change_email">שנה אימייל</string>
+    <string name="add_song">הוסף שיר</string>
+    <string name="add_internet_user">הוסף משתמש אינטרנטי</string>
+    <string name="date">תאריך</string>
+    <string name="failed">נכשל</string>
+    <string name="name_exists">השם הזה כבר מופיע \n החלף את השם</string>
+    <string name="get_all_users">הצג את כל המשתמשים</string>
+    <string name="members_onlu">מנויים</string>
+    <string name="daily_membership">מנוי יומי</string>
 
 </resources>

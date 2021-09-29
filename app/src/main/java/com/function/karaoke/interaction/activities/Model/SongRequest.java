@@ -2,13 +2,11 @@ package com.function.karaoke.interaction.activities.Model;
 
 public class SongRequest {
 
-    private final String title;
-    private final String artist;
+    private String title;
+    private String artist;
     private String comments;
 
-    public SongRequest(String title, String artist) {
-        this.artist = artist;
-        this.title = title;
+    public SongRequest() {
     }
 
     public SongRequest(String title, String artist, String comments) {

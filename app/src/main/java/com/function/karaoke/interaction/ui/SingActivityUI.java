@@ -653,15 +653,16 @@ public class SingActivityUI {
             cTimer = null;
         }
         if (cTimer == null) {
-            cTimer = new CountDownTimer(1500, 500) {
+            cTimer = new CountDownTimer(2500, 500) {
                 @SuppressLint("SetTextI18n")
                 public void onTick(long millisUntilFinished) {
                 }
 
                 public void onFinish() {
-                    cTimer.cancel();
-
-                    popupWindow.dismiss();
+                    if (cTimer != null)
+                        cTimer.cancel();
+                    if (popupWindow != null)
+                        popupWindow.dismiss();
                     timerListener.timerOver();
                     cTimer = null;
                 }
@@ -682,7 +683,7 @@ public class SingActivityUI {
 
     public void showSaveFail(TimerListener timerListener) {
         if (view != null) {
-            PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
+            PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
             showPopupForOneSecond(popupWindow, timerListener);
         }
     }
@@ -722,7 +723,7 @@ public class SingActivityUI {
         void setPassword(TextView viewById);
     }
 
-    public interface TimerListener{
+    public interface TimerListener {
         void timerOver();
     }
 }
