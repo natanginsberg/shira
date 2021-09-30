@@ -5,12 +5,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.android.billingclient.api.AcknowledgePurchaseParams;
 import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeParams;
+import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
@@ -33,6 +34,7 @@ public class Billing {
     };
     private int counter = 0;
     private List<SkuDetails> skuDetailsList;
+    private ConsumeResponseListener consumerResponseListener;
 
     public Billing(Activity activity, PurchasesUpdatedListener purchasesUpdatedListener, boolean displayProducts, ReadyListener readyListener) {
         this.activity = activity;
@@ -51,6 +53,7 @@ public class Billing {
             public void onBillingSetupFinished(BillingResult billingResult) {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     // The BillingClient is ready. You can query purchases here.
+                    getAllInAppProducts();
                     if (displayProducts)
                         getProducts();
                     else
@@ -75,6 +78,27 @@ public class Billing {
 
     public void subscribeListener(AcknowledgePurchaseResponseListener acknowledgePurchaseResponseListener) {
         this.acknowledgePurchaseResponseListener = acknowledgePurchaseResponseListener;
+    }
+
+    public void subscribeInAppListener(ConsumeResponseListener consumeResponseListener) {
+        this.consumerResponseListener = consumeResponseListener;
+    }
+
+    public void getAllInAppProducts() {
+        List<String> skuList = new ArrayList<>();
+        skuList.add("daily_buy");
+        skuList.add("monthly_buy");
+        SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
+        params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
+        billingClient.querySkuDetailsAsync(params.build(),
+                this::onSkuDetailsResponse);
+    }
+
+    public void startInAppFlow(int subscriptionNumber) {
+        BillingFlowParams billingFlowParams = BillingFlowParams.newBuilder()
+                .setSkuDetails(skuDetailsList.get(subscriptionNumber))
+                .build();
+        int responseCode = billingClient.launchBillingFlow(activity, billingFlowParams).getResponseCode();
     }
 
     private void acknowledgePreviousOrders() {
@@ -125,12 +149,29 @@ public class Billing {
         // Ensure entitlement was not already granted for this purchaseToken.
         // Grant entitlement to the user.
 
+//        if (!purchase.isAcknowledged()) {
+//            AcknowledgePurchaseParams acknowledgePurchaseParams =
+//                    AcknowledgePurchaseParams.newBuilder()
+//                            .setPurchaseToken(purchase.getPurchaseToken())
+//                            .build();
+//            billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
+//        }
         if (!purchase.isAcknowledged()) {
-            AcknowledgePurchaseParams acknowledgePurchaseParams =
-                    AcknowledgePurchaseParams.newBuilder()
+            ConsumeParams consumeParams =
+                    ConsumeParams.newBuilder()
                             .setPurchaseToken(purchase.getPurchaseToken())
                             .build();
-            billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
+
+//        ConsumeResponseListener listener = new ConsumeResponseListener() {
+//            @Override
+//            public void onConsumeResponse(BillingResult billingResult, String purchaseToken) {
+//                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+//                    // Handle the success of the consume operation.
+//                }
+//            }
+//        };
+
+            billingClient.consumeAsync(consumeParams, consumerResponseListener);
         }
     }
 

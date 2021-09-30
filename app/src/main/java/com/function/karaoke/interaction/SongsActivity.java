@@ -37,9 +37,9 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.android.billingclient.api.AcknowledgePurchaseResponseListener;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.DatabaseSongsDB;
@@ -77,6 +77,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -96,6 +97,9 @@ public class SongsActivity
     private static final String USER_INFO = "User";
     private static final String GENRES = "genres";
     private static final String WEBSITE = "website";
+    private static final String DAILY_SUB = "daily";
+    private static final String MONTHLY_SUB = "monthly";
+
     public String language;
     Locale myLocale;
     private Billing billingSession;
@@ -153,6 +157,7 @@ public class SongsActivity
 
         }
     };
+    private String funcToCall = "";
 
     private SongsListFragment getFragment() {
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
@@ -288,13 +293,37 @@ public class SongsActivity
                             checkForFilesToUpload();
                 }
             });
-            billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
+//            billingSession.subscribeListener(new AcknowledgePurchaseResponseListener() {
+//                @Override
+//                public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
+//                    File file = renamePendingFiles();
+//                    if (file != null)
+//                        if (Util.SDK_INT >= 24)
+//                            checkForFilesToUpload();
+//                }
+//            });
+            billingSession.subscribeInAppListener(new ConsumeResponseListener() {
                 @Override
-                public void onAcknowledgePurchaseResponse(@NonNull BillingResult billingResult) {
-                    File file = renamePendingFiles();
-                    if (file != null)
-                        if (Util.SDK_INT >= 24)
-                            checkForFilesToUpload();
+                public void onConsumeResponse(@NonNull BillingResult billingResult, @NonNull String s) {
+                    UserService userService = new UserService(new DatabaseDriver(), new AuthenticationDriver());
+                    Date today = new Date();
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(today);
+                    System.out.println("this is the the func to call " + funcToCall);
+                    if (funcToCall.equals(DAILY_SUB)) {
+                        calendar.add(Calendar.DATE, 1);
+                        String expirationDate = String.valueOf(new SimpleDateFormat("yyyyMMdd_HHmmss",
+                                Locale.getDefault()).format(calendar.getTime().getTime()));
+                        userService.changeExpirationDate(expirationDate);
+                        user.setExpirationDate(expirationDate);
+                    } else {
+                        calendar.add(Calendar.MONTH, 1);
+                        String expirationDate = String.valueOf(new SimpleDateFormat("yyyyMMdd_HHmmss",
+                                Locale.getDefault()).format(calendar.getTime().getTime()));
+                        userService.changeExpirationDate(expirationDate);
+                        user.setExpirationDate(expirationDate);
+                    }
+                    getFragment().addUser(user);
                 }
             });
         }
@@ -366,8 +395,6 @@ public class SongsActivity
                                     File recordingFile = (new File(saveItems.getFile()));
                                     recordingFile.delete();
                                     deleteJsonFile(folder, recordingFile.getName());
-//                        deleteJsonFolder(folder);
-//                    parentView.findViewById(R.id.upload_progress_wheel).setVisibility(View.INVISIBLE);
                                 }
 
                                 @Override
@@ -494,6 +521,7 @@ public class SongsActivity
                 @Override
                 public void user(UserInfo userInfo) {
                     user = userInfo;
+                    getFragment().addUser(user);
                 }
             });
         }
@@ -524,6 +552,11 @@ public class SongsActivity
     public void onListFragmentInteractionPlay(Reocording item) {
         songClicked = (DatabaseSong) item;
         askForAudioRecordPermission();
+    }
+
+    @Override
+    public void onListFragmentInteractionOpenPay(DatabaseSong mItem) {
+        getFragment().openPaymentPage();
     }
 
     @Override
@@ -718,6 +751,13 @@ public class SongsActivity
 
                                 signInViewModel.addNewUserToDatabase(user);
                             }
+                            if (funcToCall.equals("")) {
+                                SongsListFragment fragment = getFragment();
+                                fragment.showSuccessSignIn();
+                                fragment.addUser(user);
+                            } else {
+                                openBilling(funcToCall);
+                            }
                         }
 
                         @Override
@@ -727,10 +767,12 @@ public class SongsActivity
 
                                 signInViewModel.addNewUserToDatabase(user);
                             }
+
+                            openBilling(funcToCall);
+
                         }
                     });
-                    SongsListFragment fragment = getFragment();
-                    fragment.showSuccessSignIn();
+
                 }
 
 
@@ -742,6 +784,20 @@ public class SongsActivity
         } catch (Exception e) {
 //                Toast.makeText(this, context.getResources().getString(R.string.sign_in_error), Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void openBilling(String funcToCall) {
+        getFragment().closePaymentPage();
+        if (!isPayingUser(user))
+            billingSession.startInAppFlow(funcToCall.equals(DAILY_SUB) ? 0 : 1);
+        else
+            getFragment().addUser(user);
+    }
+
+    private boolean isPayingUser(UserInfo user) {
+        String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        return user.getExpirationDate().compareTo(date) > 0;
     }
 
     private boolean checkInternet() {
@@ -756,5 +812,27 @@ public class SongsActivity
     @Override
     public void callback(String result) {
 
+    }
+
+    public void openDailySubscription(View view) {
+        funcToCall = DAILY_SUB;
+        if (user == null) {
+            signIn();
+        } else {
+            openBilling(DAILY_SUB);
+        }
+    }
+
+    public void openMonthlySubscription(View view) {
+        funcToCall = MONTHLY_SUB;
+        if (user == null) {
+            signIn();
+        } else {
+            openBilling(MONTHLY_SUB);
+        }
+    }
+
+    public void openPaymentPage(View view) {
+        getFragment().openPaymentPage();
     }
 }

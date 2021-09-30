@@ -29,8 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/no_hardcode_dimension"
             android:background="@drawable/ic_genre_display"
-            android:gravity="center"
             android:fontFamily="@font/varela_round_regular"
+            android:gravity="center"
             android:textColor="@android:color/white"
             app:layout_constraintDimensionRatio="2.7"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -232,6 +232,39 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/member_subscription"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        app:layout_constraintHeight_percent="0.1"
+        android:background="@drawable/main_background"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/loading_percent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/to_subscribe_click_here"
+            android:paddingHorizontal="10dp"
+            android:textColor="@color/exo_white" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/custom_button"
+            android:onClick="openPaymentPage"
+            android:paddingHorizontal="10dp"
+            android:text="@string/subscribe"
+            android:textColor="@color/exo_white" />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:id="@+id/loading_percent"

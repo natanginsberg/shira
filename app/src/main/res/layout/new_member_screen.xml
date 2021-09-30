@@ -8,7 +8,7 @@
     android:background="@drawable/end_songs_background"
     android:orientation="vertical"
     android:weightSum="1"
-    tools:context=".SingActivity">
+    tools:context=".SongsActivity">
 
 
     <TextView
@@ -26,6 +26,7 @@
 
 
     <LinearLayout
+        android:id="@+id/payment_part"
         android:layout_width="match_parent"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_gravity="center"
@@ -39,11 +40,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginHorizontal="15dp"
-            android:layout_weight="0.4"
+            android:layout_weight="0.3"
             android:gravity="center"
             android:text="@string/member_invite"
             android:textColor="@android:color/white"
             android:textSize="18sp" />
+
 
 
         <LinearLayout
@@ -54,10 +56,11 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="50dp"
                 android:layout_marginHorizontal="25sp"
                 android:layout_marginVertical="20dp"
-                android:background="@drawable/member_background">
+                android:background="@drawable/member_background"
+                android:onClick="openDailySubscription">
 
 
                 <TextView
@@ -67,6 +70,7 @@
                     android:layout_gravity="center"
                     android:fontFamily="@font/varela_round_regular"
                     android:gravity="center"
+                    android:onClick="openDailySubscription"
                     android:text="@string/daily_membership"
                     android:textColor="@color/sing_up_hover"
                     android:textSize="24sp"
@@ -79,6 +83,7 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/member_price"
                     android:gravity="center"
+                    android:onClick="openDailySubscription"
                     android:text="10₪"
                     android:textColor="@android:color/white"
                     android:textSize="20sp"
@@ -89,10 +94,11 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="60dp"
+                android:layout_height="50dp"
                 android:layout_marginHorizontal="25sp"
                 android:layout_marginVertical="20dp"
-                android:background="@drawable/member_background">
+                android:background="@drawable/member_background"
+                android:onClick="openMonthlySubscription">
 
 
                 <TextView
@@ -102,6 +108,7 @@
                     android:layout_gravity="center"
                     android:fontFamily="@font/varela_round_regular"
                     android:gravity="center"
+                    android:onClick="openMonthlySubscription"
                     android:text="@string/monthly_membership"
                     android:textColor="@color/sing_up_hover"
                     android:textSize="24sp"
@@ -114,6 +121,7 @@
                     android:layout_height="match_parent"
                     android:background="@drawable/member_price"
                     android:gravity="center"
+                    android:onClick="openMonthlySubscription"
                     android:text="50₪"
 
                     android:textColor="@android:color/white"

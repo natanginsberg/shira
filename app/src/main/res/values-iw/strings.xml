@@ -183,5 +183,8 @@
     <string name="get_all_users">הצג את כל המשתמשים</string>
     <string name="members_onlu">מנויים</string>
     <string name="daily_membership">מנוי יומי</string>
+    <string name="sign_in_before_purchasing">(בטרם הרכישה  הינך מתבקש להירשם)</string>
+    <string name="to_subscribe_click_here">לרכישת מנוי לחץ כאן</string>
+    <string name="outdated_app">גרסה זו פג תוקפה! יש לעדכן גרסה</string>
 
 </resources>

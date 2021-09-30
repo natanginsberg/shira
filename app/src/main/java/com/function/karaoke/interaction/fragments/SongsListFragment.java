@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +39,9 @@ import com.function.karaoke.interaction.ui.SettingUI;
 import com.function.karaoke.interaction.ui.SongsActivityUI;
 import com.function.karaoke.interaction.utils.static_classes.OnSwipeTouchListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -89,6 +90,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private String currentGenre;
     private CountDownTimer cTimer;
     SongService songService = new SongService();
+    private List<String> demoSongs = new ArrayList<>();
+    private List<DatabaseSong> finalSongs;
 
 
     /**
@@ -231,7 +234,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 view.findViewById(R.id.loading_songs_progress_bar).setVisibility(View.INVISIBLE);
                 currentDatabaseSongs.updateSongs(songs);
                 allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
-                allSongsDatabase.updateSongs(currentDatabaseSongs.getSongs());
+                allSongsDatabase.updateSongs(songs);
             }
 
             @Override
@@ -266,6 +269,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         databaseDriver.getAllDemoSongsInCollection(new DatabaseDriver.DemoSongListener() {
             @Override
             public void onSuccess(List<String> songs) {
+                demoSongs = songs;
                 mAdapter.addDemoSongs(songs);
                 mAdapter.notifyDataSetChanged();
             }
@@ -281,7 +285,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     @Override
     public void onListUpdated() {
-        songsDb = mListener.getSongs();
+//        songsDb = mListener.getSongs();
 
         displayAllSongs();
     }
@@ -289,10 +293,10 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void displayAllSongs() {
         if (differentSongsDisplayed) {
-            double averageSongsPlayed = songsDb.getAverageSongsPlayed();
+            double averageSongsPlayed = allSongsDatabase.getAverageSongsPlayed();
             recyclerView.setAdapter(mAdapter);
             mAdapter.setAverage(averageSongsPlayed);
-            mAdapter.setData(songsDb.getSongs());
+            mAdapter.setData(currentDatabaseSongs.getSongs());
             mAdapter.notifyDataSetChanged();
         }
     }
@@ -313,28 +317,29 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             public boolean onQueryTextChange(String query) {
                 if (query.length() >= 1) {
                     view.findViewById(R.id.search_icon_and_words).setVisibility(View.INVISIBLE);
-                    if (query.length() > previousQuery.length()) {
-                        addCopyOfSongsDBToList(currentDatabaseSongs);
-                        getSongsSearchedFor(query.toLowerCase());
-                        Log.i("Bug88", String.valueOf(previousSongs.size()));
-                    } else {
-                        Log.i("Bug88", String.valueOf(previousSongs.size()));
-                        currentDatabaseSongs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
-                        previousSongs.remove(previousSongs.size() - 1);
-                    }
-                    mAdapter.notifyDataSetChanged();
-//                    gAdapter.notifyDataSetChanged();
-                    previousQuery = query;
+//                    if (query.length() > previousQuery.length()) {
+//                        addCopyOfSongsDBToList(currentDatabaseSongs);
+//                        getSongsSearchedFor(query.toLowerCase());
+//                        Log.i("Bug88", String.valueOf(previousSongs.size()));
+//                    } else {
+//                        Log.i("Bug88", String.valueOf(previousSongs.size()));
+//                        currentDatabaseSongs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
+//                        previousSongs.remove(previousSongs.size() - 1);
+//                    }
+//                    currentDatabaseSongs.updateSongs(getSongsSearchedFor(query));
+                    getSongsSearchedFor(query);
+                    //                    gAdapter.notifyDataSetChanged();
+//                    previousQuery = query;
                 } else {
                     view.findViewById(R.id.search_icon_and_words).setVisibility(View.VISIBLE);
-                    if (previousSongs.size() != 0) {
-                        currentDatabaseSongs.updateSongs(previousSongs.get(0).getSongs());
-                        mAdapter.notifyDataSetChanged();
-//                        gAdapter.notifyDataSetChanged();
-                    }
-                    previousSongs = new ArrayList<>();
-                    previousQuery = "";
+//                    if (previousSongs.size() != 0) {
+                    currentDatabaseSongs.updateSongs(allSongsDatabase.getSongs());
+                    //                        gAdapter.notifyDataSetChanged();
+//                    }
+//                    previousSongs = new ArrayList<>();
+//                    previousQuery = "";
                 }
+                mAdapter.notifyDataSetChanged();
                 return false;
             }
         });
@@ -349,7 +354,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void getSongsSearchedFor(String query) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();
-        for (DatabaseSong song : currentDatabaseSongs.getSongs()) {
+        for (DatabaseSong song : allSongsDatabase.getSongs()) {
             if (song.getTitle().toLowerCase().contains(query) || song.getArtist().toLowerCase().contains(query)) {
                 searchedSongs.add(song);
 
@@ -558,6 +563,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     private boolean userIsSignedIn() {
+        authenticationDriver = new AuthenticationDriver();
         return authenticationDriver.isSignIn() && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
     }
 
@@ -580,6 +586,32 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void showSuccessSignIn() {
         songsActivityUI.showSuccessSignIn();
+    }
+
+    public List<String> getFragmentDemoSongs() {
+        return demoSongs;
+    }
+
+    public void addUser(UserInfo user) {
+        mAdapter.setPayingCustomer(isPayingUser(user));
+        mAdapter.notifyDataSetChanged();
+        if (isPayingUser(user)) {
+            songsActivityUI.hideMemberSubscription();
+        }
+    }
+
+    private boolean isPayingUser(UserInfo user) {
+        String date = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                Locale.getDefault()).format(new Date());
+        return user.getExpirationDate().compareTo(date) > 0;
+    }
+
+    public void openPaymentPage() {
+        songsActivityUI.openPaymentPopup(userIsSignedIn());
+    }
+
+    public void closePaymentPage() {
+        songsActivityUI.closePaymentPopup();
     }
 
 
@@ -618,6 +650,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         void openPolicy(String policy);
 
         void openWebsite();
+
+        void onListFragmentInteractionOpenPay(DatabaseSong mItem);
     }
 
     private class GenreListener implements View.OnClickListener {

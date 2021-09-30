@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.function.karaoke.interaction.activities.Model.SignInViewModel;
 import com.function.karaoke.interaction.storage.AuthenticationDriver;
+import com.function.karaoke.interaction.storage.DatabaseDriver;
 import com.function.karaoke.interaction.ui.ShowPrivacyPolicy;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +30,7 @@ import java.util.Locale;
 public class PromoActivity extends AppCompatActivity {
 
 
+    private static final String VERSION_WORD = "pricing";
     private AuthenticationDriver authenticationDriver;
     private SignInViewModel signInViewModel;
     private boolean appStarted = false;
@@ -99,7 +101,22 @@ public class PromoActivity extends AppCompatActivity {
             }
         });
         authenticationDriver = new AuthenticationDriver();
-        setTimer();
+        DatabaseDriver databaseDriver = new DatabaseDriver();
+        databaseDriver.getVersionWord(new DatabaseDriver.VersionListener() {
+            @Override
+            public void onSuccess(String word) {
+                if (word.equals(VERSION_WORD))
+                    setTimer();
+                else {
+                    badVersionNotification();
+                }
+            }
+        });
+    }
+
+    private void badVersionNotification() {
+        findViewById(R.id.logo).setVisibility(View.INVISIBLE);
+        findViewById(R.id.bad_version).setVisibility(View.VISIBLE);
     }
 
     private void openAcumWebsite() {
@@ -108,7 +125,7 @@ public class PromoActivity extends AppCompatActivity {
     }
 
     private void setTimer() {
-        new CountDownTimer(1500, 500) {
+        new CountDownTimer(1000, 500) {
 
             public void onTick(long millisUntilFinished) {
             }

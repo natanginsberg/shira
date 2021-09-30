@@ -49,18 +49,24 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
     private static final int[] layouts = new int[]{R.layout.song_display_big, R.layout.song_display_small};
     private static final double[] heightFactors = new double[]{2.5, 3.5};
     private final OnListFragmentInteractionListener mListener;
+    private boolean payingCustomer;
     private List<DatabaseSong> mValues;
     private List<Recording> mRecordings;
     private double averageSongsPlayed;
     private List<String> demoSongs = new ArrayList<>();
 
     public SongRecyclerViewAdapter(List<? extends DatabaseSong> items, OnListFragmentInteractionListener listener) {
+        this.payingCustomer = false;
         setData(items);
         mListener = listener;
     }
 
     public void setAverage(double averageSongsPlayed) {
         this.averageSongsPlayed = averageSongsPlayed;
+    }
+
+    public void setPayingCustomer(boolean paying) {
+        this.payingCustomer = paying;
     }
 
     public void addDemoSongs(List<String> demoSongs) {
@@ -108,7 +114,11 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 
         holder.itemView.setOnClickListener(view -> {
             if (null != mListener) {
-                mListener.onListFragmentInteractionPlay(holder.mItem);
+                if (payingCustomer) {
+                    mListener.onListFragmentInteractionPlay(holder.mItem);
+                } else {
+                    mListener.onListFragmentInteractionOpenPay(holder.mItem);
+                }
             }
         });
 
@@ -192,7 +202,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
 
         private void setPopularTag(DatabaseSong song) {
-            if (song.getTimesPlayed() > 2 * averageSongsPlayed)
+            if (song.getTimesPlayed() > 2 * averageSongsPlayed && (demoSongs.contains(song.getTitle()) || payingCustomer))
                 mView.findViewById(R.id.popular_song_tag).setVisibility(View.VISIBLE);
             else
                 mView.findViewById(R.id.popular_song_tag).setVisibility(View.GONE);
@@ -201,7 +211,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         @SuppressLint("UseCompatLoadingForDrawables")
         private void setDemoAttributes(DatabaseSong song) {
             int randomColor = Math.random() < 0.5 ? 0 : 1;
-            if (!demoSongs.contains(song.getTitle())) {
+            if (!(demoSongs.contains(song.getTitle()) || payingCustomer)) {
                 mView.findViewById(R.id.song_placeholder).setBackground(mView.getContext().getResources().getDrawable(restricted_rectangle, null));
                 mView.findViewById(R.id.member_tag).setVisibility(View.VISIBLE);
             } else {

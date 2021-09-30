@@ -43,7 +43,7 @@ public class DatabaseDriver {
 
     public void getAllSongsInCollection(SongListener songListener) {
         final List<DatabaseSong> documentsList = new ArrayList<>();
-        getCollectionReferenceByName("songs")
+        getCollectionReferenceByName("songsNew")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -74,7 +74,7 @@ public class DatabaseDriver {
 
     public void getSong(String title, SongListener songListener) {
         final List<DatabaseSong> documentsList = new ArrayList<>();
-        getCollectionReferenceByName("songs")
+        getCollectionReferenceByName("songsNew")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -141,6 +141,17 @@ public class DatabaseDriver {
         });
     }
 
+    public void getVersionWord(VersionListener vl) {
+        getCollectionReferenceByName("randomFields").document("version")
+                .get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                vl.onSuccess((String) task.getResult().get("word"));
+            }
+        }).addOnFailureListener(e -> {
+            int k = 0;
+        });
+    }
+
 
     public interface KeyListener {
         void onSuccess(String id, String secretKey);
@@ -150,6 +161,10 @@ public class DatabaseDriver {
         void onSuccess(List<DatabaseSong> songs);
 
         void onFail();
+    }
+
+    public interface VersionListener {
+        void onSuccess(String word);
     }
 
     public interface RecordingL {

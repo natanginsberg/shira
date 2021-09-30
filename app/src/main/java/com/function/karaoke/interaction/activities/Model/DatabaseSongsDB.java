@@ -67,6 +67,10 @@ public class DatabaseSongsDB {
         songsUpdated(songs);
     }
 
+    public void updateSongs(String query) {
+
+    }
+
     public interface IListener {
         void onListUpdated();
     }

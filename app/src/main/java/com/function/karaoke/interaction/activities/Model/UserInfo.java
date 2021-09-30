@@ -20,6 +20,7 @@ public class UserInfo implements Serializable {
     String expirationDate = "";
     String purchaseToken = "";
 
+
     public UserInfo() {
     }
 

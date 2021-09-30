@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class SongService {
 
-    private final String COLLECTION_SONGS_NAME = "songs";
+    private final String COLLECTION_SONGS_NAME = "songsNew";
     private final String TIMES_DOWNLOADED = "timesDownloaded";
     private final String TIMES_PLAYED = "timesPlayed";
     private final String UPDATING = "updating";

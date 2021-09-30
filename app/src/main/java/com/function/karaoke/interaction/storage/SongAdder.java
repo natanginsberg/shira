@@ -2,13 +2,14 @@ package com.function.karaoke.interaction.storage;
 
 import androidx.annotation.NonNull;
 
+import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.FirestoreSong;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.firestore.CollectionReference;
 
 public class SongAdder {
 
-    private static final String SONG_NAME = "songs";
+    private static final String SONG_NAME = "songsNew";
     private final CollectionReference songsCollectionRef;
 
     public SongAdder(DatabaseDriver databaseDriver) {
@@ -23,4 +24,5 @@ public class SongAdder {
             }
         });
     }
+
 }
