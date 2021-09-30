@@ -114,7 +114,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
 
         holder.itemView.setOnClickListener(view -> {
             if (null != mListener) {
-                if (payingCustomer) {
+                if (payingCustomer || demoSongs.contains(holder.mItem.getTitle())) {
                     mListener.onListFragmentInteractionPlay(holder.mItem);
                 } else {
                     mListener.onListFragmentInteractionOpenPay(holder.mItem);

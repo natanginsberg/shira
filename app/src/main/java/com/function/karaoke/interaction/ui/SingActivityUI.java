@@ -523,7 +523,7 @@ public class SingActivityUI {
     private void placeSignUpOptionsOnScreen(Context context) {
         secondPopup = new PopupWindow(context);
         setSignUpPopupAttributes(context, secondPopup, secondPopupView);
-        view.post(() -> secondPopup.showAtLocation(secondPopupView, Gravity.CENTER, 0, 0));
+        secondPopup.showAtLocation(secondPopupView, Gravity.CENTER, 0, 0);
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -705,6 +705,10 @@ public class SingActivityUI {
     public void showRecordingError(TimerListener timerListener) {
         PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getString(R.string.recorder_error));
         showPopupForOneSecond(popupWindow, timerListener);
+    }
+
+    public void removeEarphonePrompt() {
+        view.findViewById(R.id.attach_earphones_text).setVisibility(View.GONE);
     }
 
 

@@ -348,19 +348,25 @@ public class CameraPreview {
     }
 
     public boolean stopRecording() {
+        boolean error = false;
         if (mMediaRecorder != null) {
             if (isRecording)
-                mMediaRecorder.stop();
-            mMediaRecorder.reset();
-            mMediaRecorder.release();
-            mMediaRecorder = null;
-            isRecording = false;
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                audioRecorder.stopRecording();
-//                audioRecorder.deleteFile();
-//            }
+                try {
+                    mMediaRecorder.stop();
+
+                    mMediaRecorder.stop();
+                    mMediaRecorder.reset();
+                } catch (RuntimeException e) {
+                    mVideoFile.delete(); //you must delete the outputfile when the recorder stop failed.
+                    cameraErrorListener.cameraError();
+                    error = true;
+                } finally {
+                    mMediaRecorder.release();
+                    mMediaRecorder = null;
+                    isRecording = false;
+                }
         }
-        return isRecording;
+        return !error;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

@@ -90,12 +90,12 @@ public class EarphoneListener {
 
     private void promptUserToConnectEarphones() {
 
-        Toast toast = Toast.makeText(context, context.getResources().getString(R.string.attach_earphones), Toast.LENGTH_LONG);
-        if (toast.getView() != null) {
-            TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-            if (v != null) v.setGravity(Gravity.CENTER);
-        }
-        toast.show();
+//        Toast toast = Toast.makeText(context, context.getResources().getString(R.string.attach_earphones), Toast.LENGTH_LONG);
+//        if (toast.getView() != null) {
+//            TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+//            if (v != null) v.setGravity(Gravity.CENTER);
+//        }
+//        toast.show();
 
     }
 

@@ -36,7 +36,7 @@ public class IndicationPopups {
     }
 
     private static PopupWindow placeIndicationOnScreen(Context context, View popupView) {
-        if (popupView != null ) {
+        if (popupView != null && context != null) {
             PopupWindow popup = new PopupWindow(context);
             setSharePopupAttributes(context, popup, popupView);
             popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);

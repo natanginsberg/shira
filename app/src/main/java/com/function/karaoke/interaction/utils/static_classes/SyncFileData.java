@@ -22,7 +22,7 @@ public class SyncFileData {
 
     private static boolean flagged;
 
-    public static File parseVideo(File mFilePath, File file, File audioFile, File outputFile) throws IOException {
+    public static File parseVideo(File mFilePath, File file) throws IOException {
         boolean isError = false;
         DataSource channel = new FileDataSourceImpl(mFilePath.getAbsolutePath());
         IsoFile isoFile = new IsoFile(channel);

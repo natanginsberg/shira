@@ -76,7 +76,6 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     private DatabaseDriver databaseDriver;
     private RecordingService recordingService;
     private RecordingDB recordingDB;
-    private DatabaseSongsDB songsDb;
     private View popupView;
     private PopupWindow popup;
     private Genres genres;
@@ -317,40 +316,16 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
             public boolean onQueryTextChange(String query) {
                 if (query.length() >= 1) {
                     view.findViewById(R.id.search_icon_and_words).setVisibility(View.INVISIBLE);
-//                    if (query.length() > previousQuery.length()) {
-//                        addCopyOfSongsDBToList(currentDatabaseSongs);
-//                        getSongsSearchedFor(query.toLowerCase());
-//                        Log.i("Bug88", String.valueOf(previousSongs.size()));
-//                    } else {
-//                        Log.i("Bug88", String.valueOf(previousSongs.size()));
-//                        currentDatabaseSongs.updateSongs(previousSongs.get(previousSongs.size() - 1).getSongs());
-//                        previousSongs.remove(previousSongs.size() - 1);
-//                    }
-//                    currentDatabaseSongs.updateSongs(getSongsSearchedFor(query));
                     getSongsSearchedFor(query);
-                    //                    gAdapter.notifyDataSetChanged();
-//                    previousQuery = query;
                 } else {
                     view.findViewById(R.id.search_icon_and_words).setVisibility(View.VISIBLE);
-//                    if (previousSongs.size() != 0) {
                     currentDatabaseSongs.updateSongs(allSongsDatabase.getSongs());
-                    //                        gAdapter.notifyDataSetChanged();
-//                    }
-//                    previousSongs = new ArrayList<>();
-//                    previousQuery = "";
                 }
                 mAdapter.notifyDataSetChanged();
                 return false;
             }
         });
     }
-
-    private void addCopyOfSongsDBToList(DatabaseSongsDB songs) {
-        DatabaseSongsDB preSongs = new DatabaseSongsDB(songs);
-        preSongs.updateSongs(songs.getSongs());
-        previousSongs.add(preSongs);
-    }
-
 
     private void getSongsSearchedFor(String query) {
         List<DatabaseSong> searchedSongs = new ArrayList<>();

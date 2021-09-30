@@ -671,6 +671,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     public void playMusic(View view) {
+        activityUI.removeEarphonePrompt();
         if (mKaraokeKonroller.isPrepared() && !startTimerStarted) {
             restart = false;
             activityUI.setSurfaceForRecording(cameraOn);
@@ -882,9 +883,9 @@ public class SingActivity extends AppCompatActivity implements
         try {
             stopRecordingAndSong();
             File file = cameraPreview.getVideo();
-            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile(), new File(downloadFilePath), outputFile);
+            File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile());
             setDelay(Uri.fromFile(newlyParsedFile));
-            downloadVideo(newlyParsedFile);
+            //downloadVideo(newlyParsedFile);
             return newlyParsedFile;
 
         } catch (IOException e) {
@@ -1584,12 +1585,22 @@ public class SingActivity extends AppCompatActivity implements
 
     @Override
     public void cameraError() {
-
+        activityUI.showRecordingError(new SingActivityUI.TimerListener() {
+            @Override
+            public void timerOver() {
+//                finishActivity();
+            }
+        });
     }
 
     @Override
     public void recorderError() {
-
+        activityUI.showRecordingError(new SingActivityUI.TimerListener() {
+            @Override
+            public void timerOver() {
+//                finishActivity();
+            }
+        });
     }
 
 
