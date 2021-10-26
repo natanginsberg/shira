@@ -41,7 +41,7 @@ public class ShowPrivacyPolicy {
         });
     }
 
-    private static void addWordsToPopup(TextView view, Context context) {
+    public static void addWordsToPopup(TextView view, Context context) {
 
         StringBuilder text = new StringBuilder();
         text.append('\n');
@@ -86,8 +86,6 @@ public class ShowPrivacyPolicy {
             Toast.makeText(context, "Error reading file!", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         } finally {
-            //log the exception
-
             view.setText((CharSequence) text);
 
         }

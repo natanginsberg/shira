@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/privacy_prompt"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/main_background_footer"
+    android:theme="@style/AppTheme"
+    android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/privacy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="70dp"
+            android:text="@string/privacy"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:gravity="center_vertical|start"
+            android:textAlignment="gravity"/>
+
+        <TextView
+            android:id="@+id/user_contract"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical|start"
+            android:layout_marginStart="70dp"
+            android:text="@string/ashira_privacy_policy"
+            android:textColor="@android:color/white"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/close"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/no_hardcode_dimension"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:gravity="center_vertical|end"
+            android:layout_marginEnd="70dp"
+            android:text="@string/close"
+            android:textColor="@android:color/holo_red_dark"
+            android:textSize="15sp" />
+
+</LinearLayout>

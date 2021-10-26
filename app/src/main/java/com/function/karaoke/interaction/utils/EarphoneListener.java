@@ -7,11 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.view.Gravity;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.function.karaoke.interaction.R;
+import com.function.karaoke.interaction.ui.SingActivityUI;
 
 public class EarphoneListener {
 
@@ -23,13 +20,13 @@ public class EarphoneListener {
     private boolean microphonePluggedIn;
     private boolean prompted;
 
-    public EarphoneListener(Context context) {
+    public EarphoneListener(Context context, SingActivityUI ui) {
         this.context = context;
-        createEarphoneReceivers();
+        createEarphoneReceivers(ui);
     }
 
-    private void createEarphoneReceivers() {
-        createHeadphoneReceiver();
+    private void createEarphoneReceivers(SingActivityUI ui) {
+        createHeadphoneReceiver(ui);
 //        createBluetoothReceiver();
 //        checkIfHeadsetIsPairedAlready();
     }
@@ -63,7 +60,7 @@ public class EarphoneListener {
         context.registerReceiver(bReceiver, receiverFilter);
     }
 
-    private void createHeadphoneReceiver() {
+    private void createHeadphoneReceiver(SingActivityUI ui) {
         mReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -73,12 +70,12 @@ public class EarphoneListener {
                     iii = intent.getIntExtra("state", -1);
                     if (Integer.valueOf(iii) == 0) {
                         microphonePluggedIn = false;
-//                        Toast.makeText(getApplicationContext(), "microphone not plugged in", Toast.LENGTH_LONG).show();
-                        if (!bluetoothConnectionExists && !bluetoothConnected && !prompted)
-                            promptUserToConnectEarphones();
+//
+                        ui.showEarphonePrompt();
                     }
                     if (Integer.valueOf(iii) == 1) {
                         microphonePluggedIn = true;
+                        ui.removeEarphonePrompt();
 //                        Toast.makeText(getApplicationContext(), "microphone plugged in", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -113,6 +110,6 @@ public class EarphoneListener {
     }
 
     public boolean getEarphonesUsed() {
-        return microphonePluggedIn || bluetoothConnectionExists || bluetoothConnected;
+        return microphonePluggedIn;
     }
 }

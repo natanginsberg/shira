@@ -8,14 +8,13 @@ android {
         applicationId "com.function.karaoke.interaction"
         minSdkVersion 24
         targetSdkVersion 30
-        versionCode 55
-        versionName "1.06"
+        versionCode 65
+        versionName "1.17   "
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         repositories {
             mavenCentral()
             maven { url 'https://jitpack.io' }
         }
-
     }
     buildTypes {
         release {

@@ -14,8 +14,7 @@
         android:layout_height="@dimen/no_hardcode_dimension"
         android:background="@drawable/menu_background"
         app:layout_constraintHeight_percent="0.95"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -180,66 +179,77 @@
                 android:layout_height="1dp"
                 android:background="@android:color/white" />
 
-            <TextView
-                android:id="@+id/about"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:paddingBottom="10dp"
-                android:text="@string/about"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="15sp" />
-
-            <View
+            <LinearLayout
+                android:id="@+id/app_info"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/white" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/about"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="10dp"
+                    android:text="@string/about"
+                    android:textColor="@color/sing_up_hover"
+                    android:textSize="15sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/white" />
+
+                <TextView
+                    android:id="@+id/privacy_policy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="10dp"
+                    android:text="@string/ashira_privacy_policy"
+                    android:textColor="@color/sing_up_hover"
+                    android:textSize="15sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/white" />
+
+
+                <TextView
+                    android:id="@+id/contact_us"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="10dp"
+                    android:text="@string/contact_us"
+                    android:textColor="@color/sing_up_hover"
+                    android:textSize="15sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/white" />
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/privacy_policy"
+                android:id="@+id/app_info_open"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:paddingBottom="10dp"
-                android:text="@string/ashira_privacy_policy"
+                android:text="@string/app_info"
                 android:textColor="@color/sing_up_hover"
                 android:textSize="15sp" />
 
             <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/white" />
-
-            <TextView
-                android:id="@+id/terms_of_use"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:paddingBottom="10dp"
-                android:text="@string/ashira_terms_of_use"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="15sp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/white" />
-
-            <TextView
-                android:id="@+id/contact_us"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:paddingBottom="10dp"
-                android:text="@string/contact_us"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="15sp" />
-
-            <View
+                android:id="@+id/app_info_line"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@android:color/white" />

@@ -193,12 +193,13 @@ public class SingActivityUI {
         popup = new PopupWindow(context);
 
         setPopupAttributes(context, popup, popupView);
-        view.post(new Runnable() {
-            @Override
-            public void run() {
-                popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
-            }
-        });
+        if (view != null && context != null)
+            view.post(new Runnable() {
+                @Override
+                public void run() {
+                    popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+                }
+            });
     }
 
     private void applyDim(ViewOverlay overlay, Context context) {
@@ -557,7 +558,6 @@ public class SingActivityUI {
         ShareOptionsUI shareOptionsUI = new ShareOptionsUI(view, userInfo, cameraOn);
         shareOptionsUI.openShareOptions(context, shareListener);
         setThirdPopupDismissListener(shareOptionsUI);
-
     }
 
     private void setThirdPopupDismissListener(ShareOptionsUI shareOptionsUI) {
@@ -682,8 +682,12 @@ public class SingActivityUI {
     }
 
     public void showSaveFail(TimerListener timerListener) {
+        showFail(timerListener, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
+    }
+
+    public void showFail(TimerListener timerListener, String wording) {
         if (view != null) {
-            PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
+            PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, wording);
             showPopupForOneSecond(popupWindow, timerListener);
         }
     }
@@ -694,8 +698,7 @@ public class SingActivityUI {
     }
 
     public void showSlowInternetError(TimerListener timerListener) {
-        PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getString(R.string.slow_internet));
-        showPopupForOneSecond(popupWindow, timerListener);
+        showFail(timerListener, activityWeakReference.get().getString(R.string.slow_internet));
     }
 
     public void showErrorPausingVideo() {
@@ -703,12 +706,43 @@ public class SingActivityUI {
     }
 
     public void showRecordingError(TimerListener timerListener) {
-        PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, activityWeakReference.get().getString(R.string.recorder_error));
-        showPopupForOneSecond(popupWindow, timerListener);
+        showFail(timerListener, activityWeakReference.get().getString(R.string.recorder_error));
     }
 
     public void removeEarphonePrompt() {
         view.findViewById(R.id.attach_earphones_text).setVisibility(View.GONE);
+    }
+
+    public void showEarphonePrompt() {
+        view.findViewById(R.id.attach_earphones_text).setVisibility(View.GONE);
+    }
+
+    public void failBackground() {
+        if (view != null)
+            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.RED);
+    }
+
+    public void changeBackground() {
+        if (view != null) {
+            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.GREEN);
+            popupView.findViewById(R.id.download_sizes).setVisibility(View.GONE);
+        }
+    }
+
+    public void changeBackgroundToBlue() {
+        if (view != null)
+            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.BLUE);
+    }
+
+    public void showOutOfMemory(TimerListener timerListener) {
+        showFail(timerListener, activityWeakReference.get().getResources().getString(R.string.out_of_memory));
+    }
+
+    public void openDownloadOptions() {
+        if (view != null) {
+            popupView.findViewById(R.id.download_sizes).setVisibility(View.VISIBLE);
+            popupView.findViewById(R.id.download).setVisibility(View.GONE);
+        }
     }
 
 

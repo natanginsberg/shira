@@ -155,6 +155,7 @@ public class RecordingsActivity extends AppCompatActivity implements
         }
     };
     private boolean okClicked;
+    private SettingUI settingUI;
 
     private void addRecordingToScreen(double content, Recording recording) {
         if (recordingsDisplayed == null) {
@@ -673,7 +674,7 @@ public class RecordingsActivity extends AppCompatActivity implements
     }
 
     public void openSettingsPopup(View view) {
-        SettingUI settingUI = new SettingUI(findViewById(R.id.recordings_activty), this);
+        settingUI = new SettingUI(findViewById(R.id.recordings_activty), this);
         authenticationDriver = new AuthenticationDriver();
         boolean userIsSignedIn = authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
@@ -703,9 +704,19 @@ public class RecordingsActivity extends AppCompatActivity implements
         myRecordingsToDisplayListener();
         signOutButtonListener();
         contactUsListener();
+        appInfoListener();
         policyListener();
         couponListener();
         openWebsiteListener();
+    }
+
+    private void appInfoListener() {
+        popupView.findViewById(R.id.app_info_open).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                settingUI.openAppInfo(popupView);
+            }
+        });
     }
 
     private void openWebsiteListener() {
@@ -732,9 +743,9 @@ public class RecordingsActivity extends AppCompatActivity implements
 
     private void policyListener() {
         popupView.findViewById(R.id.privacy_policy).setOnClickListener(view -> {
-            openPage(PRIVACY_POLICY);
+            settingUI.openPrivacyOptions();
         });
-        popupView.findViewById(R.id.terms_of_use).setOnClickListener(view -> openPage(TERMS_OF_USE));
+//        popupView.findViewById(R.id.terms_of_use).setOnClickListener(view -> openPage(TERMS_OF_USE));
     }
 
     private void contactUsListener() {

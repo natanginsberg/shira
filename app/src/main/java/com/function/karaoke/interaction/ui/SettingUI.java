@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.interaction.R;
 import com.function.karaoke.interaction.activities.Model.UserInfo;
+import com.function.karaoke.interaction.utils.static_classes.Converter;
 import com.squareup.picasso.Picasso;
 
 import java.lang.ref.WeakReference;
@@ -181,5 +182,100 @@ public class SettingUI {
         }
     }
 
+    public void openAppInfo(View popupView) {
+        popupView.findViewById(R.id.app_info).setVisibility(View.VISIBLE);
+        popupView.findViewById(R.id.app_info_open).setVisibility(View.GONE);
+        popupView.findViewById(R.id.app_info_line).setVisibility(View.GONE);
+    }
+
+    public void openPrivacyOptions() {
+        RelativeLayout viewGroup = view.findViewById(R.id.privacy_prompt);
+        LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.privacy_prompt, viewGroup);
+        PopupWindow popupWindow = placeIndicationOnScreen(activityWeakReference.get(), popupView);
+        setOnClickListeners(popupView, popupWindow);
+    }
+
+    private void setOnClickListeners(View popupView, PopupWindow popupWindow) {
+        popupView.findViewById(R.id.user_contract).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openPrivacyPolicyAndTerms();
+                popupWindow.dismiss();
+            }
+        });
+
+        popupView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+            }
+        });
+    }
+
+
+    private PopupWindow placeIndicationOnScreen(Context context, View popupView) {
+        if (popupView != null && context != null) {
+            PopupWindow popup = new PopupWindow(context);
+            setSharePopupAttributes(context, popup, popupView);
+            popup.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+            return popup;
+        }
+        return null;
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void setSharePopupAttributes(Context context, PopupWindow popup, View layout) {
+        int width = Math.min(Converter.convertDpToPx(278), (int) (context.getResources().getDisplayMetrics().widthPixels * 0.77));
+        int height = (int) (width * 0.73);
+        popup.setContentView(layout);
+        popup.setWidth(width);
+        popup.setHeight(height);
+        popup.setTouchable(true);
+        popup.setFocusable(true);
+        popup.setOutsideTouchable(true);
+        popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
+    }
+
+
+    private void openPrivacyPolicyAndTerms() {
+        LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout viewGroup = view.findViewById(R.id.privacy_policy_info);
+        View popupView = layoutInflater.inflate(R.layout.privacy_policy, viewGroup);
+        PopupWindow popupWindow = placePolicyOnScreen(activityWeakReference.get(), popupView);
+        ShowPrivacyPolicy.addWordsToPopup((TextView) popupView.findViewById(R.id.policy_words), activityWeakReference.get());
+        setPolicyListener(popupView, popupWindow);
+    }
+
+    private void setPolicyListener(View popupView, PopupWindow popupWindow) {
+        popupView.findViewById(R.id.close).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                popupWindow.dismiss();
+            }
+        });
+    }
+
+    private PopupWindow placePolicyOnScreen(Context context, View popupView) {
+        if (popupView != null && context != null) {
+            PopupWindow popup = new PopupWindow(context);
+            setPolicyAttributes(activityWeakReference.get(), popup, popupView);
+            popup.showAtLocation(popupView, Gravity.TOP, 0, 0);
+            return popup;
+        }
+        return null;
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void setPolicyAttributes(Context context, PopupWindow popup, View layout) {
+        int width = (int) (context.getResources().getDisplayMetrics().widthPixels);
+        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * .95);
+        popup.setContentView(layout);
+        popup.setWidth(width);
+        popup.setHeight(height);
+        popup.setTouchable(true);
+        popup.setFocusable(true);
+        popup.setOutsideTouchable(true);
+    }
 
 }

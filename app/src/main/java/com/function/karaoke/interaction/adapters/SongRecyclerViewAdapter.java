@@ -188,11 +188,9 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                 mView.findViewById(R.id.new_song_tag).setVisibility(View.GONE);
                 return;
             }
-
             Date today = new Date();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(today);
-            calendar.add(Calendar.DAY_OF_MONTH, 14);
             String lastNewDate = String.valueOf(new SimpleDateFormat("yyyy-MM-dd",
                     Locale.getDefault()).format(calendar.getTime().getTime()));
             if (song.getDate().compareTo(lastNewDate) > 0) {
@@ -202,7 +200,7 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
         }
 
         private void setPopularTag(DatabaseSong song) {
-            if (song.getTimesPlayed() > 2 * averageSongsPlayed && (demoSongs.contains(song.getTitle()) || payingCustomer))
+            if (song.getTimesPlayed() > 2 * averageSongsPlayed && (payingCustomer))
                 mView.findViewById(R.id.popular_song_tag).setVisibility(View.VISIBLE);
             else
                 mView.findViewById(R.id.popular_song_tag).setVisibility(View.GONE);
@@ -224,7 +222,6 @@ public class SongRecyclerViewAdapter extends RecyclerView.Adapter<SongRecyclerVi
                     mView.findViewById(R.id.song_placeholder).setBackground(mView.getContext().getResources().getDrawable(transparentRectangles[1 + randomColor]));
                 }
             }
-//                mView.findViewById(R.id.song_placeholder).setBackgroundColor(Color.BLUE);
         }
     }
 }

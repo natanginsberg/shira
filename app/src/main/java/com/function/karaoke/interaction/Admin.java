@@ -34,6 +34,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -125,9 +126,14 @@ public class Admin extends AppCompatActivity {
         String genres = ((EditText) findViewById(R.id.genre)).getText().toString();
         String artistName = ((EditText) findViewById(R.id.artist_name)).getText().toString();
 
+        Date today = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(today);
+        calendar.add(Calendar.DAY_OF_MONTH, 14);
+        String date = String.valueOf(new SimpleDateFormat("yyyy-MM-dd",
+                Locale.getDefault()).format(calendar.getTime().getTime()));
 
-        FirestoreSong firestoreSong = new FirestoreSong(songName, artistName, genres, new SimpleDateFormat("yyyy-MM-dd",
-                Locale.getDefault()).format(new Date()));
+        FirestoreSong firestoreSong = new FirestoreSong(songName, artistName, genres, date);
         songAdder.addSongToDatabase(firestoreSong);
     }
 

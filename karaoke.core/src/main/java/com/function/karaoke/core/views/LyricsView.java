@@ -55,18 +55,18 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
             return;
         int pos = 0;
         for (Song.Syllable s : mLine.syllables)
-            if (s.to < position)
+            if (s.from < position)
                 pos += s.text.length();
-            else {
-                if (s.from < position && s.letters.get(0).letter == '*') {
-                    pos += s.text.length();
-                } else
-                    for (Song.Letter letter : s.letters)
-                        if (letter.from < position)
-                            pos += 1;
-                        else
-                            break;
-            }
+//            else {
+//                if (s.from < position && s.letters.get(0).letter == '*') {
+//                    pos += s.text.length();
+//                } else
+//                    for (Song.Letter letter : s.letters)
+//                        if (letter.from < position)
+//                            pos += 1;
+//                        else
+//                            break;
+//            }
         if (mCurrentChar == pos)
             return;
 

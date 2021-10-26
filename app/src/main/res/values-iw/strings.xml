@@ -41,7 +41,7 @@
     <string name="recording_volume">עוצמת ההקלטה</string>
     <string name="default_value">ברירת מחדל</string>
     <string name="sign_in_error">ההרשמה נכשלה</string>
-    <string name="attach_earphones">להקלטה איכותית יש לחבר אזניות חוטיות</string>
+    <string name="attach_earphones">להקלטה יש לחבר אזניות חוטיות</string>
     <string name="feedback">Feedback</string>
     <string name="man_tone">גבר</string>
     <string name="kid">ילד/ה</string>
@@ -156,7 +156,7 @@
     <string name="finshed_watching_recording">סיימת לצפות בביצוע!</string>
     <string name="agreed">מאשר</string>
     <string name="privacy_policy">מדיניות פרטיות</string>
-    <string name="ashira_privacy_policy">מדיניות פרטיות של אשירה</string>
+    <string name="ashira_privacy_policy">מדיניות פרטיות</string>
     <string name="ashira_terms_of_use">תנאי שימוש של אשירה</string>
     <string name="privacy_policy_amp_terms_of_use"><![CDATA[Privacy Policy & Terms of Use]]></string>
     <string name="ashira_agreement">בלחיצה על אשר הנך מאשר כי קראת והנך מסכים לתנאי השימוש ומדיניות הפרטיות בשירות.
@@ -186,5 +186,11 @@
     <string name="sign_in_before_purchasing">(בטרם הרכישה  הינך מתבקש להירשם)</string>
     <string name="to_subscribe_click_here">לרכישת מנוי לחץ כאן</string>
     <string name="outdated_app">גרסה זו פג תוקפה! יש לעדכן גרסה</string>
+    <string name="app_info">הגדרות</string>
+    <string name="privacy">פרטיות</string>
+    <string name="download">הורדה</string>
+    <string name="out_of_memory">נגמר הזיכרון בפלאפון</string>
+    <string name="compressed">מכווץ</string>
+    <string name="actual_size">גודל אמיתי</string>
 
 </resources>

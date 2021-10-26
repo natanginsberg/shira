@@ -99,6 +99,7 @@ public class CameraPreview {
     private MediaRecorder mMediaRecorder;
     private boolean isRecording = false;
     private CameraErrorListener cameraErrorListener;
+    private boolean micInUse = false;
 
     public CameraPreview(AppCompatActivity activity, Context context) {
 //        if (hasCamera)
@@ -301,7 +302,11 @@ public class CameraPreview {
 
 
             mMediaRecorder.prepare();
+            try {
             mMediaRecorder.start();
+            } catch (IllegalStateException e) {
+                micInUse = true;
+            }
             isRecording = true;
         } catch (Exception e) {
             if (retry) {
@@ -353,8 +358,6 @@ public class CameraPreview {
             if (isRecording)
                 try {
                     mMediaRecorder.stop();
-
-                    mMediaRecorder.stop();
                     mMediaRecorder.reset();
                 } catch (RuntimeException e) {
                     mVideoFile.delete(); //you must delete the outputfile when the recorder stop failed.
@@ -388,7 +391,11 @@ public class CameraPreview {
     public void resumeRecording() {
         if (mMediaRecorder != null) {
             if (isRecording)
+//                try {
                 mMediaRecorder.resume();
+//                } catch (IllegalStateException e) {
+//                    micInUse = true;
+//                }
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 //                audioRecorder.resumeRecording();
         }
@@ -427,6 +434,10 @@ public class CameraPreview {
 
     public void subscribeErrorListener(CameraErrorListener cameraErrorListener) {
         this.cameraErrorListener = cameraErrorListener;
+    }
+
+    public boolean isMicInUse() {
+        return micInUse;
     }
 
     private static class CompareSizeByArea implements Comparator<Size> {

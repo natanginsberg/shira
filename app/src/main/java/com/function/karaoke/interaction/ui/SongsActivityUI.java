@@ -3,13 +3,19 @@ package com.function.karaoke.interaction.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewOverlay;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 
+import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.interaction.R;
 import com.function.karaoke.interaction.activities.Model.Genres;
 
@@ -119,7 +125,8 @@ public class SongsActivityUI {
         showPopupForOneSecond(popupWindow);
     }
 
-    public void openPaymentPopup(boolean signedIn) {
+    public void openPaymentPopup() {
+        applyDim();
         RelativeLayout viewGroup = view.findViewById(R.id.new_member_screen);
         LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         paymentSignInView = layoutInflater.inflate(R.layout.new_member_screen, viewGroup);
@@ -140,6 +147,12 @@ public class SongsActivityUI {
         paymentPopup.setFocusable(true);
         paymentPopup.setOutsideTouchable(true);
         paymentPopup.showAtLocation(paymentSignInView, Gravity.CENTER, 0, 0);
+        paymentPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                view.getOverlay().clear();
+            }
+        });
 //        setSignUpPopupAttributes(activityWeakReference.get(), paymentSignInPopup, view);
 //        view.post(() -> paymentSignInPopup.showAtLocation(paymentSignInView, Gravity.CENTER, 0, 0));
     }
@@ -160,7 +173,28 @@ public class SongsActivityUI {
         paymentPopup.dismiss();
     }
 
-    public void hideMemberSubscription(){
+    public void hideMemberSubscription() {
         view.findViewById(R.id.member_subscription).setVisibility(View.GONE);
     }
+
+    public void removeTextFromQuery() {
+        ((androidx.appcompat.widget.SearchView) view.findViewById(R.id.search_input)).setQuery("", false);
+        view.findViewById(R.id.search_icon_and_words).setVisibility(View.VISIBLE);
+    }
+
+    private void applyDim() {
+        ViewOverlay overlay = view.getOverlay();
+        Drawable colorDim = new ColorDrawable(Color.WHITE);
+        colorDim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        colorDim.setAlpha((int) (255 * (float) 0.7));
+//
+        Drawable dim = new BitmapDrawable(activityWeakReference.get().getResources(), BlurBuilder.blur(view));
+        dim.setBounds(0, 0, view.getWidth(), view.getHeight());
+        dim.setAlpha((int) (255 * (float) 0.7));
+//        ViewOverlay headerOverlay = headerView.getOverlay();
+//        headerOverlay.add(dim);
+        overlay.add(colorDim);
+        overlay.add(dim);
+    }
+
 }

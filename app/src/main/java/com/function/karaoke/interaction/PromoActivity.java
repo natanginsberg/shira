@@ -132,8 +132,9 @@ public class PromoActivity extends AppCompatActivity {
 
             public void onFinish() {
                 if (!websiteOpened) {
-                    if (policyFileExists()) continueAsGuest();
-                    else showPolicy();
+//                    if (policyFileExists()) continueAsGuest();
+//                    else showPolicy();
+                    continueAsGuest();
                 }
             }
         }.start();

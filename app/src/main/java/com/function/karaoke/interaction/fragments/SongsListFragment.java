@@ -91,6 +91,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     SongService songService = new SongService();
     private List<String> demoSongs = new ArrayList<>();
     private List<DatabaseSong> finalSongs;
+    private SettingUI settingUI;
 
 
     /**
@@ -182,6 +183,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     @Override
     public void getAllSongsFromGenre(int i) {
+        songsActivityUI.removeTextFromQuery();
         songsActivityUI.closePopup();
         List<DatabaseSong> searchedSongs = new ArrayList<>();
         genreClicked = i;
@@ -234,6 +236,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 currentDatabaseSongs.updateSongs(songs);
                 allSongsDatabase = new DatabaseSongsDB(currentDatabaseSongs);
                 allSongsDatabase.updateSongs(songs);
+                mAdapter.setAverage(allSongsDatabase.getAverageSongsPlayed());
             }
 
             @Override
@@ -292,9 +295,9 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void displayAllSongs() {
         if (differentSongsDisplayed) {
-            double averageSongsPlayed = allSongsDatabase.getAverageSongsPlayed();
+//            double averageSongsPlayed = allSongsDatabase.getAverageSongsPlayed();
             recyclerView.setAdapter(mAdapter);
-            mAdapter.setAverage(averageSongsPlayed);
+//            mAdapter.setAverage(averageSongsPlayed);
             mAdapter.setData(currentDatabaseSongs.getSongs());
             mAdapter.notifyDataSetChanged();
         }
@@ -317,6 +320,8 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
                 if (query.length() >= 1) {
                     view.findViewById(R.id.search_icon_and_words).setVisibility(View.INVISIBLE);
                     getSongsSearchedFor(query);
+                    currentGenre = genres.getGenres().get(0);
+                    songsActivityUI.addGenreToScreen(currentGenre);
                 } else {
                     view.findViewById(R.id.search_icon_and_words).setVisibility(View.VISIBLE);
                     currentDatabaseSongs.updateSongs(allSongsDatabase.getSongs());
@@ -340,7 +345,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void openSettingsPopup(View view) {
 
-        SettingUI settingUI = new SettingUI(this.view, getActivity());
+        settingUI = new SettingUI(this.view, getActivity());
         boolean userIsSignedIn = authenticationDriver.isSignIn()
                 && authenticationDriver.getUserEmail() != null && !authenticationDriver.getUserEmail().equals("");
         settingUI.openSettingsPopup(userIsSignedIn, mListener.getUser()
@@ -379,10 +384,20 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         myRecordingsToDisplayListener();
         signInButtonListener();
         contactUsListener();
+        appInfoListener();
         policyListener();
         adminListener();
         couponListener();
         websiteListener();
+    }
+
+    private void appInfoListener() {
+        popupView.findViewById(R.id.app_info_open).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               settingUI.openAppInfo(popupView);
+            }
+        });
     }
 
     private void websiteListener() {
@@ -495,10 +510,11 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     private void policyListener() {
         popupView.findViewById(R.id.privacy_policy).setOnClickListener(view -> {
-            mListener.openPolicy(PRIVACY_POLICY);
+//            mListener.openPolicy(PRIVACY_POLICY);
+            settingUI.openPrivacyOptions();
         });
 
-        popupView.findViewById(R.id.terms_of_use).setOnClickListener(view1 -> mListener.openPolicy(TERMS_OF_USE));
+//        popupView.findViewById(R.id.terms_of_use).setOnClickListener(view1 -> mListener.openPolicy(TERMS_OF_USE));
     }
 
     private void contactUsListener() {
@@ -582,7 +598,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     public void openPaymentPage() {
-        songsActivityUI.openPaymentPopup(userIsSignedIn());
+        songsActivityUI.openPaymentPopup();
     }
 
     public void closePaymentPage() {
