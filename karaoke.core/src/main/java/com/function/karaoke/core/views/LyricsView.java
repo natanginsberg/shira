@@ -2,7 +2,6 @@ package com.function.karaoke.core.views;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.CountDownTimer;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -20,14 +19,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
 
-    //    private int pos = 0;
-    boolean lastWord = false;
+    private int pos = 0;
     private Song.Line mLine;
     private SpannableString mText;
     private final ForegroundColorSpan mSpan;
     private int mCurrentChar = -1;
-    private final int syllableNumber = -1;
-    private final CountDownTimer cTimer = null;
     private float originalPlace = 0;
 
     @SuppressLint("SetTextI18n")
@@ -50,30 +46,21 @@ public class LyricsView extends androidx.appcompat.widget.AppCompatTextView {
     }
 
     @SuppressLint("SetTextI18n")
-    public void setPosition(double position) {
+    public int setPosition(double position) {
         if (null == mLine || null == mText)
-            return;
+            return 0;
         int pos = 0;
         for (Song.Syllable s : mLine.syllables)
             if (s.from < position)
                 pos += s.text.length();
-//            else {
-//                if (s.from < position && s.letters.get(0).letter == '*') {
-//                    pos += s.text.length();
-//                } else
-//                    for (Song.Letter letter : s.letters)
-//                        if (letter.from < position)
-//                            pos += 1;
-//                        else
-//                            break;
-//            }
         if (mCurrentChar == pos)
-            return;
+            return pos;
 
         mCurrentChar = pos;
         mText.setSpan(mSpan, 0, pos, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
         setText(mText);
+        return pos;
     }
 
     public Song.Line getmLine() {

@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.util.TypedValue;
@@ -193,7 +192,7 @@ public class KaraokeWordUI implements KaraokeController.CustomUIListener {
     }
 
 
-    public void setPosition(double position) {
-        mLyrics.setPosition(position);
+    public int setPosition(double position) {
+        return mLyrics.setPosition(position);
     }
 }

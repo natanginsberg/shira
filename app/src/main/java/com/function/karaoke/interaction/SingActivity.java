@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
@@ -21,6 +23,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.TextureView;
@@ -42,8 +45,11 @@ import androidx.core.content.ContextCompat;
 import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingResult;
 import com.android.billingclient.api.Purchase;
+import com.arthenica.mobileffmpeg.Config;
 import com.arthenica.mobileffmpeg.ExecuteCallback;
 import com.arthenica.mobileffmpeg.FFmpeg;
+import com.arthenica.mobileffmpeg.Statistics;
+import com.arthenica.mobileffmpeg.StatisticsCallback;
 import com.function.karaoke.core.controller.KaraokeController;
 import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.Recording;
@@ -52,7 +58,6 @@ import com.function.karaoke.interaction.activities.Model.UserInfo;
 import com.function.karaoke.interaction.storage.AuthenticationDriver;
 import com.function.karaoke.interaction.storage.CloudUpload;
 import com.function.karaoke.interaction.storage.DatabaseDriver;
-import com.function.karaoke.interaction.storage.RecordingDelete;
 import com.function.karaoke.interaction.storage.SongService;
 import com.function.karaoke.interaction.storage.UserService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
@@ -85,7 +90,10 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS;
@@ -124,6 +132,7 @@ public class SingActivity extends AppCompatActivity implements
     private static final int MONTHLY_SUB = 0;
     private static final int NOT_PAYING_MEMBER = -1;
     private static final String LOWER_VOLUME = "lower volume";
+    private static final String DOWNLOAD = "download";
     private final String TIMES_DOWNLOADED = "timesDownloaded";
     private final String TIMES_PLAYED = "timesPlayed";
     private final int CAMERA_CODE = 2;
@@ -193,14 +202,12 @@ public class SingActivity extends AppCompatActivity implements
     private boolean resumeTimer = false;
     private File jsonFile;
     private final int type = -1;
-    private RecordingDelete recordingDelete;
     private EarphoneListener earphonesListener;
     private String link1;
     private boolean earphonesUsed;
     private SongService songService;
     private boolean songUpdated = false;
     private boolean userUpdated = false;
-    private File mVideoFolder;
     private String fileName;
     private String purchaseId;
     private SignIn signIn;
@@ -226,6 +233,12 @@ public class SingActivity extends AppCompatActivity implements
     private String downloadFilePath;
     private String watermarkPath;
     private File outputFile;
+    private List<Boolean> voiceRecognizer = new ArrayList<>();
+    private int previousPosition = -1;
+    private static boolean finished = false;
+    private boolean downloadRequested = false;
+    private boolean fileDownloaded = false;
+    private boolean fileDownloadPercentAdded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -234,8 +247,9 @@ public class SingActivity extends AppCompatActivity implements
         authenticationDriver = new AuthenticationDriver();
         downloadFilePath = getCacheDir() + DIRECTORY_NAME + "test.mp3";
         createWatermarkPath();
-        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        outputFile = new File(dir, "test" + new SimpleDateFormat("yyyyMMdd_HHmmss",
+//        File dir = MediaStore.Images.Media
+        File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        outputFile = new File(dir, "Camera/test" + new SimpleDateFormat("yyyyMMdd_HHmmss",
                 Locale.getDefault()).format(new Date()) + ".mp4");
         createServices();
         getUser();
@@ -249,8 +263,9 @@ public class SingActivity extends AppCompatActivity implements
 
 //        createEarphoneReceivers();
         earphonesListener = new EarphoneListener(this, activityUI);
-        if (earphonesListener.getEarphonesUsed())
+        if (earphonesListener.getEarphonesUsed()) {
             activityUI.removeEarphonePrompt();
+        }
         checkForPermissionAndOpenCamera();
         songStarted = false;
 
@@ -386,6 +401,16 @@ public class SingActivity extends AppCompatActivity implements
 //        activityUI.showPlayButton();
 //        mKaraokeKonroller.loadAudio(downloadFilePath);
         mKaraokeKonroller.loadAudio(songPlayed);
+        try {
+            new DownloadFileAsync().execute(songPlayed);
+        } catch (OutOfMemoryError e) {
+            activityUI.showOutOfMemory(new SingActivityUI.TimerListener() {
+                @Override
+                public void timerOver() {
+
+                }
+            });
+        }
     }
 
     public void manTone(View view) {
@@ -406,7 +431,7 @@ public class SingActivity extends AppCompatActivity implements
 
 
     private void setKaraokeController() {
-        mKaraokeKonroller = new KaraokeController(this);
+        mKaraokeKonroller = new KaraokeController();
 //        mKaraokeKonroller.init(this);
         this.karaokeLyricsUI = new KaraokeWordUI(this);
         karaokeLyricsUI.addViews(findViewById(R.id.word_space));
@@ -449,7 +474,6 @@ public class SingActivity extends AppCompatActivity implements
         } else if (requestCode == WRITE_CODE) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
 //                downloadVideo(postParseVideoFile);
-                activityUI.changeBackgroundToBlue();
                 new DownloadFileAsync().execute(songPlayed);
             }
         }
@@ -467,8 +491,6 @@ public class SingActivity extends AppCompatActivity implements
                 showFailure(CAMERA_ERROR);
             }
         });
-//        }
-
     }
 
 
@@ -484,9 +506,8 @@ public class SingActivity extends AppCompatActivity implements
 
     private void loadSong() {
         if (song.getLines() == null) {
-            findViewById(android.R.id.content).getRootView().post(() -> parseWords());
+            findViewById(android.R.id.content).getRootView().post(this::parseWords);
         } else {
-
             if (!mKaraokeKonroller.loadWords(song.getLines())) {
                 if (activityUI.isPopupOpened()) {
                     activityUI.dismissPopup();
@@ -687,7 +708,8 @@ public class SingActivity extends AppCompatActivity implements
         if (cameraPreview != null)
             cameraPreview.closeCamera();
         cancelTimer();
-
+        finished = true;
+        activityUI.activityFinished();
         finish();
     }
 
@@ -926,6 +948,9 @@ public class SingActivity extends AppCompatActivity implements
             File file = cameraPreview.getVideo();
             File newlyParsedFile = SyncFileData.parseVideo(file, getOutputMediaFile());
             setDelay(Uri.fromFile(newlyParsedFile));
+            String recordingId = GenerateRandomId.generateRandomId();
+            recording = new Recording(false, song, songPlayed, timeStamp,
+                    authenticationDriver.getUserUid(), recordingId, delay, lengthOfAudioPlayed, cameraOn);
             return newlyParsedFile;
         } catch (IOException e) {
             buttonClicked = false;
@@ -940,8 +965,21 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void download(View view) {
-//        activityUI.openDownloadOptions();
-        endAndDownload();
+
+//        if (songSung()) {
+        if (userSignedIn()) {
+            endAndDownload();
+        } else {
+            activityUI.openSignInPopup(this, this);
+            funcToCall = DOWNLOAD;
+        }
+//        } else
+//            activityUI.showNotEnoughSung();
+    }
+
+    private boolean songSung() {
+        int occurrences = Collections.frequency(voiceRecognizer, true);
+        return occurrences * 5 > voiceRecognizer.size();
     }
 
     public void compressedDownload(View view) {
@@ -955,27 +993,16 @@ public class SingActivity extends AppCompatActivity implements
 
     public void endAndDownload() {
         buttonClicked = true;
+        downloadRequested = true;
         if (postParseVideoFile == null)
             postParseVideoFile = wrapUpSong();
         if (postParseVideoFile != null)
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                         WRITE_CODE);
-            else
-//                downloadVideo(postParseVideoFile);{
-            {
-                activityUI.changeBackgroundToBlue();
-                try {
-                    new DownloadFileAsync().execute(songPlayed);
-                } catch (OutOfMemoryError e) {
-                    activityUI.showOutOfMemory(new SingActivityUI.TimerListener() {
-                        @Override
-                        public void timerOver() {
-
-                        }
-                    });
-                }
-//                downloadVideo(postParseVideoFile);
+            else {
+                if (fileDownloaded)
+                    downloadVideo(postParseVideoFile);
             }
         buttonClicked = false;
     }
@@ -985,38 +1012,58 @@ public class SingActivity extends AppCompatActivity implements
         String offset = Double.toString((double) delay / (double) 1000);
 //        System.out.println("this is the delay " + delay + " this is the offset " + offset);
         String volume = earphonesUsed ? "0.8" : "0.2";
-//        System.out.println("-ss " + offset + " -i " + newlyParsedFile + " -i " + downloadFilePath + " -filter_complex \"[1:a]volume=" + volume + "[a1]; [0:a][a1]amerge=inputs=2[a]\" -map 0:v -map \"[a]\" -c:v copy -ac 2 -shortest " + outputFile);
-//        if (compressed)
-        FFmpeg.executeAsync("-ss " + offset + " -i " + newlyParsedFile + " -i " + watermarkPath + " -i " + downloadFilePath + " -filter_complex \"[0:v][1]overlay=main_w-overlay_w-3:main_h-overlay_h-3[v0];[2:a]volume=" + volume + "[a2];[0:a][a2]amerge=inputs=2[a]\" -map \"[v0]\" -map \"[a]\" -ac 2 -shortest " + outputFile, new ExecuteCallback() {
+
+//        System.out.println("-ss " + offset + " -i " + newlyParsedFile + " -i " + downloadFilePath + " -filter_complex \"[1:a]volume=" + volume + "[a1]; [0:a][a1]amerge=inputs=2[a]\" -map 0:v -map \"[a]\" -c:v copy -ac 2 -shortest " + outputFil
+        FFmpeg.executeAsync("-ss " + offset + " -i " + newlyParsedFile + " -i " + watermarkPath + " -i " + downloadFilePath + " -filter_complex \"[0:v][1]overlay=main_w-overlay_w-5:main_h-overlay_h-5[v0];[2:a]volume=" + volume + "[a2];[0:a][a2]amerge=inputs=2[a]\" -map \"[v0]\" -map \"[a]\" -ac 2 -shortest " + outputFile + " -progress pipe:1", new ExecuteCallback() {
             @Override
             public void apply(long executionId, int returnCode) {
                 if (returnCode == RETURN_CODE_SUCCESS) {
+                    MediaScannerConnection.scanFile(
+                            getApplicationContext(),
+                            new String[]{outputFile.getAbsolutePath()},
+                            new String[]{"video/mp4"},
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                @Override
+                                public void onScanCompleted(String path, Uri uri) {
+                                }
+                            });
+
+                    addVideo(outputFile);
                     activityUI.changeBackground();
                 } else
                     activityUI.failBackground();
             }
         });
-//        else
-//            FFmpeg.executeAsync("-ss " + offset + " -i " + newlyParsedFile + " -i " + watermarkPath + " -i " + downloadFilePath + " -filter_complex \"[0:v][1]overlay[v0];[2:a]volume=" + volume + "[a2];[0:a][a2]amerge=inputs=2[a]\" -map \"[v0]\" -map \"[a]\" -c:v copy -ac 2 -shortest " + outputFile, new ExecuteCallback() {
-//                @Override
-//                public void apply(long executionId, int returnCode) {
-//                    if (returnCode == RETURN_CODE_SUCCESS) {
-//                        activityUI.changeBackground();
-//                    } else
-//                        activityUI.failBackground();
-//                }
-//            });
+
+        Config.enableStatisticsCallback(new StatisticsCallback() {
+            @Override
+            public void apply(Statistics statistics) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        int loadingPercent = fileDownloadPercentAdded ? 50 + (int) (statistics.getTime() * 100 / lengthOfAudioPlayed) / 2 : (int) (statistics.getTime() * 100 / lengthOfAudioPlayed);
+                        activityUI.changeLoadingPercent(loadingPercent, getBaseContext(), recording);
+                    }
+                });
+
+            }
+        });
+    }
+
+
+    public Uri addVideo(File videoFile) {
+        ContentValues values = new ContentValues(3);
+        values.put(MediaStore.Video.Media.TITLE, "My video title");
+        values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
+        values.put(MediaStore.Video.Media.DATA, videoFile.getAbsolutePath());
+        return getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
     }
 
     private void setDelay(Uri uriFromFile) {
         MediaPlayer mp = MediaPlayer.create(this, uriFromFile);
         int duration = mp.getDuration();
         delay = (int) (duration - lengthOfAudioPlayed);
-        long recordingStarted = cameraPreview.getTimeCreated();
-        long playStarted = mKaraokeKonroller.getTimerStarted();
-        int delay1 = (int) Math.abs(recordingStarted - playStarted);
         clearFlags();
-
     }
 
 
@@ -1085,7 +1132,7 @@ public class SingActivity extends AppCompatActivity implements
         if (activityUI.isPopupOpened()) {
             activityUI.dismissPopup();
         }
-        intent.putExtra("song file", fileName);
+//        intent.putExtra("song file", fileName);
         finish();
         startActivity(intent);
     }
@@ -1112,22 +1159,6 @@ public class SingActivity extends AppCompatActivity implements
                 + "VID_" + timeStamp + ".mp4");
         return mediaFile;
     }
-
-//    private File getTempMediaFile() {
-//        File mediaStorageDir = new File(this.getFilesDir(), DIRECTORY_NAME);
-//        if (!mediaStorageDir.exists()) {
-//            if (!mediaStorageDir.mkdirs()) {
-//                return null;
-//            }
-//        }
-//        timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
-//                Locale.getDefault()).format(new Date());
-//        File mediaFile;
-//
-//        mediaFile = new File(mediaStorageDir.getPath() + File.separator
-//                + "VID_COMPRESS" + timeStamp + ".mp4");
-//        return mediaFile;
-//    }
 
     public void share(View view) {
         if (Util.SDK_INT >= 24) {
@@ -1455,6 +1486,8 @@ public class SingActivity extends AppCompatActivity implements
                                 playback(findViewById(R.id.sing_song));
                             else if (funcToCall.equals(SHARE_FUNC))
                                 share(findViewById(R.id.sing_song));
+                            else if (funcToCall.equals(DOWNLOAD))
+                                endAndDownload();
                             else
                                 save(findViewById(R.id.sing_song));
                     }
@@ -1554,8 +1587,14 @@ public class SingActivity extends AppCompatActivity implements
 
 
     @Override
-    public void setPosition(double position) {
-        karaokeLyricsUI.setPosition(position);
+    public void setPosition(double position, boolean lineChanged) {
+        int pos = karaokeLyricsUI.setPosition(position);
+        if (lineChanged || previousPosition != pos)
+            voiceRecognizer.add(cameraPreview.getMaxAmplitude() > 1);
+        else if (voiceRecognizer.size() > 0 && !voiceRecognizer.get(voiceRecognizer.size() - 1))
+            voiceRecognizer.set(voiceRecognizer.size() - 1, cameraPreview.getMaxAmplitude() > 1);
+        previousPosition = pos;
+//        System.out.println(voiceRecognizer);
     }
 
 
@@ -1564,7 +1603,6 @@ public class SingActivity extends AppCompatActivity implements
         activityUI.showRecordingError(new SingActivityUI.TimerListener() {
             @Override
             public void timerOver() {
-//                finishActivity();
             }
         });
     }
@@ -1622,6 +1660,10 @@ public class SingActivity extends AppCompatActivity implements
 
         protected void onProgressUpdate(String... progress) {
             Log.d("ANDRO_ASYNC", progress[0]);
+            if (downloadRequested) {
+                fileDownloadPercentAdded = true;
+                activityUI.changeLoadingPercent(Integer.parseInt(progress[0]) / 2, getBaseContext(), recording);
+            }
 //        mProgressDialog.setProgress(Integer.parseInt(progress[0]));
         }
 
@@ -1630,7 +1672,9 @@ public class SingActivity extends AppCompatActivity implements
 
 //            dismissDialog(DIALOG_DOWNLOAD_PROGRESS);
 //            startBuild();
-            downloadVideo(postParseVideoFile);
+            fileDownloaded = true;
+            if (downloadRequested)
+                downloadVideo(postParseVideoFile);
         }
     }
 }

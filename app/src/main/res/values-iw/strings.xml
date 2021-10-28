@@ -131,7 +131,7 @@
     <string name="server_is_down">כשהמון אנשים מבצעים ביחד, זה גורם לעומס על השרתים שלנו :-)</string>
     <string name="inapproriate_under_review">הסרטון בבדיקה על ידי צוות Ashira</string>
     <string name="recording_does_not_exist">הביצוע כבר לא נמצא במערכת</string>
-    <string name="loading_percent">טוען %1$d%</string>
+    <string name="loading_percent">מוריד %1$d</string>
     <string name="the_video_is_finished">סיימת להקליט את הביצוע</string>
     <string name="play_again">נגן מחדש</string>
     <string name="sign_up">הירשם</string>
@@ -188,9 +188,14 @@
     <string name="outdated_app">גרסה זו פג תוקפה! יש לעדכן גרסה</string>
     <string name="app_info">הגדרות</string>
     <string name="privacy">פרטיות</string>
-    <string name="download">הורדה</string>
+    <string name="download">הורדה לגלריה</string>
     <string name="out_of_memory">נגמר הזיכרון בפלאפון</string>
     <string name="compressed">מכווץ</string>
     <string name="actual_size">גודל אמיתי</string>
+    <string name="not_enough_sung">לא שר מספיק</string>
+    <string name="download_complete">ההורדה הסתיימה בהצלחה</string>
+    <string name="download_failed">ההורדה נכשלה</string>
+    <string name="too_short">הביצוע שלך קצר מדאי</string>
+
 
 </resources>

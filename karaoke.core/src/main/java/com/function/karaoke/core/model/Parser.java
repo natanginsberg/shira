@@ -25,7 +25,9 @@ public class Parser {
                 }
                 // tags
 
-                if (line.startsWith("[ti")) {
+                System.out.println(line);
+                System.out.println("this is the first letter " + line.charAt(0));
+                if (line.contains("[ti")) {
                     song.title = getStringValueOfLine(line);
                 } else if (line.startsWith("[ar")) {
                     song.artist = getStringValueOfLine(line);
@@ -98,7 +100,7 @@ public class Parser {
         return lineWordsAndTimes[lineWordsAndTimes.length - 1].contains("$");
     }
 
-    private static List<String[]>   breakLineIntoManyLines(String[] lineWordsAndTimes) {
+    private static List<String[]> breakLineIntoManyLines(String[] lineWordsAndTimes) {
         List<String[]> allLines = new ArrayList<>();
         int lengthOfNewSentence = (lineWordsAndTimes.length - 1) > 6 ? 4 : lineWordsAndTimes.length < 5 ? 2 : 3;
 

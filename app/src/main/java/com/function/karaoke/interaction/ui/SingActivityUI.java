@@ -61,6 +61,7 @@ public class SingActivityUI {
     private CountDownTimer cTimer;
     private boolean prepared;
     private View songUploadedView;
+    private static boolean finished = false;
 
     public SingActivityUI(View singActivity, DatabaseSong song, int sdkInt) {
         this.view = singActivity;
@@ -193,7 +194,7 @@ public class SingActivityUI {
         popup = new PopupWindow(context);
 
         setPopupAttributes(context, popup, popupView);
-        if (view != null && context != null)
+        if (view != null && !finished && context != null)
             view.post(new Runnable() {
                 @Override
                 public void run() {
@@ -329,7 +330,7 @@ public class SingActivityUI {
             addRecordingToScreen(progress, recording);
             hidePlayAndStop();
         }
-        if (!popupOpened)
+        if (!popupOpened || finished)
             sendIntent(progress, baseContext, recording);
     }
 
@@ -643,8 +644,7 @@ public class SingActivityUI {
     }
 
     public void showGoodSuccessSignIn(TimerListener timerListener) {
-        PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.cuccessfull_sign_in));
-        showPopupForOneSecond(popupWindow, timerListener);
+        showSuccess(timerListener, activityWeakReference.get().getResources().getString(R.string.cuccessfull_sign_in));
     }
 
     private void showPopupForOneSecond(PopupWindow popupWindow, TimerListener timerListener) {
@@ -677,8 +677,7 @@ public class SingActivityUI {
 
     public void showSaveStart(TimerListener timerListener) {
         ((TextView) popupView.findViewById(R.id.save)).setTextColor(activityWeakReference.get().getResources().getColor(R.color.pressed_text_color));
-        PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, activityWeakReference.get().getResources().getString(R.string.save_in_progress));
-        showPopupForOneSecond(popupWindow, timerListener);
+        showSuccess(timerListener, activityWeakReference.get().getResources().getString(R.string.save_in_progress));
     }
 
     public void showSaveFail(TimerListener timerListener) {
@@ -686,14 +685,21 @@ public class SingActivityUI {
     }
 
     public void showFail(TimerListener timerListener, String wording) {
-        if (view != null) {
+        if (view != null && !finished && activityWeakReference.get() != null) {
             PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, wording);
             showPopupForOneSecond(popupWindow, timerListener);
         }
     }
 
+    public void showSuccess(TimerListener timerListener, String wording) {
+        if (view != null && !finished && activityWeakReference.get() != null) {
+            PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, wording);
+            showPopupForOneSecond(popupWindow, timerListener);
+        }
+    }
+
     public void changeEndWordingToFinishedWatching() {
-        if (popupView != null)
+        if (popupView != null && activityWeakReference.get() != null)
             ((TextView) popupView.findViewById(R.id.end_song_words)).setText(activityWeakReference.get().getResources().getString(R.string.finshed_watching_recording));
     }
 
@@ -714,24 +720,41 @@ public class SingActivityUI {
     }
 
     public void showEarphonePrompt() {
-        view.findViewById(R.id.attach_earphones_text).setVisibility(View.GONE);
+        view.findViewById(R.id.attach_earphones_text).setVisibility(View.VISIBLE);
     }
 
     public void failBackground() {
-        if (view != null)
-            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.RED);
+        if (view != null && !finished)
+//            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.RED);
+            showFail(new TimerListener() {
+                @Override
+                public void timerOver() {
+
+                }
+            }, activityWeakReference.get().getResources().getString(R.string.download_failed));
     }
 
     public void changeBackground() {
-        if (view != null) {
-            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.GREEN);
-            popupView.findViewById(R.id.download_sizes).setVisibility(View.GONE);
+        if (view != null && !finished) {
+//            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.GREEN);
+            popupView.findViewById(R.id.download).setVisibility(View.GONE);
+
+            showSuccess(new TimerListener() {
+                @Override
+                public void timerOver() {
+
+                }
+            }, activityWeakReference.get().getResources().getString(R.string.download_complete));
         }
     }
 
-    public void changeBackgroundToBlue() {
-        if (view != null)
-            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.BLUE);
+    public void changeLoadingPercent(int percent, Context baseContext, Recording recording) {
+        String textToDisplay = activityWeakReference.get().getResources().getString(R.string.loading_percent, percent) + "%";
+        if (popupView != null && !finished) {
+            ((TextView) popupView.findViewById(R.id.download)).setText(textToDisplay);
+        } else {
+            sendIntent(percent, baseContext, recording);
+        }
     }
 
     public void showOutOfMemory(TimerListener timerListener) {
@@ -739,10 +762,34 @@ public class SingActivityUI {
     }
 
     public void openDownloadOptions() {
-        if (view != null) {
+        if (view != null && !finished) {
             popupView.findViewById(R.id.download_sizes).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.download).setVisibility(View.GONE);
         }
+    }
+
+    public void showNotEnoughSung() {
+        if (view != null && !finished) {
+            showFail(new TimerListener() {
+                @Override
+                public void timerOver() {
+
+                }
+            }, activityWeakReference.get().getResources().getString(R.string.not_enough_sung));
+        }
+    }
+
+    public void activityFinished() {
+        finished = true;
+    }
+
+    public void showSongTooSmallError() {
+        showFail(new TimerListener() {
+            @Override
+            public void timerOver() {
+
+            }
+        }, activityWeakReference.get().getResources().getString(R.string.too_short));
     }
 
 

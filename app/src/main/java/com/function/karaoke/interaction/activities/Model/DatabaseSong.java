@@ -108,6 +108,7 @@ public class DatabaseSong implements Serializable, Reocording {
             String line;
             while ((line = in.readLine()) != null) {
                 lines.add(line);
+
             }
             if (lines.size() == 0)
                 throw new OutOfMemoryError("lines size is 0");

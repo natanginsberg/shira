@@ -240,7 +240,8 @@ public class SongsActivity
 
     @SuppressLint("SetTextI18n")
     private void addPercentLoaded(View view, double content) {
-        ((TextView) view.findViewById(R.id.loading_percent_upload)).setText("Loading " + content + "%");
+        String textToDisplay = getResources().getString(R.string.loading_percent, (int) content) + "%";
+        ((TextView) view.findViewById(R.id.loading_percent_upload)).setText(textToDisplay);
     }
 
     @Override

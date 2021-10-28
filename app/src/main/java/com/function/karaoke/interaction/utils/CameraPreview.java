@@ -50,6 +50,9 @@ public class CameraPreview {
     private static final String DIRECTORY_NAME = "camera2videoImageNew";
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
+    private static double mEMA = 0.0;
+    static final private double EMA_FILTER = 0.6;
+
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 0);
         ORIENTATIONS.append(Surface.ROTATION_90, 90);
@@ -303,7 +306,7 @@ public class CameraPreview {
 
             mMediaRecorder.prepare();
             try {
-            mMediaRecorder.start();
+                mMediaRecorder.start();
             } catch (IllegalStateException e) {
                 micInUse = true;
             }
@@ -315,6 +318,27 @@ public class CameraPreview {
                 setupMediaRecorder(true);
         }
 
+    }
+
+    public double getMaxAmplitude() {
+        return soundDb();
+    }
+
+    private double soundDb() {
+        return 20 * Math.log10(getAmplitudeEMA() / 2700.0);
+    }
+
+    private double getAmplitude() {
+        if (mMediaRecorder != null)
+            return (mMediaRecorder.getMaxAmplitude());
+        else
+            return 0;
+    }
+
+    private double getAmplitudeEMA() {
+        double amp = getAmplitude();
+        mEMA = EMA_FILTER * amp;
+        return mEMA;
     }
 
 

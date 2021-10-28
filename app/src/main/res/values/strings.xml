@@ -166,7 +166,7 @@
     <string name="server_is_down">Our servers are backed up at the moment</string>
     <string name="inapproriate_under_review">This video is being reviewed by the Ashira staff</string>
     <string name="recording_does_not_exist">The recording does not exist in our server anymore</string>
-    <string name="loading_percent">Loading  %1$d%</string>
+    <string name="loading_percent">Downloading  %1$d</string>
     <string name="the_video_is_finished">The video is finished</string>
     <string name="play_again">Play again</string>
     <string name="sign_up">Sign up</string>
@@ -222,9 +222,14 @@ Use of the Service is subject to them and indicates that you have read them in f
     <string name="outdated_app">Outdated version, please update your app</string>
     <string name="app_info">Settings</string>
     <string name="privacy">Privacy</string>
-    <string name="download">Download</string>
+    <string name="download">Download to Gallery</string>
     <string name="out_of_memory">Out of memory</string>
     <string name="compressed">Compressed</string>
     <string name="actual_size">Actual Size</string>
+    <string name="not_enough_sung">Not enough recorded</string>
+    <string name="download_complete">Download Complete</string>
+    <string name="download_failed">Download Failed</string>
+    <string name="too_short">The recording is too short</string>
+
 
 </resources>
