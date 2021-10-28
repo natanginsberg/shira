@@ -24,9 +24,6 @@ public class Parser {
                     continue;
                 }
                 // tags
-
-                System.out.println(line);
-                System.out.println("this is the first letter " + line.charAt(0));
                 if (line.contains("[ti")) {
                     song.title = getStringValueOfLine(line);
                 } else if (line.startsWith("[ar")) {

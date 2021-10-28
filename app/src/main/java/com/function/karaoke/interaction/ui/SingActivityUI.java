@@ -194,7 +194,7 @@ public class SingActivityUI {
         popup = new PopupWindow(context);
 
         setPopupAttributes(context, popup, popupView);
-        if (view != null && !finished && context != null)
+        if (view != null && context != null)
             view.post(new Runnable() {
                 @Override
                 public void run() {
@@ -273,7 +273,7 @@ public class SingActivityUI {
         dealWithTimer(R.id.countdown, millisUntilFinished);
     }
 
-    public void showPlayButton() {//todo show regular play button
+    public void showPlayButton() {
         view.findViewById(R.id.play_button).setVisibility(View.VISIBLE);
     }
 
@@ -330,7 +330,7 @@ public class SingActivityUI {
             addRecordingToScreen(progress, recording);
             hidePlayAndStop();
         }
-        if (!popupOpened || finished)
+        if (!popupOpened)
             sendIntent(progress, baseContext, recording);
     }
 
@@ -685,14 +685,14 @@ public class SingActivityUI {
     }
 
     public void showFail(TimerListener timerListener, String wording) {
-        if (view != null && !finished && activityWeakReference.get() != null) {
+        if (view != null && activityWeakReference.get() != null && popupOpened) {
             PopupWindow popupWindow = IndicationPopups.openXIndication(activityWeakReference.get(), view, wording);
             showPopupForOneSecond(popupWindow, timerListener);
         }
     }
 
     public void showSuccess(TimerListener timerListener, String wording) {
-        if (view != null && !finished && activityWeakReference.get() != null) {
+        if (view != null && activityWeakReference.get() != null && popupOpened) {
             PopupWindow popupWindow = IndicationPopups.openCheckIndication(activityWeakReference.get(), view, wording);
             showPopupForOneSecond(popupWindow, timerListener);
         }
@@ -724,7 +724,7 @@ public class SingActivityUI {
     }
 
     public void failBackground() {
-        if (view != null && !finished)
+        if (view != null)
 //            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.RED);
             showFail(new TimerListener() {
                 @Override
@@ -735,7 +735,7 @@ public class SingActivityUI {
     }
 
     public void changeBackground() {
-        if (view != null && !finished) {
+        if (view != null) {
 //            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.GREEN);
             popupView.findViewById(R.id.download).setVisibility(View.GONE);
 
@@ -750,7 +750,7 @@ public class SingActivityUI {
 
     public void changeLoadingPercent(int percent, Context baseContext, Recording recording) {
         String textToDisplay = activityWeakReference.get().getResources().getString(R.string.loading_percent, percent) + "%";
-        if (popupView != null && !finished) {
+        if (popupView != null && popupOpened) {
             ((TextView) popupView.findViewById(R.id.download)).setText(textToDisplay);
         } else {
             sendIntent(percent, baseContext, recording);
@@ -762,14 +762,14 @@ public class SingActivityUI {
     }
 
     public void openDownloadOptions() {
-        if (view != null && !finished) {
+        if (view != null) {
             popupView.findViewById(R.id.download_sizes).setVisibility(View.VISIBLE);
             popupView.findViewById(R.id.download).setVisibility(View.GONE);
         }
     }
 
     public void showNotEnoughSung() {
-        if (view != null && !finished) {
+        if (view != null) {
             showFail(new TimerListener() {
                 @Override
                 public void timerOver() {
