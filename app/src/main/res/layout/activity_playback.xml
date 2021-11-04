@@ -68,7 +68,6 @@
         android:layoutDirection="ltr"
         android:paddingBottom="90dp"
         android:rotation="270"
-        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/sync_guide"
         app:layout_constraintLeft_toLeftOf="parent">
 
@@ -131,7 +130,6 @@
         android:layoutDirection="rtl"
         android:paddingBottom="90dp"
         android:rotation="90"
-        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@id/sync_guide"
         app:layout_constraintRight_toRightOf="parent">
 

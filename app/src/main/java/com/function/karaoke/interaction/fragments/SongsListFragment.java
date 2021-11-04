@@ -395,7 +395,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
         popupView.findViewById(R.id.app_info_open).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               settingUI.openAppInfo(popupView);
+                settingUI.openAppInfo(popupView);
             }
         });
     }
@@ -576,6 +576,7 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
     }
 
     public void showSuccessSignIn() {
+        hideNewMemberLoadingIcon();
         songsActivityUI.showSuccessSignIn();
     }
 
@@ -603,6 +604,14 @@ public class SongsListFragment extends Fragment implements DatabaseSongsDB.IList
 
     public void closePaymentPage() {
         songsActivityUI.closePaymentPopup();
+    }
+
+    public void showNewMemberLoadingIcon() {
+        songsActivityUI.showLoadingIcon();
+    }
+
+    public void hideNewMemberLoadingIcon() {
+        songsActivityUI.hideLoadingIcon();
     }
 
 

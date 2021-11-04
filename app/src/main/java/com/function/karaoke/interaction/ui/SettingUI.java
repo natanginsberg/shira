@@ -29,7 +29,7 @@ import jp.wasabeef.picasso.transformations.CropCircleTransformation;
 public class SettingUI {
 
     private final View view;
-//    private final Context context;
+    //    private final Context context;
     private final WeakReference<Activity> activityWeakReference;
     private final ClosePopListener closePopListener = new ClosePopListener();
     private View popupView;

@@ -245,7 +245,7 @@ public class Parser {
                 }
                 if (wordAndTime[1].contains("$")) {
                     endTime = nextLineTimeStamp;
-                    if (endTime - startTime > 5) {
+                    if (endTime - startTime > 8) {
                         endTime = startTime;
                     }
                     break;
@@ -261,7 +261,7 @@ public class Parser {
                 } else {
                     endTime = nextLineTimeStamp;
                 }
-                if (endTime - startTime > 5) {
+                if (endTime - startTime > 8) {
                     endTime = startTime + 2;
                 }
             }

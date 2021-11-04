@@ -197,4 +197,27 @@ public class SongsActivityUI {
         overlay.add(dim);
     }
 
+    public void showLoadingIcon() {
+        if (paymentSignInView != null) {
+            paymentSignInView.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+            if (cTimer == null) {
+                cTimer = new CountDownTimer(2500, 1500) {
+                    @SuppressLint("SetTextI18n")
+                    public void onTick(long millisUntilFinished) {
+                    }
+
+                    public void onFinish() {
+                        paymentSignInView.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+                    }
+                };
+                cTimer.start();
+            }
+        }
+    }
+
+    public void hideLoadingIcon() {
+        if (paymentSignInView != null) {
+            paymentSignInView.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+        }
+    }
 }

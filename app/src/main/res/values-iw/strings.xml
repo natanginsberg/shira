@@ -192,10 +192,13 @@
     <string name="out_of_memory">נגמר הזיכרון בפלאפון</string>
     <string name="compressed">מכווץ</string>
     <string name="actual_size">גודל אמיתי</string>
-    <string name="not_enough_sung">לא שר מספיק</string>
-    <string name="download_complete">ההורדה הסתיימה בהצלחה</string>
+    <string name="not_enough_sung">לא ניתן להוריד את הקובץ ללא הקלטה</string>
+    <string name="download_complete">הסרטון נמצא בגלריה</string>
     <string name="download_failed">ההורדה נכשלה</string>
     <string name="too_short">הביצוע שלך קצר מדאי</string>
+    <string name="contact_us_for_support">צור איתנו קשר לעזרה</string>
+    <string name="user_can_synchronize_song_in_watch">יש אפשרות לדייק סינכרון ושמע בצפה בביצוע</string>
+    <string name="download_less_quality">הורדה באיכות ירודה</string>
 
 
 </resources>

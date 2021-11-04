@@ -45,6 +45,7 @@ import com.function.karaoke.interaction.storage.RecordingService;
 import com.function.karaoke.interaction.tasks.NetworkTasks;
 import com.function.karaoke.interaction.ui.GenresUI;
 import com.function.karaoke.interaction.ui.SettingUI;
+//import com.function.karaoke.interaction.ui.ShareOptionsUI;
 import com.function.karaoke.interaction.ui.ShareOptionsUI;
 import com.function.karaoke.interaction.ui.SingActivityUI;
 import com.function.karaoke.interaction.utils.static_classes.Converter;

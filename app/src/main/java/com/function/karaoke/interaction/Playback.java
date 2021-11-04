@@ -78,7 +78,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private boolean validated = false;
     private PlaybackPlayer playbackPlayer;
     private int originalDelay;
-    private boolean showing = false;
+    private boolean showing = true;
     private int volume;
     private boolean recordingNow = false;
 
@@ -139,11 +139,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
             @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                Log.i("bug78", "this is the old delay" + delay);
-                Log.i("bug78", "this is the progress" + (i - midProgress));
-                Log.i("bug78", "this is the original delay" + originalDelay);
                 delay = Math.max(0, originalDelay + (i - midProgress) * 100);
-                Log.i("bug78", "this is the new delay" + delay);
                 ((TextView) findViewById(R.id.sync)).setText((i > midProgress ? "+" : i == midProgress ? "" : "-") + Math.abs(i - midProgress));
             }
 

@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/transparent">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/settings_body"
         android:layout_width="match_parent"

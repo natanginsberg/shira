@@ -81,10 +81,6 @@ public class KaraokeWordUI implements KaraokeController.CustomUIListener {
         float bottomDelta = twoLinesAhead.getY() - threeLinesAhead.getOriginalPlace();
 
         tempViews.push(mLyrics);
-//        Log.i("bug88", threeLinesAhead.getY() + " " + twoLinesAhead.getY() + " " + wordsToRead.getY() + " " + mLyrics.getY());
-        Log.i("bug88", threeLinesAhead.getHeight() + " " + twoLinesAhead.getHeight() + " " + wordsToRead.getHeight() + " " + mLyrics.getHeight());
-//        Log.i("bug88", bottomDelta + " " + thirdDelta + " " + secondDelta + " " + topDelta);
-
         mLyrics.animate().translationY(topDelta).setDuration(500).start();
         wordsToRead.animate().translationY(secondDelta).setDuration(500).start();
         twoLinesAhead.animate().translationY(bottomDelta).setDuration(500).start();
@@ -147,16 +143,6 @@ public class KaraokeWordUI implements KaraokeController.CustomUIListener {
         return animation.clone();
     }
 
-//    private void giveLyricsViewWeightOfOne(LyricsView lyricsView) {
-//        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-//        param.height = 0;
-//        lyricsView.setLayoutParams(param);
-//    }
-//
-//    private void giveLyricsViewWeightOfZero(LyricsView lyricsView) {
-//        LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 1.0f);
-//        lyricsView.setLayoutParams(param);
-//    }
 
     private LyricsView createNewLyricsView() {
         ConstraintSet set = new ConstraintSet();

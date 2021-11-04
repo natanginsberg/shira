@@ -16,7 +16,6 @@ import android.view.ViewOverlay;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -30,7 +29,6 @@ import com.function.karaoke.core.utility.BlurBuilder;
 import com.function.karaoke.interaction.R;
 import com.function.karaoke.interaction.activities.Model.DatabaseSong;
 import com.function.karaoke.interaction.activities.Model.Recording;
-import com.function.karaoke.interaction.activities.Model.UserInfo;
 import com.function.karaoke.interaction.utils.static_classes.Converter;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.shape.CornerFamily;
@@ -81,7 +79,6 @@ public class SingActivityUI {
     @SuppressLint("SetJavaScriptEnabled")
     public void setSurfaceForRecording(boolean cameraOn) {
         view.findViewById(R.id.play_button).setVisibility(View.GONE);
-//        view.findViewById(R.id.camera_toggle_button).setVisibility(View.INVISIBLE);
         if (!cameraOn) {
             WebView webview = (WebView) view.findViewById(R.id.logo);
             webview.setVisibility(View.VISIBLE);
@@ -146,10 +143,6 @@ public class SingActivityUI {
         hidePlayAndStop();
     }
 
-    private void moveStopButtonToMiddle() {
-        TextView stop = (TextView) (view.findViewById(R.id.stop));
-        stop.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM);
-    }
 
     public void resetScreenForTimer() {
         resetLyricsScreen();
@@ -177,17 +170,7 @@ public class SingActivityUI {
         this.songEnded = songEnded;
         placePopupOnScreen(context);
         popup.setFocusable(true);
-        if (sdkInt < 24) {
-            setScreenWithoutSaveOption();
-        }
         applyDim(view.findViewById(R.id.sing_song).getOverlay(), context);
-    }
-
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void setScreenWithoutSaveOption() {
-        popupView.findViewById(R.id.share).setBackground(activityWeakReference.get().getDrawable(R.drawable.no_share_background));
-        popupView.findViewById(R.id.save).setVisibility(View.GONE);
-        ((TextView) popupView.findViewById(R.id.sale_promo)).setText(activityWeakReference.get().getString(R.string.no_save_text));
     }
 
     private void placePopupOnScreen(Context context) {
@@ -264,12 +247,6 @@ public class SingActivityUI {
 
     @SuppressLint("SetTextI18n")
     public void displayTimeForCountdown(long millisUntilFinished) {
-//        if (millisUntilFinished / 1000 >= 1) {
-//            ((TextView) view.findViewById(R.id.countdown)).setText(Long.toString(millisUntilFinished / 1000));
-//            view.findViewById(R.id.countdown).setVisibility(View.VISIBLE);
-//        } else {
-//            ((TextView) view.findViewById(R.id.countdown)).setText(R.string.start);
-//        }
         dealWithTimer(R.id.countdown, millisUntilFinished);
     }
 
@@ -297,14 +274,6 @@ public class SingActivityUI {
 
     }
 
-    private void setTonePopupAttributes(Context context, PopupWindow popup, View layout) {
-        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.781);
-        int height = (int) (context.getResources().getDisplayMetrics().heightPixels * 0.576);
-        popup.setContentView(layout);
-        popup.setWidth(width);
-        popup.setHeight(height);
-    }
-
     public void dismissPopup() {
         popupOpened = false;
         popup.dismiss();
@@ -323,27 +292,6 @@ public class SingActivityUI {
         return popupOpened;
     }
 
-
-    @SuppressLint("SetTextI18n")
-    public void showProgress(double progress, Context baseContext, Recording recording) {
-        if (loadingAmount != null) {
-            addRecordingToScreen(progress, recording);
-            hidePlayAndStop();
-        }
-        if (!popupOpened)
-            sendIntent(progress, baseContext, recording);
-    }
-
-    private void addRecordingToScreen(double content, Recording recording) {
-        songUploadedView = createViewForLoading(content, recording);
-        loadingAmount.removeAllViews();
-        loadingAmount.addView(songUploadedView);
-        if (recording != null)
-            addPercentLoaded(songUploadedView, content);
-        if (recording != null && content >= 100) {
-            loadingAmount.removeAllViews();
-        }
-    }
 
     private View createViewForLoading(double content, Recording recording) {
         View to_add = LayoutInflater.from(activityWeakReference.get()).inflate(R.layout.recording_upload, null);
@@ -407,33 +355,9 @@ public class SingActivityUI {
         hidePlayAndStop();
     }
 
-    public void hideSubscribeOptions() {
-//        popupView.findViewById(R.id.end_options_layout).setVisibility(View.VISIBLE);
-//        popupView.findViewById(R.id.subscript_layout).setVisibility(View.GONE);
-    }
 
     public void popupClosed() {
         popupOpened = false;
-    }
-
-    public View openRecordingsForDelete(Context context) {
-        RelativeLayout viewGroup = view.findViewById(R.id.recordings_to_delete);
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View recordingsView = layoutInflater.inflate(R.layout.recording_to_delete, viewGroup);
-
-        placeRecordingsPopupOnScreen(recordingsView, context);
-        return recordingsView;
-    }
-
-    private void placeRecordingsPopupOnScreen(View recordingsView, Context context) {
-        recordingsPopup = new PopupWindow(context);
-        recordingsPopup.setFocusable(true);
-        setPopupAttributes(context, recordingsPopup, recordingsView);
-        recordingsPopup.showAtLocation(recordingsView, Gravity.CENTER, 0, 0);
-    }
-
-    public void dismissRecordings() {
-        recordingsPopup.dismiss();
     }
 
     public void changeCheck(boolean cameraOn) {
@@ -475,48 +399,6 @@ public class SingActivityUI {
         ((TextView) view.findViewById(R.id.all_time)).setText(text);
     }
 
-    public void openInitialShareOptions(Context context, UserInfo user, FreeShareListener freeShareListener, String funcToCall) {
-        popupView.setVisibility(View.INVISIBLE);
-        if (user != null && user.getFreeShares() > 0) {
-            openSharePopup(context, R.id.new_user_share, R.layout.free_share_screen);
-        } else {
-            openSharePopup(context, R.id.new_member_screen, R.layout.new_member_screen);
-        }
-        if (user != null && user.getFreeShares() > 0) {
-            setRecordingsLeftNumber(context, user, freeShareListener);
-            setAppropriateWord(context, funcToCall);
-        }
-        placeSignUpOptionsOnScreen(context);
-        secondPopup.setFocusable(true);
-        secondPopup.setOnDismissListener(() -> popupView.setVisibility(View.VISIBLE));
-    }
-
-    private void setAppropriateWord(Context context, String funcToCall) {
-        String buttonText = funcToCall.equals(SHARE_FUNC) ? context.getResources().getString(R.string.share_save) : context.getResources().getString(R.string.save_recording);
-        String titleText = funcToCall.equals(SHARE_FUNC) ? context.getResources().getString(R.string.share) : context.getResources().getString(R.string.save_recording);
-        ((Button) secondPopupView.findViewById(R.id.save_free_recordings)).setText(buttonText);
-        ((TextView) secondPopupView.findViewById(R.id.share_title)).setText(titleText);
-    }
-
-    private void openSharePopup(Context context, int id, int laoyout) {
-        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout viewGroup = view.findViewById(id);
-        secondPopupView = layoutInflater.inflate(laoyout, viewGroup);
-    }
-
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void setRecordingsLeftNumber(Context context, UserInfo user, FreeShareListener freeShareListener) {
-        String textToDisplay = context.getResources().getString(R.string.share_left_label, user.getFreeShares());
-        ((TextView) secondPopupView.findViewById(R.id.free_saves_left_text)).setText(textToDisplay);
-        secondPopupView.findViewById(R.id.save_free_recordings).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                secondPopup.dismiss();
-                freeShareListener.startSaveProcess(true);
-            }
-        });
-
-    }
 
     public void closePopup() {
         secondPopup.dismiss();
@@ -551,25 +433,6 @@ public class SingActivityUI {
         secondPopupView.findViewById(R.id.sign_up).setOnClickListener(view -> {
             listener.openSignIn();
             secondPopup.dismiss();
-        });
-    }
-
-    public void openShareOptions(Context context, UserInfo userInfo, ShareListener shareListener, boolean cameraOn) {
-        popupView.setVisibility(View.INVISIBLE);
-        ShareOptionsUI shareOptionsUI = new ShareOptionsUI(view, userInfo, cameraOn);
-        shareOptionsUI.openShareOptions(context, shareListener);
-        setThirdPopupDismissListener(shareOptionsUI);
-    }
-
-    private void setThirdPopupDismissListener(ShareOptionsUI shareOptionsUI) {
-        shareOptionsUI.getThirdPopup().setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                if (shareOptionsUI.isClear())
-                    popupView.setVisibility(View.VISIBLE);
-                else
-                    setThirdPopupDismissListener(shareOptionsUI);
-            }
         });
     }
 
@@ -675,11 +538,6 @@ public class SingActivityUI {
         prepared = true;
     }
 
-    public void showSaveStart(TimerListener timerListener) {
-        ((TextView) popupView.findViewById(R.id.save)).setTextColor(activityWeakReference.get().getResources().getColor(R.color.pressed_text_color));
-        showSuccess(timerListener, activityWeakReference.get().getResources().getString(R.string.save_in_progress));
-    }
-
     public void showSaveFail(TimerListener timerListener) {
         showFail(timerListener, activityWeakReference.get().getResources().getString(R.string.unable_to_upload));
     }
@@ -701,14 +559,6 @@ public class SingActivityUI {
     public void changeEndWordingToFinishedWatching() {
         if (popupView != null && activityWeakReference.get() != null)
             ((TextView) popupView.findViewById(R.id.end_song_words)).setText(activityWeakReference.get().getResources().getString(R.string.finshed_watching_recording));
-    }
-
-    public void showSlowInternetError(TimerListener timerListener) {
-        showFail(timerListener, activityWeakReference.get().getString(R.string.slow_internet));
-    }
-
-    public void showErrorPausingVideo() {
-
     }
 
     public void showRecordingError(TimerListener timerListener) {
@@ -751,7 +601,7 @@ public class SingActivityUI {
     public void changeLoadingPercent(int percent, Context baseContext, Recording recording) {
         String textToDisplay = activityWeakReference.get().getResources().getString(R.string.loading_percent, percent) + "%";
         if (popupView != null && popupOpened) {
-            ((TextView) popupView.findViewById(R.id.download)).setText(textToDisplay);
+            ((TextView) popupView.findViewById(R.id.download_text)).setText(textToDisplay);
         } else {
             sendIntent(percent, baseContext, recording);
         }
@@ -759,13 +609,6 @@ public class SingActivityUI {
 
     public void showOutOfMemory(TimerListener timerListener) {
         showFail(timerListener, activityWeakReference.get().getResources().getString(R.string.out_of_memory));
-    }
-
-    public void openDownloadOptions() {
-        if (view != null) {
-            popupView.findViewById(R.id.download_sizes).setVisibility(View.VISIBLE);
-            popupView.findViewById(R.id.download).setVisibility(View.GONE);
-        }
     }
 
     public void showNotEnoughSung() {
@@ -783,13 +626,22 @@ public class SingActivityUI {
         finished = true;
     }
 
-    public void showSongTooSmallError() {
-        showFail(new TimerListener() {
-            @Override
-            public void timerOver() {
+    public void showLoadingIndicator() {
+        if (popupView != null) {
+            popupView.findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+            if (cTimer == null) {
+                cTimer = new CountDownTimer(2500, 1500) {
+                    @SuppressLint("SetTextI18n")
+                    public void onTick(long millisUntilFinished) {
+                    }
 
+                    public void onFinish() {
+                        view.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+                    }
+                };
+                cTimer.start();
             }
-        }, activityWeakReference.get().getResources().getString(R.string.too_short));
+        }
     }
 
 

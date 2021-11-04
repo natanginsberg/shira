@@ -592,6 +592,19 @@ public class SongsActivity
 
     @Override
     public void signIn() {
+        findViewById(R.id.loading_indicator).setVisibility(View.VISIBLE);
+        if (cTimer == null) {
+            cTimer = new CountDownTimer(1500, 1500) {
+                @SuppressLint("SetTextI18n")
+                public void onTick(long millisUntilFinished) {
+                }
+
+                public void onFinish() {
+                    findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+                }
+            };
+            cTimer.start();
+        }
         SignIn signIn = new SignIn(this, this, this, mGetContent);
         signIn.openSignIn();
     }
@@ -789,10 +802,15 @@ public class SongsActivity
 
     private void openBilling(String funcToCall) {
         getFragment().closePaymentPage();
-        if (!isPayingUser(user))
-            billingSession.startInAppFlow(funcToCall.equals(DAILY_SUB) ? 0 : 1);
-        else
-            getFragment().addUser(user);
+        try {
+            if (!isPayingUser(user))
+                billingSession.startInAppFlow(funcToCall.equals(DAILY_SUB) ? 0 : 1);
+            else
+                getFragment().addUser(user);
+        } catch (NullPointerException e) {
+            PopupWindow popupWindow = IndicationPopups.openXIndication(SongsActivity.this, findViewById(android.R.id.content).getRootView(), getString(R.string.contact_us_for_support));
+            showPopupForOneSecond(popupWindow);
+        }
     }
 
     private boolean isPayingUser(UserInfo user) {
@@ -818,6 +836,7 @@ public class SongsActivity
     public void openDailySubscription(View view) {
         funcToCall = DAILY_SUB;
         if (user == null) {
+            getFragment().showNewMemberLoadingIcon();
             signIn();
         } else {
             openBilling(DAILY_SUB);
@@ -827,6 +846,7 @@ public class SongsActivity
     public void openMonthlySubscription(View view) {
         funcToCall = MONTHLY_SUB;
         if (user == null) {
+            getFragment().showNewMemberLoadingIcon();
             signIn();
         } else {
             openBilling(MONTHLY_SUB);

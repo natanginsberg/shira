@@ -63,30 +63,15 @@
             android:textSize="20sp" />
 
     </RelativeLayout>
-    <!--        <TextView-->
-    <!--            android:id="@+id/share_question"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:fontFamily="@font/varela_round_regular"-->
-    <!--            android:gravity="center"-->
-    <!--            android:paddingLeft="10dp"-->
-    <!--            android:paddingRight="10dp"-->
-
-    <!--            android:text="@string/share_question"-->
-    <!--            android:textColor="@android:color/white"-->
-    <!--            android:textSize="17sp"-->
-    <!--            app:layout_constraintLeft_toLeftOf="parent"-->
-    <!--            app:layout_constraintRight_toRightOf="parent"-->
-    <!--            app:layout_constraintTop_toBottomOf="@id/congrats" />-->
 
     <TextView
-        android:id="@+id/sale_promo"
+        android:id="@+id/sync_possibility"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="15dp"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text=""
+        android:text="@string/user_can_synchronize_song_in_watch"
         android:textColor="@android:color/white"
         android:textSize="15sp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -94,32 +79,61 @@
         app:layout_constraintTop_toBottomOf="@id/end_song_acknowledge" />
 
     <RelativeLayout
-        android:id="@+id/share"
+        android:id="@+id/download"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
         android:layout_marginTop="20dp"
         android:layout_weight="1"
         android:background="@drawable/share_background"
-        android:onClick="share"
+        android:onClick="download"
         app:layout_constraintDimensionRatio="4.67"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sale_promo"
-        app:layout_constraintWidth_percent="0.76">
+        app:layout_constraintTop_toBottomOf="@id/sync_possibility"
+        app:layout_constraintWidth_percent="0.82">
 
         <TextView
-
+            android:id="@+id/download_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:fontFamily="@font/varela_round_regular"
-            android:onClick="share"
-            android:text="@string/share_save"
+            android:onClick="download"
+            android:text="@string/download"
             android:textColor="@color/sing_up_hover"
-            android:textSize="24sp" />
+            android:textSize="20sp" />
 
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/download2"
+        android:layout_width="@dimen/no_hardcode_dimension"
+        android:layout_height="@dimen/no_hardcode_dimension"
+        android:layout_marginTop="20dp"
+        android:layout_weight="1"
+        android:background="@drawable/share_background"
+        android:onClick="downloadLessQuality"
+        app:layout_constraintDimensionRatio="4.67"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/download"
+        app:layout_constraintWidth_percent="0.82">
+
+        <TextView
+            android:id="@+id/download_text1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/varela_round_regular"
+            android:onClick="downloadLessQuality"
+            android:text="@string/download_less_quality"
+            android:textColor="@color/sing_up_hover"
+            android:textSize="20sp" />
 
     </RelativeLayout>
 
@@ -127,85 +141,15 @@
         android:id="@+id/all_options"
         android:layout_width="@dimen/no_hardcode_dimension"
         android:layout_height="@dimen/no_hardcode_dimension"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/share"
+        app:layout_constraintTop_toBottomOf="@id/download2"
         app:layout_constraintWidth_percent="0.625">
 
-        <TextView
-            android:id="@+id/save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:fontFamily="@font/varela_round_regular"
-            android:gravity="center"
-            android:onClick="save"
-            android:text="@string/save_recording"
-            android:textColor="@color/sing_up_hover"
-            android:textSize="17sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/white" />
-
-        <TextView
-            android:id="@+id/download"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:fontFamily="@font/varela_round_regular"
-            android:gravity="center"
-            android:onClick="download"
-            android:text="@string/download"
-            android:textColor="@color/sing_up_hover"
-            android:textSize="17sp"/>
-
-        <LinearLayout
-            android:id="@+id/download_sizes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/compressed_download"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:fontFamily="@font/varela_round_regular"
-                android:gravity="center"
-                android:onClick="compressedDownload"
-                android:text="@string/compressed"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="17sp" />
-
-            <TextView
-                android:id="@+id/acutal_size_download"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:fontFamily="@font/varela_round_regular"
-                android:gravity="center"
-                android:onClick="regularDownload"
-                android:text="@string/actual_size"
-                android:textColor="@color/sing_up_hover"
-                android:textSize="17sp" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/white" />
 
         <TextView
             android:id="@+id/playback"
