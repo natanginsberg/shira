@@ -119,16 +119,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:hint="@string/name"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
 
             <EditText
                 android:id="@+id/email"
@@ -151,6 +141,17 @@
                 android:hint="@string/date"
                 android:textColor="@android:color/white"
                 android:textColorHint="@android:color/white" />
+
+            <TextView
+                android:id="@+id/explain_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="yyyy-MM-dd hh:mm:ss"
+                android:textColor="@android:color/white"
+                android:textColorHint="@android:color/white" />
         </LinearLayout>
 
         <Button
@@ -167,12 +168,6 @@
             android:onClick="deleteUser"
             android:text="@string/delete" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:onClick="changeEmail"
-            android:text="@string/change_email" />
 
         <Button
             android:layout_width="wrap_content"

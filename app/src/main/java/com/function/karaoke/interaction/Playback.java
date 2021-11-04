@@ -50,13 +50,13 @@ import java.util.Objects;
 public class Playback extends AppCompatActivity implements PlaybackStateListener, PlaybackPopupOpen.PlaybackPopupListener {
 
     public static final String RECORDING = "recording";
-    private static final String PLAYBACK = "playback";
+    private static final String PLAYBACK = "watch";
     private static final String AUDIO_FILE = "audio";
     private static final String DELAY = "delay";
     private static final String EARPHONES_NOT_USED = "empty";
     private static final String LENGTH = "length";
     private static final String CAMERA_ON = "camera on";
-    private static final String DIRECTORY_NAME = "playback";
+    private static final String DIRECTORY_NAME = "watch";
     private static final String LOWER_VOLUME = "lower volume";
 
 
@@ -78,7 +78,7 @@ public class Playback extends AppCompatActivity implements PlaybackStateListener
     private boolean validated = false;
     private PlaybackPlayer playbackPlayer;
     private int originalDelay;
-    private boolean showing = true;
+    private boolean showing = false;
     private int volume;
     private boolean recordingNow = false;
 

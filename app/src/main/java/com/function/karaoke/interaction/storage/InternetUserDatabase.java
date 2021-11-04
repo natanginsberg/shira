@@ -23,7 +23,7 @@ public class InternetUserDatabase {
     public static void addUserToDatabase(InternetUser user, AddListener addListener) {
         DatabaseDriver databaseDriver = new DatabaseDriver();
         CollectionReference userCollectionRef = databaseDriver.getCollectionReferenceByName(INTERNET_USERS);
-        userCollectionRef.document(user.getName()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        userCollectionRef.document(user.getEmail()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -39,7 +39,7 @@ public class InternetUserDatabase {
             }
 
             private void addUser() {
-                userCollectionRef.document(user.getName()).set(user).addOnFailureListener(new OnFailureListener() {
+                userCollectionRef.document(user.getEmail()).set(user).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         addListener.onFail();
@@ -53,7 +53,6 @@ public class InternetUserDatabase {
             }
         });
     }
-
 
 
     public static void deleteUserFromDatabase(String userName, AddListener addListener) {
@@ -75,7 +74,7 @@ public class InternetUserDatabase {
     public static void editUserInDatabase(InternetUser user, AddListener addListener) {
         DatabaseDriver databaseDriver = new DatabaseDriver();
         CollectionReference userCollectionRef = databaseDriver.getCollectionReferenceByName(INTERNET_USERS);
-        userCollectionRef.document(user.getName()).set(user).addOnFailureListener(new OnFailureListener() {
+        userCollectionRef.document(user.getEmail()).set(user).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 addListener.onFail();
@@ -106,7 +105,7 @@ public class InternetUserDatabase {
         });
     }
 
-    public interface AddListener{
+    public interface AddListener {
         void onSuccess();
 
         void onFail();
@@ -114,7 +113,7 @@ public class InternetUserDatabase {
         void nameExists();
     }
 
-    public interface InternetUserListener{
+    public interface InternetUserListener {
         void onSuccess(List<InternetUser> users);
 
         void onFail();

@@ -1,26 +1,22 @@
 package com.function.karaoke.interaction.activities.Model;
 
+import java.util.Date;
+
 public class InternetUser {
 
     private String name = "";
     private String email ="";
-    private String date = "";
+    private Date date = new Date();
 
 
     public InternetUser(){}
 
-    public InternetUser(String name, String email){
-        this.name = name;
-        this.email = email;
-    }
-
-    public InternetUser(String name, String email, String date){
-        this.name = name;
+    public InternetUser(String email, Date date){
         this.email = email;
         this.date = date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -28,11 +24,7 @@ public class InternetUser {
         this.email = email;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
@@ -40,7 +32,4 @@ public class InternetUser {
         return email;
     }
 
-    public String getName() {
-        return name;
-    }
 }

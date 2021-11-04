@@ -52,7 +52,7 @@
                 android:layout_weight="0.5"
                 android:fontFamily="@font/varela_round_regular"
                 android:gravity="center"
-                android:onClick="playback"
+                android:onClick="watch"
                 android:text="@string/sign_up_reason"
                 android:textColor="@color/sing_up_hover"
                 android:textSize="15sp" />

@@ -584,7 +584,7 @@ public class SingActivityUI {
             }, activityWeakReference.get().getResources().getString(R.string.download_failed));
     }
 
-    public void changeBackground() {
+    public void changeBackground(boolean dcim) {
         if (view != null) {
 //            popupView.findViewById(R.id.all_options).setBackgroundColor(Color.GREEN);
             popupView.findViewById(R.id.download).setVisibility(View.GONE);
@@ -594,7 +594,7 @@ public class SingActivityUI {
                 public void timerOver() {
 
                 }
-            }, activityWeakReference.get().getResources().getString(R.string.download_complete));
+            }, dcim ? activityWeakReference.get().getResources().getString(R.string.download_complete_dcim) : activityWeakReference.get().getResources().getString(R.string.download_complete_movies));
         }
     }
 
@@ -636,12 +636,30 @@ public class SingActivityUI {
                     }
 
                     public void onFinish() {
-                        view.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
+                        popupView.findViewById(R.id.loading_indicator).setVisibility(View.INVISIBLE);
                     }
                 };
                 cTimer.start();
             }
         }
+    }
+
+    public void showSignInFailed() {
+        showFail(new TimerListener() {
+            @Override
+            public void timerOver() {
+
+            }
+        }, activityWeakReference.get().getResources().getString(R.string.auth_failed));
+    }
+
+    public void showDownloadStarting() {
+        showSuccess(new TimerListener() {
+            @Override
+            public void timerOver() {
+
+            }
+        }, activityWeakReference.get().getResources().getString(R.string.download_started));
     }
 
 

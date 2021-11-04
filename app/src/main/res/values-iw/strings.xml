@@ -177,7 +177,7 @@
     <string name="change_email">שנה אימייל</string>
     <string name="add_song">הוסף שיר</string>
     <string name="add_internet_user">הוסף משתמש אינטרנטי</string>
-    <string name="date">תאריך</string>
+    <string name="date">תאריך סיום</string>
     <string name="failed">נכשל</string>
     <string name="name_exists">השם הזה כבר מופיע \n החלף את השם</string>
     <string name="get_all_users">הצג את כל המשתמשים</string>
@@ -193,12 +193,14 @@
     <string name="compressed">מכווץ</string>
     <string name="actual_size">גודל אמיתי</string>
     <string name="not_enough_sung">לא ניתן להוריד את הקובץ ללא הקלטה</string>
-    <string name="download_complete">הסרטון נמצא בגלריה</string>
+    <string name="download_complete_dcim">ההורדת הסתיימה\nהסרטון נמצא בגלריה</string>
+    <string name="download_complete_movies">ההןרדה הסתיימה\nהסרטון נמצא בגלריית סרטים</string>
     <string name="download_failed">ההורדה נכשלה</string>
     <string name="too_short">הביצוע שלך קצר מדאי</string>
     <string name="contact_us_for_support">צור איתנו קשר לעזרה</string>
     <string name="user_can_synchronize_song_in_watch">יש אפשרות לדייק סינכרון ושמע בצפה בביצוע</string>
     <string name="download_less_quality">הורדה באיכות ירודה</string>
+    <string name="download_started">ההורדה החלה\nנא להשאיר את האפליקציה פתוחה ברקע</string>
 
 
 </resources>

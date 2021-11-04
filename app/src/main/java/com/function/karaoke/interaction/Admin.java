@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -43,6 +44,7 @@ import java.util.Set;
 
 public class Admin extends AppCompatActivity {
 
+    static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     SongAdder songAdder;
     SongService songService;
     InternetUserDatabase.AddListener addListener;
@@ -236,57 +238,47 @@ public class Admin extends AppCompatActivity {
         });
     }
 
+    private Date getDateFromString(String date) {
+        date = date.replace(' ', 'T').concat("Z");
+        try {
+            return format.parse(date);
+        } catch (ParseException e) {
+            return null;
+        }
+
+    }
+
     public void addUser(View view) {
-        String userName = ((EditText) findViewById(R.id.user_name)).getText().toString();
         String email = ((EditText) findViewById(R.id.email)).getText().toString();
         String date = ((EditText) findViewById(R.id.date)).getText().toString();
-
-        if (userName.equals("") || email.equals("")) {
-            if (userName.equals("")) {
-                findViewById(R.id.user_name).setBackgroundColor(Color.RED);
-            }
-            if (email.equals("")) {
-                findViewById(R.id.email).setBackgroundColor(Color.RED);
-            }
+        Date endTime;
+        if (date.equals("")) {
+            Date today = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(today);
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            endTime = calendar.getTime();
         } else {
+            endTime = getDateFromString(date);
+        }
+
+
+        if (email.equals("")) findViewById(R.id.email).setBackgroundColor(Color.RED);
+        else if (endTime == null) findViewById(R.id.date).setBackgroundColor(Color.RED);
+        else {
             findViewById(R.id.email).setBackgroundColor(Color.BLACK);
-            findViewById(R.id.user_name).setBackgroundColor(Color.BLACK);
-            InternetUser internetUser = new InternetUser(userName, email, date);
+            InternetUser internetUser = new InternetUser(email, endTime);
             InternetUserDatabase.addUserToDatabase(internetUser, addListener);
         }
     }
 
     public void deleteUser(View view) {
-        String userName = ((EditText) findViewById(R.id.user_name)).getText().toString();
-
-        if (userName.equals("")) {
-            findViewById(R.id.user_name).setBackgroundColor(Color.RED);
-        } else {
-            findViewById(R.id.email).setBackgroundColor(Color.BLACK);
-            findViewById(R.id.user_name).setBackgroundColor(Color.BLACK);
-            InternetUserDatabase.deleteUserFromDatabase(userName, addListener);
-        }
-    }
-
-    public void changeEmail(View view) {
-        String userName = ((EditText) findViewById(R.id.user_name)).getText().toString();
         String email = ((EditText) findViewById(R.id.email)).getText().toString();
-        String date = ((EditText) findViewById(R.id.date)).getText().toString();
+        findViewById(R.id.email).setBackgroundColor(Color.BLACK);
+        InternetUserDatabase.deleteUserFromDatabase(email, addListener);
 
-        if (userName.equals("") || email.equals("")) {
-            if (userName.equals("")) {
-                findViewById(R.id.user_name).setBackgroundColor(Color.RED);
-            }
-            if (email.equals("")) {
-                findViewById(R.id.email).setBackgroundColor(Color.RED);
-            }
-        } else {
-            findViewById(R.id.email).setBackgroundColor(Color.BLACK);
-            findViewById(R.id.user_name).setBackgroundColor(Color.BLACK);
-            InternetUser internetUser = new InternetUser(userName, email, date);
-            InternetUserDatabase.editUserInDatabase(internetUser, addListener);
-        }
     }
+
 
     public void openSongAddition(View view) {
         findViewById(R.id.song_addition).setVisibility(View.VISIBLE);
@@ -316,14 +308,12 @@ public class Admin extends AppCompatActivity {
         LinearLayout linearLayout = findViewById(R.id.all_users);
         for (InternetUser user : users) {
             Button textView = new Button(this);
-            textView.setText(user.getName());
+            textView.setText(user.getEmail());
             textView.setTextColor(Color.BLUE);
             textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((EditText) findViewById(R.id.user_name)).setText(user.getName());
                     ((EditText) findViewById(R.id.email)).setText(user.getEmail());
-
                 }
             });
             linearLayout.addView(textView);
