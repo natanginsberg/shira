@@ -131,15 +131,12 @@ public class SongsActivityUI {
         LayoutInflater layoutInflater = (LayoutInflater) activityWeakReference.get().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         paymentSignInView = layoutInflater.inflate(R.layout.new_member_screen, viewGroup);
         placeSignUpOptionsOnScreen(paymentSignInView);
-//        if (signedIn)
-//            paymentSignInView.findViewById(R.id.not_signed_in).setVisibility(View.GONE);
-//        return suggestionView;
     }
 
     private void placeSignUpOptionsOnScreen(View paymentSignInView) {
         paymentPopup = new PopupWindow(activityWeakReference.get());
         int width = (int) (view.getWidth() * 0.8);
-        int height = (int) (width * 1.3);
+        int height = (int) (view.getHeight() * 0.8);
         paymentPopup.setContentView(paymentSignInView);
         paymentPopup.setHeight(height);
         paymentPopup.setWidth(width);
@@ -157,17 +154,6 @@ public class SongsActivityUI {
 //        view.post(() -> paymentSignInPopup.showAtLocation(paymentSignInView, Gravity.CENTER, 0, 0));
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private void setSignUpPopupAttributes(Context context, PopupWindow popup, View layout) {
-//        int width = (int) (context.getResources().getDisplayMetrics().widthPixels * 0.8);
-//        int height = (int) (width * 1.3);
-//        popup.setContentView(layout);
-////        popup.setBackgroundDrawable(context.getResources().getDrawable(R.drawable.unclicked_recording_background));
-//        popup.setWidth(width);
-//        popup.setHeight(height);
-//        popup.setFocusable(true);
-
-    }
 
     public void closePaymentPopup() {
         paymentPopup.dismiss();

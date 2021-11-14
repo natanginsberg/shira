@@ -49,6 +49,7 @@
             android:layout_gravity="center"
             android:layout_weight="0.8"
             android:gravity="center"
+
             android:orientation="vertical">
 
             <TextView
@@ -62,6 +63,18 @@
                 android:text="@string/member_invite"
                 android:textColor="@android:color/white"
                 android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/condition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="15dp"
+                android:layout_weight="0.1"
+                android:gravity="center"
+                android:text="@string/audio_and_recording_quality_may_differ_between_devices"
+                android:textColor="@android:color/white"
+                android:textSize="13sp" />
 
 
             <LinearLayout

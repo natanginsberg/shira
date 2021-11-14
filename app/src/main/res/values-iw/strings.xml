@@ -137,7 +137,7 @@
     <string name="sign_up">הירשם</string>
     <string name="report_received">תודה על הדיווח!</string>
     <string name="cuccessfull_sign_in">נרשמת בהצלחה!</string>
-    <string name="request_received">תודה על הבקשה \n ננסה את המיטב להכניס את השיר!</string>
+    <string name="request_received">תודה על הבקשה\nננסה את המיטב להכניס את השיר!</string>
     <string name="member_sign_in">הרשמה כמנוי</string>
     <string name="click_to_join">בצעו ושתפו</string>
     <string name="the_recording_is_finished">סיימת לצפות בביצוע</string>
@@ -192,15 +192,16 @@
     <string name="out_of_memory">נגמר הזיכרון בפלאפון</string>
     <string name="compressed">מכווץ</string>
     <string name="actual_size">גודל אמיתי</string>
-    <string name="not_enough_sung">לא ניתן להוריד את הקובץ ללא הקלטה</string>
+    <string name="not_enough_sung">לא ניתן להוריד את הקובץ ללא שירה</string>
     <string name="download_complete_dcim">ההורדת הסתיימה\nהסרטון נמצא בגלריה</string>
     <string name="download_complete_movies">ההןרדה הסתיימה\nהסרטון נמצא בגלריית סרטים</string>
     <string name="download_failed">ההורדה נכשלה</string>
     <string name="too_short">הביצוע שלך קצר מדאי</string>
-    <string name="contact_us_for_support">צור איתנו קשר לעזרה</string>
+    <string name="contact_us_for_support">צור איתנו קשר לעזרה\nבאימייל ashira.jewishkaraoke@gmail.com</string>
     <string name="user_can_synchronize_song_in_watch">יש אפשרות לדייק סינכרון ושמע בצפה בביצוע</string>
     <string name="download_less_quality">הורדה באיכות ירודה</string>
-    <string name="download_started">ההורדה החלה\nנא להשאיר את האפליקציה פתוחה ברקע</string>
+    <string name="download_started">ההורדה החלה\nיש להשאיר את האפליקציה ברקע</string>
+    <string name="audio_and_recording_quality_may_differ_between_devices">איכות השמע וההקלטה עשויה להיות שונה בין המכשירים\n(מומלץ לוודא על השירים החינמיים)</string>
 
 
 </resources>

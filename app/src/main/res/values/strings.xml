@@ -226,15 +226,16 @@ Use of the Service is subject to them and indicates that you have read them in f
     <string name="out_of_memory">Out of memory</string>
     <string name="compressed">Compressed</string>
     <string name="actual_size">Actual Size</string>
-    <string name="not_enough_sung">The file cannot be downloaded without recording</string>
-    <string name="download_complete_dcim">Download Complete\n File can be found in gallery</string>
-    <string name="download_complete_movies">Download Complete\n File can be found in movies gallery</string>
+    <string name="not_enough_sung">The file cannot be downloaded without singing</string>
+    <string name="download_complete_dcim">Download Complete\nFile can be found in gallery</string>
+    <string name="download_complete_movies">Download Complete\nFile can be found in movies gallery</string>
     <string name="download_failed">Download Failed</string>
     <string name="too_short">The recording is too short</string>
-    <string name="contact_us_for_support">Please contact us for support</string>
+    <string name="contact_us_for_support">Please contact us for support\nashira.jewishkaraoke@gmail.com</string>
     <string name="user_can_synchronize_song_in_watch">User can synchronize song in "Watch"</string>
     <string name="download_less_quality">Download Lower Quality</string>
     <string name="download_started">Download has started\nPlease keep app open in background</string>
+    <string name="audio_and_recording_quality_may_differ_between_devices">The audio and recording quality may differ between the devices\n(it is recommended to check the free songs)</string>
 
 
 </resources>

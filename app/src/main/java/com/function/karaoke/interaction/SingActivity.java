@@ -909,7 +909,6 @@ public class SingActivity extends AppCompatActivity implements
     }
 
     public void endAndDownload() {
-        activityUI.showDownloadStarting();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     WRITE_CODE);
@@ -917,10 +916,11 @@ public class SingActivity extends AppCompatActivity implements
             downloadRequested = true;
             if (postParseVideoFile == null)
                 postParseVideoFile = wrapUpSong();
-            if (postParseVideoFile != null)
-
+            if (postParseVideoFile != null) {
+                activityUI.showDownloadStarting();
                 if (fileDownloaded)
                     downloadVideo(postParseVideoFile);
+            }
         }
         buttonClicked = false;
     }
@@ -982,12 +982,12 @@ public class SingActivity extends AppCompatActivity implements
     }
 
 
-    public Uri addVideo(File videoFile) {
+    public void addVideo(File videoFile) {
         ContentValues values = new ContentValues(3);
         values.put(MediaStore.Video.Media.TITLE, "My video title");
         values.put(MediaStore.Video.Media.MIME_TYPE, "video/mp4");
         values.put(MediaStore.Video.Media.DATA, videoFile.getAbsolutePath());
-        return getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
+        getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values);
     }
 
     private void setDelay(Uri uriFromFile) {
